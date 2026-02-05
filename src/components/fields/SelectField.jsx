@@ -12,8 +12,12 @@ export function SelectField({
   onChange,
   onBlur,
   disabled = false,
+  loading = false,
+  emptyText = "No options available",
+  disabledText = "Disabled",
 }) {
   const inputId = id || name;
+  const isDisabled = disabled || loading;
 
   return (
     <FieldWrapper
@@ -22,27 +26,48 @@ export function SelectField({
       required={required}
       error={error}
       helperText={helperText}
-      disabled={disabled}
+      disabled={isDisabled}
     >
       <select
         id={inputId}
         name={name}
-        value={value || ""}
+        value={value ?? ""}
         onChange={onChange}
         onBlur={onBlur}
-        disabled={disabled}
+        disabled={isDisabled}
         className={`
           form-select w-full
-          ${disabled ? "bg-slate-100 text-slate-500 cursor-not-allowed" : ""}
+          ${isDisabled ? "bg-slate-100 text-slate-500 cursor-not-allowed" : ""}
           ${error ? "border-red-500" : ""}
         `}
       >
-        <option value="">Select</option>
-        {options.map((o) => (
-          <option key={o.value} value={o.value}>
-            {o.label}
+        {/* Disabled Text */}
+        {disabled && !loading && (
+          <option value="">{disabledText}</option>
+        )}
+
+        {/* Loading */}
+        {loading && <option value="">Loading...</option>}
+
+        {/* Normal Placeholder */}
+        {!loading && !disabled && <option value="">Select</option>}
+
+        {/* Empty */}
+        {!loading && !disabled && options.length === 0 && (
+          <option value="" disabled>
+            {emptyText}
           </option>
-        ))}
+        )}
+
+        {/* Options */}
+        {!loading &&
+          !disabled &&
+          options.length > 0 &&
+          options.map((o) => (
+            <option key={o.value} value={o.value}>
+              {o.label}
+            </option>
+          ))}
       </select>
     </FieldWrapper>
   );

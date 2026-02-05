@@ -9,34 +9,58 @@ export function MultiSelectDropdownField({
   required,
   error,
   helperText,
-  options = [], // [{ id, label }]
-  value = [], // array of ids
+  options = [],
+  value = [],
   onChange,
+  onBlur,
   disabled = false,
+  loading = false,
   placeholder = "Select option",
+  emptyText = "No options available",
+  disabledText = "Disabled",
 }) {
   const inputId = id || name;
   const [selectedId, setSelectedId] = useState("");
+
+  const isDisabled = disabled || loading;
+
+  const normalizedValue = value.map(String);
+
+  const triggerBlur = () => {
+    onBlur?.({
+      target: { name },
+    });
+  };
 
   const handleAdd = (e) => {
     const val = e.target.value;
     setSelectedId(val);
 
-    if (!val || disabled) return;
+    if (!val || isDisabled) return;
 
-    if (!value.includes(val)) {
-      onChange([...value, val]);
+    const normalized = String(val);
+
+    if (!normalizedValue.includes(normalized)) {
+      onChange([...normalizedValue, normalized]);
     }
 
+    triggerBlur();
     setSelectedId("");
   };
 
-  const remove = (id) => {
-    if (disabled) return;
-    onChange(value.filter((v) => v !== id));
+  const remove = (removeId) => {
+    if (isDisabled) return;
+
+    onChange(
+      normalizedValue.filter((v) => String(v) !== String(removeId))
+    );
+
+    triggerBlur();
   };
 
-  const selectedOptions = options.filter((o) => value.includes(o.id));
+  const selectedOptions = options.filter((o) =>
+    normalizedValue.includes(String(o.id))
+  );
 
   return (
     <FieldWrapper
@@ -45,7 +69,7 @@ export function MultiSelectDropdownField({
       required={required}
       error={error}
       helperText={helperText}
-      disabled={disabled}
+      disabled={isDisabled}
     >
       <div className="flex flex-col gap-2">
         {/* Dropdown */}
@@ -54,28 +78,47 @@ export function MultiSelectDropdownField({
           name={name}
           value={selectedId}
           onChange={handleAdd}
-          disabled={disabled}
+          onBlur={triggerBlur}
+          disabled={isDisabled}
           className={`
             form-select w-full
-            ${disabled ? "bg-slate-100 text-slate-500 cursor-not-allowed" : ""}
+            ${isDisabled ? "bg-slate-100 text-slate-500 cursor-not-allowed" : ""}
             ${error ? "border-red-500" : ""}
           `}
         >
-          <option value="">{placeholder}</option>
-          {options.map((o) => {
-            const isSelected = value.includes(o.id);
+          {/* Disabled Text */}
+          {disabled && !loading && (
+            <option value="">{disabledText}</option>
+          )}
 
-            return (
-              <option
-                key={o.id}
-                value={o.id}
-                disabled={isSelected}
-                className={isSelected ? "bg-gray-200 text-gray-500" : ""}
-              >
-                {o.label} {isSelected ? "✓" : ""}
-              </option>
-            );
-          })}
+          {/* Loading */}
+          {loading && <option value="">Loading...</option>}
+
+          {/* Normal Placeholder */}
+          {!loading && !disabled && (
+            <option value="">{placeholder}</option>
+          )}
+
+          {/* Empty */}
+          {!loading && !disabled && options.length === 0 && (
+            <option value="" disabled>
+              {emptyText}
+            </option>
+          )}
+
+          {/* Options */}
+          {!loading &&
+            !disabled &&
+            options.length > 0 &&
+            options.map((o) => {
+              const isSelected = normalizedValue.includes(String(o.id));
+
+              return (
+                <option key={o.id} value={o.id} disabled={isSelected}>
+                  {o.label} {isSelected ? "✓" : ""}
+                </option>
+              );
+            })}
         </select>
 
         {/* Selected Tags */}
@@ -86,8 +129,12 @@ export function MultiSelectDropdownField({
               className="bg-gray-200 px-2 py-1 text-xs rounded flex gap-1 items-center"
             >
               {o.label}
-              {!disabled && (
-                <button type="button" onClick={() => remove(o.id)}>
+              {!isDisabled && (
+                <button
+                  type="button"
+                  onClick={() => remove(o.id)}
+                  className="text-red-500 hover:text-red-600"
+                >
                   <X size={12} />
                 </button>
               )}

@@ -4,11 +4,13 @@ import { FieldWrapper } from "./FieldWrapper";
 
 export function MultiSelectField({
   label,
+  name,  
   required,
   error,
   helperText,
   selectedValues = [],
   onChange,
+  onBlur,
   disabled = false,
   placeholder = "Add value",
 }) {
@@ -56,6 +58,7 @@ export function MultiSelectField({
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={add}
+          onBlur={() => onBlur && onBlur(name)}
           disabled={disabled}
           className="flex-1 outline-none text-sm bg-transparent"
           placeholder={placeholder}

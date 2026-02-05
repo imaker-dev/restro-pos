@@ -1,16 +1,22 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import PageHeader from "../../layout/PageHeader";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllItemsByCategory } from "../../redux/slices/itemSlice";
 import { useQueryParams } from "../../hooks/useQueryParams";
 import SmartTable from "../../components/SmartTable";
 import { formatDate } from "../../utils/dateFormatter";
+import ItemModal from "../../partial/item/ItemModal";
+import { Edit2, Plus } from "lucide-react";
 
 const AllItemsPage = () => {
   const dispatch = useDispatch();
   const { categoryId } = useQueryParams();
-  const { allItems, loading } = useSelector((state) => state.item);
-  console.log(allItems);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(false);
+
+  const { allItems, loading, isCreatingItem, isUpdatingItem } = useSelector(
+    (state) => state.item,
+  );
 
   useEffect(() => {
     dispatch(fetchAllItemsByCategory(categoryId));
@@ -55,15 +61,32 @@ const AllItemsPage = () => {
       ),
     },
     {
-      key: "item_type",
-      label: "Type",
-      sortable: true,
-      render: (row) => (
-        <span className="px-2 py-1 rounded text-xs font-semibold bg-emerald-100 text-emerald-700">
-          {row.item_type?.toUpperCase()}
-        </span>
-      ),
-    },
+  key: "item_type",
+  label: "Type",
+  sortable: true,
+  render: (row) => {
+    const isVeg = row.item_type?.toLowerCase() === "veg";
+
+    return (
+      <span
+        className={`px-2 py-1 rounded text-xs font-semibold flex items-center gap-1 w-fit
+          ${isVeg 
+            ? "bg-emerald-100 text-emerald-700" 
+            : "bg-red-100 text-red-700"
+          }`}
+      >
+        {/* Dot Symbol */}
+        <span
+          className={`h-2 w-2 rounded-full 
+            ${isVeg ? "bg-emerald-600" : "bg-red-600"}
+          `}
+        />
+
+        {isVeg ? "VEG" : "NON-VEG"}
+      </span>
+    );
+  },
+},
     {
       key: "base_price",
       label: "Price",
@@ -130,21 +153,59 @@ const AllItemsPage = () => {
     },
   ];
 
-  
+  const rowActions = [
+    {
+      label: "Update",
+      icon: Edit2,
+      color: "blue",
+      onClick: (row) => {
+        (setSelectedItem(row), setShowAddModal(true));
+      },
+    },
+  ];
+
+  const actions = [
+    {
+      label: "Add Item",
+      type: "primary",
+      icon: Plus,
+      onClick: () => setShowAddModal(true),
+    },
+  ];
+
+  const clearItemStates = () => {
+    setShowAddModal(false);
+    setSelectedItem(null);
+  };
+
+  const handleAddItem = ({ values }) => {
+    console.log(values);
+  };
 
   return (
-    <div className="space-y-6">
-      <PageHeader title={"All Items"} showBackButton />
+    <>
+      <div className="space-y-6">
+        <PageHeader title={"All Items"} actions={actions} showBackButton />
 
-      <SmartTable
-        title="Items"
-        totalcount={allItems?.length}
-        data={allItems}
-        columns={columns}
-        // actions={rowActions}
-        loading={loading}
+        <SmartTable
+          title="Items"
+          totalcount={allItems?.length}
+          data={allItems}
+          columns={columns}
+          actions={rowActions}
+          loading={loading}
+        />
+      </div>
+
+      <ItemModal
+        isOpen={showAddModal}
+        onClose={clearItemStates}
+        categoryId={categoryId}
+        item={selectedItem}
+        onSubmit={handleAddItem}
+        loading={isCreatingItem || isUpdatingItem}
       />
-    </div>
+    </>
   );
 };
 

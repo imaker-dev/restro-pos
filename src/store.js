@@ -9,6 +9,9 @@ import permissionSlice from '../src/redux/slices/permissionSlice';
 import tableSlice from '../src/redux/slices/tableSlice';
 import categorySlice from '../src/redux/slices/categorySlice';
 import itemSlice from '../src/redux/slices/itemSlice';
+import taxSlice from '../src/redux/slices/taxSlice';
+import kitchenSlice from '../src/redux/slices/kitchenSlice';
+import addonSlice from '../src/redux/slices/addonSlice';
 
 const reducer = {
   auth: authSlice,
@@ -21,6 +24,9 @@ const reducer = {
   table:tableSlice,
   category:categorySlice,
   item:itemSlice,
+  tax:taxSlice,
+  kitchen:kitchenSlice,
+  addon:addonSlice,
 };
 
 const store = configureStore({

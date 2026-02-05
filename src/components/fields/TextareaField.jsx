@@ -35,7 +35,7 @@ export function TextareaField({
         placeholder={placeholder}
         rows={rows}
         className={`
-          form-textarea w-full
+          form-textarea w-full resize-none
           ${disabled ? "bg-slate-100 text-slate-500 cursor-not-allowed" : ""}
           ${error ? "border-red-500" : ""}
         `}

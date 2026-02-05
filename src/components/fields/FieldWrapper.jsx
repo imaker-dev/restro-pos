@@ -10,7 +10,7 @@ export function FieldWrapper({
   return (
     <div className={`space-y-1 w-full ${disabled ? "opacity-70" : ""}`}>
       {label && (
-        <label htmlFor={id} className="text-sm font-medium text-gray-700">
+        <label htmlFor={id} className="text-sm font-medium text-gray-900">
           {label} {required && <span className="text-red-500">*</span>}
         </label>
       )}

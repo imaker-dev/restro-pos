@@ -9,6 +9,8 @@ import OutletAllFloors from "../pages/outlets/OutletAllFloors";
 import FloorAllTables from "../pages/outlets/FloorAllTables";
 import AllCategoriesPage from "../pages/categories/AllCategoriesPage";
 import AllItemsPage from "../pages/items/AllItemsPage";
+import AllSectionsPage from "../pages/sections/AllSectionsPage";
+import CreateItemForm from "../pages/items/CreateItemPage";
 
 const routeConfig = [
   { path: "/", element: Dashboard },
@@ -21,7 +23,11 @@ const routeConfig = [
   { path: "/outlets/categories/items", element: AllItemsPage },
 
   { path: "/outlets/floors", element: OutletAllFloors },
+  { path: "/outlets/floors/sections", element: AllSectionsPage },
   { path: "/outlets/floors/tables", element: FloorAllTables },
+
+  { path: "/items/add", element: CreateItemForm },
+
 
   { path: "/users", element: AllUsersPage },
   { path: "/users/add", element: CreateUserPage },

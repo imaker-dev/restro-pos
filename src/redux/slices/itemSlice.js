@@ -7,12 +7,22 @@ export const fetchAllItemsByCategory = createAsyncThunk("/fetch/items/category",
   const res = await ItemServies.getAllItemsByCategoryApi(id);
   return res.data;
 });
+export const createItem = createAsyncThunk("/create/item", async (values) => {
+  const res = await ItemServies.createItemApi(values);
+  return res.data;
+});
+export const updateItem = createAsyncThunk("/update/item", async ({id,values}) => {
+  const res = await ItemServies.updateItemApi(id,values);
+  return res.data;
+});
 
 const itemSlice = createSlice({
   name: "item",
   initialState: {
     loading: false,
     allItems: null,
+    isCreatingItem:false,
+    isUpdatingItem:false,
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -26,6 +36,28 @@ const itemSlice = createSlice({
       })
       .addCase(fetchAllItemsByCategory.rejected, (state, action) => {
         state.loading = false;
+        toast.error(action.error.message);
+      })
+      .addCase(createItem.pending, (state) => {
+        state.isCreatingItem = true;
+      })
+      .addCase(createItem.fulfilled, (state, action) => {
+        state.isCreatingItem = false;
+       toast.success(action.payload.message);
+      })
+      .addCase(createItem.rejected, (state, action) => {
+        state.isCreatingItem = false;
+        toast.error(action.error.message);
+      })
+      .addCase(updateItem.pending, (state) => {
+        state.isUpdatingItem = true;
+      })
+      .addCase(updateItem.fulfilled, (state, action) => {
+        state.isUpdatingItem = false;
+       toast.success(action.payload.message);
+      })
+      .addCase(updateItem.rejected, (state, action) => {
+        state.isUpdatingItem = false;
         toast.error(action.error.message);
       })
   },

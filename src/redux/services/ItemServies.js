@@ -7,5 +7,11 @@ export default false
     : {
         getAllItemsByCategoryApi:(categoryId) => {
             return Api.get(`/menu/items/category/${categoryId}`)
+        },
+        createItemApi:(values) => {
+            return Api.post(`/menu/items`,values)
+        },
+        updateItemApi:(id,values) => {
+            return Api.patch(`/menu/items/${id}`,values)
         }
     };

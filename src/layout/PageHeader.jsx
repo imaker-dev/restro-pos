@@ -1,11 +1,7 @@
 import React from "react";
-import {
-  ArrowLeft,
-  Loader2,
-  ChevronRight,
-  Home,
-} from "lucide-react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { ArrowLeft, Loader2 } from "lucide-react";
+import { useLocation, useNavigate } from "react-router-dom";
+import Breadcrumbs from "../components/Breadcrumb";
 
 const buttonVariants = {
   primary: "bg-primary-500 text-white hover:bg-primary-600",
@@ -24,52 +20,6 @@ const PageHeader = ({
   badge = null,
 }) => {
   const navigate = useNavigate();
-  const location = useLocation();
-
-  /* ---------------- BREADCRUMB ---------------- */
-const generateBreadcrumbs = () => {
-  const paths = location.pathname.split("/").filter(Boolean);
-
-  return (
-    <nav className="flex items-center flex-wrap text-sm text-gray-500 gap-1">
-      <Link
-        to="/"
-        className="hover:text-primary-600 transition-colors font-medium"
-      >
-        Dashboard
-      </Link>
-
-      {paths.map((segment, index) => {
-        const routeTo = "/" + paths.slice(0, index + 1).join("/");
-        const isLast = index === paths.length - 1;
-
-        const label =
-          segment.charAt(0).toUpperCase() +
-          segment.slice(1).replace(/-/g, " ");
-
-        return (
-          <React.Fragment key={routeTo}>
-            <ChevronRight className="w-4 h-4 text-gray-400 mx-1" />
-
-            {isLast ? (
-              <span className="font-semibold text-gray-800 truncate max-w-[150px]">
-                {label}
-              </span>
-            ) : (
-              <Link
-                to={routeTo}
-                className="hover:text-primary-600 transition-colors truncate max-w-[140px]"
-              >
-                {label}
-              </Link>
-            )}
-          </React.Fragment>
-        );
-      })}
-    </nav>
-  );
-};
-
 
   return (
     <header className="flex flex-col gap-4 sm:gap-6 w-full">
@@ -96,7 +46,10 @@ const generateBreadcrumbs = () => {
                 {description}
               </p>
             ) : (
-              <div className="mt-2">{generateBreadcrumbs()}</div>
+              <div className="mt-1">
+                <Breadcrumbs />
+              </div>
+              // <div className="mt-2">{generateBreadcrumbs()}</div>
             )}
           </div>
         </div>

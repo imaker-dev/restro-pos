@@ -18,10 +18,9 @@ export function InputField({
   icon: Icon,
   iconPosition = "left",
 }) {
+  
   const rightDefaultIcon =
-    type === "date" ? Calendar :
-    type === "time" ? Clock :
-    null;
+    type === "date" ? Calendar : type === "time" ? Clock : null;
 
   const FinalRightIcon = iconPosition === "right" ? Icon : null;
   const FinalLeftIcon = iconPosition === "left" ? Icon : null;
@@ -39,7 +38,10 @@ export function InputField({
     >
       <div className="relative">
         {FinalLeftIcon && (
-          <FinalLeftIcon className="absolute left-3 top-2.5 text-gray-400" size={18} />
+          <FinalLeftIcon
+            className="absolute left-3 top-2.5 text-gray-400"
+            size={18}
+          />
         )}
 
         <input
@@ -62,9 +64,12 @@ export function InputField({
 
         {(FinalRightIcon || rightDefaultIcon) && (
           <div className="absolute right-3 top-2.5 text-gray-400">
-            {FinalRightIcon
-              ? <FinalRightIcon size={18} />
-              : rightDefaultIcon && React.createElement(rightDefaultIcon, { size: 18 })}
+            {FinalRightIcon ? (
+              <FinalRightIcon size={18} />
+            ) : (
+              rightDefaultIcon &&
+              React.createElement(rightDefaultIcon, { size: 18 })
+            )}
           </div>
         )}
       </div>
