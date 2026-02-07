@@ -4,17 +4,15 @@ import AuthenticatedRoutes from "./components/AuthenticatedRoutes";
 import AuthPage from "./pages/AuthPage";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchMeData } from "./redux/slices/authSlice";
-// import { useDispatch, useSelector } from "react-redux";
-// import { usePreventNumberInputScroll, useScrollToTop } from "./hooks/useScroll";
-// import AuthPage from "./pages/AuthPage";
-// import AuthenticatedRoutes from "./components/AuthenticatedRoutes";
-// import AppSkeleton from "./components/layout/AppSkeleton";
-// import { fetchMeData } from "./redux/slices/authSlice";
+import AppLayoutSkeleton from "./layout/AppLayoutSkeleton";
+import { usePreventNumberInputScroll, useScrollToTop } from "./hooks/useScroll";
+import { useSocket } from "./hooks/useSocket";
 
 const App = () => {
   const dispatch = useDispatch();
 
   const { logIn, loading, meData } = useSelector((state) => state.auth);
+  useSocket();
 
   useEffect(() => {
     if (logIn) {
@@ -22,28 +20,31 @@ const App = () => {
     }
   }, [logIn]);
 
-  // useScrollToTop();
-  // usePreventNumberInputScroll();
+  useScrollToTop();
+  usePreventNumberInputScroll();
 
-  // if (loading) {
-  //   return <AppSkeleton />;
-  // }
+  if (loading) {
+    return <AppLayoutSkeleton />;
+  }
 
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <Routes>
-        {/* Auth Routes */}
-        {logIn ? (
-          <Route path="/auth" element={<Navigate to="/" replace />} />
-        ) : (
-          <>
-            <Route path="/auth" element={<AuthPage />} />
-            <Route path="/*" element={<Navigate to="/auth" replace />} />
-          </>
+
+        {/* AUTH */}
+        {!logIn && <Route path="/auth" element={<AuthPage />} />}
+        {logIn && <Route path="/auth" element={<Navigate to="/" replace />} />}
+
+        {/* PROTECTED */}
+        {logIn && meData && (
+          <Route
+            path="/*"
+            element={<AuthenticatedRoutes />}
+          />
         )}
 
-        {/* Protected Routes */}
-        {logIn && <Route path="/*" element={<AuthenticatedRoutes />} />}
+        {/* NOT LOGGED IN */}
+        {!logIn && <Route path="*" element={<Navigate to="/auth" replace />} />}
       </Routes>
     </Suspense>
   );

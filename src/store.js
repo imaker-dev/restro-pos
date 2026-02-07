@@ -12,6 +12,7 @@ import itemSlice from '../src/redux/slices/itemSlice';
 import taxSlice from '../src/redux/slices/taxSlice';
 import kitchenSlice from '../src/redux/slices/kitchenSlice';
 import addonSlice from '../src/redux/slices/addonSlice';
+import kotSlice from '../src/redux/slices/kotSlice';
 
 const reducer = {
   auth: authSlice,
@@ -27,6 +28,7 @@ const reducer = {
   tax:taxSlice,
   kitchen:kitchenSlice,
   addon:addonSlice,
+  kot:kotSlice,
 };
 
 const store = configureStore({

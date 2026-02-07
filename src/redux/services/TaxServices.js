@@ -8,4 +8,7 @@ export default false
         getAllTaxGroupsApi: () => {
             return Api.get(`/tax/groups`);
         },
+        getTaxGroupByIdApi:(id) => {
+            return Api.get(`/tax/groups/${id}`)
+        }
     };

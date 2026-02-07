@@ -6,12 +6,18 @@ export const fetchAllTaxGroups = createAsyncThunk("/fetch/tax/groups", async () 
   const res = await TaxServices.getAllTaxGroupsApi();
   return res.data;
 });
+export const fetchTaxGroupById = createAsyncThunk("/fetch/tax/group/:id", async (id) => {
+  const res = await TaxServices.getTaxGroupByIdApi(id);
+  return res.data;
+});
 
 const taxSlice = createSlice({
   name: "tax",
   initialState: {
     loading: false,
     allTaxGroup: null,
+    isFetchingTaxGroupDetails:false,
+    taxGroupDetails:null,
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -25,6 +31,17 @@ const taxSlice = createSlice({
       })
       .addCase(fetchAllTaxGroups.rejected, (state, action) => {
         state.loading = false;
+        toast.error(action.error.message);
+      })
+      .addCase(fetchTaxGroupById.pending, (state) => {
+        state.isFetchingTaxGroupDetails = true;
+      })
+      .addCase(fetchTaxGroupById.fulfilled, (state, action) => {
+        state.isFetchingTaxGroupDetails = false;
+        state.taxGroupDetails = action.payload.data;
+      })
+      .addCase(fetchTaxGroupById.rejected, (state, action) => {
+        state.isFetchingTaxGroupDetails = false;
         toast.error(action.error.message);
       })
   },

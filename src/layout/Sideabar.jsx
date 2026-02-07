@@ -4,6 +4,8 @@ import { NavLink, useLocation } from "react-router-dom";
 import SidebarLinkGroup from "./SidebarLinkGroup";
 import { navConfig } from "../config/nav-config";
 import { ChevronDown, ChevronRight } from "lucide-react";
+import { hasAccess } from "../utils/accessControl";
+import { useSelector } from "react-redux";
 
 function Sidebar({
   sidebarOpen,
@@ -11,6 +13,11 @@ function Sidebar({
   sidebarExpanded,
   setSidebarExpanded,
 }) {
+  const { meData } = useSelector((state) => state.auth);
+
+  const userRole = meData?.role;
+  const userPermissions = meData?.permissions || [];
+
   const location = useLocation();
   const { pathname } = location;
 
@@ -74,6 +81,50 @@ function Sidebar({
     setSidebarOpen(false);
   }, [pathname]);
 
+  const filteredNavConfig = navConfig
+    .map((group) => {
+      const filteredItems = group.items
+        .map((item) => {
+          // CHILDREN CASE
+          if (item.children) {
+            const parentAllowed = hasAccess({
+              userRole,
+              userPermissions,
+              roles: item.roles,
+              permissions: item.permissions,
+            });
+
+            if (!parentAllowed) return null;
+
+            const children = item.children.filter((child) =>
+              hasAccess({
+                userRole,
+                userPermissions,
+                roles: child.roles,
+                permissions: child.permissions,
+              }),
+            );
+
+            return children.length ? { ...item, children } : null;
+          }
+
+          // NORMAL ITEM
+          return hasAccess({
+            userRole,
+            userPermissions,
+            roles: item.roles,
+            permissions: item.permissions,
+          })
+            ? item
+            : null;
+        })
+        .filter(Boolean);
+
+      return filteredItems.length ? { ...group, items: filteredItems } : null;
+    })
+    .filter(Boolean);
+
+
   return (
     <div className="min-w-fit">
       {/* Sidebar backdrop (mobile only) */}
@@ -101,21 +152,21 @@ function Sidebar({
             to="/"
             className="bg-white  flex items-center justify-between h-16"
           >
-
-
             {effectiveExpanded && (
               <div className="flex items-center gap-2">
-              <div className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center">
-                <span className="text-orange-500 font-bold text-lg">i</span>
+                <div className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center">
+                  <span className="text-orange-500 font-bold text-lg">i</span>
+                </div>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-gray-800 font-bold text-xl">
+                    iMaker
+                  </span>
+                  <span className="text-orange-500 font-bold text-xl">POS</span>
+                </div>
               </div>
-              <div className="flex items-baseline gap-1">
-                <span className="text-gray-800 font-bold text-xl">iMaker</span>
-                <span className="text-orange-500 font-bold text-xl">POS</span>
-              </div>
-            </div>
             )}
             {!effectiveExpanded && (
-               <div className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center">
+              <div className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center">
                 <span className="text-orange-500 font-bold text-lg">i</span>
               </div>
             )}
@@ -128,13 +179,13 @@ function Sidebar({
             effectiveExpanded ? "" : "space-y-4"
           }`}
         >
-          {navConfig.map((group) => (
+          {filteredNavConfig.map((group) => (
             <div key={group.title}>
               {/* Group title */}
               <h3
-                className={`text-xs uppercase text-gray-500 font-medium mb-3 transition-all duration-200 ${
+                className={`text-[10px] font-semibold uppercase text-gray-500 mb-2 transition-all duration-200 ${
                   effectiveExpanded
-                    ? "pl-3 opacity-100"
+                    ? "opacity-100"
                     : "text-center opacity-60 px-0"
                 }`}
               >
@@ -194,7 +245,7 @@ function Sidebar({
                                   }`}
                                 >
                                   <item.icon
-                                    className={`shrink-0 h-5 w-5 ${iconClass} transition-colors duration-200`}
+                                    className={`shrink-0 h-4 w-4 ${iconClass} transition-colors duration-200`}
                                   />
 
                                   {effectiveExpanded && (
@@ -250,7 +301,7 @@ function Sidebar({
                                       key={child.name}
                                       className="flex items-center gap-2"
                                     >
-                                      <span className="relative block w-3 h-3">
+                                      <span className="relative block w-2 h-2">
                                         {/* Glow */}
                                         {isChildActive && (
                                           <span className="absolute inset-0 rounded-full bg-primary-400 opacity-75 animate-ping"></span>
@@ -258,7 +309,7 @@ function Sidebar({
 
                                         {/* Main Dot */}
                                         <span
-                                          className={`absolute w-2 h-2 rounded-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 ${
+                                          className={`absolute w-1.5 h-1.5 rounded-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 ${
                                             isChildActive
                                               ? "bg-primary-500"
                                               : "bg-gray-400"
@@ -269,7 +320,7 @@ function Sidebar({
                                       <NavLink
                                         end
                                         to={child.path}
-                                        className={`block py-1 transition duration-150 truncate text-sm ${
+                                        className={`block py-1 transition duration-150 truncate text-xs ${
                                           isChildActive
                                             ? "text-primary-500"
                                             : "text-gray-600 hover:text-gray-900"
@@ -326,7 +377,7 @@ function Sidebar({
                               }`}
                             >
                               <item.icon
-                                className={`shrink-0 h-5 w-5 ${iconClass} transition-colors duration-200`}
+                                className={`shrink-0 h-4 w-4 ${iconClass} transition-colors duration-200`}
                               />
 
                               {effectiveExpanded && (

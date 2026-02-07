@@ -160,7 +160,7 @@ export default function SmartTable({
       )}
 
       <div className="relative w-full overflow-x-auto">
-        <table className="w-full text-sm">
+        <table className="w-full text-sm ">
           {/* <thead className="bg-slate-50">
             <tr className="text-left text-xs font-semibold uppercase tracking-wide text-slate-600">
               {columns.map((col, idx) => (
@@ -174,7 +174,7 @@ export default function SmartTable({
             </tr>
           </thead> */}
 
-          <thead className="bg-slate-100 border-b border-slate-200">
+          <thead className="bg-grey-100 border-b border-slate-200">
             <tr className="text-left text-xs font-semibold tracking-wide text-slate-700">
               {selectable && (
                 <th className="px-6 py-3 w-10">

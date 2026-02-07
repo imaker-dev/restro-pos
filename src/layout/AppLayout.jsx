@@ -2,21 +2,43 @@ import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import Sidebar from "./Sideabar";
 import Header from "./Header";
+// import { useSelector } from "react-redux"; // optional if you want role-based control
 
 function AppLayout({ children }) {
   const location = useLocation();
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
-  // Define routes where sidebar and header should be hidden
-  const hiddenLayoutRoutes = [
-    "/conversations/conversation",
+  /* ---------------- LAYOUT RULES ----------------
+     You can control per route what to show
+  */
+  const layoutRules = {
+    "/kitchen-display": {
+      sidebar: false,
+      header: true,
+    },
+  };
 
-  ];
+  const defaultLayout = {
+    sidebar: true,
+    header: true,
+  };
 
-  // Check if current route should hide layout
-  const shouldHideLayout = hiddenLayoutRoutes.includes(location.pathname);
+  const currentLayout =
+    layoutRules[location.pathname] || defaultLayout;
 
+  let showSidebar = currentLayout.sidebar;
+  let showHeader = currentLayout.header;
+
+  /* -------- OPTIONAL USER ROLE CONTROL --------
+  const { user } = useSelector((state) => state.auth);
+  if (user?.role === "staff") {
+    showSidebar = false;
+  }
+  */
+
+  /* ---------------- MOBILE CHECK ---------------- */
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 1024);
@@ -27,6 +49,7 @@ function AppLayout({ children }) {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
+  /* ---------------- SIDEBAR EXPANDED STATE ---------------- */
   const [sidebarExpanded, setSidebarExpanded] = useState(() => {
     if (typeof window !== "undefined") {
       const stored = localStorage.getItem("sidebar-expanded");
@@ -35,46 +58,48 @@ function AppLayout({ children }) {
     return true;
   });
 
+  /* ---------------- BODY CLASS + LOCAL STORAGE ---------------- */
   useEffect(() => {
-    if (!isMobile && !shouldHideLayout) {
+    if (!isMobile && showSidebar) {
       localStorage.setItem("sidebar-expanded", sidebarExpanded);
     }
 
     const effectiveExpanded = isMobile ? true : sidebarExpanded;
 
-    if (effectiveExpanded && !shouldHideLayout) {
-      document.querySelector("body").classList.add("sidebar-expanded");
+    if (effectiveExpanded && showSidebar) {
+      document.body.classList.add("sidebar-expanded");
     } else {
-      document.querySelector("body").classList.remove("sidebar-expanded");
+      document.body.classList.remove("sidebar-expanded");
     }
-  }, [sidebarExpanded, isMobile, shouldHideLayout]);
-
-  // If layout should be hidden, render only children
-  if (shouldHideLayout) {
-    return (
-      <div className="h-[100dvh] overflow-hidden">
-        {children}
-      </div>
-    );
-  }
+  }, [sidebarExpanded, isMobile, showSidebar]);
 
   return (
     <div className="flex h-[100dvh] overflow-hidden">
-      {/* Sidebar */}
-      <Sidebar
-        sidebarOpen={sidebarOpen}
-        setSidebarOpen={setSidebarOpen}
-        sidebarExpanded={sidebarExpanded}
-        setSidebarExpanded={setSidebarExpanded}
-      />
+      {/* -------- SIDEBAR -------- */}
+      {showSidebar && (
+        <Sidebar
+          sidebarOpen={sidebarOpen}
+          setSidebarOpen={setSidebarOpen}
+          sidebarExpanded={sidebarExpanded}
+          setSidebarExpanded={setSidebarExpanded}
+        />
+      )}
 
-      {/* Content area */}
+      {/* -------- CONTENT AREA -------- */}
       <div className="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
-        {/* Site header */}
-        <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen}/>
+        {/* -------- HEADER -------- */}
+        {showHeader && (
+          <Header
+            sidebarOpen={sidebarOpen}
+            setSidebarOpen={setSidebarOpen}
+          />
+        )}
 
+        {/* -------- MAIN -------- */}
         <main className="grow bg-gray-100">
-          <div className="p-4 sm:p-6 w-full container  max-w-10xl mx-auto">{children}</div>
+          <div className="p-4 sm:p-6 w-full container max-w-10xl mx-auto">
+            {children}
+          </div>
         </main>
       </div>
     </div>

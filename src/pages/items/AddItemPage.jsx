@@ -6,6 +6,7 @@ import { InputField } from "../../components/fields/InputField";
 import { SelectField } from "../../components/fields/SelectField";
 import {
   CheckCircle2,
+  Image,
   IndianRupee,
   Info,
   Plus,
@@ -27,8 +28,9 @@ import { fetchAllFloors } from "../../redux/slices/floorSlice";
 import { fetchAllKitchenStations } from "../../redux/slices/kitchenSlice";
 import { fetchAllAddonGroups } from "../../redux/slices/addonSlice";
 import AccordionSection from "../../components/AccordionSection";
+import DragDropUploader from "../../components/DragDropUploader";
 
-const CreateItemPage = () => {
+const AddItemPage = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -77,6 +79,7 @@ const CreateItemPage = () => {
     sectionIds: [],
     addonGroupIds: [],
     variants: [{ name: "", price: "", isDefault: true }],
+    image: [],
   };
 
   const validationSchema = Yup.object({
@@ -348,7 +351,7 @@ const CreateItemPage = () => {
                                 )}
                               </div>
 
-                              <div className="grid grid-cols-3 items-end gap-4">
+                              <div className="grid grid-cols-1 lg:grid-cols-3 items-end gap-4">
                                 {/* Variant Name */}
                                 <InputField
                                   label="Variant Name"
@@ -424,9 +427,9 @@ const CreateItemPage = () => {
                           onClick={() =>
                             push({ name: "", price: "", isDefault: false })
                           }
-                          className="w-full border-2 border-dashed border-gray-300 hover:border-primary-400 rounded-lg p-5 flex flex-col items-center justify-center space-y-2 hover:bg-primary-100 transition-all duration-200 group"
+                          className="w-full border-2 border-dashed border-gray-300 hover:border-primary-400 rounded-lg p-2 flex flex-col items-center justify-center space-y-2 hover:bg-primary-100 transition-all duration-200 group"
                         >
-                          <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center group-hover:bg-primary-200 transition-colors">
+                          <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center group-hover:bg-primary-200 transition-colors">
                             <Plus className="w-5 h-5 text-primary-600" />
                           </div>
                           <span className="text-sm font-medium text-gray-700 group-hover:text-primary-600">
@@ -479,6 +482,34 @@ const CreateItemPage = () => {
               />
             </AccordionSection>
 
+            {/* PRODUCT IMAGES */}
+            <AccordionSection title="Product Image" icon={Image}>
+              <div className="space-y-2">
+                <DragDropUploader
+                  value={formik.values.image}
+                  onChange={(files) => formik.setFieldValue("image", files)}
+                  multiple={false}
+                  accept="image/*"
+                  maxFiles={1}
+                  enableCrop={true}
+                  aspectRatio={1}
+                  uploadToServer={true}
+                />
+
+                <p className="text-xs text-gray-500">
+                  Upload a clear product image. Supported formats: JPG, PNG,
+                  WEBP. Max size 5MB. You can crop before saving.
+                </p>
+
+                {/* Validation Error */}
+                {formik.touched.image && formik.errors.image && (
+                  <p className="text-xs text-red-500 mt-1">
+                    {formik.errors.image}
+                  </p>
+                )}
+              </div>
+            </AccordionSection>
+
             {/* SUBMIT */}
             <div className="flex justify-end">
               <button
@@ -496,4 +527,4 @@ const CreateItemPage = () => {
   );
 };
 
-export default CreateItemPage;
+export default AddItemPage;
