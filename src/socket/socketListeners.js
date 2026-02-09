@@ -1,5 +1,22 @@
-import { newKot } from "../redux/slices/kotSlice";
-import { playOrderCreatedSound } from "../utils/sound";
+import {
+  itemCancelled,
+  itemReady,
+  kotCancelled,
+  kotPreparing,
+  kotReady,
+  kotServed,
+  newKot,
+} from "../redux/slices/kotSlice";
+import {
+  socketConnected,
+  socketDisconnected,
+} from "../redux/slices/socketSlice";
+import { notify } from "../utils/notify";
+import {
+  playCancelSound,
+  playOrderCreatedSound,
+  playSuccessSound,
+} from "../utils/sound";
 import {
   SOCKET_CONNECT,
   SOCKET_DISCONNECT,
@@ -17,10 +34,12 @@ import {
 
 export const registerSocketListeners = (socket, dispatch) => {
   socket.on(SOCKET_CONNECT, () => {
-    console.log("🟢 Socket Connected");
+    dispatch(socketConnected());
+    console.log("🟢 Socket Connected:", socket.id);
   });
 
   socket.on(SOCKET_DISCONNECT, () => {
+    dispatch(socketDisconnected());
     console.log("🔴 Socket Disconnected");
   });
 
@@ -35,6 +54,12 @@ export const registerSocketListeners = (socket, dispatch) => {
       case KOT_CREATED:
         playOrderCreatedSound();
         dispatch(newKot(data.kot));
+
+        notify({
+          title: "New Order",
+          message: `${data?.kot?.kotNumber} • ${data?.kot?.itemCount} items`,
+          type: "success",
+        });
         break;
 
       case KOT_ACCEPTED:
@@ -42,23 +67,45 @@ export const registerSocketListeners = (socket, dispatch) => {
         break;
 
       case KOT_PREPARING:
-        // dispatch(kotPreparing(data.kot));
+        playSuccessSound();
+        dispatch(kotPreparing(data.kot));
         break;
 
       case KOT_READY:
-        // dispatch(kotReady(data.kot));
+        playSuccessSound();
+        dispatch(kotReady(data.kot));
+        break;
+
+      case KOT_ITEM_READY:
+        playSuccessSound();
+        dispatch(itemReady(data.kot));
         break;
 
       case KOT_SERVED:
-        // dispatch(kotServed(data.kot));
+        // playSuccessSound();
+        dispatch(kotServed(data.kot));
         break;
 
       case KOT_CANCELLED:
-        // dispatch(kotCancelled(data.kot));
+        playCancelSound();
+        dispatch(kotCancelled(data.kot));
+        notify({
+          title: "Order Cancelled",
+          message: `${data?.kot?.kotNumber} ×${data?.kot?.totalItemCount}`,
+          type: "warning",
+        });
         break;
 
       case ITEM_CANCELLED:
-        // dispatch(itemCancelled(data.kot));
+        playCancelSound();
+        dispatch(itemCancelled(data.kot));
+
+        // notify({
+        //   title: "Item Cancelled",
+        //   message: `${data?.kot?.cancelled_item?.item_name} ×${data?.kot?.cancelled_item?.quantity}`,
+        //   type: "warning",
+        // });
+
         break;
 
       default:

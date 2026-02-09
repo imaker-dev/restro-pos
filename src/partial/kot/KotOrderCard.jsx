@@ -1,5 +1,8 @@
 import {
   AlertCircle,
+  CheckCircle,
+  ChevronDown,
+  Loader2,
   Package,
   ShoppingBag,
   Truck,
@@ -8,11 +11,24 @@ import {
 import React, { useState } from "react";
 import FoodTypeIcon from "../common/FoodTypeIcon";
 import { formatDate } from "../../utils/dateFormatter";
+import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
+import { ORDER_STATUSES, STATUS_FLOW } from "../../utils/orderStatusConfig";
+import { useSelector } from "react-redux";
 
 const ITEMS_TO_SHOW = 3;
 
-const KotOrderCard = ({ order, onUpdate, getStatusConfig }) => {
+const KotOrderCard = ({
+  order,
+  updateOrderStatus,
+  markItemReady,
+  getStatusConfig,
+}) => {
+  const { updatingKotId, kotItemToReadyId } = useSelector((state) => state.kot);
   const [expandedOrders, setExpandedOrders] = useState({});
+
+  const currentIndex = STATUS_FLOW.indexOf(order.status);
+  const allowedStatuses =
+    currentIndex >= 0 ? STATUS_FLOW.slice(currentIndex + 1) : [];
 
   const toggleOrderExpansion = (orderId) => {
     setExpandedOrders((prev) => ({
@@ -21,33 +37,7 @@ const KotOrderCard = ({ order, onUpdate, getStatusConfig }) => {
     }));
   };
 
-  const getOrderTypeInfo = (type) => {
-    switch (type) {
-      case "dine-in":
-        return { label: "Dine In", icon: Utensils };
-      case "takeaway":
-        return { label: "Take Away", icon: ShoppingBag };
-      case "delivery":
-        return { label: "Delivery", icon: Truck };
-      default:
-        return { label: "Order", icon: Package };
-    }
-  };
-
-  const getItemStatusDot = (status) => {
-    const colors = {
-      pending: "bg-orange-500",
-      preparing: "bg-blue-500",
-      ready: "bg-green-500",
-      served: "bg-gray-400",
-      cancelled: "bg-red-500",
-    };
-    return colors[status] || "bg-gray-400";
-  };
-
   const statusConfig = getStatusConfig(order?.status);
-  const orderTypeInfo = getOrderTypeInfo(order?.orderType);
-  const OrderTypeIcon = orderTypeInfo.icon;
   const isExpanded = expandedOrders[order?.id];
   const displayItems = isExpanded
     ? order?.items
@@ -58,88 +48,112 @@ const KotOrderCard = ({ order, onUpdate, getStatusConfig }) => {
     <div className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
       {/* Card Header */}
       <div className="p-4 border-b border-gray-100">
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-primary-600 rounded-full flex items-center justify-center">
-              <OrderTypeIcon className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <h3 className="font-b old text-gray-900">{order?.kot_number}</h3>
-              <p className="text-sm text-gray-500">
-                {/* {orderTypeInfo.label} */}
-                {order?.table_number &&
-                  `Table No: ${order?.table_number}`} •{" "}
-                {formatDate(order?.created_at, "timeAgo")}
-              </p>
-            </div>
-          </div>
+        <div>
+          <h3 className="font-bold text-gray-900">{order?.kotNumber}</h3>
+          <p className="text-sm text-gray-500">
+            {/* {orderTypeInfo.label} */}
+            {order?.tableNumber && `Table No: ${order?.tableNumber}`} •{" "}
+            {formatDate(order?.createdAt, "timeAgo")}
+          </p>
         </div>
       </div>
 
       {/* Items List */}
       <div className="p-4 space-y-2 min-h-[200px]">
-        {displayItems && displayItems.length > 0 ? (
-          displayItems.map((item) => (
-            <div key={item.id}>
-              <div className="flex items-center w-full">
-                <div className="flex items-center gap-2 min-w-0">
-                  <div
-                    className={`w-2 h-2 rounded-full ${getItemStatusDot(item?.status)} flex-shrink-0`}
-                    title={item?.status}
-                  />
-                  <FoodTypeIcon type={item?.item_type} size="xs" />
-                  <p
-                    className={`text-sm font-medium whitespace-nowrap
-    ${
-      item?.status === "cancelled"
-        ? "line-through text-red-500"
-        : "text-gray-900"
-    }`}
-                  >
-                    {item?.item_name}
-                    {item?.variant_name && (
-                      <span className="text-gray-500 ml-1">
-                        ({item.variant_name})
-                      </span>
-                    )}
-                  </p>
-                </div>
-                {/* Dashed Line */}
-                <div className="flex-1 border-b border-dashed border-gray-300 mx-2"></div>
+        {displayItems && displayItems?.length > 0 ? (
+          displayItems?.map((item) => {
+            const canMarkReady =
+              item?.status !== "ready" &&
+              item?.status !== "served" &&
+              item?.status !== "cancelled";
 
-                <span className="text-sm font-medium text-gray-900 whitespace-nowrap">
-                  ×{Number(item?.quantity)}
-                </span>
-              </div>
-
-              {/* Addons */}
-              {item?.addons?.length > 0 && (
-                <div className="mt-1.5 ml-6 space-y-1">
-                  {item.addons.map((addon, idx) => (
+            return (
+              <div key={item.id}>
+                <div className="flex items-center w-full">
+                  <div className="flex items-center gap-2 min-w-0">
                     <div
-                      key={idx}
-                      className="flex items-center gap-1.5 text-xs text-gray-600"
+                      className={`w-2 h-2 rounded-full ${
+                        ORDER_STATUSES[item?.status]?.dotColor || "bg-gray-400"
+                      } flex-shrink-0`}
+                    />
+
+                    <FoodTypeIcon type={item?.itemType} size="xs" />
+                    <p
+                      className={`text-sm font-medium whitespace-nowrap
+                    ${
+                      item?.status === "cancelled"
+                        ? "line-through text-red-500 opacity-70"
+                        : "text-gray-900"
+                    }
+                    `}
                     >
-                      <div className="w-1 h-1 rounded-full bg-gray-400 flex-shrink-0" />
-                      <span>{addon?.addon_name}</span>
-                      {addon?.quantity > 1 && (
-                        <span className="text-gray-400">
-                          (×{addon?.quantity})
+                      {item?.name}
+                      {item?.variantName && (
+                        <span className="text-gray-500 ml-1">
+                          ({item.variantName})
                         </span>
                       )}
-                    </div>
-                  ))}
-                </div>
-              )}
+                    </p>
+                  </div>
+                  {/* Dashed Line */}
+                  <div className="flex-1 border-b border-dashed border-gray-300 mx-2"></div>
 
-              {item?.special_instructions && (
-                <div className="flex items-center gap-1 mt-1 bg-[#F8F8F8] text-slate-900 rounded-md p-1">
-                  <AlertCircle className="w-3 h-3 flex-shrink-0" />
-                  <p className="text-xs">Notes: {item?.special_instructions}</p>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium text-gray-900 whitespace-nowrap">
+                      ×{item?.quantity}
+                    </span>
+                    {/* Mark Ready Button - Only shows on hover */}
+                    {canMarkReady && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          markItemReady(order.id, item.id);
+                        }}
+                        disabled={kotItemToReadyId}
+                        className="p-1 hover:bg-green-100 rounded"
+                        title="Mark item as ready"
+                      >
+                        {kotItemToReadyId === item.id ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <CheckCircle className="w-4 h-4 text-green-600" />
+                        )}
+                      </button>
+                    )}
+                  </div>
                 </div>
-              )}
-            </div>
-          ))
+
+                {/* Addons */}
+                {item?.addons?.length > 0 && (
+                  <div className="mt-1.5 ml-6 space-y-1">
+                    {item?.addons.map((addon, idx) => (
+                      <div
+                        key={idx}
+                        className="flex items-center gap-1.5 text-xs text-gray-600"
+                      >
+                        <div className="w-1 h-1 rounded-full bg-gray-400 flex-shrink-0" />
+                        <span>{addon?.name}</span>
+                        {addon?.quantity > 0 && (
+                          <span className="text-gray-400">
+                            (×{addon?.quantity})
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {item?.specialInstructions && (
+                  <div className="flex items-center gap-1 mt-1 bg-[#F8F8F8] text-slate-900 rounded-md p-1">
+                    <AlertCircle className="w-3 h-3 flex-shrink-0" />
+                    <p className="text-xs">
+                      Notes: {item?.specialInstructions}
+                    </p>
+                  </div>
+                )}
+              </div>
+            );
+          })
         ) : (
           <div className="h-full flex items-center justify-center text-sm text-gray-400">
             No items in this order
@@ -160,18 +174,89 @@ const KotOrderCard = ({ order, onUpdate, getStatusConfig }) => {
 
       {/* Card Footer */}
       <div className="p-4 bg-gray-50 border-t border-gray-200 flex items-center justify-between gap-3">
-        <span className={`text-sm font-semibold ${statusConfig.color}`}>
-          {statusConfig.label}
+        <span className="text-xs text-gray-500 font-medium">
+          {order?.totalItemCount} items • {order?.readyCount} ready •{" "}
+          {order?.cancelledItemCount} cancelled
         </span>
-        {statusConfig.nextStatus && (
-          <button
-            onClick={(e) => {
-              (e.stopPropagation(), onUpdate(order));
-            }}
-            className={`btn-sm text-white transition-colors ${statusConfig.buttonClass}`}
+
+        {allowedStatuses?.length > 0 ? (
+          <div
+            className="relative inline-block text-left"
+            onClick={(e) => e.stopPropagation()}
           >
-            {statusConfig.nextLabel}
-          </button>
+            <Menu>
+              {/* CURRENT STATUS BUTTON */}
+              <MenuButton
+                disabled={updatingKotId}
+                className={`
+                  px-3 py-1.5 rounded-md text-sm font-semibold capitalize
+                  flex items-center gap-1 
+                  ${statusConfig.bgColor} ${statusConfig.color}
+                   ${updatingKotId ? "opacity-60 cursor-not-allowed" : ""}
+                `}
+              >
+                {updatingKotId === order?.id ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Updating...
+                  </>
+                ) : (
+                  <>
+                    {statusConfig.label}
+                    <ChevronDown className="w-4 h-4 opacity-70" />
+                  </>
+                )}
+              </MenuButton>
+
+              {/* DROPDOWN */}
+              <MenuItems
+                anchor="bottom end"
+                className="mt-2 w-44 origin-top-right
+                  rounded-md bg-white border border-gray-200
+                  shadow-xl
+                  p-1 z-30
+                  outline-none focus:outline-none ring-0 focus:ring-0
+                "
+              >
+                {allowedStatuses.map((status) => {
+                  return (
+                    <MenuItem key={status}>
+                      {({ active }) => (
+                        <button
+                          onClick={() => updateOrderStatus(order.id, status)}
+                          className={`
+                            group flex w-full items-center justify-between
+                            rounded-md px-3 py-2 text-sm capitalize
+                            transition
+                            ${active ? "bg-gray-100" : ""}
+                          `}
+                        >
+                          <span className="font-medium text-gray-700">
+                            Mark {status}
+                          </span>
+
+                          {/* Status Dot */}
+                          <span
+                            className={`w-2 h-2 rounded-full ${
+                              ORDER_STATUSES[status]?.dotColor || "bg-gray-400"
+                            }`}
+                          />
+                        </button>
+                      )}
+                    </MenuItem>
+                  );
+                })}
+              </MenuItems>
+            </Menu>
+          </div>
+        ) : (
+          // If Served → no dropdown
+          <span
+            className={`px-3 py-1.5 rounded-md text-sm font-semibold capitalize
+          ${statusConfig.bgColor} ${statusConfig.color}`}
+          >
+            {statusConfig.label}
+          </span>
         )}
       </div>
     </div>

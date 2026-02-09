@@ -8,28 +8,27 @@ const STATION = "kitchen";
 
 export const useSocket = () => {
   const dispatch = useDispatch();
-  const { logIn } = useSelector((state) => state.auth);
+  const { logIn,meData } = useSelector((state) => state.auth);
+
+  const role = meData?.roles?.[0];
+const station = role?.slug;
+const outletId = role?.outletId;
+
+
 
   useEffect(() => {
-    if (!logIn) return;
+    if (!logIn || !station || !outletId) return;
 
     const socket = connectSocket();
     registerSocketListeners(socket, dispatch);
 
-    // const joinRooms = () => {
-    //   socket.emit(JOIN_KITCHEN, (res) => {
-    //     console.log("Kitchen Join:", res?.success ? "OK" : "FAIL");
-    //   });
-    // };
-
     const joinRooms = () => {
-
       // STATION JOIN
       socket.emit(
         JOIN_STATION,
         {
-          station: "kitchen",
-          outletId: 4,
+          station: station,
+          outletId: outletId,
         },
         (res) => {
           console.log("Station Join:", res?.success ? "OK" : "FAIL");
@@ -49,5 +48,5 @@ export const useSocket = () => {
       socket.off("connect", joinRooms); // IMPORTANT
       disconnectSocket();
     };
-  }, [logIn]); // dispatch removed
+  }, [logIn, station, outletId]);
 };

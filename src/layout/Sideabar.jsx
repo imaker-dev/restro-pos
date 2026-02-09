@@ -15,7 +15,7 @@ function Sidebar({
 }) {
   const { meData } = useSelector((state) => state.auth);
 
-  const userRole = meData?.role;
+  const userRole = meData?.roles[0]?.slug;
   const userPermissions = meData?.permissions || [];
 
   const location = useLocation();
@@ -81,48 +81,51 @@ function Sidebar({
     setSidebarOpen(false);
   }, [pathname]);
 
-  const filteredNavConfig = navConfig
-    .map((group) => {
-      const filteredItems = group.items
-        .map((item) => {
-          // CHILDREN CASE
-          if (item.children) {
-            const parentAllowed = hasAccess({
-              userRole,
-              userPermissions,
-              roles: item.roles,
-              permissions: item.permissions,
-            });
-
-            if (!parentAllowed) return null;
-
-            const children = item.children.filter((child) =>
-              hasAccess({
-                userRole,
-                userPermissions,
-                roles: child.roles,
-                permissions: child.permissions,
-              }),
-            );
-
-            return children.length ? { ...item, children } : null;
-          }
-
-          // NORMAL ITEM
-          return hasAccess({
+const filteredNavConfig = navConfig
+  .map((group) => {
+    const filteredItems = group.items
+      .map((item) => {
+        // CHILDREN CASE
+        if (item.children) {
+          const parentAllowed = hasAccess({
             userRole,
             userPermissions,
             roles: item.roles,
             permissions: item.permissions,
-          })
-            ? item
-            : null;
-        })
-        .filter(Boolean);
+            public: item.public, // ADD THIS
+          });
 
-      return filteredItems.length ? { ...group, items: filteredItems } : null;
-    })
-    .filter(Boolean);
+          if (!parentAllowed) return null;
+
+          const children = item.children.filter((child) =>
+            hasAccess({
+              userRole,
+              userPermissions,
+              roles: child.roles,
+              permissions: child.permissions,
+              public: child.public, // ADD THIS
+            }),
+          );
+
+          return children.length ? { ...item, children } : null;
+        }
+
+        // NORMAL ITEM
+        return hasAccess({
+          userRole,
+          userPermissions,
+          roles: item.roles,
+          permissions: item.permissions,
+          public: item.public, // ADD THIS
+        })
+          ? item
+          : null;
+      })
+      .filter(Boolean);
+
+    return filteredItems.length ? { ...group, items: filteredItems } : null;
+  })
+  .filter(Boolean);
 
 
   return (
@@ -150,25 +153,14 @@ function Sidebar({
           <NavLink
             end
             to="/"
-            className="bg-white  flex items-center justify-between h-16"
+            className={`bg-white  flex items-center ${effectiveExpanded ? 'justify-start' : 'justify-center'} h-16`}
           >
             {effectiveExpanded && (
-              <div className="flex items-center gap-2">
-                <div className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center">
-                  <span className="text-orange-500 font-bold text-lg">i</span>
-                </div>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-gray-800 font-bold text-xl">
-                    iMaker
-                  </span>
-                  <span className="text-orange-500 font-bold text-xl">POS</span>
-                </div>
-              </div>
+              <img src="/Images/Logo.svg" alt="" className="w-44" />
             )}
             {!effectiveExpanded && (
-              <div className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center">
-                <span className="text-orange-500 font-bold text-lg">i</span>
-              </div>
+              <img src="/Images/logo-icon.png" className="w-8"/>
+              
             )}
           </NavLink>
         </div>

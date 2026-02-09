@@ -1,5 +1,4 @@
 import React from "react";
-import Dashboard from "../pages/Dashboard";
 import AllProductsPage from "../pages/product/AllProductsPage";
 import AllOutletsPage from "../pages/outlets/AllOutletsPage";
 import Fields from "../pages/Fields";
@@ -15,37 +14,48 @@ import AllTaxGroupsPage from "../pages/settings/taxes/AllTaxGroupsPage";
 import TaxGroupDetailsPage from "../pages/settings/taxes/TaxGroupDetailsPage";
 import AddUserPage from "../pages/users/AddUserPage";
 import KitchenDisplayPage from "../pages/kitchen-display/KitchenDisplayPage";
+import { ROLES } from "../constants";
+import KitchenDashboard from "../pages/dashboard/KitchenDashboard";
+import Dashboard from "../pages/dashboard/Dashboard";
 
 const routeConfig = [
-  { path: "/", element: Dashboard },
-  { path: "/kitchen-display", element: KitchenDisplayPage },
+  // { path: "/", element: Dashboard, roles: [ROLES.SUPER_ADMIN] },
+    {
+    path: "/",
+    elements: {
+      [ROLES.SUPER_ADMIN]: Dashboard,
+      [ROLES.KITCHEN]: KitchenDashboard,
+    },
+    roles: [ROLES.SUPER_ADMIN, ROLES.KITCHEN],
+  },
+  { path: "/kitchen-display", element: KitchenDisplayPage, roles: [ROLES.KITCHEN] },
 
-  { path: "/products", element: AllProductsPage },
+  { path: "/products", element: AllProductsPage, roles: [ROLES.SUPER_ADMIN] },
 
-  { path: "/outlets", element: AllOutletsPage },
+  { path: "/outlets", element: AllOutletsPage, roles: [ROLES.SUPER_ADMIN] },
 
-  { path: "/outlets/categories", element: AllCategoriesPage },
-  { path: "/outlets/categories/items", element: AllItemsPage },
+  { path: "/outlets/categories", element: AllCategoriesPage, roles: [ROLES.SUPER_ADMIN] },
+  { path: "/outlets/categories/items", element: AllItemsPage, roles: [ROLES.SUPER_ADMIN] },
 
-  { path: "/outlets/floors", element: OutletAllFloors },
-  { path: "/outlets/floors/sections", element: AllSectionsPage },
-  { path: "/outlets/floors/tables", element: FloorAllTables },
+  { path: "/outlets/floors", element: OutletAllFloors, roles: [ROLES.SUPER_ADMIN] },
+  { path: "/outlets/floors/sections", element: AllSectionsPage, roles: [ROLES.SUPER_ADMIN] },
+  { path: "/outlets/floors/tables", element: FloorAllTables, roles: [ROLES.SUPER_ADMIN] },
 
-  { path: "/items/add", element: AddItemPage },
+  { path: "/items/add", element: AddItemPage, roles: [ROLES.SUPER_ADMIN] },
 
-  { path: "/users", element: AllUsersPage },
-  { path: "/users/add", element: AddUserPage },
+  { path: "/users", element: AllUsersPage, roles: [ROLES.SUPER_ADMIN] },
+  { path: "/users/add", element: AddUserPage, roles: [ROLES.SUPER_ADMIN] },
 
   {
     path: "/fields",
     element: Fields,
-    roles: ["user"],
-    // permissions: ["ADD_ITEM"],
+    roles: [ROLES.SUPER_ADMIN], // override old user role
   },
 
-  { path: "/settings", element: AllSettingsPage },
-  { path: "/settings/tax-types", element: AllTaxGroupsPage },
-  { path: "/settings/tax-types/tax", element: TaxGroupDetailsPage },
+  { path: "/settings", element: AllSettingsPage, roles: [ROLES.SUPER_ADMIN] },
+  { path: "/settings/tax-types", element: AllTaxGroupsPage, roles: [ROLES.SUPER_ADMIN] },
+  { path: "/settings/tax-types/tax", element: TaxGroupDetailsPage, roles: [ROLES.SUPER_ADMIN] },
 ];
+
 
 export default routeConfig;

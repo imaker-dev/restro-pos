@@ -15,7 +15,9 @@ const soundManager = {
 
   preload() {
     const sounds = {
-      kotCreated: "/Sound/kot-created.mp3",
+      kotCreated: "/Sound/created.mp3",
+      successSound: "/Sound/success.mp3",
+      cancelSound: "/Sound/cancel.mp3",
     };
 
     Object.entries(sounds).forEach(([name, path]) => {
@@ -76,11 +78,9 @@ const soundManager = {
       clone.currentTime = 0;
       await clone.play();
 
-      clone.addEventListener(
-        "ended",
-        () => this.activeSounds.delete(clone),
-        { once: true }
-      );
+      clone.addEventListener("ended", () => this.activeSounds.delete(clone), {
+        once: true,
+      });
     } catch (err) {
       console.warn(`Sound "${name}" failed:`, err);
     }
@@ -114,14 +114,12 @@ const soundManager = {
 soundManager.init();
 
 // PUBLIC API
-export const playOrderCreatedSound = () =>
-  soundManager.play("kotCreated");
+export const playOrderCreatedSound = () => soundManager.play("kotCreated");
+export const playSuccessSound = () => soundManager.play("successSound");
+export const playCancelSound = () => soundManager.play("cancelSound");
 
-export const setSoundEnabled = (v) =>
-  soundManager.setEnabled(v);
+export const setSoundEnabled = (v) => soundManager.setEnabled(v);
 
-export const isSoundEnabled = () =>
-  soundManager.isEnabled();
+export const isSoundEnabled = () => soundManager.isEnabled();
 
-export const setSoundVolume = (v) =>
-  soundManager.setVolume(v);
+export const setSoundVolume = (v) => soundManager.setVolume(v);

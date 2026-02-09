@@ -1,5 +1,5 @@
 import React from "react";
-import PageHeader from "../layout/PageHeader";
+import PageHeader from "../../layout/PageHeader";
 
 const Dashboard = () => {
   return (

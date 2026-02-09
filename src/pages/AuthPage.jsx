@@ -44,15 +44,7 @@ export default function AuthPage() {
       <div>
         {/* Header */}
         <div className="pb-8 flex justify-center">
-          <div className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center">
-              <span className="text-orange-500 font-bold text-lg">i</span>
-            </div>
-            <div className="flex items-baseline gap-1">
-              <span className="text-gray-800 font-bold text-xl">iMaker</span>
-              <span className="text-orange-500 font-bold text-xl">POS</span>
-            </div>
-          </div>
+          <img src="/Images/Logo.svg" alt="" className="w-56" />
         </div>
 
         {/* Main */}
@@ -161,7 +153,7 @@ export default function AuthPage() {
         </div>
         {/* Footer */}
         <div className="py-8 text-center text-gray-600 text-sm">
-          <p>Copyrights © 2025 - iMakerPOS</p>
+          <p>Copyrights © 2025 - iMaker Restro</p>
         </div>
       </div>
     </div>

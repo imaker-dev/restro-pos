@@ -1,30 +1,34 @@
 import React, { useState, useEffect } from "react";
-import { Flame, CheckCircle2, X, RefreshCw } from "lucide-react";
+import { Flame, CheckCircle2, X, RefreshCw, Wifi, WifiOff } from "lucide-react";
 import KotOrderCard from "../../partial/kot/KotOrderCard";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchAllOrdersKot,
+  markKotItemReady,
   markReadyKot,
   prepareOrderKot,
   serveOrderKot,
 } from "../../redux/slices/kotSlice";
-import OrderKotUpdateModal from "../../partial/kot/OrderKotUpdateModal";
 import { handleResponse } from "../../utils/helpers";
 import KotOrderCardSkeleton from "../../partial/kot/KotOrderCardSkeleton";
-import SocketBadge from "../../partial/common/SocketBadge";
 import { formatDate } from "../../utils/dateFormatter";
-import Tabs from "../../components/Tabs";
 import SearchBar from "../../components/SearchBar";
+import { ORDER_STATUSES } from "../../utils/orderStatusConfig";
 
 export default function KitchenDisplayPage() {
   const dispatch = useDispatch();
-  const { allOrdersKot, loading, isUpdatingKot } = useSelector(
-    (state) => state.kot,
-  );
+  const { allOrdersKot, loading } = useSelector((state) => state.kot);
+
+  const ACTION_MAP = {
+    preparing: prepareOrderKot,
+    ready: markReadyKot,
+    served: serveOrderKot,
+  };
+
+  const { connected } = useSelector((state) => state.socket);
+
   const { kots, stats } = allOrdersKot || {};
-  const [selectedOrder, setSelectedOrder] = useState(null);
   const [selectedStatus, setSelectedStatus] = useState("");
-  const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [lastFetchedAt, setLastFetchedAt] = useState(null);
 
   const fetchOrder = async () => {
@@ -39,69 +43,48 @@ export default function KitchenDisplayPage() {
   };
 
   useEffect(() => {
+    if (connected) return;
+
+    const interval = setInterval(() => {
+      fetchOrder();
+    }, 30000); // 30 seconds
+
+    return () => clearInterval(interval); // cleanup
+  }, [connected, selectedStatus]);
+
+  useEffect(() => {
     fetchOrder();
   }, [selectedStatus]);
 
-  const getStatusConfig = (status) => {
-    const configs = {
-      pending: {
-        label: "Pending",
-        color: "text-orange-600",
-        bgColor: "bg-orange-50",
-        nextStatus: "preparing",
-        nextLabel: "Start Preparing",
-        buttonClass: "bg-orange-600 hover:bg-orange-700",
-      },
-      preparing: {
-        label: "Preparing",
-        color: "text-blue-600",
-        bgColor: "bg-blue-50",
-        nextStatus: "ready",
-        nextLabel: "Mark Ready",
-        buttonClass: "bg-blue-600 hover:bg-blue-700",
-      },
-      ready: {
-        label: "Ready",
-        color: "text-green-600",
-        bgColor: "bg-green-50",
-        nextStatus: "served",
-        nextLabel: "Mark Served",
-        buttonClass: "bg-green-600 hover:bg-green-700",
-      },
-      served: {
-        label: "Served",
-        color: "text-gray-600",
-        bgColor: "bg-gray-50",
-        nextStatus: null,
-        nextLabel: "Completed",
-        buttonClass: "bg-gray-400",
-      },
-    };
-    return configs[status] || configs.pending;
-  };
-
-  const clearKotStates = () => {
-    setShowUpdateModal(false);
-    setSelectedOrder(null);
-  };
+  const getStatusConfig = (status) =>
+    ORDER_STATUSES[status] || ORDER_STATUSES.pending;
 
   const updateOrderStatus = async (orderId, newStatus) => {
-    const actionMap = {
-      preparing: prepareOrderKot,
-      ready: markReadyKot,
-      served: serveOrderKot,
-    };
+    const status = newStatus?.trim().toLowerCase();
 
-    const action = actionMap[newStatus];
+    const action = ACTION_MAP[status];
 
-    if (action) {
-      await handleResponse(dispatch(action(orderId)), () => {
-        fetchOrder();
-        clearKotStates();
-        // setSelectedStatus(newStatus)
-        setSelectedStatus(newStatus === "served" ? "pending" : newStatus);
-      });
+    if (!action) {
+      console.warn("No action for status:", status);
+      return;
     }
+
+    await handleResponse(dispatch(action(orderId)), () => {
+      const tabExists = tabs.some((t) => t.id === status);
+      setSelectedStatus(tabExists ? status : "");
+
+      if (!connected) {
+        fetchOrder();
+      }
+    });
+  };
+
+  const handleMarkItemReady = async (orderId, itemId) => {
+    await handleResponse(dispatch(markKotItemReady(itemId)), () => {
+      if (!connected) {
+        fetchOrder();
+      }
+    });
   };
 
   const tabs = [
@@ -117,6 +100,7 @@ export default function KitchenDisplayPage() {
       badgeCount: stats?.preparing_count,
     },
     { label: "Ready", id: "ready", badgeCount: stats?.ready_count },
+    { label: "Cancelled", id: "cancelled" },
   ];
 
   return (
@@ -130,7 +114,7 @@ export default function KitchenDisplayPage() {
             </div>
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
-                Kitchen Display <SocketBadge />
+                Kitchen Display
               </h1>
               <p className="text-sm text-gray-500">Manage orders efficiently</p>
             </div>
@@ -154,16 +138,42 @@ export default function KitchenDisplayPage() {
               <RefreshCw className="w-4 h-4" />
               Refresh
             </button>
+
+            <div
+              title={
+                connected ? "Real-time updates active" : "No live connection"
+              }
+              className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold
+              ${
+                connected
+                  ? "bg-green-100 text-green-700 border border-green-300"
+                  : "bg-red-100 text-red-700 border border-red-300"
+              }`}
+            >
+              {connected ? <Wifi size={14} /> : <WifiOff size={14} />}
+              <span>{connected ? "Online" : "Offline"}</span>
+            </div>
           </div>
         </div>
 
         <div className="flex justify-between gap-4">
-          <SearchBar className="py-3" />
-          <Tabs
-            value={selectedStatus}
-            tabs={tabs}
-            onChange={(value) => setSelectedStatus(value)}
-          />
+          <SearchBar />
+
+          <div className="flex gap-2">
+            {tabs?.map((tab, index) => (
+              <button
+                key={tab.id}
+                onClick={() => setSelectedStatus(tab.id)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  selectedStatus === tab.id
+                    ? "bg-primary-500 text-white"
+                    : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-200"
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
         </div>
 
         {loading ? (
@@ -176,15 +186,13 @@ export default function KitchenDisplayPage() {
         ) : kots?.length > 0 ? (
           // DATA
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {kots.map((order) => (
+            {kots?.map((order) => (
               <KotOrderCard
                 key={order?.id}
                 order={order}
-                onUpdate={(order) => {
-                  setSelectedOrder(order);
-                  setShowUpdateModal(true);
-                }}
+                updateOrderStatus={updateOrderStatus}
                 getStatusConfig={getStatusConfig}
+                markItemReady={handleMarkItemReady}
               />
             ))}
           </div>
@@ -199,15 +207,6 @@ export default function KitchenDisplayPage() {
           </div>
         )}
       </div>
-
-      <OrderKotUpdateModal
-        isOpen={showUpdateModal}
-        onClose={clearKotStates}
-        order={selectedOrder}
-        onSubmit={updateOrderStatus}
-        loading={isUpdatingKot}
-        getStatusConfig={getStatusConfig}
-      />
     </div>
   );
 }

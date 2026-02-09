@@ -13,19 +13,29 @@ const FoodTypeIcon = ({ type, size = "sm" }) => {
 
   let borderColor = "border-gray-400";
   let dotColor = "bg-gray-400";
+  let label = "Unknown";
 
   const value = type?.toLowerCase();
 
   if (value === "veg") {
     borderColor = "border-green-600";
     dotColor = "bg-green-600";
-  } else if (value === "non-veg") {
+    label = "Veg";
+  } 
+  else if (value === "non-veg" || value === "non_veg") {
     borderColor = "border-red-600";
     dotColor = "bg-red-600";
+    label = "Non-Veg";
+  } 
+  else if (value === "egg") {
+    borderColor = "border-yellow-500";
+    dotColor = "bg-yellow-500";
+    label = "Egg";
   }
 
   return (
     <div
+      title={label}
       className={`${sizeClasses[size]} border ${borderColor} rounded flex items-center justify-center flex-shrink-0`}
     >
       <div

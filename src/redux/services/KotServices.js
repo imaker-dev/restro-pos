@@ -21,5 +21,8 @@ export default false
       },
       serveOrderKotApi:(id) => {
         return Api.post(`/orders/kot/${id}/served`)
+      },
+      markKOtItemReadyApi:(itemId) => {
+        return Api.post(`/orders/kot/items/${itemId}/ready`)
       }
     };

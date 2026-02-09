@@ -23,13 +23,11 @@ export const prepareOrderKot = createAsyncThunk(
     return res.data;
   },
 );
-export const markReadyKot = createAsyncThunk(
-  "/ready/order/kot",
-  async (id) => {
-    const res = await KotServices.readyOrderKotApi(id);
-    return res.data;
-  },
-);
+export const markReadyKot = createAsyncThunk("/ready/order/kot", async (id) => {
+  const res = await KotServices.readyOrderKotApi(id);
+  return res.data;
+});
+
 export const serveOrderKot = createAsyncThunk(
   "/serve/order/kot",
   async (id) => {
@@ -37,49 +35,114 @@ export const serveOrderKot = createAsyncThunk(
     return res.data;
   },
 );
+export const markKotItemReady = createAsyncThunk(
+  "/mark/kot-item/ready",
+  async (id) => {
+    const res = await KotServices.markKOtItemReadyApi(id);
+    return res.data;
+  },
+);
+
+const updateKotInState = (state, updatedKot) => {
+  const index = state.allOrdersKot.kots.findIndex(
+    (k) => k.id === updatedKot.id,
+  );
+
+  if (index !== -1) {
+    state.allOrdersKot.kots[index] = updatedKot;
+  }
+};
 
 const kotSlice = createSlice({
   name: "kot",
   initialState: {
     loading: false,
+    updatingKotId: null,
+    kotItemToReadyId: null,
     // allOrdersKot: null,
-      allOrdersKot: {
-    kots: [],
-    stats: {
-      pending_count: 0,
-      active_count: 0,
+    allOrdersKot: {
+      kots: [],
+      stats: {
+        pending_count: 0,
+        active_count: 0,
+      },
     },
   },
-
-  },
   reducers: {
-newKot(state, action) {
-  const rawKot = action.payload;
+    newKot(state, action) {
+      const rawKot = action.payload;
 
-  const kot = {
-    id: rawKot.id,
-    kot_number: rawKot.kotNumber,
-    table_number: rawKot.tableNumber || null,
-    station: rawKot.station,
-    item_count: rawKot.itemCount,
-    status: "pending",
-    items: rawKot.items.map(i => ({
-      id: i.id,
-      item_name: i.name,
-      variant_name: i.variant,
-      quantity: i.quantity,
-    })),
-  };
+      const kot = {
+        id: rawKot.id,
+        kotNumber: rawKot.kotNumber,
+        orderNumber: rawKot.orderNumber,
+        tableNumber: rawKot.tableNumber || null,
+        station: rawKot.station,
+        status: "pending",
 
-  const exists = state.allOrdersKot.kots.find(k => k.id === kot.id);
-  if (exists) return;
+        // counts
+        itemCount: rawKot.itemCount || 0,
+        totalItemCount: rawKot.itemCount || 0,
+        readyCount: 0,
+        cancelledItemCount: 0,
 
-  state.allOrdersKot.kots.unshift(kot);
+        createdAt: rawKot.createdAt,
 
-  state.allOrdersKot.stats.pending_count += 1;
-  state.allOrdersKot.stats.active_count += 1;
-}
+        items: rawKot.items.map((i) => ({
+          id: i.id,
+          name: i.name,
+          variantName: i.variant || null,
+          quantity: Number(i.quantity),
+          itemType: i.itemType,
+          status: "pending",
+          addons: i.addons || [],
+          specialInstructions: i.specialInstructions || null,
+        })),
+      };
 
+      const exists = state.allOrdersKot.kots.find((k) => k.id === kot.id);
+      if (exists) return;
+
+      state.allOrdersKot.kots.unshift(kot);
+
+      state.allOrdersKot.stats.pending_count += 1;
+      state.allOrdersKot.stats.active_count += 1;
+    },
+    kotPreparing(state, action) {
+      updateKotInState(state, action.payload);
+    },
+
+    kotReady(state, action) {
+      updateKotInState(state, action.payload);
+    },
+
+    itemReady(state, action) {
+      updateKotInState(state, action.payload);
+    },
+
+    // kotServed(state, action) {
+    //   updateKotInState(state, action.payload);
+    // },
+
+    kotServed(state, action) {
+      const servedKot = action.payload;
+
+      state.allOrdersKot.kots = state.allOrdersKot.kots.filter(
+        (k) => k.id !== servedKot.id,
+      );
+
+      // optional stats update
+      if (state.allOrdersKot.stats.active_count > 0) {
+        state.allOrdersKot.stats.active_count -= 1;
+      }
+    },
+
+    kotCancelled(state, action) {
+      updateKotInState(state, action.payload);
+    },
+    itemCancelled(state, action) {
+      updateKotInState(state, action.payload);
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -94,48 +157,59 @@ newKot(state, action) {
         state.loading = false;
         toast.error(action.error.message);
       })
-      .addCase(acceptOrderKot.pending, (state) => {
-        state.isUpdatingKot = true;
+      .addCase(acceptOrderKot.pending, (state, action) => {
+        state.updatingKotId = action.meta.arg;
       })
       .addCase(acceptOrderKot.fulfilled, (state, action) => {
-        state.isUpdatingKot = false;
+        state.updatingKotId = null;
         toast.success(action.payload.message);
       })
       .addCase(acceptOrderKot.rejected, (state, action) => {
-        state.isUpdatingKot = false;
+        state.updatingKotId = null;
         toast.error(action.error.message);
       })
-      .addCase(prepareOrderKot.pending, (state) => {
-        state.isUpdatingKot = true;
+      .addCase(prepareOrderKot.pending, (state, action) => {
+        state.updatingKotId = action.meta.arg;
       })
       .addCase(prepareOrderKot.fulfilled, (state, action) => {
-        state.isUpdatingKot = false;
+        state.updatingKotId = null;
         toast.success(action.payload.message);
       })
       .addCase(prepareOrderKot.rejected, (state, action) => {
-        state.isUpdatingKot = false;
+        state.updatingKotId = null;
         toast.error(action.error.message);
       })
-      .addCase(markReadyKot.pending, (state) => {
-        state.isUpdatingKot = true;
+      .addCase(markReadyKot.pending, (state, action) => {
+        state.updatingKotId = action.meta.arg;
       })
       .addCase(markReadyKot.fulfilled, (state, action) => {
-        state.isUpdatingKot = false;
+        state.updatingKotId = null;
         toast.success(action.payload.message);
       })
       .addCase(markReadyKot.rejected, (state, action) => {
-        state.isUpdatingKot = false;
+        state.updatingKotId = null;
         toast.error(action.error.message);
       })
-      .addCase(serveOrderKot.pending, (state) => {
-        state.isUpdatingKot = true;
+      .addCase(serveOrderKot.pending, (state, action) => {
+        state.updatingKotId = action.meta.arg;
       })
       .addCase(serveOrderKot.fulfilled, (state, action) => {
-        state.isUpdatingKot = false;
+        state.updatingKotId = null;
         toast.success(action.payload.message);
       })
       .addCase(serveOrderKot.rejected, (state, action) => {
-        state.isUpdatingKot = false;
+        state.updatingKotId = null;
+        toast.error(action.error.message);
+      })
+      .addCase(markKotItemReady.pending, (state, action) => {
+        state.kotItemToReadyId = action.meta.arg;
+      })
+      .addCase(markKotItemReady.fulfilled, (state, action) => {
+        state.kotItemToReadyId = null;
+        toast.success(action.payload.message);
+      })
+      .addCase(markKotItemReady.rejected, (state, action) => {
+        state.kotItemToReadyId = null;
         toast.error(action.error.message);
       });
   },
@@ -143,8 +217,13 @@ newKot(state, action) {
 
 export const {
   newKot,
+  kotPreparing,
+  kotReady,
+  itemReady,
+  kotServed,
+  kotCancelled,
+  itemCancelled,
 } = kotSlice.actions;
-
 
 // Export reducer
 const { reducer } = kotSlice;

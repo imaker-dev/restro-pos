@@ -17,4 +17,4 @@ export const KOT_ITEM_READY = "kot:item_ready";
 export const KOT_READY = "kot:ready";
 export const KOT_SERVED = "kot:served";
 export const KOT_CANCELLED = "kot:cancelled"
-export const ITEM_CANCELLED = "item_cancelled"
+export const ITEM_CANCELLED = "kot:item_cancelled"
