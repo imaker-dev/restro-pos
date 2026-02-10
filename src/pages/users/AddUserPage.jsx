@@ -1,19 +1,15 @@
 import React, { useEffect } from "react";
-import { Formik, Form, FieldArray } from "formik";
+import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import PageHeader from "../../layout/PageHeader";
 import AccordionSection from "../../components/AccordionSection";
 
 import { InputField } from "../../components/fields/InputField";
 import { SelectField } from "../../components/fields/SelectField";
-import { CheckboxField } from "../../components/fields/CheckboxField";
 
 import {
   User,
   Shield,
-  Building2,
-  Plus,
-  Trash2,
   User2,
   Mail,
 } from "lucide-react";
@@ -23,6 +19,7 @@ import { fetchAllOutlets } from "../../redux/slices/outletSlice";
 import { fetchAllRoles } from "../../redux/slices/roleSlice";
 import { fetchAllFloors } from "../../redux/slices/floorSlice";
 import { fetchAllPermissions } from "../../redux/slices/permissionSlice";
+import { MultiSelectDropdownField } from "../../components/fields/MultiSelectDropdownField";
 
 const AddUserPage = () => {
   const dispatch = useDispatch();
@@ -30,12 +27,12 @@ const AddUserPage = () => {
   useEffect(() => {
     dispatch(fetchAllOutlets());
     dispatch(fetchAllRoles());
-    dispatch(fetchAllPermissions());
+    // dispatch(fetchAllPermissions());
   }, [dispatch]);
 
   const { allOutlets } = useSelector((s) => s.outlet);
   const { allRoles } = useSelector((s) => s.role);
-  const { allFloors } = useSelector((s) => s.floor);
+  const { allFloors, loading: fetchingAllFloors } = useSelector((s) => s.floor);
 
   const { allPermissions } = useSelector((state) => state.permission);
   const { grouped } = allPermissions || {};
@@ -51,7 +48,7 @@ const AddUserPage = () => {
     outletId: "",
     roleId: "",
 
-    floors: [{ floorId: "", isPrimary: true }],
+    floors: [],
 
     permissions: [],
   };
@@ -61,13 +58,41 @@ const AddUserPage = () => {
     email: Yup.string().email().required(),
     employeeCode: Yup.string().required(),
     password: Yup.string().min(6).required(),
-    pin: Yup.string().length(4).required(),
+    pin: Yup.string()
+      .matches(/^\d{4}$/, "PIN must be 4 digits")
+      .required("PIN required"),
+
     outletId: Yup.string().required(),
     roleId: Yup.string().required(),
+    floors: Yup.array().min(1, "Select at least one floor"),
   });
 
   const handleSubmit = (values) => {
-    console.log(values);
+    const payload = {
+      name: values.name,
+      email: values.email,
+      employeeCode: values.employeeCode,
+      password: values.password,
+      pin: values.pin,
+      isActive: values.isActive,
+
+      roles: [
+        {
+          roleId: values.roleId,
+          outletId: values.outletId,
+        },
+      ],
+
+      floors: values.floors.map((floorId, index) => ({
+        floorId,
+        outletId: values.outletId,
+        isPrimary: index === 0, // first selected floor = primary
+      })),
+    };
+
+    console.log("FINAL PAYLOAD:", payload);
+
+    // dispatch(createUser(payload))
   };
 
   return (
@@ -84,30 +109,79 @@ const AddUserPage = () => {
           useEffect(() => {
             if (formik.values.outletId) {
               dispatch(fetchAllFloors(formik.values.outletId));
-              formik.setFieldValue("floors", [
-                { floorId: "", isPrimary: true },
-              ]);
+              formik.setFieldValue("floors", []);
             }
           }, [formik.values.outletId]);
 
+          
           return (
-            <Form className="space-y-8">
+            <Form className="space-y-8" autoComplete="off">
+              {/* BASIC INFO */}
               {/* BASIC INFO */}
               <AccordionSection title="Basic Info" icon={User}>
-                <div className="grid grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                  {/* NAME */}
                   <InputField
                     label="Full Name"
                     name="name"
                     icon={User2}
                     value={formik.values.name}
                     onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    error={formik.touched.name && formik.errors.name}
                   />
+
+                  {/* EMAIL */}
                   <InputField
                     label="Email"
                     name="email"
+                    type="email"
                     icon={Mail}
                     value={formik.values.email}
                     onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    error={formik.touched.email && formik.errors.email}
+                  />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {/* EMPLOYEE CODE */}
+                  <InputField
+                    label="Employee Code"
+                    name="employeeCode"
+                    placeholder="EMP001"
+                    value={formik.values.employeeCode}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    error={
+                      formik.touched.employeeCode && formik.errors.employeeCode
+                    }
+                  />
+
+                  {/* PASSWORD */}
+                  <InputField
+                    label="Password"
+                    name="password"
+                    type="password"
+                    value={formik.values.password}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    error={formik.touched.password && formik.errors.password}
+                  />
+
+                  {/* PIN */}
+                  <InputField
+                    label="PIN"
+                    name="pin"
+                    type="password"
+                    placeholder="4 digit pin"
+                    value={formik.values.pin}
+                    onChange={(e) => {
+                      // allow only digits & max 4
+                      const val = e.target.value.replace(/\D/g, "").slice(0, 4);
+                      formik.setFieldValue("pin", val);
+                    }}
+                    onBlur={formik.handleBlur}
+                    error={formik.touched.pin && formik.errors.pin}
                   />
                 </div>
               </AccordionSection>
@@ -139,88 +213,29 @@ const AddUserPage = () => {
                 </div>
 
                 {/* FLOORS */}
-                <FieldArray name="floors">
-                  {({ push, remove }) => (
-                    <>
-                      {formik.values.floors.map((floor, index) => (
-                        <div key={index} className="flex gap-4 mb-3">
-                          <SelectField
-                            label="Floor"
-                            name={`floors.${index}.floorId`}
-                            options={allFloors?.map((f) => ({
-                              value: f.id,
-                              label: f.name,
-                            }))}
-                            value={floor.floorId}
-                            onChange={formik.handleChange}
-                          />
-
-                          {formik.values.floors.length > 1 && (
-                            <button
-                              type="button"
-                              onClick={() => remove(index)}
-                            >
-                              <Trash2 className="w-4 h-4 text-red-500" />
-                            </button>
-                          )}
-                        </div>
-                      ))}
-
-                      <button
-                        type="button"
-                        onClick={() =>
-                          push({ floorId: "", isPrimary: false })
-                        }
-                        className="btn"
-                      >
-                        <Plus className="w-4 h-4" /> Add Floor
-                      </button>
-                    </>
-                  )}
-                </FieldArray>
-              </AccordionSection>
-
-              {/* PERMISSIONS */}
-              <AccordionSection title="Permissions" icon={Building2}>
-                {grouped &&
-                  Object.keys(grouped).map((category) => (
-                    <div key={category} className="mb-6">
-                      <h4 className="font-semibold capitalize mb-2">
-                        {category}
-                      </h4>
-
-                      <div className="grid grid-cols-3 gap-3">
-                        {grouped[category].map((perm) => (
-                          <CheckboxField
-                            key={perm.id}
-                            label={perm.name}
-                            checked={formik.values.permissions.includes(
-                              perm.id,
-                            )}
-                            onChange={(e) => {
-                              const checked = e.target.checked;
-                              let updated = [...formik.values.permissions];
-
-                              if (checked) updated.push(perm.id);
-                              else
-                                updated = updated.filter(
-                                  (id) => id !== perm.id,
-                                );
-
-                              formik.setFieldValue("permissions", updated);
-                            }}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  ))}
+                <MultiSelectDropdownField
+                  label="Floors"
+                  name="floors"
+                  options={allFloors?.map((f) => ({
+                    id: f.id,
+                    label: f.name,
+                  }))}
+                  value={formik.values.floors}
+                  onChange={(val) => formik.setFieldValue("floors", val)}
+                  onBlur={formik.handleBlur}
+                  error={formik.touched.floors && formik.errors.floors}
+                  disabled={!formik.values.outletId}
+                  disabledText={
+                    !formik.values.outletId
+                      ? "Please select an outlet first"
+                      : "Floors unavailable"
+                  }
+                  loading={fetchingAllFloors}
+                />
               </AccordionSection>
 
               <div className="flex justify-end">
-                <button
-                  type="submit"
-                  className="btn bg-primary-500 text-white"
-                >
+                <button type="submit" className="btn bg-primary-500 text-white">
                   Create Staff
                 </button>
               </div>

@@ -11,7 +11,7 @@ export default function PageNotFound() {
           <img
             src="/Images/404.png"   // put your illustration here
             alt="404 Error"
-            className="w-full max-w-md h-auto object-contain"
+            className="w-full max-w-xs h-auto object-contain"
           />
         </div>
 

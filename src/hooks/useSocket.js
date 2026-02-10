@@ -3,36 +3,37 @@ import { useDispatch, useSelector } from "react-redux";
 import { registerSocketListeners } from "../socket/socketListeners";
 import { connectSocket, disconnectSocket } from "../socket/socket";
 import { JOIN_STATION } from "../socket/socketEvents";
+import store from "../store";
+import { ROLES } from "../constants";
 
 const STATION = "kitchen";
 
 export const useSocket = () => {
   const dispatch = useDispatch();
-  const { logIn,meData } = useSelector((state) => state.auth);
+  const { logIn, meData } = useSelector((state) => state.auth);
 
   const role = meData?.roles?.[0];
-const station = role?.slug;
-const outletId = role?.outletId;
-
-
+  const station = role?.slug;
+  const outletId = role?.outletId;
 
   useEffect(() => {
     if (!logIn || !station || !outletId) return;
 
     const socket = connectSocket();
-    registerSocketListeners(socket, dispatch);
+    registerSocketListeners(socket, dispatch,store.getState);
 
     const joinRooms = () => {
       // STATION JOIN
       socket.emit(
         JOIN_STATION,
         {
-          station: station,
-          outletId: outletId,
+          station: station === ROLES.BAR ? "bar" : station,
+          outletId: 4,
         },
         (res) => {
           console.log("Station Join:", res?.success ? "OK" : "FAIL");
         },
+        // socket.emit("join:bar", 4)
       );
     };
 

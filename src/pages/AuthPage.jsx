@@ -6,13 +6,12 @@ import { handleResponse } from "../utils/helpers";
 import { useDispatch, useSelector } from "react-redux";
 import { signIn } from "../redux/slices/authSlice";
 import { useNavigate } from "react-router-dom";
+import { InputField } from "../components/fields/InputField";
 
 export default function AuthPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { isLogging } = useSelector((state) => state.auth);
-
-  const [showPassword, setShowPassword] = useState(false);
 
   // Validation Schema
   const validationSchema = Yup.object({
@@ -40,7 +39,7 @@ export default function AuthPage() {
   });
 
   return (
-    <div className="h-[100dvh] bg-primary-100 flex justify-center items-center ">
+    <div className="h-[100dvh] bg-primary-100 flex justify-center items-center relative">
       <div>
         {/* Header */}
         <div className="pb-8 flex justify-center">
@@ -51,91 +50,42 @@ export default function AuthPage() {
         <div className="flex-1 flex items-center justify-center px-4">
           <form
             onSubmit={formik.handleSubmit}
-            className="w-full max-w-md bg-white rounded-lg shadow p-8"
+            className="w-full max-w-md bg-white rounded-lg shadow p-8 space-y-6"
           >
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">Sign In</h1>
-            <p className="text-gray-600 text-sm mb-8">
-              Access the Dreamspos panel using your email and passcode.
-            </p>
+            <div className="">
+              <h1 className="text-3xl font-bold text-gray-800 mb-2">Sign In</h1>
+              <p className="text-gray-600 text-sm">
+                Access the Dreamspos panel using your email and passcode.
+              </p>
+            </div>
 
             {/* EMAIL */}
-            <div className="mb-5">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Email <span className="text-red-500">*</span>
-              </label>
-              <div className="relative">
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="Enter your email"
-                  value={formik.values.email}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  className={`form-input w-full  ${
-                    formik.touched.email && formik.errors.email
-                      ? "border-red-400 "
-                      : "border-gray-200 "
-                  }`}
-                />
-                <Mail className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-              </div>
-              {formik.touched.email && formik.errors.email && (
-                <p className="text-red-500 text-xs mt-1">
-                  {formik.errors.email}
-                </p>
-              )}
-            </div>
+            <InputField
+              label="Email"
+              name="email"
+              required
+              placeholder="Enter your email"
+              value={formik.values.email}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.touched.email && formik.errors.email}
+              icon={Mail}
+              iconPosition="right"
+            />
 
-            {/* PASSWORD */}
-            <div className="mb-5">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Password <span className="text-red-500">*</span>
-              </label>
-              <div className="relative">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  name="password"
-                  placeholder="Enter your password"
-                  value={formik.values.password}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  className={`form-input w-full  ${
-                    formik.touched.password && formik.errors.password
-                      ? "border-red-400 "
-                      : "border-gray-200 "
-                  }`}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"
-                >
-                  {showPassword ? (
-                    <EyeOff className="w-5 h-5" />
-                  ) : (
-                    <Eye className="w-5 h-5" />
-                  )}
-                </button>
-              </div>
-              {formik.touched.password && formik.errors.password && (
-                <p className="text-red-500 text-xs mt-1">
-                  {formik.errors.password}
-                </p>
-              )}
-            </div>
+            <InputField
+              label="Password"
+              name="password"
+              required
+              type="password"
+              placeholder="Enter your password"
+              value={formik.values.password}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.touched.password && formik.errors.password}
+            />
 
-            {/* REMEMBER */}
-            <div className="flex items-center justify-between mb-6">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  name="rememberMe"
-                  checked={formik.values.rememberMe}
-                  onChange={formik.handleChange}
-                  className="w-4 h-4 accent-primary-500 text-white"
-                />
-                <span className="text-sm text-gray-700">Remember Me</span>
-              </label>
+            <div className="flex items-center justify-end">
               <a href="#" className="text-sm text-primary-500 font-medium">
                 Forgot Password?
               </a>

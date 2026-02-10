@@ -1,18 +1,22 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Menu, Search, Bell, HelpCircle } from "lucide-react";
+import { Menu, Search, Bell, HelpCircle, Wifi, WifiOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import DropdownProfile from "./DropdownProfile";
 import ModalAction from "../components/ModalAction";
 import { clearLoginState } from "../redux/slices/authSlice";
+import PermissionGuard from "../guard/PermissionGuard";
+import { ROLES } from "../constants";
 
 function Header({ sidebarOpen, setSidebarOpen }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { connected } = useSelector((state) => state.socket);
+
   const [searchModalOpen, setSearchModalOpen] = useState(false);
   const [showLogoutOverlay, setShowLogoutOverlay] = useState(false);
 
-  const handleLogoutConfirm = async() => {
+  const handleLogoutConfirm = async () => {
     dispatch(clearLoginState());
     setShowLogoutOverlay(false);
   };
@@ -57,6 +61,28 @@ function Header({ sidebarOpen, setSidebarOpen }) {
                 <span className="sr-only">Notifications</span>
                 <Bell className="w-4 h-4 text-slate-500" />
               </button>
+              {/* Connectivity */}
+              <PermissionGuard
+                roles={[ROLES.KITCHEN, ROLES.BAR]}
+              >
+              <div
+                title={
+                  connected ? "Real-time updates active" : "No live connection"
+                }
+                className={`w-8 h-8 flex items-center justify-center rounded-full ml-2 transition
+                ${
+                  connected
+                    ? "bg-green-100 hover:bg-green-200"
+                    : "bg-red-100 hover:bg-red-200"
+                }`}
+              >
+                {connected ? (
+                  <Wifi className="w-4 h-4 text-green-700" />
+                ) : (
+                  <WifiOff className="w-4 h-4 text-red-700" />
+                )}
+              </div>
+              </PermissionGuard>
 
               {/* Divider */}
               <hr className="w-px h-6 bg-slate-200 border-none" />

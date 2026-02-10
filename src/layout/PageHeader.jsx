@@ -57,13 +57,12 @@ const PageHeader = ({
         {/* Actions */}
         <div className="flex items-center gap-3 w-full sm:w-auto">
           {badge && (
-  <div className="flex items-center gap-2 flex-wrap">
-    {Array.isArray(badge) ? badge.map((b, i) => (
-      <div key={i}>{b}</div>
-    )) : badge}
-  </div>
-)}
-
+            <div className="flex items-center gap-2 flex-wrap">
+              {Array.isArray(badge)
+                ? badge.map((b, i) => <div key={i}>{b}</div>)
+                : badge}
+            </div>
+          )}
 
           {actions.length > 0 && (
             <div className="flex flex-wrap items-center gap-2 sm:gap-3">

@@ -3,11 +3,13 @@ import { Link } from "react-router-dom";
 
 import Transition from "../utils/Transition";
 import { useSelector } from "react-redux";
+import PermissionGuard from "../guard/PermissionGuard";
+import { ROLES } from "../constants";
 
 function DropdownProfile({ align, onLogoutClick }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  const {meData} = useSelector((state) => state.auth);
+  const { meData } = useSelector((state) => state.auth);
   const trigger = useRef(null);
   const dropdown = useRef(null);
 
@@ -90,20 +92,23 @@ function DropdownProfile({ align, onLogoutClick }) {
             </div>
           </div>
           <ul>
-            <li>
-              <Link
-                className="font-medium text-sm text-primary hover:text-primary-600  flex items-center py-1 px-3"
-                to="/settings"
-                onClick={() => setDropdownOpen(!dropdownOpen)}
-              >
-                Settings
-              </Link>
-            </li>
+            <PermissionGuard roles={[ROLES.SUPER_ADMIN]}>
+              <li>
+                <Link
+                  className="font-medium text-sm text-primary hover:text-primary-600  flex items-center py-1 px-3"
+                  to="/settings"
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
+                >
+                  Settings
+                </Link>
+              </li>
+            </PermissionGuard>
+
             <li>
               <button
                 className="font-medium text-sm text-red-500 hover:text-red-600  flex items-center py-1 px-3"
                 onClick={(e) => {
-                  e.stopPropagation(), onLogoutClick();
+                  (e.stopPropagation(), onLogoutClick());
                 }}
               >
                 Sign Out

@@ -16,7 +16,11 @@ function AppLayout({ children }) {
   const layoutRules = {
     "/kitchen-display": {
       sidebar: false,
-      header: true,
+      header: false,
+    },
+    "/unauthorized": {
+      sidebar: false,
+      header: false,
     },
   };
 

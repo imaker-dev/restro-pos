@@ -11,12 +11,14 @@ import {
   socketConnected,
   socketDisconnected,
 } from "../redux/slices/socketSlice";
-import { notify } from "../utils/notify";
+import { setKotTab } from "../redux/slices/uiSlice";
+import { devError, devLog, devWarn } from "../utils/logger";
 import {
   playCancelSound,
   playOrderCreatedSound,
   playSuccessSound,
 } from "../utils/sound";
+import { showToast } from "../utils/toast";
 import {
   SOCKET_CONNECT,
   SOCKET_DISCONNECT,
@@ -32,34 +34,39 @@ import {
   KOT_CANCELLED,
 } from "./socketEvents";
 
-export const registerSocketListeners = (socket, dispatch) => {
+export const registerSocketListeners = (socket, dispatch, getState) => {
   socket.on(SOCKET_CONNECT, () => {
     dispatch(socketConnected());
-    console.log("🟢 Socket Connected:", socket.id);
+    devLog("🟢 Socket Connected:", socket.id);
   });
 
   socket.on(SOCKET_DISCONNECT, () => {
     dispatch(socketDisconnected());
-    console.log("🔴 Socket Disconnected");
+    devLog("🔴 Socket Disconnected");
   });
 
   socket.on(SOCKET_ERROR, (err) => {
-    console.error("Socket Error:", err.message);
+    devError("Socket Error:", err.message);
   });
 
   socket.on(KOT_UPDATED, (data) => {
-    console.log("KOT SOCKET:", data);
+    devLog("KOT SOCKET:", data);
 
     switch (data.type) {
       case KOT_CREATED:
         playOrderCreatedSound();
         dispatch(newKot(data.kot));
+        const currentTab = getState().ui.kotTab;
 
-        notify({
+        if (currentTab !== "" && currentTab !== "pending") {
+          dispatch(setKotTab("pending"));
+        }
+        showToast({
           title: "New Order",
           message: `${data?.kot?.kotNumber} • ${data?.kot?.itemCount} items`,
           type: "success",
         });
+
         break;
 
       case KOT_ACCEPTED:
@@ -89,7 +96,7 @@ export const registerSocketListeners = (socket, dispatch) => {
       case KOT_CANCELLED:
         playCancelSound();
         dispatch(kotCancelled(data.kot));
-        notify({
+        showToast({
           title: "Order Cancelled",
           message: `${data?.kot?.kotNumber} ×${data?.kot?.totalItemCount}`,
           type: "warning",
@@ -99,17 +106,17 @@ export const registerSocketListeners = (socket, dispatch) => {
       case ITEM_CANCELLED:
         playCancelSound();
         dispatch(itemCancelled(data.kot));
-
-        // notify({
-        //   title: "Item Cancelled",
-        //   message: `${data?.kot?.cancelled_item?.item_name} ×${data?.kot?.cancelled_item?.quantity}`,
-        //   type: "warning",
-        // });
+        showToast({
+          title: "Item Cancelled",
+          // message: `${data?.kot?.cancelled_item?.item_name} ×${data?.kot?.cancelled_item?.quantity}`,
+          type: "warning",
+        });
 
         break;
 
       default:
-        console.warn("Unhandled KOT type:", data.type);
+        devWarn("Unhandled KOT type:", data.type);
+
         break;
     }
   });

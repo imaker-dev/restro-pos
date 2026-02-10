@@ -4,12 +4,10 @@ export const SOCKET_DISCONNECT = "disconnect";
 export const SOCKET_ERROR = "connect_error";
 
 // ROOMS
-export const JOIN_KITCHEN = "join:kitchen";
 export const JOIN_STATION = "join:station";
 
 // KOT
 export const KOT_UPDATED = "kot:updated";
-
 export const KOT_CREATED = "kot:created";
 export const KOT_ACCEPTED = "kot:accepted";
 export const KOT_PREPARING = "kot:preparing";

@@ -49,7 +49,6 @@ axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response) {
-      console.log(error.response.data.error);
       const { status, data } = error.response;
       const errorMessage =
         data?.message || error.response.data.error || "Some unknown error";

@@ -16,6 +16,7 @@ import {
   Layers,
   Warehouse,
   Info,
+  ReceiptIndianRupee,
 } from "lucide-react";
 import { ROLES } from "../constants";
 
@@ -37,18 +38,12 @@ export const navConfig = [
         name: "Dashboard",
         icon: Home,
         path: "/", // always /
-        roles: [ROLES.KITCHEN],
+        roles: [ROLES.KITCHEN,ROLES.BAR],
       },
       {
         name: "Analytics",
         icon: BarChart3,
         path: "/analytics",
-        roles: [ROLES.SUPER_ADMIN],
-      },
-      {
-        name: "Fields",
-        icon: BarChart3,
-        path: "/fields",
         roles: [ROLES.SUPER_ADMIN],
       },
     ],
@@ -139,11 +134,12 @@ export const navConfig = [
         roles: [ROLES.SUPER_ADMIN],
       },
       {
-        name: "Kitchen Display (KDS)",
-        icon: Receipt,
+        name: "Order Display",
+        icon: ReceiptIndianRupee,
         path: "/kitchen-display",
-        roles: [ROLES.KITCHEN],
+        roles: [ROLES.KITCHEN, ROLES.BAR],
       },
+
       {
         name: "Transactions",
         icon: CreditCard,

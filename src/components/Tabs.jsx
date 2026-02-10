@@ -21,7 +21,7 @@ export default function Tabs({ tabs = [], value, onChange }) {
       <div className="flex w-full sm:w-auto bg-gray-200 p-1 rounded-lg relative overflow-hidden">
         {/* Sliding Background */}
         <span
-          className="absolute top-1 bottom-1 bg-white rounded-lg transition-all duration-300 ease-in-out"
+          className="absolute top-1 bottom-1 bg-primary-500 rounded-lg transition-all duration-300 ease-in-out"
           style={{
             left: indicatorStyle.left || 0,
             width: indicatorStyle.width || 0,
@@ -45,7 +45,7 @@ export default function Tabs({ tabs = [], value, onChange }) {
                 w-full sm:w-auto
                 ${
                   isActive
-                    ? "text-slate-900"
+                    ? "text-white"
                     : "text-slate-600 hover:text-slate-800"
                 }
               `}

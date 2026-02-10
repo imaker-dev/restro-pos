@@ -13,7 +13,7 @@ const KotOrderCardSkeleton = () => {
       </div>
 
       {/* Items */}
-      <div className="p-4 space-y-3 min-h-[200px]">
+      <div className="p-4 space-y-3 min-h-[150px]">
         {[1, 2, 3].map((i) => (
           <div key={i} className="flex items-center w-full">
             {/* Left */}

@@ -42,8 +42,18 @@ export const formatDate = (input, type = "short") => {
   const year = date.getFullYear();
 
   const monthNames = [
-    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
   ];
   const monthName = monthNames[date.getMonth()];
 
@@ -65,6 +75,9 @@ export const formatDate = (input, type = "short") => {
 
     case "longTime":
       return `${day} ${monthName}, ${year} ${hours12}:${minutes} ${meridian}`;
+
+    case "time":
+      return `${hours12}:${minutes} ${meridian}`;
 
     case "timeAgo":
       return timeAgo(date);
