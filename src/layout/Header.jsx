@@ -1,6 +1,14 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Menu, Search, Bell, HelpCircle, Wifi, WifiOff } from "lucide-react";
+import {
+  Menu,
+  Search,
+  Bell,
+  HelpCircle,
+  Wifi,
+  WifiOff,
+  Loader2,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import DropdownProfile from "./DropdownProfile";
 import ModalAction from "../components/ModalAction";
@@ -11,7 +19,7 @@ import { ROLES } from "../constants";
 function Header({ sidebarOpen, setSidebarOpen }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { connected } = useSelector((state) => state.socket);
+  const { connected, connecting } = useSelector((state) => state.socket);
 
   const [searchModalOpen, setSearchModalOpen] = useState(false);
   const [showLogoutOverlay, setShowLogoutOverlay] = useState(false);
@@ -62,26 +70,32 @@ function Header({ sidebarOpen, setSidebarOpen }) {
                 <Bell className="w-4 h-4 text-slate-500" />
               </button>
               {/* Connectivity */}
-              <PermissionGuard
-                roles={[ROLES.KITCHEN, ROLES.BAR]}
-              >
-              <div
-                title={
-                  connected ? "Real-time updates active" : "No live connection"
-                }
-                className={`w-8 h-8 flex items-center justify-center rounded-full ml-2 transition
-                ${
-                  connected
-                    ? "bg-green-100 hover:bg-green-200"
-                    : "bg-red-100 hover:bg-red-200"
-                }`}
-              >
-                {connected ? (
-                  <Wifi className="w-4 h-4 text-green-700" />
-                ) : (
-                  <WifiOff className="w-4 h-4 text-red-700" />
-                )}
-              </div>
+              <PermissionGuard roles={[ROLES.KITCHEN, ROLES.BAR]}>
+                <div
+                  title={
+                    connecting
+                      ? "Connecting to live updates..."
+                      : connected
+                        ? "Real-time updates active"
+                        : "No live connection"
+                  }
+                  className={`w-8 h-8 flex items-center justify-center rounded-full ml-2 transition
+                    ${
+                      connecting
+                        ? "bg-yellow-100 hover:bg-yellow-200"
+                        : connected
+                          ? "bg-green-100 hover:bg-green-200"
+                          : "bg-red-100 hover:bg-red-200"
+                    }`}
+                >
+                  {connecting ? (
+                    <Loader2 className="w-4 h-4 text-yellow-700 animate-spin" />
+                  ) : connected ? (
+                    <Wifi className="w-4 h-4 text-green-700" />
+                  ) : (
+                    <WifiOff className="w-4 h-4 text-red-700" />
+                  )}
+                </div>
               </PermissionGuard>
 
               {/* Divider */}

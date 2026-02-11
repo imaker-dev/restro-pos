@@ -9,4 +9,7 @@ export default false
         const params = search ? { search } : {};
         return Api.get("/users", { params });
       },
+      addUserApi:(values) => {
+        return Api.post(`/users`,values)
+      }
     };

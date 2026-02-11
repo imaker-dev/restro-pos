@@ -7,12 +7,7 @@ import AccordionSection from "../../components/AccordionSection";
 import { InputField } from "../../components/fields/InputField";
 import { SelectField } from "../../components/fields/SelectField";
 
-import {
-  User,
-  Shield,
-  User2,
-  Mail,
-} from "lucide-react";
+import { User, Shield, User2, Mail, Loader2 } from "lucide-react";
 
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllOutlets } from "../../redux/slices/outletSlice";
@@ -20,9 +15,13 @@ import { fetchAllRoles } from "../../redux/slices/roleSlice";
 import { fetchAllFloors } from "../../redux/slices/floorSlice";
 import { fetchAllPermissions } from "../../redux/slices/permissionSlice";
 import { MultiSelectDropdownField } from "../../components/fields/MultiSelectDropdownField";
+import { handleResponse } from "../../utils/helpers";
+import { createUser } from "../../redux/slices/userSlice";
+import { useNavigate } from "react-router-dom";
 
 const AddUserPage = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   useEffect(() => {
     dispatch(fetchAllOutlets());
@@ -30,6 +29,7 @@ const AddUserPage = () => {
     // dispatch(fetchAllPermissions());
   }, [dispatch]);
 
+  const { isCreatingUser } = useSelector((state) => state.user);
   const { allOutlets } = useSelector((s) => s.outlet);
   const { allRoles } = useSelector((s) => s.role);
   const { allFloors, loading: fetchingAllFloors } = useSelector((s) => s.floor);
@@ -64,10 +64,10 @@ const AddUserPage = () => {
 
     outletId: Yup.string().required(),
     roleId: Yup.string().required(),
-    floors: Yup.array().min(1, "Select at least one floor"),
+    // floors: Yup.array().min(1, "Select at least one floor"),
   });
 
-  const handleSubmit = (values) => {
+  const handleSubmit = async (values) => {
     const payload = {
       name: values.name,
       email: values.email,
@@ -91,8 +91,9 @@ const AddUserPage = () => {
     };
 
     console.log("FINAL PAYLOAD:", payload);
-
-    // dispatch(createUser(payload))
+    await handleResponse(dispatch(createUser(payload)), () => {
+      navigate("/users");
+    });
   };
 
   return (
@@ -113,7 +114,6 @@ const AddUserPage = () => {
             }
           }, [formik.values.outletId]);
 
-          
           return (
             <Form className="space-y-8" autoComplete="off">
               {/* BASIC INFO */}
@@ -124,6 +124,7 @@ const AddUserPage = () => {
                   <InputField
                     label="Full Name"
                     name="name"
+                    placeholder="Enter Full Name"
                     icon={User2}
                     value={formik.values.name}
                     onChange={formik.handleChange}
@@ -135,6 +136,7 @@ const AddUserPage = () => {
                   <InputField
                     label="Email"
                     name="email"
+                    placeholder="Enter Email Address"
                     type="email"
                     icon={Mail}
                     value={formik.values.email}
@@ -235,8 +237,19 @@ const AddUserPage = () => {
               </AccordionSection>
 
               <div className="flex justify-end">
-                <button type="submit" className="btn bg-primary-500 text-white">
-                  Create Staff
+                <button
+                  type="submit"
+                  disabled={isCreatingUser}
+                  className="btn bg-primary-500 text-white flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                >
+                  {isCreatingUser ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Creating...
+                    </>
+                  ) : (
+                    "Create Staff"
+                  )}
                 </button>
               </div>
             </Form>

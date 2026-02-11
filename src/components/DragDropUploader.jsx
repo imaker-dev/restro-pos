@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef } from "react";
 import { useDropzone } from "react-dropzone";
-import { Upload, X, Crop } from "lucide-react";
+import { Upload, X, Crop, Info } from "lucide-react";
 import Cropper from "react-easy-crop";
 import Api from "../redux/api.js";
 
@@ -227,8 +227,7 @@ const DragDropUploader = ({
           ? [...value, ...uploadedPaths].slice(0, maxFiles)
           : [uploadedPaths[0]];
       } catch (err) {
-        console.error(err);
-        setError("Failed to upload files.");
+        setError(err.message || "Failed to upload files.");
         return;
       } finally {
         setLoading(false);
@@ -438,7 +437,7 @@ const DragDropUploader = ({
       {error && (
         <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
           <p className="text-sm text-red-600 flex items-center gap-2">
-            <X className="w-4 h-4" /> {error}
+            <Info className="w-4 h-4" /> {error}
           </p>
         </div>
       )}

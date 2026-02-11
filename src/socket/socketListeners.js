@@ -9,6 +9,7 @@ import {
 } from "../redux/slices/kotSlice";
 import {
   socketConnected,
+  socketConnecting,
   socketDisconnected,
 } from "../redux/slices/socketSlice";
 import { setKotTab } from "../redux/slices/uiSlice";
@@ -35,6 +36,8 @@ import {
 } from "./socketEvents";
 
 export const registerSocketListeners = (socket, dispatch, getState) => {
+  dispatch(socketConnecting());
+
   socket.on(SOCKET_CONNECT, () => {
     dispatch(socketConnected());
     devLog("🟢 Socket Connected:", socket.id);
@@ -52,6 +55,9 @@ export const registerSocketListeners = (socket, dispatch, getState) => {
   socket.on(KOT_UPDATED, (data) => {
     devLog("KOT SOCKET:", data);
 
+    const kotNo = data?.kot?.kotNumber || "Order";
+    const itemCount = data?.kot?.itemCount || data?.kot?.totalItemCount || "";
+
     switch (data.type) {
       case KOT_CREATED:
         playOrderCreatedSound();
@@ -62,8 +68,8 @@ export const registerSocketListeners = (socket, dispatch, getState) => {
           dispatch(setKotTab("pending"));
         }
         showToast({
-          title: "New Order",
-          message: `${data?.kot?.kotNumber} • ${data?.kot?.itemCount} items`,
+          title: "New Order Received",
+          message: `${kotNo} • ${itemCount} items`,
           type: "success",
         });
 
@@ -89,8 +95,12 @@ export const registerSocketListeners = (socket, dispatch, getState) => {
         break;
 
       case KOT_SERVED:
-        // playSuccessSound();
         dispatch(kotServed(data.kot));
+        showToast({
+          title: "Order Served",
+          message: `${kotNo} completed successfully`,
+          type: "success",
+        });
         break;
 
       case KOT_CANCELLED:
@@ -98,7 +108,7 @@ export const registerSocketListeners = (socket, dispatch, getState) => {
         dispatch(kotCancelled(data.kot));
         showToast({
           title: "Order Cancelled",
-          message: `${data?.kot?.kotNumber} ×${data?.kot?.totalItemCount}`,
+          message: `${kotNo} ×${itemCount}`,
           type: "warning",
         });
         break;
@@ -108,7 +118,9 @@ export const registerSocketListeners = (socket, dispatch, getState) => {
         dispatch(itemCancelled(data.kot));
         showToast({
           title: "Item Cancelled",
-          // message: `${data?.kot?.cancelled_item?.item_name} ×${data?.kot?.cancelled_item?.quantity}`,
+          message: data?.kot?.cancelled_item
+            ? `${data.kot.cancelled_item.item_name} ×${data.kot.cancelled_item.quantity}`
+            : `${kotNo} item removed`,
           type: "warning",
         });
 

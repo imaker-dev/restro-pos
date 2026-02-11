@@ -64,14 +64,14 @@ export default function WelcomeBanner() {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 px-8 py-8">
+      <div className="relative z-10 p-4 lg:p-8">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
           {/* Left section - Text */}
           <div>
-            <h1 className="lg:text-2xl font-bold text-white mb-1">
+            <h1 className="text-lg lg:text-2xl font-bold text-white mb-1">
               Welcome Back, {meData?.name}
             </h1>
-            <p className="text-xs sm:text-base text-white">
+            <p className="text-sm sm:text-base text-white">
               {getWelcomeMessage(role)}
             </p>
           </div>

@@ -43,6 +43,21 @@ export const markKotItemReady = createAsyncThunk(
   },
 );
 
+const incStat = (state, key) => {
+  if (state.allOrdersKot.stats[key] !== undefined) {
+    state.allOrdersKot.stats[key] += 1;
+  }
+};
+
+const decStat = (state, key) => {
+  if (
+    state.allOrdersKot.stats[key] !== undefined &&
+    state.allOrdersKot.stats[key] > 0
+  ) {
+    state.allOrdersKot.stats[key] -= 1;
+  }
+};
+
 const updateKotInState = (state, updatedKot) => {
   const index = state.allOrdersKot.kots.findIndex(
     (k) => k.id === updatedKot.id,
@@ -105,15 +120,38 @@ const kotSlice = createSlice({
 
       state.allOrdersKot.kots.unshift(kot);
 
-      state.allOrdersKot.stats.pending_count += 1;
-      state.allOrdersKot.stats.active_count += 1;
+      state.allOrdersKot.kots.unshift(kot);
+      incStat(state, "pending_count");
     },
+
     kotPreparing(state, action) {
-      updateKotInState(state, action.payload);
+      const updatedKot = action.payload;
+
+      const existing = state.allOrdersKot.kots.find(
+        (k) => k.id === updatedKot.id,
+      );
+
+      if (existing?.status === "pending") {
+        decStat(state, "pending_count");
+        incStat(state, "preparing_count");
+      }
+
+      updateKotInState(state, updatedKot);
     },
 
     kotReady(state, action) {
-      updateKotInState(state, action.payload);
+      const updatedKot = action.payload;
+
+      const existing = state.allOrdersKot.kots.find(
+        (k) => k.id === updatedKot.id,
+      );
+
+      if (existing?.status === "preparing") {
+        decStat(state, "preparing_count");
+        incStat(state, "ready_count");
+      }
+
+      updateKotInState(state, updatedKot);
     },
 
     itemReady(state, action) {
@@ -131,14 +169,23 @@ const kotSlice = createSlice({
         (k) => k.id !== servedKot.id,
       );
 
-      // optional stats update
-      if (state.allOrdersKot.stats.active_count > 0) {
-        state.allOrdersKot.stats.active_count -= 1;
-      }
+      decStat(state, "ready_count");
     },
 
     kotCancelled(state, action) {
-      updateKotInState(state, action.payload);
+      const updatedKot = action.payload;
+
+      const existing = state.allOrdersKot.kots.find(
+        (k) => k.id === updatedKot.id,
+      );
+
+      if (existing) {
+        decStat(state, `${existing.status}_count`);
+      }
+
+      incStat(state, "cancelled_count");
+
+      updateKotInState(state, updatedKot);
     },
     itemCancelled(state, action) {
       updateKotInState(state, action.payload);

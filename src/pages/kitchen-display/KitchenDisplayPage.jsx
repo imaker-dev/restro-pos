@@ -7,6 +7,7 @@ import {
   Wifi,
   WifiOff,
   ChevronLeft,
+  Loader2,
 } from "lucide-react";
 import KotOrderCard from "../../partial/kot/KotOrderCard";
 import { useDispatch, useSelector } from "react-redux";
@@ -35,7 +36,7 @@ export default function KitchenDisplayPage() {
 
   const { allOrdersKot, loading } = useSelector((state) => state.kot);
   const { kotTab } = useSelector((state) => state.ui);
-  const { connected } = useSelector((state) => state.socket);
+  const { connected, connecting } = useSelector((state) => state.socket);
   const { kots, stats } = allOrdersKot || {};
   const [lastFetchedAt, setLastFetchedAt] = useState(null);
 
@@ -197,38 +198,53 @@ export default function KitchenDisplayPage() {
             </button>
             <div
               title={
-                connected ? "Real-time updates active" : "No live connection"
+                connecting
+                  ? "Connecting to live updates..."
+                  : connected
+                    ? "Real-time updates active"
+                    : "No live connection"
               }
               className={`
-                inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium
-                transition border
-                ${
-                  connected
-                    ? "bg-green-50 text-green-700 border-green-200 hover:bg-green-100"
-                    : "bg-red-50 text-red-700 border-red-200 hover:bg-red-100"
-                }
-              `}
+    inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium
+    transition border
+    ${
+      connecting
+        ? "bg-yellow-50 text-yellow-700 border-yellow-200 hover:bg-yellow-100"
+        : connected
+          ? "bg-green-50 text-green-700 border-green-200 hover:bg-green-100"
+          : "bg-red-50 text-red-700 border-red-200 hover:bg-red-100"
+    }
+  `}
             >
               {/* Dot Indicator */}
               <span
                 className={`
-                  w-2 h-2 rounded-full
-                  ${connected ? "bg-green-500 animate-pulse" : "bg-red-500"}
-                `}
+      w-2 h-2 rounded-full
+      ${
+        connecting
+          ? "bg-yellow-500 animate-pulse"
+          : connected
+            ? "bg-green-500 animate-pulse"
+            : "bg-red-500"
+      }
+    `}
               />
 
               {/* Icon */}
-              {connected ? (
+              {connecting ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : connected ? (
                 <Wifi className="w-3.5 h-3.5" />
               ) : (
                 <WifiOff className="w-3.5 h-3.5" />
               )}
 
               {/* Text */}
-              <span>{connected ? "Online" : "Offline"}</span>
+              <span>
+                {connecting ? "Connecting" : connected ? "Online" : "Offline"}
+              </span>
             </div>
           </div>
-          
         </div>
 
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">

@@ -7,6 +7,7 @@ import { fetchMeData } from "./redux/slices/authSlice";
 import AppLayoutSkeleton from "./layout/AppLayoutSkeleton";
 import { usePreventNumberInputScroll, useScrollToTop } from "./hooks/useScroll";
 import { useSocket } from "./hooks/useSocket";
+import NetworkStatusBanner from "./components/NetworkStatusBanner";
 
 const App = () => {
   const dispatch = useDispatch();
@@ -29,8 +30,8 @@ const App = () => {
 
   return (
     <Suspense fallback={<div>Loading...</div>}>
+      <NetworkStatusBanner />
       <Routes>
-
         {/* AUTH */}
         {!logIn && <Route path="/auth" element={<AuthPage />} />}
         {logIn && <Route path="/auth" element={<Navigate to="/" replace />} />}
