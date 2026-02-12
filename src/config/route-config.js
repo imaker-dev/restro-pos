@@ -1,5 +1,4 @@
 import React from "react";
-import AllProductsPage from "../pages/product/AllProductsPage";
 import AllOutletsPage from "../pages/outlets/AllOutletsPage";
 import Fields from "../pages/Fields";
 import AllUsersPage from "../pages/users/AllUsersPage";
@@ -17,6 +16,8 @@ import { ROLES } from "../constants";
 import Dashboard from "../pages/dashboard/Dashboard";
 import OrderDashboard from "../pages/dashboard/OrderDashboard";
 import AllTablesPage from "../pages/outlets/AllTablesPage";
+import AllAddonsGroup from "../pages/addons/AllAddonsGroup";
+import AllAddonItemsPage from "../pages/addons/AllAddonItemsPage";
 
 const routeConfig = [
   // { path: "/", element: Dashboard, roles: [ROLES.SUPER_ADMIN] },
@@ -27,7 +28,7 @@ const routeConfig = [
       [ROLES.KITCHEN]: OrderDashboard,
       [ROLES.BAR]: OrderDashboard,
     },
-    roles: [ROLES.SUPER_ADMIN, ROLES.KITCHEN,ROLES.BAR],
+    roles: [ROLES.SUPER_ADMIN, ROLES.KITCHEN, ROLES.BAR],
   },
   {
     path: "/kitchen-display",
@@ -35,9 +36,7 @@ const routeConfig = [
     roles: [ROLES.BAR, ROLES.KITCHEN],
   },
 
-  { path: "/products", element: AllProductsPage, roles: [ROLES.SUPER_ADMIN] },
-
-  { path: "/outlets", element: AllOutletsPage, roles: [ROLES.SUPER_ADMIN] },
+  { path: "/outlets", element: AllOutletsPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER] },
 
   {
     path: "/outlets/categories",
@@ -47,6 +46,16 @@ const routeConfig = [
   {
     path: "/outlets/categories/items",
     element: AllItemsPage,
+    roles: [ROLES.SUPER_ADMIN],
+  },
+  {
+    path: "/outlets/items",
+    element: AllItemsPage,
+    roles: [ROLES.SUPER_ADMIN],
+  },
+  {
+    path: "/outlets/items/add",
+    element: AddItemPage,
     roles: [ROLES.SUPER_ADMIN],
   },
 
@@ -65,8 +74,16 @@ const routeConfig = [
     element: AllTablesPage,
     roles: [ROLES.SUPER_ADMIN],
   },
-
-  { path: "/items/add", element: AddItemPage, roles: [ROLES.SUPER_ADMIN] },
+  {
+    path: "/outlets/addons-groups",
+    element: AllAddonsGroup,
+    roles: [ROLES.SUPER_ADMIN],
+  },
+  {
+    path: "/outlets/addons-groups/addon",
+    element: AllAddonItemsPage,
+    roles: [ROLES.SUPER_ADMIN],
+  },
 
   { path: "/users", element: AllUsersPage, roles: [ROLES.SUPER_ADMIN] },
   { path: "/users/add", element: AddUserPage, roles: [ROLES.SUPER_ADMIN] },

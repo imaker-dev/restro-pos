@@ -28,7 +28,7 @@ export const useSocket = () => {
         JOIN_STATION,
         {
           station: station === ROLES.BAR ? "bar" : station,
-          outletId: 4,
+          outletId: outletId,
         },
         (res) => {
           console.log("Station Join:", res?.success ? "OK" : "FAIL");

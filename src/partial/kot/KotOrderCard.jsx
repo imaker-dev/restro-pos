@@ -81,13 +81,14 @@ const KotOrderCard = ({
 
                       <FoodTypeIcon type={item?.itemType} size="xs" />
                       <p
-                        className={`text-sm font-medium whitespace-nowrap
-                    ${
-                      item?.status === "cancelled"
-                        ? "line-through text-red-500 opacity-70"
-                        : "text-gray-900"
-                    }
-                    `}
+                        title={item?.name}
+                                              className={`text-sm font-medium truncate max-w-[300px]
+                          ${
+                            item?.status === "cancelled"
+                              ? "line-through text-red-500 opacity-70"
+                              : "text-gray-900"
+                          }
+                        `}
                       >
                         {item?.name}
                         {item?.variantName && (

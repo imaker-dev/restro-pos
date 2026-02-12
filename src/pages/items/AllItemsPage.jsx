@@ -1,58 +1,63 @@
 import React, { useEffect, useState } from "react";
 import PageHeader from "../../layout/PageHeader";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchAllItemsByCategory } from "../../redux/slices/itemSlice";
+import {
+  fetchAllItems,
+  fetchAllItemsByCategory,
+} from "../../redux/slices/itemSlice";
 import { useQueryParams } from "../../hooks/useQueryParams";
 import SmartTable from "../../components/SmartTable";
 import { formatDate } from "../../utils/dateFormatter";
-import ItemModal from "../../partial/item/ItemModal";
 import { Edit2, Plus } from "lucide-react";
+import LightboxMedia from "../../components/LightboxMedia";
+import FoodTypeIcon from "../../partial/common/FoodTypeIcon";
+import { useNavigate } from "react-router-dom";
 
 const AllItemsPage = () => {
   const dispatch = useDispatch();
-  const { categoryId } = useQueryParams();
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [selectedItem, setSelectedItem] = useState(false);
+  const navigate = useNavigate();
+
+  const { outletId, categoryId } = useQueryParams();
 
   const { allItems, loading, isCreatingItem, isUpdatingItem } = useSelector(
     (state) => state.item,
   );
 
+  const fetchItems = () => {
+    if (categoryId) {
+      dispatch(fetchAllItemsByCategory(categoryId));
+    }
+    if (outletId) {
+      dispatch(fetchAllItems(outletId));
+    }
+  };
   useEffect(() => {
-    dispatch(fetchAllItemsByCategory(categoryId));
-  }, [categoryId]);
+    fetchItems();
+  }, [categoryId, outletId]);
 
   const columns = [
     {
-      key: "image_url",
-      label: "Image",
-      sortable: false,
+      key: "name",
+      label: "Item",
+      sortable: true,
       render: (row) => (
-        <div className="h-10 w-10 rounded-md overflow-hidden bg-slate-100">
-          {row.image_url ? (
-            <img
+        <div className="flex items-center gap-2">
+          <div className="h-10 w-10 rounded-md overflow-hidden bg-slate-100">
+            <LightboxMedia
               src={row.image_url}
               alt={row.name}
-              className="h-full w-full object-cover"
+              caption={row.name}
             />
-          ) : (
-            <div className="flex items-center justify-center h-full text-xs text-slate-400">
-              N/A
-            </div>
-          )}
+          </div>
+          <div className="flex items-center gap-1">
+            <FoodTypeIcon type={row.item_type} />
+            <span className="text-slate-700 font-medium">{row.name}</span>
+          </div>
         </div>
       ),
     },
-    {
-      key: "name",
-      label: "Item Name",
-      sortable: true,
-      render: (row) => (
-        <span className="text-slate-700 font-medium">{row.name}</span>
-      ),
-    },
 
-    {
+    !categoryId && {
       key: "category_name",
       label: "Category",
       sortable: true,
@@ -60,33 +65,7 @@ const AllItemsPage = () => {
         <span className="text-slate-700">{row.category_name}</span>
       ),
     },
-    {
-  key: "item_type",
-  label: "Type",
-  sortable: true,
-  render: (row) => {
-    const isVeg = row.item_type?.toLowerCase() === "veg";
 
-    return (
-      <span
-        className={`px-2 py-1 rounded text-xs font-semibold flex items-center gap-1 w-fit
-          ${isVeg 
-            ? "bg-emerald-100 text-emerald-700" 
-            : "bg-red-100 text-red-700"
-          }`}
-      >
-        {/* Dot Symbol */}
-        <span
-          className={`h-2 w-2 rounded-full 
-            ${isVeg ? "bg-emerald-600" : "bg-red-600"}
-          `}
-        />
-
-        {isVeg ? "VEG" : "NON-VEG"}
-      </span>
-    );
-  },
-},
     {
       key: "base_price",
       label: "Price",
@@ -158,29 +137,18 @@ const AllItemsPage = () => {
       label: "Update",
       icon: Edit2,
       color: "blue",
-      onClick: (row) => {
-        (setSelectedItem(row), setShowAddModal(true));
-      },
+      // onClick: (row) => navigate(`/outlets/items/add?itemId=${row.id}`)
     },
   ];
 
   const actions = [
     {
-      label: "Add Item",
+      label: "Add New Item",
       type: "primary",
       icon: Plus,
-      onClick: () => setShowAddModal(true),
+      onClick: () => navigate(`/outlets/items/add`),
     },
   ];
-
-  const clearItemStates = () => {
-    setShowAddModal(false);
-    setSelectedItem(null);
-  };
-
-  const handleAddItem = ({ values }) => {
-    console.log(values);
-  };
 
   return (
     <>
@@ -196,15 +164,6 @@ const AllItemsPage = () => {
           loading={loading}
         />
       </div>
-
-      <ItemModal
-        isOpen={showAddModal}
-        onClose={clearItemStates}
-        categoryId={categoryId}
-        item={selectedItem}
-        onSubmit={handleAddItem}
-        loading={isCreatingItem || isUpdatingItem}
-      />
     </>
   );
 };

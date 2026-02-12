@@ -54,38 +54,48 @@ const AddUserPage = () => {
   };
 
   const validationSchema = Yup.object({
-    name: Yup.string().required(),
-    email: Yup.string().email().required(),
-    employeeCode: Yup.string().required(),
-    password: Yup.string().min(6).required(),
+    name: Yup.string().required("Name required"),
+
+    email: Yup.string().email("Invalid email").required("Email required"),
+
+    employeeCode: Yup.string().required("Employee code required"),
+
+    password: Yup.string()
+      .min(6, "Minimum 6 characters")
+      .matches(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).*$/,
+        "Password must contain at least one uppercase, one lowercase, and one number",
+      )
+      .required("Password required"),
+
     pin: Yup.string()
       .matches(/^\d{4}$/, "PIN must be 4 digits")
       .required("PIN required"),
 
-    outletId: Yup.string().required(),
-    roleId: Yup.string().required(),
+    outletId: Yup.string().required("Outlet required"),
+    roleId: Yup.string().required("Role required"),
     // floors: Yup.array().min(1, "Select at least one floor"),
   });
 
   const handleSubmit = async (values) => {
     const payload = {
-      name: values.name,
-      email: values.email,
-      employeeCode: values.employeeCode,
+      name: values.name?.trim(),
+      email: values.email?.trim(),
+      employeeCode: values.employeeCode?.trim(),
       password: values.password,
       pin: values.pin,
-      isActive: values.isActive,
+      isActive: Boolean(values.isActive),
 
       roles: [
         {
-          roleId: values.roleId,
-          outletId: values.outletId,
+          roleId: Number(values.roleId),
+          outletId: Number(values.outletId),
         },
       ],
 
-      floors: values.floors.map((floorId, index) => ({
-        floorId,
-        outletId: values.outletId,
+      floors: (values.floors || []).map((floorId, index) => ({
+        floorId: Number(floorId),
+        outletId: Number(values.outletId),
         isPrimary: index === 0, // first selected floor = primary
       })),
     };

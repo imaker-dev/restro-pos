@@ -1,61 +1,15 @@
-'use client';
-
 import React from "react";
-import { ChevronDown, ChevronsUpDown, ChevronUp, Loader2, Edit2, Trash2 } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronsUpDown,
+  ChevronUp,
+  Loader2,
+} from "lucide-react";
 import { formatNumber } from "../utils/numberFormatter";
 import NoDataFound from "../layout/NoDataFound";
 import Shimmer from "../layout/Shimmer";
-// import ActionMenu from "./ActionMenu";
-
-const ACTION_COLORS = {
-  emerald: {
-    base: "text-emerald-600",
-    hover: "hover:bg-emerald-50 hover:ring-emerald-200",
-  },
-  red: {
-    base: "text-red-600",
-    hover: "hover:bg-red-50 hover:ring-red-200",
-  },
-  indigo: {
-    base: "text-indigo-600",
-    hover: "hover:bg-indigo-50 hover:ring-indigo-200",
-  },
-  slate: {
-    base: "text-slate-600",
-    hover: "hover:bg-slate-100 hover:ring-slate-200",
-  },
-
-  blue: {
-    base: "text-blue-600",
-    hover: "hover:bg-blue-50 hover:ring-blue-200",
-  },
-  amber: {
-    base: "text-amber-600",
-    hover: "hover:bg-amber-50 hover:ring-amber-200",
-  },
-  violet: {
-    base: "text-violet-600",
-    hover: "hover:bg-violet-50 hover:ring-violet-200",
-  },
-  cyan: {
-    base: "text-cyan-600",
-    hover: "hover:bg-cyan-50 hover:ring-cyan-200",
-  },
-  pink: {
-    base: "text-pink-600",
-    hover: "hover:bg-pink-50 hover:ring-pink-200",
-  },
-  teal: {
-    base: "text-teal-600",
-    hover: "hover:bg-teal-50 hover:ring-teal-200",
-  },
-  orange: {
-    base: "text-orange-600",
-    hover: "hover:bg-orange-50 hover:ring-orange-200",
-  },
-};
-
-const DEFAULT_ACTION_COLOR = "slate";
+import ActionMenu from "./ActionMenu";
+import { getActionColor } from "../utils/actionColors";
 
 export default function SmartTable({
   title,
@@ -154,7 +108,10 @@ export default function SmartTable({
       {title && typeof totalcount === "number" && (
         <div className="px-6 py-4 border-b border-slate-200 bg-white">
           <div className="text-lg font-semibold text-slate-900 whitespace-nowrap">
-            {title} <span className="text-slate-500 font-normal">· {formatNumber(totalcount)} entries</span>
+            {title}{" "}
+            <span className="text-slate-500 font-normal">
+              · {formatNumber(totalcount)} entries
+            </span>
           </div>
         </div>
       )}
@@ -213,9 +170,7 @@ export default function SmartTable({
                     `}
                   >
                     <div className="flex items-center gap-2">
-                      <span className="text-slate-700">
-                        {col.label}
-                      </span>
+                      <span className="text-slate-700">{col.label}</span>
 
                       {col.sortable && (
                         <span className="flex items-center">
@@ -371,6 +326,9 @@ export default function SmartTable({
                         <td className="px-6 py-3 text-right">
                           <div className="flex justify-end gap-2">
                             {actions.map((action) => {
+                              /* ================================
+     🔹 ACTION MENU (submenu)
+  ================================= */
                               if (Array.isArray(action.items)) {
                                 const menuItems = action.items.map((item) => ({
                                   ...item,
@@ -391,7 +349,20 @@ export default function SmartTable({
                                 const menuDisabled =
                                   menuLoading ||
                                   menuItems.every((i) => i.disabled);
+
+                                return (
+                                  <ActionMenu
+                                    key={action.label}
+                                    items={menuItems}
+                                    loading={menuLoading}
+                                    disabled={menuDisabled}
+                                  />
+                                );
                               }
+
+                              /* ================================
+     🔹 NORMAL ICON ACTION
+  ================================= */
 
                               const isDisabled =
                                 typeof action.disabled === "function"
@@ -410,12 +381,7 @@ export default function SmartTable({
 
                               const isButtonDisabled = isDisabled || isLoading;
 
-                              const colorKey =
-                                action.color && ACTION_COLORS[action.color]
-                                  ? action.color
-                                  : DEFAULT_ACTION_COLOR;
-
-                              const palette = ACTION_COLORS[colorKey];
+                              const palette = getActionColor(action.color);
 
                               const disabledTooltipText =
                                 isButtonDisabled && action.disabledTooltip
@@ -440,12 +406,12 @@ export default function SmartTable({
                                     }
                                   }}
                                   className={`
-                                    group inline-grid h-8 w-8 place-items-center rounded-md
-                                    transition-all duration-200 border border-transparent
+                                    group inline-grid h-9 w-9 place-items-center rounded-lg
+                                    transition-all duration-200
                                     ${
                                       isButtonDisabled
                                         ? "cursor-not-allowed opacity-50 text-slate-400"
-                                        : `${palette.base} ${palette.hover} hover:border-slate-300`
+                                        : `${palette.icon} hover:ring-1 hover:scale-[1.03]`
                                     }
                                   `}
                                 >

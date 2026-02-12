@@ -4,7 +4,8 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { Loader2 } from "lucide-react";
 import { InputField } from "../../components/fields/InputField";
-import { CheckboxField } from "../../components/fields/CheckboxField";
+import { SelectField } from "../../components/fields/SelectField";
+import { FOOD_TYPES } from "../../constants";
 
 const validationSchema = Yup.object({
   name: Yup.string()
@@ -13,41 +14,40 @@ const validationSchema = Yup.object({
     .min(2, "Too short")
     .max(50, "Too long"),
 
-  basePrice: Yup.number()
-    .typeError("Base price must be a number")
-    .required("Base price is required")
-    .min(0, "Price must be positive"),
+  price: Yup.number()
+    .typeError("Price must be a number")
+    .min(0, "Cannot be negative")
+    .required("Price required"),
 
-  description: Yup.string().trim().max(200, "Too long"),
-
-  isActive: Yup.boolean(),
+  itemType: Yup.string()
+    .oneOf([FOOD_TYPES.VEG, FOOD_TYPES.NON_VEG, FOOD_TYPES.EGG])
+    .required("Item type required"),
 });
 
-const ItemModal = ({
+const AddonItemModal = ({
   isOpen,
   onClose,
   onSubmit,
-  categoryId,
-  item,
+  addonItem,
+  addonGroupId,
   loading = false,
 }) => {
-  const isEditMode = !!item;
+  const isEditMode = !!addonItem;
 
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
-      categoryId: item?.category_id || categoryId || "",
-      name: item?.name || "",
-      basePrice: item?.base_price || "",
-      description: item?.description || "",
-      isActive: item ? Boolean(item.is_active) : true,
+      addonGroupId: addonItem?.addon_group_id || addonGroupId,
+      name: addonItem?.name || "",
+      price: addonItem?.price ?? "",
+      itemType: addonItem?.item_type || "veg",
     },
     validationSchema,
 
     onSubmit: async (values, { resetForm }) => {
       if (isEditMode) {
         await onSubmit({
-          id: item.id,
+          id: addonItem.id,
           values,
           resetForm,
         });
@@ -62,61 +62,55 @@ const ItemModal = ({
 
   return (
     <ModalBasic
-      id="item-modal"
-      title={isEditMode ? "Update Item" : "Add Item"}
+      id="addon-item-modal"
+      title={isEditMode ? "Update Addon Item" : "Add Addon Item"}
       isOpen={isOpen}
       onClose={onClose}
     >
       <form
         onSubmit={formik.handleSubmit}
         autoComplete="off"
-        className="p-4 space-y-4"
+        className="p-4 space-y-5"
       >
-        {/* Item Name */}
+        {/* ITEM NAME */}
         <InputField
           label="Item Name"
           name="name"
           required
-          placeholder="Enter item name"
+          placeholder="e.g. Extra Cheese"
           value={formik.values.name}
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
           error={formik.touched.name && formik.errors.name}
         />
 
-        {/* Base Price */}
+        {/* PRICE */}
         <InputField
-          label="Base Price"
-          name="basePrice"
+          label="Price"
+          name="price"
           type="number"
           required
-          placeholder="Enter base price"
-          value={formik.values.basePrice}
+          placeholder="e.g. 50"
+          value={formik.values.price}
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
-          error={formik.touched.basePrice && formik.errors.basePrice}
+          error={formik.touched.price && formik.errors.price}
         />
 
-        {/* Description */}
-        <InputField
-          label="Description"
-          name="description"
-          placeholder="Enter description"
-          value={formik.values.description}
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-          error={formik.touched.description && formik.errors.description}
-        />
-
-        {/* Active Checkbox */}
-        <CheckboxField
-          label="Enable Item"
-          name="isActive"
-          checked={formik.values.isActive}
+        {/* ITEM TYPE */}
+        <SelectField
+          label="Item Type"
+          name="itemType"
+          options={[
+            { value: FOOD_TYPES.VEG, label: "Veg 🟢" },
+            { value: FOOD_TYPES.NON_VEG, label: "Non-Veg 🔴" },
+            { value: FOOD_TYPES.EGG, label: "Egg 🟡" },
+          ]}
+          value={formik.values.itemType}
           onChange={formik.handleChange}
         />
 
-        {/* Footer Buttons */}
+        {/* FOOTER */}
         <div className="flex justify-end gap-3 pt-4">
           <button
             type="button"
@@ -130,7 +124,7 @@ const ItemModal = ({
           <button
             type="submit"
             disabled={loading || !formik.isValid}
-            className="btn bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50 flex items-center gap-2"
+            className="btn bg-primary-500 text-white hover:bg-primary-600 disabled:opacity-50 flex items-center gap-2"
           >
             {loading && <Loader2 className="h-4 w-4 animate-spin" />}
             {loading
@@ -138,8 +132,8 @@ const ItemModal = ({
                 ? "Updating..."
                 : "Saving..."
               : isEditMode
-              ? "Update"
-              : "Save"}
+                ? "Update"
+                : "Save"}
           </button>
         </div>
       </form>
@@ -147,4 +141,4 @@ const ItemModal = ({
   );
 };
 
-export default ItemModal;
+export default AddonItemModal;

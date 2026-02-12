@@ -3,8 +3,9 @@ import { useDropzone } from "react-dropzone";
 import { Upload, X, Crop, Info } from "lucide-react";
 import Cropper from "react-easy-crop";
 import Api from "../redux/api.js";
+import ModalBasic from "./ModalBasic.jsx";
+import { getFullFileUrl } from "../utils/fileUrl.js";
 
-const uploadUrl = `${import.meta.env.VITE_API_URL}/uploads`;
 
 const DragDropUploader = ({
   value = [],
@@ -217,12 +218,13 @@ const DragDropUploader = ({
       setLoading(true);
       try {
         const formData = new FormData();
-        fileArray.forEach((file) => formData.append("files", file));
+        fileArray.forEach((file) => formData.append("images", file));
 
-        const res = await Api.post("/uploads/multiple", formData);
-        const uploadedPaths = res.data?.urls || [];
+        const res = await Api.post("/upload/images", formData);
 
-        // Pass URLs directly without wrapping in objects
+        const uploadedFiles = res.data?.data?.files || [];
+        const uploadedPaths = uploadedFiles.map((file) => file.path);
+
         updatedFiles = multiple
           ? [...value, ...uploadedPaths].slice(0, maxFiles)
           : [uploadedPaths[0]];
@@ -285,12 +287,6 @@ const DragDropUploader = ({
     maxFiles: multiple ? maxFiles : 1,
   });
 
-  const getFilePreview = (file) => {
-    if (typeof file === "string") return file;
-    if (file.type.startsWith("image/") || file.type.startsWith("video/"))
-      return URL.createObjectURL(file);
-    return null;
-  };
 
   // Crop an existing file from the preview
   const cropExistingFile = (file, index) => {
@@ -326,59 +322,51 @@ const DragDropUploader = ({
   return (
     <div className={`w-full ${className}`}>
       {/* Crop Modal */}
-      {croppingFile && (
-        <div className="fixed inset-0 bg-black/70 bg-opacity-75 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
-            <div className="p-4 border-b border-gray-200 flex justify-between items-center">
-              <h3 className="text-lg font-semibold text-gray-900">
-                Crop Image
-              </h3>
-              <button
-                onClick={cancelCrop}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
+      <ModalBasic
+        id={"image-crop"}
+        title={"Crop Image"}
+        isOpen={croppingFile}
+        onClose={cancelCrop}
+        size="2xl"
+      >
+        <div className="p-4">
+          <div className="relative h-96 w-full bg-gray-900">
+            <Cropper
+              image={croppingFile?.preview}
+              crop={crop}
+              zoom={zoom}
+              aspect={aspectRatio}
+              onCropChange={setCrop}
+              onZoomChange={setZoom}
+              onCropComplete={onCropComplete}
+              cropShape="rect"
+              showGrid={true}
+              objectFit="contain"
+              classes={{
+                containerClassName: "rounded-lg",
+                cropAreaClassName: "border-2 border-primary-500",
+              }}
+            />
+          </div>
 
-            <div className="p-4">
-              <div className="relative h-96 w-full bg-gray-900">
-                <Cropper
-                  image={croppingFile.preview}
-                  crop={crop}
-                  zoom={zoom}
-                  aspect={aspectRatio}
-                  onCropChange={setCrop}
-                  onZoomChange={setZoom}
-                  onCropComplete={onCropComplete}
-                  cropShape="rect"
-                  showGrid={true}
-                  objectFit="contain"
-                  classes={{
-                    containerClassName: "rounded-lg",
-                    cropAreaClassName: "border-2 border-primary-500",
-                  }}
-                />
-              </div>
-
-              <div className="mt-4 flex gap-3 justify-end">
-                <button
-                  onClick={cancelCrop}
-                  className="btn border border-gray-300 text-gray-700 hover:bg-gray-50 "
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={applyCrop}
-                  className="btn bg-primary-500 text-white hover:bg-primary-600 "
-                >
-                  Apply Crop
-                </button>
-              </div>
-            </div>
+          <div className="mt-4 flex gap-3 justify-end">
+            <button
+            type="button"
+              onClick={cancelCrop}
+              className="btn border border-gray-300 text-gray-700 hover:bg-gray-50 "
+            >
+              Cancel
+            </button>
+            <button
+            type="button"
+              onClick={applyCrop}
+              className="btn bg-primary-500 text-white hover:bg-primary-600 "
+            >
+              Apply Crop
+            </button>
           </div>
         </div>
-      )}
+      </ModalBasic>
 
       {/* Hidden canvas for cropping */}
       <canvas ref={canvasRef} style={{ display: "none" }} />
@@ -456,47 +444,10 @@ const DragDropUploader = ({
               ? /\.(jpg|jpeg|png|gif|webp)$/i.test(file)
               : file.type?.startsWith("image/");
 
-            // Get file preview URL - handle both full URLs and relative paths
-            const getFileUrl = (file) => {
-              if (typeof file !== "string") {
-                if (
-                  file.type.startsWith("image/") ||
-                  file.type.startsWith("video/")
-                )
-                  return URL.createObjectURL(file);
-                return null;
-              }
 
-              // If it's a string, check if it's a relative path or full URL
-              if (
-                file.startsWith("http") ||
-                file.startsWith("blob:") ||
-                file.startsWith("data:")
-              ) {
-                return file; // It's already a full URL
-              } else {
-                // It's a relative path, extract base URL without /api/v1/admin part
-                const baseUrl = import.meta.env.VITE_API_URL.split(
-                  "/api/v1/admin",
-                )[0];
-                return `${baseUrl}/${file.replace(/^\//, "")}`;
-              }
-            };
 
-            const fileUrl = getFileUrl(file);
+            const fileUrl = getFullFileUrl(file);
             const fileName = isString ? "Uploaded File" : file.name;
-
-            // Check if this is an already uploaded file
-            const isAlreadyUploaded =
-              isString ||
-              (typeof file === "string" &&
-                (file.startsWith("http://") ||
-                  file.startsWith("https://") ||
-                  file.startsWith("data:") ||
-                  file.includes("uploads/") ||
-                  file.includes(".com/") ||
-                  file.includes(".net/") ||
-                  file.includes(".org/")));
 
             // Only show crop button for local File objects (not strings)
             const canCrop =

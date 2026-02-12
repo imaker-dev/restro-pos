@@ -16,7 +16,6 @@ import {
 import {
   CheckboxField,
   RadioField,
-  RadioGroupField,
 } from "../../components/fields/CheckboxField";
 import { TextareaField } from "../../components/fields/TextareaField";
 import { MultiSelectDropdownField } from "../../components/fields/MultiSelectDropdownField";
@@ -29,9 +28,16 @@ import { fetchAllKitchenStations } from "../../redux/slices/kitchenSlice";
 import { fetchAllAddonGroups } from "../../redux/slices/addonSlice";
 import AccordionSection from "../../components/AccordionSection";
 import DragDropUploader from "../../components/DragDropUploader";
+import { handleResponse } from "../../utils/helpers";
+import { createItem, fetchItemsById } from "../../redux/slices/itemSlice";
+import { useNavigate } from "react-router-dom";
+import { useQueryParams } from "../../hooks/useQueryParams";
+import { FOOD_TYPES } from "../../constants";
 
 const AddItemPage = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { itemId } = useQueryParams();
 
   useEffect(() => {
     if (!allOutlets) {
@@ -40,7 +46,14 @@ const AddItemPage = () => {
     if (!allTaxGroup) {
       dispatch(fetchAllTaxGroups());
     }
-  }, []);
+    if (itemId) {
+      dispatch(fetchItemsById(itemId));
+    }
+  }, [itemId]);
+
+  const { isFetchingItemDetails, itemDetails } = useSelector(
+    (state) => state.item,
+  );
 
   const { allOutlets, loading: isFetchingOutlet } = useSelector(
     (state) => state.outlet,
@@ -116,8 +129,53 @@ const AddItemPage = () => {
   });
 
   const handleSubmit = async (values, { setSubmitting }) => {
-    console.log(values);
-    setSubmitting(false);
+    const payload = {
+      outletId: Number(values.outletId),
+      categoryId: Number(values.categoryId),
+
+      name: values.name.trim(),
+      description: values.description?.trim() || null,
+      itemType: values.itemType,
+
+      basePrice: Number(values.basePrice),
+      taxGroupId: Number(values.taxGroupId),
+
+      hasVariants: Boolean(values.hasVariants),
+      hasAddons: Boolean(values.hasAddons),
+      allowSpecialNotes: Boolean(values.allowSpecialNotes),
+
+      minQuantity: Number(values.minQuantity),
+      maxQuantity: Number(values.maxQuantity),
+
+      kitchenStationId: Number(values.kitchenStationId),
+
+      floorIds: (values.floorIds || []).map(Number),
+      sectionIds: (values.sectionIds || []).map(Number),
+      addonGroupIds: (values.addonGroupIds || []).map(Number),
+    };
+
+    // FILTER EMPTY VARIANTS
+    const validVariants = (values.variants || []).filter(
+      (v) => v.name?.trim() && Number(v.price) > 0,
+    );
+
+    if (validVariants.length > 0 && values.hasVariants) {
+      payload.variants = validVariants.map((v, i) => ({
+        name: v.name.trim(),
+        price: Number(v.price),
+        isDefault: i === 0 || Boolean(v.isDefault),
+      }));
+    }
+
+    // SINGLE IMAGE
+    if (values.image?.length) {
+      payload.imageUrl = values.image[0];
+    }
+
+    await handleResponse(dispatch(createItem(payload)), () => {
+      navigate(-1);
+    });
+    // console.log("Final Payload:", payload);
   };
 
   return (
@@ -133,86 +191,87 @@ const AddItemPage = () => {
           <Form className="space-y-8" autoComplete="off">
             {/* PRODUCT INFO */}
             <AccordionSection title="Product Info" icon={Info}>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* OUTLET */}
-                <SelectField
-                  label="Outlet"
-                  name="outletId"
-                  required
-                  options={allOutlets?.map((o) => ({
-                    value: o?.id,
-                    label: o?.name,
-                  }))}
-                  value={formik.values.outletId}
-                  loading={isFetchingOutlet}
-                  onChange={(e) => {
-                    const outletId = e.target.value;
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {/* OUTLET */}
+                  <SelectField
+                    label="Outlet"
+                    name="outletId"
+                    required
+                    options={allOutlets?.map((o) => ({
+                      value: o?.id,
+                      label: o?.name,
+                    }))}
+                    value={formik.values.outletId}
+                    loading={isFetchingOutlet}
+                    onChange={(e) => {
+                      const outletId = e.target.value;
 
-                    formik.setFieldValue("outletId", outletId);
+                      formik.setFieldValue("outletId", outletId);
 
-                    // reset dependent fields
-                    formik.setFieldValue("categoryId", "");
-                    formik.setFieldValue("floorIds", []);
-                    formik.setFieldValue("sectionIds", []);
-                    formik.setFieldValue("kitchenStationId", "");
-                    formik.setFieldValue("addonGroupIds", []);
+                      // reset dependent fields
+                      formik.setFieldValue("categoryId", "");
+                      formik.setFieldValue("floorIds", []);
+                      formik.setFieldValue("sectionIds", []);
+                      formik.setFieldValue("kitchenStationId", "");
+                      formik.setFieldValue("addonGroupIds", []);
 
-                    if (outletId) {
-                      dispatch(fetchAllCategories(outletId));
-                      dispatch(fetchAllFloors(outletId));
-                      dispatch(fetchAllKitchenStations(outletId));
-                      dispatch(fetchAllAddonGroups(outletId));
+                      if (outletId) {
+                        dispatch(fetchAllCategories(outletId));
+                        dispatch(fetchAllFloors(outletId));
+                        dispatch(fetchAllKitchenStations(outletId));
+                        dispatch(fetchAllAddonGroups(outletId));
+                      }
+                    }}
+                    onBlur={formik.handleBlur}
+                    error={formik.touched.outletId && formik.errors.outletId}
+                  />
+
+                  {/* FLOORS */}
+                  <MultiSelectDropdownField
+                    label="Floors"
+                    name="floorIds"
+                    required
+                    disabled={!formik.values.outletId}
+                    disabledText="Select outlet first"
+                    loading={isFetchingFloor}
+                    options={allFloors?.map((f) => ({
+                      id: f.id,
+                      label: f.name,
+                    }))}
+                    value={formik.values.floorIds}
+                    onChange={(v) => {
+                      formik.setFieldValue("floorIds", v);
+                      formik.setFieldValue("sectionIds", []);
+                      // dispatch(fetchSections(v))
+                    }}
+                    onBlur={formik.handleBlur}
+                    error={formik.touched.floorIds && formik.errors.floorIds}
+                  />
+
+                  {/* KITCHEN STATIONS  */}
+                  <SelectField
+                    label="Kitchen Station"
+                    name="kitchenStationId"
+                    required
+                    disabled={!formik.values.outletId}
+                    disabledText="Select outlet first"
+                    loading={isFetchingKitchens}
+                    options={allKitchenStations?.map((k) => ({
+                      value: k.id,
+                      label: k.name,
+                    }))}
+                    value={formik.values.kitchenStationId}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    error={
+                      formik.touched.kitchenStationId &&
+                      formik.errors.kitchenStationId
                     }
-                  }}
-                  onBlur={formik.handleBlur}
-                  error={formik.touched.outletId && formik.errors.outletId}
-                />
+                  />
 
-                {/* FLOORS */}
-                <MultiSelectDropdownField
-                  label="Floors"
-                  name="floorIds"
-                  required
-                  disabled={!formik.values.outletId}
-                  disabledText="Select outlet first"
-                  loading={isFetchingFloor}
-                  options={allFloors?.map((f) => ({
-                    id: f.id,
-                    label: f.name,
-                  }))}
-                  value={formik.values.floorIds}
-                  onChange={(v) => {
-                    formik.setFieldValue("floorIds", v);
-                    formik.setFieldValue("sectionIds", []);
-                    // dispatch(fetchSections(v))
-                  }}
-                  onBlur={formik.handleBlur}
-                  error={formik.touched.floorIds && formik.errors.floorIds}
-                />
-
-                {/* KITCHEN STATIONS  */}
-                <SelectField
-                  label="Kitchen Station"
-                  name="kitchenStationId"
-                  required
-                  disabled={!formik.values.outletId}
-                  disabledText="Select outlet first"
-                  loading={isFetchingKitchens}
-                  options={allKitchenStations?.map((k) => ({
-                    value: k.id,
-                    label: k.name,
-                  }))}
-                  value={formik.values.kitchenStationId}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  error={
-                    formik.touched.kitchenStationId &&
-                    formik.errors.kitchenStationId
-                  }
-                />
-
-                {/* SECTIONS */}
-                <MultiSelectDropdownField
+                  {/* SECTIONS */}
+                  {/* <MultiSelectDropdownField
                   label="Sections"
                   name="sectionIds"
                   required
@@ -223,49 +282,53 @@ const AddItemPage = () => {
                   onChange={(v) => formik.setFieldValue("sectionIds", v)}
                   onBlur={formik.handleBlur}
                   error={formik.touched.sectionIds && formik.errors.sectionIds}
-                />
+                /> */}
+                </div>
 
-                {/* CATEGORY */}
-                <SelectField
-                  label="Category"
-                  name="categoryId"
-                  required
-                  disabled={!formik.values.outletId}
-                  disabledText="Select outlet first"
-                  loading={isFetchingCategory}
-                  options={allCategories?.map((c) => ({
-                    value: c.id,
-                    label: c.name,
-                  }))}
-                  value={formik.values.categoryId}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  error={formik.touched.categoryId && formik.errors.categoryId}
-                />
+                <div className="grid md:grid-cols-3 gap-6">
+                  {/* CATEGORY */}
+                  <SelectField
+                    label="Category"
+                    name="categoryId"
+                    required
+                    disabled={!formik.values.outletId}
+                    disabledText="Select outlet first"
+                    loading={isFetchingCategory}
+                    options={allCategories?.map((c) => ({
+                      value: c.id,
+                      label: c.name,
+                    }))}
+                    value={formik.values.categoryId}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    error={
+                      formik.touched.categoryId && formik.errors.categoryId
+                    }
+                  />
 
-                {/* PRODUCT NAME */}
-                <InputField
-                  label="Product Name"
-                  name="name"
-                  placeholder="Product Name"
-                  required
-                  value={formik.values.name}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  error={formik.touched.name && formik.errors.name}
-                />
+                  {/* PRODUCT NAME */}
+                  <InputField
+                    label="Product Name"
+                    name="name"
+                    placeholder="Product Name"
+                    required
+                    value={formik.values.name}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    error={formik.touched.name && formik.errors.name}
+                  />
 
-                {/* ITEM TYPE */}
-                <div className="md:col-span-2">
-                  <RadioGroupField
-                    // label="Item Type"
+                  {/* ITEM TYPE */}
+                  <SelectField
+                    label="Item Type"
                     name="itemType"
                     options={[
-                      { value: "veg", label: "Veg" },
-                      { value: "non-veg", label: "Non-Veg" },
+                      { value: FOOD_TYPES.VEG, label: "Veg 🟢" },
+                      { value: FOOD_TYPES.NON_VEG, label: "Non-Veg 🔴" },
+                      { value: FOOD_TYPES.EGG, label: "Egg 🟡" },
                     ]}
                     value={formik.values.itemType}
-                    onChange={(v) => formik.setFieldValue("itemType", v)}
+                    onChange={formik.handleChange}
                   />
                 </div>
               </div>

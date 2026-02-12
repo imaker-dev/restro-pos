@@ -156,7 +156,7 @@ const AllUsersPage = () => {
 
   const actions = [
     {
-      label: "Add User",
+      label: "Add New User",
       type: "primary",
       icon: Plus,
       onClick: () => navigate(`/users/add`),

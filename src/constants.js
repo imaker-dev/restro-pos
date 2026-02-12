@@ -10,3 +10,10 @@ export const ROLES = {
   KITCHEN: "kitchen",
   BAR: "bartender",
 };
+
+
+export const FOOD_TYPES = {
+  VEG: "veg",
+  NON_VEG: "non_veg",
+  EGG: "egg",
+};
