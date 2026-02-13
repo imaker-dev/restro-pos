@@ -117,9 +117,6 @@ const kotSlice = createSlice({
 
       const exists = state.allOrdersKot.kots.find((k) => k.id === kot.id);
       if (exists) return;
-
-      state.allOrdersKot.kots.unshift(kot);
-
       state.allOrdersKot.kots.unshift(kot);
       incStat(state, "pending_count");
     },

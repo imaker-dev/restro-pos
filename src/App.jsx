@@ -11,15 +11,14 @@ import NetworkStatusBanner from "./components/NetworkStatusBanner";
 
 const App = () => {
   const dispatch = useDispatch();
-
-  const { logIn, loading, meData } = useSelector((state) => state.auth);
+  const { logIn, loading, meData,outletId } = useSelector((state) => state.auth);
   useSocket();
 
   useEffect(() => {
     if (logIn) {
       dispatch(fetchMeData());
     }
-  }, [logIn]);
+  }, [logIn,]);
 
   useScrollToTop();
   usePreventNumberInputScroll();

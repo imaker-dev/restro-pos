@@ -8,4 +8,10 @@ export default false
         getAllFloorsApi: (id) => {
             return Api.get(`/outlets/${id}/floors`);
         },
+        createFloorApi:(values) => {
+            return Api.post(`/outlets/floors`,values)
+        },
+        updateFloorApi:(id,values) => {
+            return Api.put(`/outlets/floors/${id}`,values)
+        }
     };

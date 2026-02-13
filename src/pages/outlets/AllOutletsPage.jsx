@@ -3,7 +3,16 @@ import PageHeader from "../../layout/PageHeader";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllOutlets, updateOutlet } from "../../redux/slices/outletSlice";
 import SmartTable from "../../components/SmartTable";
-import { Building, Edit2, Edit3, Eye, Layers, LayoutGrid, Plus, Utensils } from "lucide-react";
+import {
+  Building,
+  Edit2,
+  Edit3,
+  Eye,
+  Layers,
+  LayoutGrid,
+  Plus,
+  Utensils,
+} from "lucide-react";
 import OutletUpdateModal from "../../partial/outlet/OutletUpdateModal";
 import { handleResponse } from "../../utils/helpers";
 import { useNavigate } from "react-router-dom";
@@ -92,40 +101,12 @@ const AllOutletsPage = () => {
 
   const rowActions = [
     {
-      label: "More",
-      items: [
-        {
-          label: "All Floors",
-          icon: Building,
-          onClick: (row) => navigate(`/outlets/floors?outletId=${row.id}`),
-        },
-        {
-          label: "All Categories",
-          icon: LayoutGrid,
-          color: "emerald",
-          onClick: (row) => navigate(`/outlets/categories?outletId=${row.id}`),
-        },
-        {
-          label: "All Items",
-          icon: Utensils,
-          color: "pink",
-          onClick: (row) => navigate(`/outlets/items?outletId=${row.id}`),
-        },
-        {
-          label: "View Addons Group",
-          icon: Layers,
-          color: "amber",
-          onClick: (row) => navigate(`/outlets/addons-groups?outletId=${row.id}`),
-        },
-        {
-          label: "Edit",
-          icon: Edit2,
-          color: "blue",
-          onClick: (row) => {
-            (setSelectedOutlet(row), setShowTableUpdateModal(true));
-          },
-        },
-      ],
+      label: "Edit",
+      icon: Edit2,
+      color: "blue",
+      onClick: (row) => {
+        (setSelectedOutlet(row), setShowTableUpdateModal(true));
+      },
     },
   ];
 

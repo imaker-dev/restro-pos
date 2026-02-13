@@ -5,51 +5,72 @@ import * as Yup from "yup";
 import { Loader2 } from "lucide-react";
 import { InputField } from "../../components/fields/InputField";
 import { CheckboxField } from "../../components/fields/CheckboxField";
-import DragDropUploader from "../../components/DragDropUploader";
 
 const validationSchema = Yup.object({
   name: Yup.string()
     .trim()
-    .required("Category name is required")
+    .required("Floor name is required")
     .min(2, "Too short")
     .max(50, "Too long"),
 
-  description: Yup.string().trim().max(200, "Too long"),
-  imageUrl: Yup.mixed().nullable(),
+  code: Yup.string()
+    .trim()
+    .required("Floor code is required")
+    .max(10, "Max 10 characters"),
+
+  floorNumber: Yup.number()
+    .typeError("Floor number must be a number")
+    .required("Floor number is required")
+    .min(0, "Invalid number")
+    .max(100, "Too large"),
+
+  displayOrder: Yup.number()
+    .typeError("Display order must be a number")
+    .required("Display order is required")
+    .min(0, "Invalid order")
+    .max(1000, "Too large"),
+
+  description: Yup.string()
+    .trim()
+    .required("Description is required")
+    .min(3, "Too short")
+    .max(200, "Too long"),
+
   isActive: Yup.boolean(),
 });
 
-const CategoryModal = ({
+const FloorModal = ({
   isOpen,
   onClose,
   onSubmit,
-  category,
+  floor,
   outletId,
   loading = false,
 }) => {
-  const isEditMode = !!category;
+  const isEditMode = !!floor;
 
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
-      outletId: category?.outlet_id || outletId || "",
-      name: category?.name || "",
-      description: category?.description || "",
-      imageUrl: category?.image_url || "",
-      isActive: category ? Boolean(category.is_active) : true,
+      outletId: floor?.outlet_id || outletId || "",
+      name: floor?.name || "",
+      code: floor?.code || "",
+      floorNumber: floor?.floor_number ?? "",
+      displayOrder: floor?.display_order ?? "", // NEW
+      description: floor?.description || "",
+      isActive: floor ? Boolean(floor.is_active) : true,
     },
     validationSchema,
     onSubmit: async (values, { resetForm }) => {
       const payload = {
         ...values,
-        imageUrl: Array.isArray(values.imageUrl)
-          ? values.imageUrl[0]
-          : values.imageUrl,
+        floorNumber: Number(values.floorNumber),
+        displayOrder: Number(values.displayOrder),
       };
 
       if (isEditMode) {
         await onSubmit({
-          id: category.id,
+          id: floor.id,
           values: payload,
           resetForm,
         });
@@ -59,15 +80,13 @@ const CategoryModal = ({
           resetForm,
         });
       }
-
-      console.log(payload);
     },
   });
 
   return (
     <ModalBasic
-      id="category-modal"
-      title={isEditMode ? "Update Category" : "Add Category"}
+      id="floor-modal"
+      title={isEditMode ? "Update Floor" : "Add Floor"}
       isOpen={isOpen}
       onClose={onClose}
     >
@@ -76,44 +95,71 @@ const CategoryModal = ({
         autoComplete="off"
         className="p-4 space-y-4"
       >
-        {/* Category Name */}
+        {/* Floor Name */}
         <InputField
-          label="Category Name"
+          label="Floor Name"
           name="name"
           required
-          placeholder="Enter category name"
+          placeholder="e.g. Ground Floor"
           value={formik.values.name}
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
           error={formik.touched.name && formik.errors.name}
         />
 
+        {/* Floor Code */}
+        <InputField
+          label="Floor Code"
+          name="code"
+          required
+          placeholder="e.g. GF, F1"
+          value={formik.values.code}
+          onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
+          error={formik.touched.code && formik.errors.code}
+        />
+
+        {/* Floor Number */}
+        <InputField
+          label="Floor Number"
+          name="floorNumber"
+          type="number"
+          required
+          placeholder="1, 2, 3"
+          value={formik.values.floorNumber}
+          onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
+          error={formik.touched.floorNumber && formik.errors.floorNumber}
+        />
+
+        {/* Display Order */}
+        <InputField
+          label="Display Order"
+          name="displayOrder"
+          type="number"
+          required
+          placeholder="1, 2, 3"
+          value={formik.values.displayOrder}
+          onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
+          error={formik.touched.displayOrder && formik.errors.displayOrder}
+        />
+
         {/* Description */}
         <InputField
           label="Description"
           name="description"
-          placeholder="Enter description"
+          required
+          placeholder="Enter floor description"
           value={formik.values.description}
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
           error={formik.touched.description && formik.errors.description}
         />
 
-        {/* Image Upload */}
-        <DragDropUploader
-          value={formik.values.imageUrl}
-          onChange={(files) => formik.setFieldValue("imageUrl", files)}
-          multiple={false}
-          accept="image/*"
-          maxFiles={1}
-          enableCrop={true}
-          aspectRatio={1}
-          uploadToServer={true}
-        />
-
         {/* Active Checkbox */}
         <CheckboxField
-          label="Enable Category"
+          label="Enable Floor"
           name="isActive"
           checked={formik.values.isActive}
           onChange={formik.handleChange}
@@ -150,4 +196,4 @@ const CategoryModal = ({
   );
 };
 
-export default CategoryModal;
+export default FloorModal;

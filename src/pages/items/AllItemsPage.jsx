@@ -12,12 +12,14 @@ import { Edit2, Plus } from "lucide-react";
 import LightboxMedia from "../../components/LightboxMedia";
 import FoodTypeIcon from "../../partial/common/FoodTypeIcon";
 import { useNavigate } from "react-router-dom";
+import StatusBadge from "../../layout/StatusBadge";
 
 const AllItemsPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { outletId, categoryId } = useQueryParams();
+  const { outletId } = useSelector((state) => state.auth);
+  const { categoryId } = useQueryParams();
 
   const { allItems, loading, isCreatingItem, isUpdatingItem } = useSelector(
     (state) => state.item,
@@ -31,6 +33,7 @@ const AllItemsPage = () => {
       dispatch(fetchAllItems(outletId));
     }
   };
+
   useEffect(() => {
     fetchItems();
   }, [categoryId, outletId]);
@@ -119,15 +122,11 @@ const AllItemsPage = () => {
       label: "Available",
       sortable: true,
       render: (row) => (
-        <span
-          className={`px-2 py-1 rounded text-xs font-semibold ${
-            row.is_available
-              ? "bg-blue-100 text-blue-700"
-              : "bg-red-100 text-red-600"
-          }`}
-        >
-          {row.is_available ? "In Stock" : "Out"}
-        </span>
+        <StatusBadge
+          value={row.is_available}
+          trueText="In Stock"
+          falseText="Out"
+        />
       ),
     },
   ];
@@ -137,7 +136,7 @@ const AllItemsPage = () => {
       label: "Update",
       icon: Edit2,
       color: "blue",
-      // onClick: (row) => navigate(`/outlets/items/add?itemId=${row.id}`)
+      // onClick: (row) => navigate(`/items/add?itemId=${row.id}`)
     },
   ];
 
@@ -146,14 +145,14 @@ const AllItemsPage = () => {
       label: "Add New Item",
       type: "primary",
       icon: Plus,
-      onClick: () => navigate(`/outlets/items/add`),
+      onClick: () => navigate(`/items/add`),
     },
   ];
 
   return (
     <>
       <div className="space-y-6">
-        <PageHeader title={"All Items"} actions={actions} showBackButton />
+        <PageHeader title={"All Items"} actions={actions} />
 
         <SmartTable
           title="Items"

@@ -7,6 +7,8 @@ import { Provider } from "react-redux";
 import store from "./store.js";
 import { Toaster } from "react-hot-toast";
 import { ToastContainer } from "react-toastify";
+import "react-date-range/dist/styles.css";
+import "react-date-range/dist/theme/default.css";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>

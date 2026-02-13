@@ -5,7 +5,13 @@ export default false
         message: "You are Offline. Please turn on the internet",
     }
     : {
-        getAllSectionsApi: (id) => {
-            return Api.get(`/outlets/4/sections`);
+        getAllSectionsApi: (floorId) => {
+            return Api.get(`/outlets/floors/${floorId}/sections`);
         },
+        createSectionApi:(values) => {
+            return Api.post(`/outlets/sections`,values)
+        },
+        updateSectionApi:(id,values) => {
+            return Api.put(`/outlets/sections/${id}`,values)
+        }
     };

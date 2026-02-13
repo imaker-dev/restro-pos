@@ -14,10 +14,11 @@ import { Edit2, Plus } from "lucide-react";
 import AddonItemModal from "../../partial/addons/AddonItemModal";
 import { handleResponse } from "../../utils/helpers";
 import FoodTypeIcon from "../../partial/common/FoodTypeIcon";
+import StatusBadge from "../../layout/StatusBadge";
 
 const AllAddonItemsPage = () => {
   const dispatch = useDispatch();
-  const { groupId } = useQueryParams();
+  const { addonId } = useQueryParams();
   const {
     allAddonItems,
     isFetchingAddonItems,
@@ -28,12 +29,12 @@ const AllAddonItemsPage = () => {
   const [selectedItem, setSelectedItem] = useState(null);
 
   const fetchAddonItems = () => {
-    dispatch(fetchAddonGroupItems(groupId));
+    dispatch(fetchAddonGroupItems(addonId));
   };
 
   useEffect(() => {
     fetchAddonItems();
-  }, [groupId]);
+  }, [addonId]);
 
   const columns = [
     {
@@ -77,18 +78,7 @@ const AllAddonItemsPage = () => {
     {
       key: "is_active",
       label: "Status",
-      render: (row) => (
-        <span
-          className={`px-2 py-1 text-xs rounded-md font-medium
-        ${
-          row.is_active
-            ? "bg-emerald-100 text-emerald-700"
-            : "bg-red-100 text-red-700"
-        }`}
-        >
-          {row.is_active ? "Active" : "Inactive"}
-        </span>
-      ),
+      render: (row) => <StatusBadge value={row.is_active} />,
     },
 
     {
@@ -160,7 +150,7 @@ const AllAddonItemsPage = () => {
       <AddonItemModal
         isOpen={showAddonItemModal}
         onClose={clearAddonStates}
-        addonGroupId={groupId}
+        addonGroupId={addonId}
         onSubmit={handleAddAddon}
         addonItem={selectedItem}
         loading={isCreatingAddonItem || isUpdatingAddonItem}

@@ -1,37 +1,59 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import PageHeader from "../../layout/PageHeader";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchAllTables } from "../../redux/slices/tableSlice";
+import {
+  createTable,
+  fetchAllTables,
+  updateTable,
+} from "../../redux/slices/tableSlice";
 import { useQueryParams } from "../../hooks/useQueryParams";
-import SmartTable from "../../components/SmartTable";
-import { Eye, MoreVertical, Pencil } from "lucide-react";
+import { Eye, MoreVertical, Pencil, Plus } from "lucide-react";
 import ActionMenu from "../../components/ActionMenu";
+import TableModal from "../../partial/table/TableModal";
+import { handleResponse } from "../../utils/helpers";
 
 const AllTablesPage = () => {
   const dispatch = useDispatch();
   const { floorId } = useQueryParams();
+  const { outletId } = useSelector((state) => state.auth);
 
-  const { allTables, loading } = useSelector((state) => state.table);
+  const [showTableModal, setShowTableModal] = useState(false);
+  const [selectedTable, setSelectedTable] = useState(null);
+
+  const { allTables, loading, isCreatingTable, isUpdatingTable } = useSelector(
+    (state) => state.table,
+  );
+
+  const fetchTables = () => {
+    dispatch(fetchAllTables(floorId));
+  };
 
   useEffect(() => {
-    dispatch(fetchAllTables(floorId));
+    fetchTables();
   }, [floorId]);
 
   // Dynamic table shape rendering based on capacity
   const renderDynamicTableShape = (shape, status, capacity) => {
     const isBooked = status === "booked";
     const isOccupied = status === "occupied";
+    const isRunning = status === "running"; // NEW
 
     let strokeColor, chairColor;
+
     if (isBooked) {
       strokeColor = "#c084fc";
       chairColor = "#e9d5ff";
     } else if (isOccupied) {
       strokeColor = "#fb923c";
       chairColor = "#fed7aa";
+    } else if (isRunning) {
+      // NEW
+      strokeColor = "#38bdf8"; // sky blue
+      chairColor = "#bae6fd";
     } else {
-      strokeColor = "#60a5fa";
-      chairColor = "#bfdbfe";
+      // DEFAULT = GREEN (available)
+      strokeColor = "#22c55e"; // green-500
+      chairColor = "#bbf7d0"; // green-200
     }
 
     const chairWidth = 20;
@@ -410,84 +432,128 @@ const AllTablesPage = () => {
     switch (status) {
       case "available":
         return "bg-green-100 text-green-700";
+
       case "booked":
         return "bg-red-100 text-red-700";
+
       case "occupied":
         return "bg-orange-100 text-orange-700";
+
+      case "running":
+        return "bg-sky-100 text-sky-700"; // SKY BLUE
+
       default:
         return "bg-gray-100 text-gray-700";
     }
   };
 
+  const actions = [
+    {
+      label: "Add New Table",
+      type: "primary",
+      icon: Plus,
+      onClick: () => setShowTableModal(true),
+    },
+  ];
+
+  const resetTableStates = () => {
+    setShowTableModal(false);
+    setSelectedTable(null);
+  };
+
+  const handleAddTable = async ({ id, values, resetForm }) => {
+    const action = id ? updateTable({ id, values }) : createTable(values);
+    await handleResponse(dispatch(action), () => {
+      fetchTables();
+      resetTableStates();
+      resetForm();
+    });
+    console.log(values);
+  };
+
   return (
-    <div className="space-y-6">
-      <PageHeader title={"All Tables"} showBackButton />
+    <>
+      <div className="space-y-6">
+        <PageHeader title={"All Tables"} actions={actions} showBackButton />
 
-      {/* Tables Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-4 gap-6">
-        {allTables?.map((table) => (
-          <div
-            key={table.id}
-            className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-all"
-          >
-            {/* Table Visualization - NOW WITH DYNAMIC CAPACITY */}
-            <div className="bg-gray-50 p-6 flex items-center justify-center h-48">
-              {renderDynamicTableShape(
-                table.shape,
-                table.status,
-                table.capacity,
-              )}
-            </div>
+        {/* Tables Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-4 gap-6">
+          {allTables?.map((table) => (
+            <div
+              key={table.id}
+              className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-all"
+            >
+              {/* Table Visualization - NOW WITH DYNAMIC CAPACITY */}
+              <div className="bg-gray-50 p-6 flex items-center justify-center h-48">
+                {renderDynamicTableShape(
+                  table.shape,
+                  table.status,
+                  table.capacity,
+                )}
+              </div>
 
-            {/* Table Info */}
-            <div className="p-4 border-t border-gray-100">
-              <div className="flex items-start justify-between mb-3">
-                <div className="flex items-center gap-3">
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    Table {table.table_number}
-                  </h3>
-                  <span
-                    className={`px-2.5 py-1 rounded text-xs font-medium ${getStatusBadge(table.status)}`}
-                  >
-                    {table.status.charAt(0).toUpperCase() +
-                      table.status.slice(1)}
-                  </span>
+              {/* Table Info */}
+              <div className="p-4 border-t border-gray-100">
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      Table {table.table_number}
+                    </h3>
+                    <span
+                      className={`px-2.5 py-1 rounded text-xs font-medium ${getStatusBadge(table.status)}`}
+                    >
+                      {table.status.charAt(0).toUpperCase() +
+                        table.status.slice(1)}
+                    </span>
+                  </div>
+
+                  <ActionMenu
+                    items={[
+                      {
+                        label: "View",
+                        icon: Eye,
+                        color: "blue",
+                        onClick: () => console.log("View clicked"),
+                      },
+                      {
+                        label: "Edit",
+                        icon: Pencil,
+                        color: "emerald",
+                        onClick: () => {
+                          (setSelectedTable(table), setShowTableModal(true));
+                        },
+                      },
+                    ]}
+                  />
                 </div>
 
-                {/* <ActionMenu
-                  items={[
-                    {
-                      label: "View",
-                      icon: Eye,
-                      color: "blue",
-                      onClick: () => console.log("View clicked"),
-                    },
-                    {
-                      label: "Edit",
-                      icon: Pencil,
-                      color: "emerald",
-                      onClick: () => console.log("Edit clicked"),
-                    },
-                  ]}
-                /> */}
-              </div>
+                <div className="flex items-center text-sm text-gray-600">
+                  <span>Floor : {table.floor_id}</span>
 
-              <div className="flex items-center text-sm text-gray-600">
-                <span>Floor : {table.floor_id}</span>
+                  <div className="mx-2 h-4 w-px bg-gray-300" />
 
-                <div className="mx-2 h-4 w-px bg-gray-300" />
+                  <span>{table.section_name}</span>
 
-                <span>{table.section_name}</span>
+                  <div className="mx-2 h-4 w-px bg-gray-300" />
 
-                <div className="mx-2 h-4 w-px bg-gray-300" />
-
-                <span>Capacity : {table.capacity}</span>
+                  <span>Capacity : {table.capacity}</span>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
-    </div>
+
+      <TableModal
+        isOpen={showTableModal}
+        onClose={resetTableStates}
+        outletId={outletId}
+        floorId={floorId}
+        onSubmit={handleAddTable}
+        table={selectedTable}
+        loading={isCreatingTable || isUpdatingTable}
+      />
+    </>
   );
 };
 

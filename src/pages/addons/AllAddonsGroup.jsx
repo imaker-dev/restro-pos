@@ -13,12 +13,13 @@ import { useNavigate } from "react-router-dom";
 import { formatDate } from "../../utils/dateFormatter";
 import AddonGroupModal from "../../partial/addons/AddonGroupModal";
 import { handleResponse } from "../../utils/helpers";
+import StatusBadge from "../../layout/StatusBadge";
 
 const AllAddonsGroup = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { outletId } = useQueryParams();
+  const { outletId } = useSelector((state) => state.auth);
   const fetchGroups = () => {
     dispatch(fetchAllAddonGroups(outletId));
   };
@@ -119,18 +120,7 @@ const AllAddonsGroup = () => {
     {
       key: "is_active",
       label: "Status",
-      render: (row) => (
-        <span
-          className={`px-2.5 py-1 text-xs rounded-md font-medium
-        ${
-          row.is_active
-            ? "bg-emerald-100 text-emerald-700"
-            : "bg-red-100 text-red-700"
-        }`}
-        >
-          {row.is_active ? "Active" : "Inactive"}
-        </span>
-      ),
+      render: (row) => <StatusBadge value={row.is_active} />,
     },
 
     {
@@ -149,8 +139,7 @@ const AllAddonsGroup = () => {
       label: "View",
       icon: Eye,
       color: "slate",
-      onClick: (row) =>
-        navigate(`/outlets/addons-groups/addon?groupId=${row?.id}`),
+      onClick: (row) => navigate(`/addons/item?addonId=${row?.id}`),
     },
     {
       label: "Update",
@@ -194,7 +183,6 @@ const AllAddonsGroup = () => {
           title="Addon Groups"
           description="Create, update, and manage groups of selectable add-ons for menu items."
           actions={actions}
-          showBackButton
         />
 
         {/* Table */}

@@ -8,6 +8,7 @@ import UserAvatar from "../../components/UserAvatar";
 import { Eye, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import SearchBar from "../../components/SearchBar";
+import StatusBadge from "../../layout/StatusBadge";
 
 const AllUsersPage = () => {
   const dispatch = useDispatch();
@@ -118,16 +119,7 @@ const AllUsersPage = () => {
       label: "Status",
       sortable: true,
       render: (row) => (
-        <span
-          className={`px-2 py-1 text-xs rounded ${
-            row.isActive
-              ? "bg-green-100 text-green-700"
-              : "bg-red-100 text-red-700"
-          }`}
-          title={row.isActive ? "Active" : "Inactive"}
-        >
-          {row.isActive ? "Active" : "Inactive"}
-        </span>
+        <StatusBadge value={row.isActive}/>
       ),
     },
     {

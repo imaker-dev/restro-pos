@@ -80,7 +80,7 @@ const OutletUpdateModal = ({
           <button
             type="submit"
             disabled={loading || !formik.isValid || !formik.dirty}
-            className="btn bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50 flex items-center gap-2"
+            className="btn bg-primary-500 text-white hover:bg-primary-600 disabled:opacity-50 flex items-center gap-2"
           >
             {loading && <Loader2 className="h-4 w-4 animate-spin" />}
             {loading ? "Updating..." : "Update"}

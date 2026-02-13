@@ -3,7 +3,15 @@ import toast from "react-hot-toast";
 import SectionServices from "../services/SectionServices";
 
 export const fetchAllSection = createAsyncThunk("/fetch/sections", async (id) => {
-  const res = await SectionServices.getAllSectionsApi();
+  const res = await SectionServices.getAllSectionsApi(id);
+  return res.data;
+});
+export const createSection = createAsyncThunk("/create/section", async (values) => {
+  const res = await SectionServices.createSectionApi(values);
+  return res.data;
+});
+export const updateSection = createAsyncThunk("/update/section", async ({id,values}) => {
+  const res = await SectionServices.updateSectionApi(id,values);
   return res.data;
 });
 
@@ -12,6 +20,8 @@ const sectionSlice = createSlice({
   initialState: {
     loading: false,
     allSections: null,
+    isCreatingSections:false,
+    isUpdatingSections:false,
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -25,6 +35,28 @@ const sectionSlice = createSlice({
       })
       .addCase(fetchAllSection.rejected, (state, action) => {
         state.loading = false;
+        toast.error(action.error.message);
+      })
+      .addCase(createSection.pending, (state) => {
+        state.isCreatingSections = true;
+      })
+      .addCase(createSection.fulfilled, (state, action) => {
+        state.isCreatingSections = false;
+        toast.success(action.payload.message)
+      })
+      .addCase(createSection.rejected, (state, action) => {
+        state.isCreatingSections = false;
+        toast.error(action.error.message);
+      })
+      .addCase(updateSection.pending, (state) => {
+        state.isUpdatingSections = true;
+      })
+      .addCase(updateSection.fulfilled, (state, action) => {
+        state.isUpdatingSections = false;
+        toast.success(action.payload.message)
+      })
+      .addCase(updateSection.rejected, (state, action) => {
+        state.isUpdatingSections = false;
         toast.error(action.error.message);
       })
   },

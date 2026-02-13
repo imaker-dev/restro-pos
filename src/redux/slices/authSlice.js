@@ -5,6 +5,7 @@ import { TOKEN_KEYS } from "../../constants";
 import { disconnectSocket } from "../../socket/socket";
 
 const logIn = !!localStorage.getItem(TOKEN_KEYS.ACCESS);
+const storedOutlet = localStorage.getItem(TOKEN_KEYS.OUTLET_ID);
 
 export const signIn = createAsyncThunk("/admin/signin", async (values) => {
   const res = await AuthServices.signInApi(values);
@@ -30,6 +31,7 @@ const authSlice = createSlice({
     loading: false,
     isLogging: false,
     meData: null,
+    outletId: storedOutlet ? Number(storedOutlet) : null,
   },
   reducers: {
     clearLoginState: (state) => {
@@ -39,6 +41,11 @@ const authSlice = createSlice({
       localStorage.removeItem(TOKEN_KEYS.REFRESH);
 
       toast.success("Logout successfully");
+    },
+    setOutletId: (state, action) => {
+      const id = Number(action.payload);
+      state.outletId = id;
+      localStorage.setItem(TOKEN_KEYS.OUTLET_ID, String(id));
     },
   },
   extraReducers: (builder) => {
@@ -69,7 +76,25 @@ const authSlice = createSlice({
       .addCase(fetchMeData.fulfilled, (state, action) => {
         state.loading = false;
         state.meData = action.payload.data;
+
+        const outlets = action.payload.data.outletIds || [];
+
+        if (outlets.length === 0) return;
+
+        const storedOutlet = localStorage.getItem(TOKEN_KEYS.OUTLET_ID);
+        const storedOutletNum = Number(storedOutlet);
+
+        const isValidOutlet = storedOutlet && outlets.includes(storedOutletNum);
+
+        if (!isValidOutlet) {
+          const defaultOutlet = outlets[0];
+          state.outletId = defaultOutlet;
+          localStorage.setItem(TOKEN_KEYS.OUTLET_ID, defaultOutlet);
+        } else {
+          state.outletId = storedOutlet;
+        }
       })
+
       .addCase(fetchMeData.rejected, (state, action) => {
         state.loading = false;
         toast.error(action.error.message);
@@ -78,7 +103,7 @@ const authSlice = createSlice({
 });
 
 // Export actions
-export const { clearLoginState } = authSlice.actions;
+export const { clearLoginState, setOutletId } = authSlice.actions;
 
 // Export reducer
 const { reducer } = authSlice;

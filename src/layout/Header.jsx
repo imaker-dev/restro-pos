@@ -15,6 +15,7 @@ import ModalAction from "../components/ModalAction";
 import { clearLoginState } from "../redux/slices/authSlice";
 import PermissionGuard from "../guard/PermissionGuard";
 import { ROLES } from "../constants";
+import OutletSwitcher from "./OutletSwitcher";
 
 function Header({ sidebarOpen, setSidebarOpen }) {
   const dispatch = useDispatch();
@@ -69,6 +70,9 @@ function Header({ sidebarOpen, setSidebarOpen }) {
                 <span className="sr-only">Notifications</span>
                 <Bell className="w-4 h-4 text-slate-500" />
               </button>
+
+              <OutletSwitcher />
+
               {/* Connectivity */}
               <PermissionGuard roles={[ROLES.KITCHEN, ROLES.BAR]}>
                 <div

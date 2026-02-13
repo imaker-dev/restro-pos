@@ -173,7 +173,7 @@ const AddItemPage = () => {
     }
 
     await handleResponse(dispatch(createItem(payload)), () => {
-      navigate(-1);
+      navigate('/items');
     });
     // console.log("Final Payload:", payload);
   };

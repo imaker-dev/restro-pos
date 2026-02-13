@@ -23,22 +23,14 @@ export function InputField({
   const isPassword = type === "password";
 
   const rightDefaultIcon =
-    type === "date"
-      ? Calendar
-      : type === "time"
-      ? Clock
-      : null;
+    type === "date" ? Calendar : type === "time" ? Clock : null;
 
   const FinalRightIcon = iconPosition === "right" ? Icon : null;
   const FinalLeftIcon = iconPosition === "left" ? Icon : null;
 
   const inputId = id || name;
 
-  const actualType = isPassword
-    ? showPassword
-      ? "text"
-      : "password"
-    : type;
+  const actualType = isPassword ? (showPassword ? "text" : "password") : type;
 
   return (
     <FieldWrapper
@@ -63,7 +55,7 @@ export function InputField({
           name={name}
           type={actualType}
           placeholder={placeholder}
-          value={value || ""}
+          value={value ?? ""}
           onChange={onChange}
           onBlur={onBlur}
           disabled={disabled}
@@ -72,11 +64,7 @@ export function InputField({
             ${FinalLeftIcon ? "pl-9" : ""}
             ${FinalRightIcon || rightDefaultIcon || isPassword ? "pr-10" : ""}
             ${error ? "border-red-500" : ""}
-            ${
-              disabled
-                ? "bg-slate-100 text-slate-500 cursor-not-allowed"
-                : ""
-            }
+            ${disabled ? "bg-slate-100 text-slate-500 cursor-not-allowed" : ""}
           `}
         />
 

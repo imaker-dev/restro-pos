@@ -13,11 +13,12 @@ import { Edit2, Eye, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import CategoryModal from "../../partial/category/CategoryModal";
 import { handleResponse } from "../../utils/helpers";
+import StatusBadge from "../../layout/StatusBadge";
 
 const AllCategoriesPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { outletId } = useQueryParams();
+  const { outletId } = useSelector((state) => state.auth);
 
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -106,18 +107,7 @@ const AllCategoriesPage = () => {
       key: "is_active",
       label: "Status",
       sortable: true,
-      render: (row) => (
-        <span
-          className={`px-2 py-1 text-xs rounded ${
-            row.is_active
-              ? "bg-green-100 text-green-700"
-              : "bg-red-100 text-red-700"
-          }`}
-          title={row.is_active ? "Active" : "Inactive"}
-        >
-          {row.is_active ? "Active" : "Inactive"}
-        </span>
-      ),
+      render: (row) => <StatusBadge value={row.is_active} />,
     },
 
     {
@@ -136,8 +126,7 @@ const AllCategoriesPage = () => {
     {
       label: "View",
       icon: Eye,
-      onClick: (row) =>
-        navigate(`/outlets/categories/items?categoryId=${row.id}`),
+      onClick: (row) => navigate(`/items?categoryId=${row.id}`),
     },
     {
       label: "Update",
@@ -175,7 +164,7 @@ const AllCategoriesPage = () => {
   return (
     <>
       <div className="space-y-6">
-        <PageHeader title={"All Categories"} actions={actions} showBackButton />
+        <PageHeader title={"All Categories"} actions={actions} />
 
         <SmartTable
           title="Categories"

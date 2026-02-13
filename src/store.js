@@ -15,6 +15,7 @@ import addonSlice from "../src/redux/slices/addonSlice";
 import kotSlice from "../src/redux/slices/kotSlice";
 import socketSlice from "../src/redux/slices/socketSlice";
 import uiSlice from "./redux/slices/uiSlice";
+import reportSlice from "./redux/slices/reportSlice";
 
 const reducer = {
   auth: authSlice,
@@ -32,7 +33,8 @@ const reducer = {
   addon: addonSlice,
   kot: kotSlice,
   socket: socketSlice,
-  ui:uiSlice,
+  ui: uiSlice,
+  report: reportSlice,
 };
 
 const store = configureStore({

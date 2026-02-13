@@ -2,10 +2,8 @@ import React from "react";
 import AllOutletsPage from "../pages/outlets/AllOutletsPage";
 import Fields from "../pages/Fields";
 import AllUsersPage from "../pages/users/AllUsersPage";
-import OutletAllFloors from "../pages/outlets/OutletAllFloors";
 import AllCategoriesPage from "../pages/categories/AllCategoriesPage";
 import AllItemsPage from "../pages/items/AllItemsPage";
-import AllSectionsPage from "../pages/sections/AllSectionsPage";
 import AddItemPage from "../pages/items/AddItemPage";
 import AllSettingsPage from "../pages/settings/AllSettingsPage";
 import AllTaxGroupsPage from "../pages/settings/taxes/AllTaxGroupsPage";
@@ -18,6 +16,9 @@ import OrderDashboard from "../pages/dashboard/OrderDashboard";
 import AllTablesPage from "../pages/outlets/AllTablesPage";
 import AllAddonsGroup from "../pages/addons/AllAddonsGroup";
 import AllAddonItemsPage from "../pages/addons/AllAddonItemsPage";
+import AllFloorsPage from "../pages/outlets/AllFloorsPage";
+import DailySalesReport from "../pages/reports/DailySalesReport";
+import AllSectionsPage from "../pages/outlets/AllSectionsPage";
 
 const routeConfig = [
   // { path: "/", element: Dashboard, roles: [ROLES.SUPER_ADMIN] },
@@ -36,57 +37,25 @@ const routeConfig = [
     roles: [ROLES.BAR, ROLES.KITCHEN],
   },
 
+  { path: "/reports/daily-sales", element: DailySalesReport, roles: [ROLES.SUPER_ADMIN] },
+  
   { path: "/outlets", element: AllOutletsPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER] },
-
-  {
-    path: "/outlets/categories",
-    element: AllCategoriesPage,
-    roles: [ROLES.SUPER_ADMIN],
-  },
-  {
-    path: "/outlets/categories/items",
-    element: AllItemsPage,
-    roles: [ROLES.SUPER_ADMIN],
-  },
-  {
-    path: "/outlets/items",
-    element: AllItemsPage,
-    roles: [ROLES.SUPER_ADMIN],
-  },
-  {
-    path: "/outlets/items/add",
-    element: AddItemPage,
-    roles: [ROLES.SUPER_ADMIN],
-  },
-
-  {
-    path: "/outlets/floors",
-    element: OutletAllFloors,
-    roles: [ROLES.SUPER_ADMIN],
-  },
-  {
-    path: "/outlets/floors/sections",
-    element: AllSectionsPage,
-    roles: [ROLES.SUPER_ADMIN],
-  },
-  {
-    path: "/outlets/floors/tables",
-    element: AllTablesPage,
-    roles: [ROLES.SUPER_ADMIN],
-  },
-  {
-    path: "/outlets/addons-groups",
-    element: AllAddonsGroup,
-    roles: [ROLES.SUPER_ADMIN],
-  },
-  {
-    path: "/outlets/addons-groups/addon",
-    element: AllAddonItemsPage,
-    roles: [ROLES.SUPER_ADMIN],
-  },
-
+  { path: "/categories", element: AllCategoriesPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER] },
+  { path: "/items", element: AllItemsPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER] },
+  { path: "/items/add", element: AddItemPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER] },
+  { path: "/floors", element: AllFloorsPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER] },
+  { path: "/floors/sections", element: AllSectionsPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER] },
+  { path: "/floors/tables", element: AllTablesPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER] },
+  { path: "/addons", element: AllAddonsGroup, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER] },
+  { path: "/addons/item", element: AllAddonItemsPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER] },
   { path: "/users", element: AllUsersPage, roles: [ROLES.SUPER_ADMIN] },
   { path: "/users/add", element: AddUserPage, roles: [ROLES.SUPER_ADMIN] },
+
+
+
+
+
+
 
   {
     path: "/fields",

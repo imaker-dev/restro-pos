@@ -37,18 +37,45 @@ export const navConfig = [
       {
         name: "Dashboard",
         icon: Home,
-        path: "/", // always /
-        roles: [ROLES.KITCHEN,ROLES.BAR],
+        path: "/",
+        roles: [ROLES.KITCHEN, ROLES.BAR],
       },
+
+      // 🔽 NEW REPORTS MENU
       {
-        name: "Analytics",
+        name: "Reports",
         icon: BarChart3,
-        path: "/analytics",
         roles: [ROLES.SUPER_ADMIN],
+        children: [
+          {
+            name: "Daily Sales",
+            path: "/reports/daily-sales",
+            roles: [ROLES.SUPER_ADMIN],
+          },
+          {
+            name: "Item Sales",
+            path: "/reports/item-sales",
+            roles: [ROLES.SUPER_ADMIN],
+          },
+          {
+            name: "Category Sales",
+            path: "/reports/category-sales",
+            roles: [ROLES.SUPER_ADMIN],
+          },
+          {
+            name: "Orders Report",
+            path: "/reports/orders",
+            roles: [ROLES.SUPER_ADMIN],
+          },
+          {
+            name: "Payments Report",
+            path: "/reports/payments",
+            roles: [ROLES.SUPER_ADMIN],
+          },
+        ],
       },
     ],
   },
-
   {
     title: "Organization",
     roles: [ROLES.SUPER_ADMIN],
@@ -81,19 +108,19 @@ export const navConfig = [
       {
         name: "Menu Categories",
         icon: UtensilsCrossed,
-        path: "/menu/categories",
+        path: "/categories",
         roles: [ROLES.SUPER_ADMIN],
       },
       {
         name: "Menu Items",
         icon: UtensilsCrossed,
-        path: "/menu/items",
+        path: "/items",
         roles: [ROLES.SUPER_ADMIN],
       },
       {
         name: "Modifiers / Add-ons",
         icon: Percent,
-        path: "/menu/modifiers",
+        path: "/addons",
         roles: [ROLES.SUPER_ADMIN],
       },
       {
@@ -130,7 +157,7 @@ export const navConfig = [
       {
         name: "Tables & Floors",
         icon: Table,
-        path: "/tables",
+        path: "/floors",
         roles: [ROLES.SUPER_ADMIN],
       },
       {
