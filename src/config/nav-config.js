@@ -84,13 +84,13 @@ export const navConfig = [
         name: "Outlets / Restaurants",
         icon: Building2,
         path: "/outlets",
-        roles: [ROLES.SUPER_ADMIN],
+        roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER],
       },
       {
         name: "Users & Staff",
         icon: Users,
         path: "/users",
-        roles: [ROLES.SUPER_ADMIN],
+        roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER],
       },
       {
         name: "Roles & Permissions",
@@ -115,19 +115,19 @@ export const navConfig = [
         name: "Menu Items",
         icon: UtensilsCrossed,
         path: "/items",
-        roles: [ROLES.SUPER_ADMIN],
+        roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER],
       },
       {
         name: "Modifiers / Add-ons",
         icon: Percent,
         path: "/addons",
-        roles: [ROLES.SUPER_ADMIN],
+        roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER],
       },
       {
         name: "Inventory",
         icon: Warehouse,
         path: "/inventory",
-        roles: [ROLES.SUPER_ADMIN],
+        roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER],
       },
       {
         name: "Suppliers",
@@ -158,7 +158,7 @@ export const navConfig = [
         name: "Tables & Floors",
         icon: Table,
         path: "/floors",
-        roles: [ROLES.SUPER_ADMIN],
+        roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER],
       },
       {
         name: "Order Display",

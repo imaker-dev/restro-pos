@@ -4,25 +4,65 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   createTable,
   fetchAllTables,
+  mergeTable,
+  splitTable,
   updateTable,
 } from "../../redux/slices/tableSlice";
 import { useQueryParams } from "../../hooks/useQueryParams";
-import { Eye, MoreVertical, Pencil, Plus } from "lucide-react";
+import {
+  Eye,
+  FileText,
+  History,
+  Loader2,
+  Merge,
+  MoreVertical,
+  Pencil,
+  Plus,
+  Receipt,
+  ReceiptIndianRupee,
+  Split,
+} from "lucide-react";
 import ActionMenu from "../../components/ActionMenu";
 import TableModal from "../../partial/table/TableModal";
 import { handleResponse } from "../../utils/helpers";
+import { useNavigate } from "react-router-dom";
+import { emitUpdateTable } from "../../socket/socketEmitters";
+import { TABLE_MERGED, TABLE_UNMERGED } from "../../socket/socketEvents";
+import StatusBadge from "../../layout/StatusBadge";
+import TableStatusBadge from "../../partial/table/TableStatusBadge";
+import TableCard from "../../partial/table/TableCard";
+import TableCardSkeleton from "../../partial/table/TableCardSkeleton";
+import NoDataFound from "../../layout/NoDataFound";
+
+const isTableSelectableForMerge = (table) => {
+  return (
+    table.status === "available" &&
+    table.is_mergeable === 1 &&
+    !table.isMergedPrimary &&
+    table.is_active === 1
+  );
+};
 
 const AllTablesPage = () => {
   const dispatch = useDispatch();
-  const { floorId } = useQueryParams();
-  const { outletId } = useSelector((state) => state.auth);
+  const navigate = useNavigate();
+
+  const {
+    allTables,
+    loading,
+    isCreatingTable,
+    isUpdatingTable,
+    tableToSplitId,
+  } = useSelector((state) => state.table);
+
+  const { floorId, sectionId } = useQueryParams();
+  const { outletId, isMergingTable } = useSelector((state) => state.auth);
 
   const [showTableModal, setShowTableModal] = useState(false);
   const [selectedTable, setSelectedTable] = useState(null);
 
-  const { allTables, loading, isCreatingTable, isUpdatingTable } = useSelector(
-    (state) => state.table,
-  );
+  const [mergeMode, setMergeMode] = useState(false);
+  const [selectedTables, setSelectedTables] = useState([]);
 
   const fetchTables = () => {
     dispatch(fetchAllTables(floorId));
@@ -31,6 +71,29 @@ const AllTablesPage = () => {
   useEffect(() => {
     fetchTables();
   }, [floorId]);
+
+  const startMergeMode = () => {
+    setMergeMode(true);
+    setSelectedTable(null);
+    setSelectedTables([]);
+  };
+
+  const cancelMergeMode = () => {
+    setMergeMode(false);
+    setSelectedTables([]);
+  };
+
+  const toggleTableSelection = (table) => {
+    if (!mergeMode) return;
+
+    if (!isTableSelectableForMerge(table)) return;
+
+    setSelectedTables((prev) =>
+      prev.includes(table.id)
+        ? prev.filter((id) => id !== table.id)
+        : [...prev, table.id],
+    );
+  };
 
   // Dynamic table shape rendering based on capacity
   const renderDynamicTableShape = (shape, status, capacity) => {
@@ -427,32 +490,23 @@ const AllTablesPage = () => {
     );
   };
 
-  // Get status badge styling
-  const getStatusBadge = (status) => {
-    switch (status) {
-      case "available":
-        return "bg-green-100 text-green-700";
-
-      case "booked":
-        return "bg-red-100 text-red-700";
-
-      case "occupied":
-        return "bg-orange-100 text-orange-700";
-
-      case "running":
-        return "bg-sky-100 text-sky-700"; // SKY BLUE
-
-      default:
-        return "bg-gray-100 text-gray-700";
-    }
-  };
-
   const actions = [
+    ...(mergeMode
+      ? []
+      : [
+          {
+            label: "Add New Table",
+            type: "primary",
+            icon: Plus,
+            onClick: () => setShowTableModal(true),
+          },
+        ]),
+
     {
-      label: "Add New Table",
-      type: "primary",
-      icon: Plus,
-      onClick: () => setShowTableModal(true),
+      label: mergeMode ? "Cancel Merge" : "Merge Tables",
+      icon: Merge,
+      type: mergeMode ? "danger" : "info",
+      onClick: mergeMode ? cancelMergeMode : startMergeMode,
     },
   ];
 
@@ -471,77 +525,118 @@ const AllTablesPage = () => {
     console.log(values);
   };
 
+  const handleMergeTables = async () => {
+    if (selectedTables.length < 2) return;
+
+    const [primaryTableId, ...otherTableIds] = selectedTables;
+
+    emitUpdateTable(TABLE_MERGED, { tableId: primaryTableId }, (res) => {
+      // if (res?.success) {
+      //   fetchTables();
+      // }
+    });
+
+    await handleResponse(
+      dispatch(
+        mergeTable({
+          id: primaryTableId,
+          values: { tableIds: otherTableIds },
+        }),
+      ),
+      () => {
+        cancelMergeMode();
+        fetchTables();
+      },
+    );
+  };
+
+  const handleSplitTable = async (id) => {
+    emitUpdateTable(TABLE_UNMERGED, { tableId: id }, (res) => {
+      // if (res?.success) {
+      //   fetchTables();
+      // }
+    });
+
+    await handleResponse(dispatch(splitTable(id)), () => {
+      fetchTables();
+    });
+  };
+
   return (
     <>
       <div className="space-y-6">
         <PageHeader title={"All Tables"} actions={actions} showBackButton />
 
-        {/* Tables Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-4 gap-6">
-          {allTables?.map((table) => (
-            <div
-              key={table.id}
-              className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-all"
-            >
-              {/* Table Visualization - NOW WITH DYNAMIC CAPACITY */}
-              <div className="bg-gray-50 p-6 flex items-center justify-center h-48">
-                {renderDynamicTableShape(
-                  table.shape,
-                  table.status,
-                  table.capacity,
-                )}
-              </div>
-
-              {/* Table Info */}
-              <div className="p-4 border-t border-gray-100">
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex items-center gap-3">
-                    <h3 className="text-lg font-semibold text-gray-900">
-                      Table {table.table_number}
-                    </h3>
-                    <span
-                      className={`px-2.5 py-1 rounded text-xs font-medium ${getStatusBadge(table.status)}`}
-                    >
-                      {table.status.charAt(0).toUpperCase() +
-                        table.status.slice(1)}
-                    </span>
-                  </div>
-
-                  <ActionMenu
-                    items={[
-                      {
-                        label: "View",
-                        icon: Eye,
-                        color: "blue",
-                        onClick: () => console.log("View clicked"),
-                      },
-                      {
-                        label: "Edit",
-                        icon: Pencil,
-                        color: "emerald",
-                        onClick: () => {
-                          (setSelectedTable(table), setShowTableModal(true));
-                        },
-                      },
-                    ]}
-                  />
-                </div>
-
-                <div className="flex items-center text-sm text-gray-600">
-                  <span>Floor : {table.floor_id}</span>
-
-                  <div className="mx-2 h-4 w-px bg-gray-300" />
-
-                  <span>{table.section_name}</span>
-
-                  <div className="mx-2 h-4 w-px bg-gray-300" />
-
-                  <span>Capacity : {table.capacity}</span>
-                </div>
-              </div>
-            </div>
-          ))}
+          {loading ? (
+            Array.from({ length: 6 }).map((_, i) => (
+              <TableCardSkeleton key={i} />
+            ))
+          ) : allTables?.length > 0 ? (
+            allTables.map((table) => (
+              <TableCard
+                key={table.id}
+                table={table}
+                mergeMode={mergeMode}
+                selectedTables={selectedTables}
+                toggleTableSelection={toggleTableSelection}
+                isTableSelectableForMerge={isTableSelectableForMerge}
+                renderDynamicTableShape={renderDynamicTableShape}
+                handleSplitTable={handleSplitTable}
+                onUpdate={(table) => {
+                  (setSelectedTable(table), setShowTableModal(true));
+                }}
+              />
+            ))
+          ) : (
+            <NoDataFound
+              title="No Tables Found"
+              description="Create a table to get started"
+              className="col-span-full"
+            />
+          )}
         </div>
+
+        {mergeMode && (
+          <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-lg p-4 z-30">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+              {/* LEFT CONTENT */}
+              <div className="flex flex-col">
+                {selectedTables.length === 0 && (
+                  <span className="font-semibold text-gray-700">
+                    Select tables to merge
+                  </span>
+                )}
+
+                {selectedTables.length === 1 && (
+                  <span className="font-semibold text-indigo-600">
+                    Primary Table Selected • Choose another table
+                  </span>
+                )}
+
+                {selectedTables.length >= 2 && (
+                  <span className="font-semibold text-emerald-600">
+                    Ready to Merge {selectedTables.length} Tables
+                  </span>
+                )}
+
+                <span className="text-xs text-gray-500 mt-1">
+                  Only available & mergeable tables can be selected
+                </span>
+              </div>
+
+              {/* RIGHT ACTION */}
+              <button
+                onClick={handleMergeTables}
+                disabled={selectedTables.length < 2 || isMergingTable}
+                className="btn bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {isMergingTable && <Loader2 className="h-4 w-4 animate-spin" />}
+                {isMergingTable ? "Merging..." : "Confirm Merge"}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       <TableModal
@@ -549,6 +644,7 @@ const AllTablesPage = () => {
         onClose={resetTableStates}
         outletId={outletId}
         floorId={floorId}
+        sectionId={sectionId}
         onSubmit={handleAddTable}
         table={selectedTable}
         loading={isCreatingTable || isUpdatingTable}

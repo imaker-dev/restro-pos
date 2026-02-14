@@ -1,6 +1,5 @@
 import React from "react";
 import AllOutletsPage from "../pages/outlets/AllOutletsPage";
-import Fields from "../pages/Fields";
 import AllUsersPage from "../pages/users/AllUsersPage";
 import AllCategoriesPage from "../pages/categories/AllCategoriesPage";
 import AllItemsPage from "../pages/items/AllItemsPage";
@@ -19,6 +18,9 @@ import AllAddonItemsPage from "../pages/addons/AllAddonItemsPage";
 import AllFloorsPage from "../pages/outlets/AllFloorsPage";
 import DailySalesReport from "../pages/reports/DailySalesReport";
 import AllSectionsPage from "../pages/outlets/AllSectionsPage";
+import TableHistoryPage from "../pages/tables/TableHistoryPage";
+import TableReportPage from "../pages/tables/TableReportPage";
+import TableKotPage from "../pages/tables/TableKotPage";
 
 const routeConfig = [
   // { path: "/", element: Dashboard, roles: [ROLES.SUPER_ADMIN] },
@@ -40,16 +42,20 @@ const routeConfig = [
   { path: "/reports/daily-sales", element: DailySalesReport, roles: [ROLES.SUPER_ADMIN] },
   
   { path: "/outlets", element: AllOutletsPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER] },
-  { path: "/categories", element: AllCategoriesPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER] },
+  { path: "/categories", element: AllCategoriesPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER,] },
   { path: "/items", element: AllItemsPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER] },
   { path: "/items/add", element: AddItemPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER] },
   { path: "/floors", element: AllFloorsPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER] },
   { path: "/floors/sections", element: AllSectionsPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER] },
-  { path: "/floors/tables", element: AllTablesPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER] },
+  { path: "/floors/sections/tables", element: AllTablesPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER] },
   { path: "/addons", element: AllAddonsGroup, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER] },
   { path: "/addons/item", element: AllAddonItemsPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER] },
-  { path: "/users", element: AllUsersPage, roles: [ROLES.SUPER_ADMIN] },
-  { path: "/users/add", element: AddUserPage, roles: [ROLES.SUPER_ADMIN] },
+  { path: "/users", element: AllUsersPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER] },
+  { path: "/users/add", element: AddUserPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER] },
+
+  { path: "/floors/sections/tables/history", element: TableHistoryPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER] },
+  { path: "/floors/sections/tables/report", element: TableReportPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER] },
+  { path: "/floors/sections/tables/kot", element: TableKotPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER] },
 
 
 
@@ -57,11 +63,7 @@ const routeConfig = [
 
 
 
-  {
-    path: "/fields",
-    element: Fields,
-    roles: [ROLES.SUPER_ADMIN], // override old user role
-  },
+
 
   { path: "/settings", element: AllSettingsPage, roles: [ROLES.SUPER_ADMIN] },
   {

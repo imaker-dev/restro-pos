@@ -6,8 +6,6 @@ import { JOIN_STATION } from "../socket/socketEvents";
 import store from "../store";
 import { ROLES } from "../constants";
 
-const STATION = "kitchen";
-
 export const useSocket = () => {
   const dispatch = useDispatch();
   const { logIn, meData } = useSelector((state) => state.auth);

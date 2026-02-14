@@ -5,31 +5,23 @@ import * as Yup from "yup";
 import { Loader2 } from "lucide-react";
 import { InputField } from "../../components/fields/InputField";
 import { SelectField } from "../../components/fields/SelectField";
+import { CheckboxField } from "../../components/fields/CheckboxField";
 
 const validationSchema = Yup.object({
-  name: Yup.string()
-    .trim()
-    .required("Table name is required")
-    .min(2, "Too short")
-    .max(50, "Too long"),
+  name: Yup.string().trim().max(50),
 
-  tableNumber: Yup.string()
-    .trim()
-    .required("Table number is required")
-    .max(10, "Too long"),
+  tableNumber: Yup.string().trim().required("Table number is required").max(20),
 
-  capacity: Yup.number()
-    .required("Capacity required")
-    .min(1, "Minimum 1")
-    .max(50, "Too large"),
+  capacity: Yup.number().required("Capacity required").min(1).max(100),
 
-  shape: Yup.string()
-    .oneOf(["rectangle", "round", "square"])
-    .required("Shape required"),
+  minCapacity: Yup.number().required("Min capacity required").min(1),
 
-  status: Yup.string()
-    .oneOf(["available", "occupied", "reserved"])
-    .required("Status required"),
+  shape: Yup.string().oneOf(["square", "rectangle", "round", "oval", "custom"]),
+
+  displayOrder: Yup.number().min(0),
+
+  isMergeable: Yup.boolean(),
+  isActive: Yup.boolean(),
 });
 
 const TableModal = ({
@@ -38,8 +30,9 @@ const TableModal = ({
   onSubmit,
   loading = false,
   floorId,
+  sectionId,
   outletId,
-  table, // edit mode object
+  table,
 }) => {
   const isEditMode = !!table;
 
@@ -48,11 +41,17 @@ const TableModal = ({
     initialValues: {
       floorId: table?.floor_id ?? floorId ?? 0,
       outletId: table?.outlet_id ?? outletId ?? 0,
+      sectionId: table?.section_id ?? sectionId ?? null,
+
       name: table?.name || "",
       tableNumber: table?.table_number || "",
-      capacity: table?.capacity ?? 1,
+      capacity: table?.capacity ?? 4,
+      minCapacity: table?.min_capacity ?? 1,
       shape: table?.shape || "rectangle",
-      status: table?.status || "available",
+
+      displayOrder: table?.display_order ?? 0,
+      isMergeable: table ? table.is_mergeable === 1 : false,
+      isActive: table ? table.is_active === 1 : true,
     },
 
     validationSchema,
@@ -62,7 +61,10 @@ const TableModal = ({
         ...values,
         floorId: Number(values.floorId),
         outletId: Number(values.outletId),
+        sectionId: values.sectionId ? Number(values.sectionId) : null,
         capacity: Number(values.capacity),
+        minCapacity: Number(values.minCapacity),
+        displayOrder: Number(values.displayOrder),
       };
 
       if (isEditMode) {
@@ -92,66 +94,93 @@ const TableModal = ({
         autoComplete="off"
         className="p-4 space-y-5"
       >
-        {/* TABLE NAME */}
-        <InputField
-          label="Table Name"
-          name="name"
-          required
-          placeholder="e.g. Window Table"
-          value={formik.values.name}
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-          error={formik.touched.name && formik.errors.name}
-        />
+        <div className="grid grid-cols-2 gap-4">
+          {/* NAME */}
+          <InputField
+            label="Table Name"
+            name="name"
+            placeholder="e.g. Window Table"
+            value={formik.values.name}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            error={formik.touched.name && formik.errors.name}
+          />
 
-        {/* TABLE NUMBER */}
-        <InputField
-          label="Table Number"
-          name="tableNumber"
-          required
-          placeholder="e.g. T1"
-          value={formik.values.tableNumber}
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-          error={formik.touched.tableNumber && formik.errors.tableNumber}
-        />
+          {/* TABLE NUMBER */}
+          <InputField
+            label="Table Number"
+            name="tableNumber"
+            required
+            placeholder="e.g. T1"
+            value={formik.values.tableNumber}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            error={formik.touched.tableNumber && formik.errors.tableNumber}
+          />
 
-        {/* CAPACITY */}
-        <InputField
-          label="Capacity"
-          name="capacity"
-          type="number"
-          value={formik.values.capacity}
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-          error={formik.touched.capacity && formik.errors.capacity}
-        />
+          {/* CAPACITY */}
+          <InputField
+            label="Capacity"
+            name="capacity"
+            type="number"
+            value={formik.values.capacity}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            error={formik.touched.capacity && formik.errors.capacity}
+          />
 
-        {/* SHAPE */}
-        <SelectField
-          label="Shape"
-          name="shape"
-          options={[
-            { value: "rectangle", label: "Rectangle" },
-            { value: "round", label: "Round" },
-            { value: "square", label: "Square" },
-          ]}
-          value={formik.values.shape}
-          onChange={formik.handleChange}
-        />
+          {/* MIN CAPACITY */}
+          <InputField
+            label="Min Capacity"
+            name="minCapacity"
+            type="number"
+            value={formik.values.minCapacity}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            error={formik.touched.minCapacity && formik.errors.minCapacity}
+          />
 
-        {/* STATUS */}
-        {/* <SelectField
-          label="Status"
-          name="status"
-          options={[
-            { value: "available", label: "Available" },
-            { value: "occupied", label: "Occupied" },
-            { value: "reserved", label: "Reserved" },
-          ]}
-          value={formik.values.status}
-          onChange={formik.handleChange}
-        /> */}
+          {/* SHAPE */}
+          <SelectField
+            label="Shape"
+            name="shape"
+            options={[
+              { value: "rectangle", label: "Rectangle" },
+              { value: "round", label: "Round" },
+              { value: "square", label: "Square" },
+              { value: "oval", label: "Oval" },
+              { value: "custom", label: "Custom" },
+            ]}
+            value={formik.values.shape}
+            onChange={formik.handleChange}
+          />
+
+          {/* DISPLAY ORDER */}
+          <InputField
+            label="Display Order"
+            name="displayOrder"
+            type="number"
+            value={formik.values.displayOrder}
+            onChange={formik.handleChange}
+          />
+        </div>
+
+        {/* CHECKBOXES */}
+        <div className="space-y-2">
+          <CheckboxField
+            label="Merge with other tables"
+            name="isMergeable"
+            checked={formik.values.isMergeable}
+            onChange={formik.handleChange}
+          />
+
+          <CheckboxField
+            label="Active table"
+            name="isActive"
+            checked={formik.values.isActive}
+            onChange={formik.handleChange}
+          />
+        </div>
 
         {/* FOOTER */}
         <div className="flex justify-end gap-3 pt-4">

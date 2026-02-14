@@ -132,7 +132,7 @@ const AllSectionsPage = () => {
     {
       label: "View",
       icon: Eye,
-      onClick: (row) => navigate(`/floors/sections/tables?sectionId=${row.id}`),
+      onClick: (row) => navigate(`/floors/sections/tables?sectionId=${row.id}&floorId=${floorId}`),
     },
     {
       label: "Edit",

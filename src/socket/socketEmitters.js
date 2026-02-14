@@ -1,20 +1,23 @@
 import { getSocket } from "./socket";
-import { KOT_STATUS_UPDATE } from "./socketEvents";
+import { TABLE_MERGED, TABLE_UNMERGED, TABLE_UPDATED } from "./socketEvents";
 
-export const emitKotStatusUpdate = ({ orderId, status }) => {
+const emit = (event, payload, cb) => {
   const socket = getSocket();
+  if (!socket) return;
+  socket.emit(event, payload, cb);
+};
 
-  if (!socket || !socket.connected) {
-    return Promise.resolve({ success: false });
-  }
+// TABLE
+export const emitUpdateTable = (eventType, payload, cb) => {
+  const socket = getSocket();
+  if (!socket) return;
 
-  return new Promise((resolve) => {
-    socket.emit(
-      KOT_STATUS_UPDATE,
-      { orderId, status },
-      (ack) => {
-        resolve(ack);
-      }
-    );
-  });
+  socket.emit(
+    TABLE_UPDATED,
+    {
+      event: eventType,
+      ...payload,
+    },
+    cb
+  );
 };
