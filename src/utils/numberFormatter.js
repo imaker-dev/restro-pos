@@ -1,28 +1,14 @@
-export const formatNumber = (num, type = "comma") => {
-  // Validate number
-  if (typeof num !== "number" || isNaN(num)) {
-    return "Invalid number";
+export function formatNumber(num, showRupee = false, decimals) {
+  const parsed = Number(num);
+
+  if (isNaN(parsed)) {
+    return showRupee ? `₹${Number(0).toFixed(decimals)}` : Number(0).toFixed(decimals);
   }
 
-  // Normalize type (lowercase)
-  type = String(type).toLowerCase();
+  const formattedNumber = parsed.toLocaleString("en-IN", {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  });
 
-  if (type === "compact") {
-    if (Math.abs(num) >= 1_000_000_000_000) {
-      return (num / 1_000_000_000_000).toFixed(1).replace(/\.0$/, "") + "T";
-    } else if (Math.abs(num) >= 1_000_000_000) {
-      return (num / 1_000_000_000).toFixed(1).replace(/\.0$/, "") + "B";
-    } else if (Math.abs(num) >= 1_000_000) {
-      return (num / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M";
-    } else if (Math.abs(num) >= 1_000) {
-      return (num / 1_000).toFixed(1).replace(/\.0$/, "") + "k";
-    } else {
-      return num.toString();
-    }
-  } else if (type === "comma") {
-    return num.toLocaleString();
-  }
-
-  // Invalid type
-  return "Invalid format type";
+  return showRupee ? `₹${formattedNumber}` : formattedNumber;
 }

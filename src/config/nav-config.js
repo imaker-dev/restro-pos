@@ -38,6 +38,12 @@ export const navConfig = [
         name: "Dashboard",
         icon: Home,
         path: "/",
+        roles: [ROLES.MANAGER],
+      },
+      {
+        name: "Dashboard",
+        icon: Home,
+        path: "/",
         roles: [ROLES.KITCHEN, ROLES.BAR],
       },
 
@@ -45,32 +51,32 @@ export const navConfig = [
       {
         name: "Reports",
         icon: BarChart3,
-        roles: [ROLES.SUPER_ADMIN],
+        roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER],
         children: [
           {
             name: "Daily Sales",
-            path: "/reports/daily-sales",
-            roles: [ROLES.SUPER_ADMIN],
+            path: "/daily-sales",
+            roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER],
           },
           {
             name: "Item Sales",
-            path: "/reports/item-sales",
-            roles: [ROLES.SUPER_ADMIN],
+            path: "/item-sales",
+            roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER],
           },
           {
             name: "Category Sales",
-            path: "/reports/category-sales",
-            roles: [ROLES.SUPER_ADMIN],
+            path: "/category-sales",
+            roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER],
           },
           {
-            name: "Orders Report",
-            path: "/reports/orders",
-            roles: [ROLES.SUPER_ADMIN],
+            name: "Staff Sales",
+            path: "/staff-sales",
+            roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER],
           },
           {
             name: "Payments Report",
-            path: "/reports/payments",
-            roles: [ROLES.SUPER_ADMIN],
+            path: "/payment-mode",
+            roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER],
           },
         ],
       },

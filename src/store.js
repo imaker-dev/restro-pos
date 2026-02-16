@@ -16,6 +16,8 @@ import kotSlice from "../src/redux/slices/kotSlice";
 import socketSlice from "../src/redux/slices/socketSlice";
 import uiSlice from "./redux/slices/uiSlice";
 import reportSlice from "./redux/slices/reportSlice";
+import dashboardSlice from "./redux/slices/dashboardSlice";
+import orderSlice from './redux/slices/orderSlice';
 
 const reducer = {
   auth: authSlice,
@@ -35,6 +37,8 @@ const reducer = {
   socket: socketSlice,
   ui: uiSlice,
   report: reportSlice,
+  dashboard: dashboardSlice,
+  order:orderSlice,
 };
 
 const store = configureStore({

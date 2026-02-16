@@ -11,15 +11,77 @@ export default false
         if (dateRange?.startDate) {
           params.append("startDate", dateRange.startDate);
         }
-
         if (dateRange?.endDate) {
           params.append("endDate", dateRange.endDate);
         }
-
         const query = params.toString();
-
         return Api.get(
           `/orders/reports/${outletId}/daily-sales${query ? `?${query}` : ""}`,
         );
       },
+
+      getDailyReportDetailsApi: (outletId, date, page, limit) => {
+        return Api.get(
+          `/orders/reports/${outletId}/daily-sales/detail?startDate=${date}&endDate=${date}&page=${page}&limit=${limit}`,
+        );
+      },
+
+      getItemSalesReportApi: (outletId, dateRange) => {
+        const params = new URLSearchParams();
+
+        if (dateRange?.startDate) {
+          params.append("startDate", dateRange.startDate);
+        }
+        if (dateRange?.endDate) {
+          params.append("endDate", dateRange.endDate);
+        }
+        const query = params.toString();
+        return Api.get(
+          `/orders/reports/${outletId}/item-sales${query ? `?${query}` : ""}`,
+        );
+      },
+
+      getCategorySalesReportApi: (outletId, dateRange) => {
+        const params = new URLSearchParams();
+
+        if (dateRange?.startDate) {
+          params.append("startDate", dateRange.startDate);
+        }
+        if (dateRange?.endDate) {
+          params.append("endDate", dateRange.endDate);
+        }
+        const query = params.toString();
+        return Api.get(
+          `/orders/reports/${outletId}/category-sales${query ? `?${query}` : ""}`,
+        );
+      },
+
+      getStaffSalesReportApi:(outletId,dateRange) => {
+        const params = new URLSearchParams();
+
+        if (dateRange?.startDate) {
+          params.append("startDate", dateRange.startDate);
+        }
+        if (dateRange?.endDate) {
+          params.append("endDate", dateRange.endDate);
+        }
+        const query = params.toString();
+        return Api.get(
+          `/orders/reports/${outletId}/staff${query ? `?${query}` : ""}`,
+        );
+      },
+      getPaymentModeReportApi:(outletId,dateRange) => {
+        const params = new URLSearchParams();
+
+        if (dateRange?.startDate) {
+          params.append("startDate", dateRange.startDate);
+        }
+        if (dateRange?.endDate) {
+          params.append("endDate", dateRange.endDate);
+        }
+        const query = params.toString();
+        return Api.get(
+          `/orders/reports/${outletId}/payment-modes${query ? `?${query}` : ""}`,
+        );
+      }
     };

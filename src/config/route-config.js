@@ -16,11 +16,17 @@ import AllTablesPage from "../pages/outlets/AllTablesPage";
 import AllAddonsGroup from "../pages/addons/AllAddonsGroup";
 import AllAddonItemsPage from "../pages/addons/AllAddonItemsPage";
 import AllFloorsPage from "../pages/outlets/AllFloorsPage";
-import DailySalesReport from "../pages/reports/DailySalesReport";
 import AllSectionsPage from "../pages/outlets/AllSectionsPage";
 import TableHistoryPage from "../pages/tables/TableHistoryPage";
 import TableReportPage from "../pages/tables/TableReportPage";
 import TableKotPage from "../pages/tables/TableKotPage";
+import OrderDetailsPage from "../pages/orders/OrderDetailsPage";
+import StaffSalesReportPage from "../pages/reports/StaffSalesReportPage";
+import CategorySalesReportPage from "../pages/reports/CategorySalesReportPage";
+import ItemSalesReportPage from "../pages/reports/ItemSalesReportPage";
+import DailySalesReportDetailsPage from "../pages/reports/DailySalesReportDetailsPage";
+import DailySalesReportPage from "../pages/reports/DailySalesReportPage";
+import PaymentModeReportPage from "../pages/reports/PaymentModeReportPage";
 
 const routeConfig = [
   // { path: "/", element: Dashboard, roles: [ROLES.SUPER_ADMIN] },
@@ -28,18 +34,25 @@ const routeConfig = [
     path: "/",
     elements: {
       [ROLES.SUPER_ADMIN]: Dashboard,
+      [ROLES.MANAGER]: Dashboard,
       [ROLES.KITCHEN]: OrderDashboard,
       [ROLES.BAR]: OrderDashboard,
     },
-    roles: [ROLES.SUPER_ADMIN, ROLES.KITCHEN, ROLES.BAR],
+    roles: [ROLES.SUPER_ADMIN, ROLES.MANAGER, ROLES.KITCHEN, ROLES.BAR],
   },
+  
   {
     path: "/kitchen-display",
     element: KitchenDisplayPage,
     roles: [ROLES.BAR, ROLES.KITCHEN],
   },
 
-  { path: "/reports/daily-sales", element: DailySalesReport, roles: [ROLES.SUPER_ADMIN] },
+  { path: "/daily-sales", element: DailySalesReportPage, roles: [ROLES.SUPER_ADMIN, ROLES.MANAGER] },
+  { path: "/daily-sales/details", element: DailySalesReportDetailsPage, roles: [ROLES.SUPER_ADMIN, ROLES.MANAGER] },
+  { path: "/item-sales", element: ItemSalesReportPage, roles: [ROLES.SUPER_ADMIN, ROLES.MANAGER] },
+  { path: "/category-sales", element: CategorySalesReportPage, roles: [ROLES.SUPER_ADMIN, ROLES.MANAGER] },
+  { path: "/staff-sales", element: StaffSalesReportPage, roles: [ROLES.SUPER_ADMIN, ROLES.MANAGER] },
+  { path: "/payment-mode", element: PaymentModeReportPage, roles: [ROLES.SUPER_ADMIN, ROLES.MANAGER] },
   
   { path: "/outlets", element: AllOutletsPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER] },
   { path: "/categories", element: AllCategoriesPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER,] },
@@ -53,16 +66,12 @@ const routeConfig = [
   { path: "/users", element: AllUsersPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER] },
   { path: "/users/add", element: AddUserPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER] },
 
+
+  { path: "/orders/details", element: OrderDetailsPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER] },
+
   { path: "/floors/sections/tables/history", element: TableHistoryPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER] },
   { path: "/floors/sections/tables/report", element: TableReportPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER] },
   { path: "/floors/sections/tables/kot", element: TableKotPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER] },
-
-
-
-
-
-
-
 
 
   { path: "/settings", element: AllSettingsPage, roles: [ROLES.SUPER_ADMIN] },
