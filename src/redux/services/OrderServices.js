@@ -6,7 +6,7 @@ export default false
     }
   : {
       getAllOrdersApi: (outletId) => {
-        return Api.get(`/orders/${outletId}`);
+        return Api.get(`/orders/outlets/${outletId}`);
       },
       getOrdersByIdApi: (orderId) => {
         return Api.get(`/orders/${orderId}`);

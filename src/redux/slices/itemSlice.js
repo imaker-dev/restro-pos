@@ -3,8 +3,8 @@ import toast from "react-hot-toast";
 import ItemServies from "../services/ItemServies";
 
 
-export const fetchAllItems = createAsyncThunk("/fetch/all/items", async (id) => {
-  const res = await ItemServies.getAllItemsApi(id);
+export const fetchAllItems = createAsyncThunk("/fetch/all/items", async ({outletId,search}) => {
+  const res = await ItemServies.getAllItemsApi(outletId,search);
   return res.data;
 });
 export const fetchAllItemsByCategory = createAsyncThunk("/fetch/items/category", async (id) => {

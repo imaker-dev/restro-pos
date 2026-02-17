@@ -170,9 +170,40 @@ export default function DailySalesReportPage() {
     },
   ];
 
+  const stats = [
+    {
+      title: "Total Net Sales",
+      value: formatNumber(totalNetSales, true),
+      subtitle: `Across ${salesData?.length} days`,
+      icon: IndianRupee,
+      color: "green",
+    },
+    {
+      title: "Total Orders",
+      value: formatNumber(totalOrders),
+      subtitle: "Last 7 days",
+      icon: ShoppingCart,
+      color: "blue",
+    },
+    {
+      title: "Total Guests",
+      value: formatNumber(totalGuests),
+      subtitle: `Avg ₹${formatNumber(avgGuestSpend)} per guest`,
+      icon: Users,
+      color: "purple",
+    },
+    {
+      title: "Total Collection",
+      value: formatNumber(totalCollection, true),
+      subtitle: `Avg ₹${formatNumber(avgOrderValue)} per order`,
+      icon: TrendingUp,
+      color: "yellow",
+    },
+  ];
+
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between">
         {/* Header Section */}
         <PageHeader
           title={"Daily Sales Report"}
@@ -190,34 +221,16 @@ export default function DailySalesReportPage() {
 
       {/* Summary Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard
-          title="Total Net Sales"
-          value={formatNumber(totalNetSales, true)}
-          subtitle={`Across ${salesData?.length} days`}
-          icon={IndianRupee}
-          color="green"
-        />
-        <StatCard
-          title="Total Orders"
-          value={formatNumber(totalOrders)}
-          subtitle="Last 7 days"
-          icon={ShoppingCart}
-          color="blue"
-        />
-        <StatCard
-          title="Total Guests"
-          value={formatNumber(totalGuests)}
-          subtitle={`Avg ₹${formatNumber(avgGuestSpend)} per guest`}
-          icon={Users}
-          color="purple"
-        />
-        <StatCard
-          title="Total Collection"
-          value={formatNumber(totalCollection, true)}
-          subtitle={`Avg ₹${formatNumber(avgOrderValue)} per order`}
-          icon={TrendingUp}
-          color="yellow"
-        />
+        {stats?.map((stat, index) => (
+          <StatCard
+            key={index}
+            title={stat?.title}
+            value={stat?.value}
+            subtitle={stat?.subtitle}
+            icon={stat?.icon}
+            color={stat?.color}
+          />
+        ))}
       </div>
 
       <SmartTable

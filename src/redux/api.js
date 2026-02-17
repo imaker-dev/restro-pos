@@ -1,27 +1,18 @@
 import axios from "axios";
-import toast from "react-hot-toast";
-import { TOKEN_KEYS } from "../constants";
+import { clearAuthStorage, getBearerToken } from "../utils/authToken";
 
 const baseURL = import.meta.env.VITE_API_URL;
-
-// Get the Bearer token from localStorage
-const getBearerToken = () => {
-  const token = localStorage.getItem(TOKEN_KEYS.ACCESS);
-  return token ? `Bearer ${token}` : null;
-};
 
 // Create axios instance
 const axiosInstance = axios.create({
   baseURL,
-  headers: {
-    // Default headers, but we'll modify them conditionally
-    Authorization: getBearerToken(),
-  },
 });
 
 // Request interceptor to handle dynamic content-type based on request body
 axiosInstance.interceptors.request.use(
   (config) => {
+    if (!config.headers) config.headers = {};
+
     const token = getBearerToken();
 
     if (token) {
@@ -50,17 +41,17 @@ axiosInstance.interceptors.response.use(
   (error) => {
     if (error.response) {
       const { status, data } = error.response;
-      const errorMessage =
-        data?.message || error.response.data.error || "Some unknown error";
+      const errorMessage = data?.message || data?.error || "Some unknown error";
 
       const logoutErrors = [
+        "Access token required",
         "Invalid or expired token",
         "The user belonging to this token no longer exists",
       ];
 
       if (logoutErrors.includes(errorMessage)) {
-        localStorage.removeItem(TOKEN_KEYS.ACCESS);
-        window.location.href = "/auth";
+        clearAuthStorage();
+        window.location.replace("/auth");
       }
 
       return Promise.reject(new Error(errorMessage));

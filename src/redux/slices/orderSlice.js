@@ -3,7 +3,7 @@ import toast from "react-hot-toast";
 import KitchenServices from "../services/KitchenServices";
 import OrderServices from "../services/OrderServices";
 
-export const fetchAllOrdersApi = createAsyncThunk(
+export const fetchAllOrders = createAsyncThunk(
   "/fetch/all/orders",
   async (id) => {
     const res = await OrderServices.getAllOrdersApi(id);
@@ -29,14 +29,14 @@ const orderSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(fetchAllOrdersApi.pending, (state) => {
+      .addCase(fetchAllOrders.pending, (state) => {
         state.loading = true;
       })
-      .addCase(fetchAllOrdersApi.fulfilled, (state, action) => {
+      .addCase(fetchAllOrders.fulfilled, (state, action) => {
         state.loading = false;
         state.allOrdersData = action.payload.data;
       })
-      .addCase(fetchAllOrdersApi.rejected, (state, action) => {
+      .addCase(fetchAllOrders.rejected, (state, action) => {
         state.loading = false;
         toast.error(action.error.message);
       })

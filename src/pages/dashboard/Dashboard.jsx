@@ -17,19 +17,17 @@ export default function Page() {
   const { outletId } = useSelector((state) => state.auth);
   const [dateRange, setDateRange] = useState();
 
-  useEffect(() => {
-    dispatch(fetchAllDahboardStats({ outletId, dateRange }));
-  }, [dateRange]);
+  // useEffect(() => {
+  //   dispatch(fetchAllDahboardStats({ outletId, dateRange }));
+  // }, [dateRange]);
 
-  const {dahbordStats} = useSelector((state) => state.dashboard);
-
-  console.log(dahbordStats)
+  const { dahbordStats } = useSelector((state) => state.dashboard);
 
   return (
     <div className="space-y-6">
       <WelcomeBanner />
-      
-      <div className="flex justify-end">
+
+      {/* <div className="flex justify-end">
         <CustomDateRangePicker
           value={dateRange}
           onChange={(newRange) => {
@@ -37,43 +35,42 @@ export default function Page() {
           }}
           defaultRange={"Last 7 Days"}
         />
+      </div> */}
+
+      {/* Top Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <StatCard
+          title="Total Revenue"
+          value="₹1,45,230"
+          subtitle="Today's total sales"
+          icon={DollarSign}
+          color="green"
+        />
+
+        <StatCard
+          title="Total Orders"
+          value="284"
+          subtitle="Orders placed today"
+          icon={BarChart3}
+          color="blue"
+        />
+
+        <StatCard
+          title="Active Tables"
+          value="18/28"
+          subtitle="Current occupancy"
+          icon={Users}
+          color="purple"
+        />
+
+        <StatCard
+          title="Avg Check"
+          value="₹511"
+          subtitle="Per table average"
+          icon={Clock}
+          color="yellow"
+        />
       </div>
-
-{/* Top Stats */}
-<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-  <StatCard
-    title="Total Revenue"
-    value="₹1,45,230"
-    subtitle="Today's total sales"
-    icon={DollarSign}
-    color="green"
-  />
-
-  <StatCard
-    title="Total Orders"
-    value="284"
-    subtitle="Orders placed today"
-    icon={BarChart3}
-    color="blue"
-  />
-
-  <StatCard
-    title="Active Tables"
-    value="18/28"
-    subtitle="Current occupancy"
-    icon={Users}
-    color="purple"
-  />
-
-  <StatCard
-    title="Avg Check"
-    value="₹511"
-    subtitle="Per table average"
-    icon={Clock}
-    color="yellow"
-  />
-</div>
-
 
       {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">

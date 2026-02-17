@@ -56,7 +56,7 @@ export default false
         );
       },
 
-      getStaffSalesReportApi:(outletId,dateRange) => {
+      getStaffSalesReportApi: (outletId, dateRange) => {
         const params = new URLSearchParams();
 
         if (dateRange?.startDate) {
@@ -70,7 +70,7 @@ export default false
           `/orders/reports/${outletId}/staff${query ? `?${query}` : ""}`,
         );
       },
-      getPaymentModeReportApi:(outletId,dateRange) => {
+      getPaymentModeReportApi: (outletId, dateRange) => {
         const params = new URLSearchParams();
 
         if (dateRange?.startDate) {
@@ -83,5 +83,19 @@ export default false
         return Api.get(
           `/orders/reports/${outletId}/payment-modes${query ? `?${query}` : ""}`,
         );
-      }
+      },
+      getTaxReportApi: (outletId, dateRange) => {
+        const params = new URLSearchParams();
+
+        if (dateRange?.startDate) {
+          params.append("startDate", dateRange.startDate);
+        }
+        if (dateRange?.endDate) {
+          params.append("endDate", dateRange.endDate);
+        }
+        const query = params.toString();
+        return Api.get(
+          `/orders/reports/${outletId}/tax${query ? `?${query}` : ""}`,
+        );
+      },
     };

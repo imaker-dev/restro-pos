@@ -39,17 +39,24 @@ const AddItemPage = () => {
   const navigate = useNavigate();
   const { itemId } = useQueryParams();
 
+  const { outletId } = useSelector((state) => state.auth);
+
   useEffect(() => {
-    if (!allOutlets) {
-      dispatch(fetchAllOutlets());
-    }
     if (!allTaxGroup) {
       dispatch(fetchAllTaxGroups());
     }
+
     if (itemId) {
       dispatch(fetchItemsById(itemId));
     }
-  }, [itemId]);
+
+    if (outletId) {
+      dispatch(fetchAllCategories(outletId));
+      dispatch(fetchAllFloors(outletId));
+      dispatch(fetchAllKitchenStations(outletId));
+      dispatch(fetchAllAddonGroups(outletId));
+    }
+  }, [itemId, outletId]);
 
   const { isFetchingItemDetails, itemDetails } = useSelector(
     (state) => state.item,
@@ -75,7 +82,7 @@ const AddItemPage = () => {
   const { isCreatingItem } = useSelector((state) => state.item);
 
   const initialValues = {
-    outletId: "",
+    outletId: outletId || "",
     categoryId: "",
     name: "",
     description: "",
@@ -99,10 +106,16 @@ const AddItemPage = () => {
     outletId: Yup.string().required("Outlet is required"),
     categoryId: Yup.string().required("Category is required"),
     name: Yup.string().required("Product name is required"),
-    basePrice: Yup.number()
-      .typeError("Price must be a number")
-      .required("Price is required")
-      .min(0),
+
+    basePrice: Yup.number().when("hasVariants", {
+      is: false,
+      then: (schema) =>
+        schema
+          .typeError("Price must be a number")
+          .required("Price is required")
+          .min(0, "Price must be >= 0"),
+      otherwise: (schema) => schema.notRequired(),
+    }),
 
     taxGroupId: Yup.string().required("Tax group is required"),
     kitchenStationId: Yup.string().required("Kitchen station is required"),
@@ -137,7 +150,8 @@ const AddItemPage = () => {
       description: values.description?.trim() || null,
       itemType: values.itemType,
 
-      basePrice: Number(values.basePrice),
+      basePrice: values.hasVariants ? null : Number(values.basePrice),
+
       taxGroupId: Number(values.taxGroupId),
 
       hasVariants: Boolean(values.hasVariants),
@@ -173,8 +187,9 @@ const AddItemPage = () => {
     }
 
     await handleResponse(dispatch(createItem(payload)), () => {
-      navigate('/items');
+      navigate("/items");
     });
+
     // console.log("Final Payload:", payload);
   };
 
@@ -186,6 +201,7 @@ const AddItemPage = () => {
         initialValues={initialValues}
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
+        enableReinitialize
       >
         {(formik) => (
           <Form className="space-y-8" autoComplete="off">
@@ -193,40 +209,6 @@ const AddItemPage = () => {
             <AccordionSection title="Product Info" icon={Info}>
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {/* OUTLET */}
-                  <SelectField
-                    label="Outlet"
-                    name="outletId"
-                    required
-                    options={allOutlets?.map((o) => ({
-                      value: o?.id,
-                      label: o?.name,
-                    }))}
-                    value={formik.values.outletId}
-                    loading={isFetchingOutlet}
-                    onChange={(e) => {
-                      const outletId = e.target.value;
-
-                      formik.setFieldValue("outletId", outletId);
-
-                      // reset dependent fields
-                      formik.setFieldValue("categoryId", "");
-                      formik.setFieldValue("floorIds", []);
-                      formik.setFieldValue("sectionIds", []);
-                      formik.setFieldValue("kitchenStationId", "");
-                      formik.setFieldValue("addonGroupIds", []);
-
-                      if (outletId) {
-                        dispatch(fetchAllCategories(outletId));
-                        dispatch(fetchAllFloors(outletId));
-                        dispatch(fetchAllKitchenStations(outletId));
-                        dispatch(fetchAllAddonGroups(outletId));
-                      }
-                    }}
-                    onBlur={formik.handleBlur}
-                    error={formik.touched.outletId && formik.errors.outletId}
-                  />
-
                   {/* FLOORS */}
                   <MultiSelectDropdownField
                     label="Floors"
@@ -270,22 +252,6 @@ const AddItemPage = () => {
                     }
                   />
 
-                  {/* SECTIONS */}
-                  {/* <MultiSelectDropdownField
-                  label="Sections"
-                  name="sectionIds"
-                  required
-                  disabled={!formik.values.floorIds.length}
-                  disabledText="Select floor first"
-                  options={[]}
-                  value={formik.values.sectionIds}
-                  onChange={(v) => formik.setFieldValue("sectionIds", v)}
-                  onBlur={formik.handleBlur}
-                  error={formik.touched.sectionIds && formik.errors.sectionIds}
-                /> */}
-                </div>
-
-                <div className="grid md:grid-cols-3 gap-6">
                   {/* CATEGORY */}
                   <SelectField
                     label="Category"
@@ -306,6 +272,22 @@ const AddItemPage = () => {
                     }
                   />
 
+                  {/* SECTIONS */}
+                  {/* <MultiSelectDropdownField
+                  label="Sections"
+                  name="sectionIds"
+                  required
+                  disabled={!formik.values.floorIds.length}
+                  disabledText="Select floor first"
+                  options={[]}
+                  value={formik.values.sectionIds}
+                  onChange={(v) => formik.setFieldValue("sectionIds", v)}
+                  onBlur={formik.handleBlur}
+                  error={formik.touched.sectionIds && formik.errors.sectionIds}
+                /> */}
+                </div>
+
+                <div className="grid md:grid-cols-3 gap-6">
                   {/* PRODUCT NAME */}
                   <InputField
                     label="Product Name"
@@ -337,8 +319,33 @@ const AddItemPage = () => {
             {/* PRICING & OPTIONS */}
             <AccordionSection title="Pricing & Options" icon={IndianRupee}>
               <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* PRICE */}
+                {/* TAX */}
+                <SelectField
+                  label="Tax Group"
+                  name="taxGroupId"
+                  required
+                  loading={isFetchingTaxGroup}
+                  options={allTaxGroup?.map((t) => ({
+                    value: t.id,
+                    label: t.name,
+                  }))}
+                  value={formik.values.taxGroupId}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  error={formik.touched.taxGroupId && formik.errors.taxGroupId}
+                />
+
+                {/* Checkbox */}
+                <CheckboxField
+                  label="This product has multiple variants such as size, quantity, or packaging options"
+                  checked={formik.values.hasVariants}
+                  onChange={(e) =>
+                    formik.setFieldValue("hasVariants", e.target.checked)
+                  }
+                />
+
+                {/* BASE PRICE – SHOW ONLY WHEN NO VARIANTS */}
+                {!formik.values.hasVariants && (
                   <InputField
                     label="Base Price"
                     name="basePrice"
@@ -350,35 +357,9 @@ const AddItemPage = () => {
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                     error={formik.touched.basePrice && formik.errors.basePrice}
+                    helperText="Enter the standard product price"
                   />
-
-                  {/* TAX */}
-                  <SelectField
-                    label="Tax Group"
-                    name="taxGroupId"
-                    required
-                    loading={isFetchingTaxGroup}
-                    options={allTaxGroup?.map((t) => ({
-                      value: t.id,
-                      label: t.name,
-                    }))}
-                    value={formik.values.taxGroupId}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    error={
-                      formik.touched.taxGroupId && formik.errors.taxGroupId
-                    }
-                  />
-                </div>
-
-                {/* Checkbox */}
-                <CheckboxField
-                  label="This product has multiple variants such as size, quantity, or packaging options"
-                  checked={formik.values.hasVariants}
-                  onChange={(e) =>
-                    formik.setFieldValue("hasVariants", e.target.checked)
-                  }
-                />
+                )}
 
                 {/* VARIANTS */}
                 {formik.values.hasVariants && (

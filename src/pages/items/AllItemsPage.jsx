@@ -13,6 +13,7 @@ import LightboxMedia from "../../components/LightboxMedia";
 import FoodTypeIcon from "../../partial/common/FoodTypeIcon";
 import { useNavigate } from "react-router-dom";
 import StatusBadge from "../../layout/StatusBadge";
+import SearchBar from "../../components/SearchBar";
 
 const AllItemsPage = () => {
   const dispatch = useDispatch();
@@ -21,6 +22,10 @@ const AllItemsPage = () => {
   const { outletId } = useSelector((state) => state.auth);
   const { categoryId } = useQueryParams();
 
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage,setCurrentPage] = useState(1);
+  const [itemsPerPage,setItemsPerPage] = useState(10);
+  
   const { allItems, loading, isCreatingItem, isUpdatingItem } = useSelector(
     (state) => state.item,
   );
@@ -28,15 +33,14 @@ const AllItemsPage = () => {
   const fetchItems = () => {
     if (categoryId) {
       dispatch(fetchAllItemsByCategory(categoryId));
-    }
-    if (outletId) {
-      dispatch(fetchAllItems(outletId));
+    } else {
+      dispatch(fetchAllItems({ outletId, search: searchTerm }));
     }
   };
 
   useEffect(() => {
     fetchItems();
-  }, [categoryId, outletId]);
+  }, [categoryId, outletId, searchTerm]);
 
   const columns = [
     {
@@ -154,14 +158,29 @@ const AllItemsPage = () => {
       <div className="space-y-6">
         <PageHeader title={"All Items"} actions={actions} />
 
-        <SmartTable
-          title="Items"
-          totalcount={allItems?.length}
-          data={allItems}
-          columns={columns}
-          actions={rowActions}
-          loading={loading}
-        />
+        <div className="bg-white">
+          {/* Header Section */}
+          <div className="border-b border-slate-200">
+            <div className="px-6 py-5">
+              <div className="flex items-center justify-between gap-4">
+                {/* Search Bar */}
+                <SearchBar
+                  placeholder="Search items..."
+                  onSearch={(value) => setSearchTerm(value)}
+                />
+              </div>
+            </div>
+          </div>
+
+          <SmartTable
+            // title="Items"
+            totalcount={allItems?.length}
+            data={allItems}
+            columns={columns}
+            actions={rowActions}
+            loading={loading}
+          />
+        </div>
       </div>
     </>
   );

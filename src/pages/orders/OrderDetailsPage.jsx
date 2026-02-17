@@ -1,7 +1,4 @@
 // OrderDetailsPage.jsx
-// Premium Order Details Component for POS Admin Software
-// Dependencies: react, lucide-react, tailwindcss
-
 import React, { useEffect } from "react";
 import {
   Receipt,
@@ -29,6 +26,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useQueryParams } from "../../hooks/useQueryParams";
 import { fetchOrderByIdApi } from "../../redux/slices/orderSlice";
 import OrderDetailsPageSkeleton from "../../partial/order/OrderDetailsPageSkeleton";
+import OrderBadge from "../../partial/order/OrderBadge";
 
 export default function OrderDetailsPage({ onDownload, onPrint }) {
   const dispatch = useDispatch();
@@ -163,7 +161,7 @@ export default function OrderDetailsPage({ onDownload, onPrint }) {
                 <InfoItem
                   icon={Package}
                   label="Order Type"
-                  value={order?.order_type.toUpperCase()}
+                  value={order?.order_type}
                   badge
                 />
                 <InfoItem
@@ -339,9 +337,7 @@ function InfoItem({ icon: Icon, label, value, badge }) {
       <div className="flex-1 min-w-0">
         <p className="text-xs text-gray-500 mb-0.5">{label}</p>
         {badge ? (
-          <span className="inline-block px-2 py-1 text-xs font-medium bg-blue-100 text-blue-700 rounded">
-            {value}
-          </span>
+          <OrderBadge type="type" value={value} size="sm" />
         ) : (
           <p className="text-sm font-medium text-gray-900 truncate">{value}</p>
         )}
@@ -351,21 +347,6 @@ function InfoItem({ icon: Icon, label, value, badge }) {
 }
 
 function OrderItem({ item, index }) {
-  const getItemStatusConfig = (status) => {
-    const configs = {
-      sent_to_kitchen: {
-        label: "In Kitchen",
-        color: "bg-blue-100 text-blue-700",
-      },
-      ready: { label: "Ready", color: "bg-green-100 text-green-700" },
-      served: { label: "Served", color: "bg-gray-100 text-gray-700" },
-    };
-    return (
-      configs[status] || { label: status, color: "bg-gray-100 text-gray-600" }
-    );
-  };
-
-  const itemStatus = getItemStatusConfig(item.status);
   const isBar = item.counter_name?.toLowerCase().includes("bar");
   const isKitchen = item.station_name;
 
@@ -413,11 +394,12 @@ function OrderItem({ item, index }) {
 
           {/* Metadata */}
           <div className="flex flex-wrap items-center gap-2 mb-3">
-            <span
-              className={`px-2 py-1 text-xs font-medium rounded ${itemStatus.color}`}
-            >
-              {itemStatus.label}
-            </span>
+            <OrderBadge
+              type="status"
+              value={item.status}
+              size="md"
+              showDot={false}
+            />
 
             {isBar && (
               <span className="px-2 py-1 text-xs font-medium bg-purple-100 text-purple-700 rounded flex items-center gap-1">

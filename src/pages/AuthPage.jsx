@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Mail, Eye, EyeOff, Loader2 } from "lucide-react";
+import { Loader2, Lock, ArrowRight, Mail } from "lucide-react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { handleResponse } from "../utils/helpers";
@@ -7,13 +7,26 @@ import { useDispatch, useSelector } from "react-redux";
 import { signIn } from "../redux/slices/authSlice";
 import { useNavigate } from "react-router-dom";
 import { InputField } from "../components/fields/InputField";
+import { CheckboxField } from "../components/fields/CheckboxField";
 
+// ─── Illustration Panel ─────────────────────────────────────
+function IllustrationPanel() {
+  return (
+    <div
+      className="w-full lg:w-1/2 order-1 lg:order-2 min-h-[30vh] lg:min-h-[100dvh] rounded-b-4xl lg:rounded-none lg:rounded-l-full bg-cover bg-center"
+      style={{
+        backgroundImage: `url('/Images/auth.jpg')`,
+      }}
+    />
+  );
+}
+
+// ─── Main AuthPage ───────────────────────────────────────────
 export default function AuthPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { isLogging } = useSelector((state) => state.auth);
 
-  // Validation Schema
   const validationSchema = Yup.object({
     email: Yup.string()
       .email("Invalid email address")
@@ -25,11 +38,7 @@ export default function AuthPage() {
   });
 
   const formik = useFormik({
-    initialValues: {
-      email: "",
-      password: "",
-      rememberMe: false,
-    },
+    initialValues: { email: "", password: "", rememberMe: false },
     validationSchema,
     onSubmit: async (values) => {
       await handleResponse(dispatch(signIn(values)), () => {
@@ -39,71 +48,90 @@ export default function AuthPage() {
   });
 
   return (
-    <div className="h-[100dvh] bg-primary-100 flex justify-center items-center relative">
-      <div>
-        {/* Header */}
-        <div className="pb-8 flex justify-center">
-          <img src="/Images/Logo.svg" alt="" className="w-56" />
-        </div>
+    <div className="min-h-[100dvh] flex flex-col lg:flex-row">
+      {/* Illustration */}
+      <IllustrationPanel />
 
-        {/* Main */}
-        <div className="flex-1 flex items-center justify-center px-4">
+      {/* Form Section */}
+      <div className="w-full lg:w-1/2 order-2 lg:order-1 flex items-center justify-center bg-white px-6 lg:px-16 py-10">
+        <div className="w-full max-w-md">
+          {/* Logo (Desktop only) */}
+          <div className="hidden lg:flex mb-10 items-center gap-2.5">
+            <img src="/Images/Logo.svg" alt="" className="w-44" />
+          </div>
+
+          <h1 className="text-2xl lg:text-4xl font-bold text-gray-900 mb-2">
+            Sign In to your Account
+          </h1>
+          <p className="text-gray-400 text-sm mb-6 lg:mb-8">
+            Welcome back! Please enter your details.
+          </p>
+
           <form
             onSubmit={formik.handleSubmit}
-            className="w-full max-w-md bg-white rounded-lg shadow p-8 space-y-6"
+            className="space-y-4 lg:space-y-5"
           >
-            <div className="">
-              <h1 className="text-3xl font-bold text-gray-800 mb-2">Sign In</h1>
-              <p className="text-gray-600 text-sm">
-                Access the Dreamspos panel using your email and passcode.
-              </p>
-            </div>
-
-            {/* EMAIL */}
             <InputField
               label="Email"
               name="email"
-              required
-              placeholder="Enter your email"
+              placeholder="Enter Email"
               value={formik.values.email}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               error={formik.touched.email && formik.errors.email}
               icon={Mail}
-              iconPosition="right"
             />
 
             <InputField
               label="Password"
               name="password"
-              required
-              type="password"
-              placeholder="Enter your password"
+              type={"password"}
+              placeholder="Enter Password"
               value={formik.values.password}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               error={formik.touched.password && formik.errors.password}
+              icon={Lock}
             />
 
-            <div className="flex items-center justify-end">
-              <a href="#" className="text-sm text-primary-500 font-medium">
-                Forgot Password?
+            <div className="flex items-center justify-between pt-1">
+              <CheckboxField
+                label={"Remember me"}
+                name={"rememberMe"}
+                checked={formik.values.rememberMe}
+                onChange={formik.handleChange}
+              />
+
+              <a
+                href="#"
+                className="text-sm font-medium text-primary-600 hover:text-primary-800"
+              >
+                Forgot password?
               </a>
             </div>
 
             <button
               type="submit"
               disabled={!formik.isValid || isLogging}
-              className="btn w-full bg-primary-500 text-white  hover:bg-primary-600 disabled:opacity-50 "
+              className="btn w-full bg-primary-500 text-white hover:bg-primary-600 
+             disabled:opacity-50 flex items-center justify-center gap-2 
+             transition-all duration-200 group"
             >
-              {isLogging && <Loader2 className="w-5 h-5 animate-spin mr-2" />}
-              {isLogging ? "Signing In..." : "Sign In"}
+              {isLogging && <Loader2 className="w-4 h-4 animate-spin" />}
+
+              <span>{isLogging ? "Signing In..." : "Sign In"}</span>
+
+              {!isLogging && (
+                <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" />
+              )}
             </button>
           </form>
-        </div>
-        {/* Footer */}
-        <div className="py-8 text-center text-gray-600 text-sm">
-          <p>Copyrights © 2025 - iMaker Restro</p>
+
+          <div className="mt-6 lg:mt-8">
+            <p className="text-center text-sm text-gray-500">
+              Copyrights © 2025 - iMaker Restro
+            </p>
+          </div>
         </div>
       </div>
     </div>

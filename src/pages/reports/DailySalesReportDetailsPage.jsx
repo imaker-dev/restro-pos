@@ -30,6 +30,7 @@ import { formatDate } from "../../utils/dateFormatter";
 import SmartTable from "../../components/SmartTable";
 import { formatNumber } from "../../utils/numberFormatter";
 import DailySalesDetailsPageSkeleton from "../../partial/report/DailySalesDetailsPageSkeleton";
+import OrderBadge from "../../partial/order/OrderBadge";
 
 export default function DailySalesReportDetailsPage() {
   const dispatch = useDispatch();
@@ -61,23 +62,51 @@ export default function DailySalesReportDetailsPage() {
     {
       key: "orderNumber",
       label: "Order",
-      render: (row) => (
-        <div className="max-w-[200px]">
-          <p className="font-medium text-slate-800">{row.orderNumber}</p>
-          <p className="text-xs text-slate-500">
-            {row.floorName || "-"} • Table {row.tableNumber || "-"}
-          </p>
-        </div>
-      ),
+      render: (row) => {
+        const isDineIn = row.orderType === "dine_in";
+
+        return (
+          <div className="max-w-[220px] space-y-0.5">
+            {/* Order Number */}
+            <p className="font-semibold text-sm text-slate-900 tracking-tight">
+              #{row.orderNumber}
+            </p>
+
+            {/* Meta */}
+            {isDineIn ? (
+              <div className="flex items-center gap-1.5 text-[11px] text-slate-500">
+                <span className="bg-slate-100 text-slate-700 px-1.5 py-[1px] rounded font-medium">
+                  {row.floorName || "—"}
+                </span>
+
+                <span className="text-slate-300">•</span>
+
+                <span>
+                  {" "}
+                  <span className="font-medium text-slate-700">
+                    {row.tableNumber || "—"}
+                  </span>
+                </span>
+              </div>
+            ) : (
+              <span className="text-[11px] font-medium text-slate-500">
+                {row.orderType === "takeaway"
+                  ? "Takeaway"
+                  : row.orderType === "delivery"
+                    ? "Delivery"
+                    : "Unknown"}
+              </span>
+            )}
+          </div>
+        );
+      },
     },
 
     {
       key: "orderType",
       label: "Type",
       render: (row) => (
-        <span className="px-2.5 py-1 text-xs rounded-md font-medium bg-indigo-100 text-indigo-700 capitalize">
-          {row.orderType.replace("_", " ")}
-        </span>
+        <OrderBadge type="type" value={row.orderType} size="sm" />
       ),
     },
 
@@ -85,18 +114,7 @@ export default function DailySalesReportDetailsPage() {
       key: "status",
       label: "Status",
       render: (row) => (
-        <span
-          className={`px-2.5 py-1 text-xs rounded-md font-medium capitalize
-        ${
-          row.status === "completed" || row.status === "billed"
-            ? "bg-emerald-100 text-emerald-700"
-            : row.status === "pending"
-              ? "bg-amber-100 text-amber-700"
-              : "bg-rose-100 text-rose-700"
-        }`}
-        >
-          {row.status}
-        </span>
+        <OrderBadge type="status" value={row.status} size="sm" />
       ),
     },
 
@@ -104,16 +122,7 @@ export default function DailySalesReportDetailsPage() {
       key: "paymentStatus",
       label: "Payment",
       render: (row) => (
-        <span
-          className={`px-2.5 py-1 text-xs rounded-md font-medium capitalize
-        ${
-          row.paymentStatus === "completed"
-            ? "bg-emerald-100 text-emerald-700"
-            : "bg-slate-100 text-slate-600"
-        }`}
-        >
-          {row.paymentStatus}
-        </span>
+        <OrderBadge type="payment" value={row.paymentStatus} size="sm" />
       ),
     },
 
@@ -122,7 +131,7 @@ export default function DailySalesReportDetailsPage() {
       label: "Items",
       sortable: false,
       render: (row) => (
-        <span className="font-semibold text-slate-700">
+        <span className="font-semibold text-sm text-slate-800 tabular-nums">
           {row.items?.totalCount ?? 0}
         </span>
       ),
@@ -132,7 +141,7 @@ export default function DailySalesReportDetailsPage() {
       key: "guests",
       label: "Guests",
       render: (row) => (
-        <span className="text-slate-700 font-medium">
+        <span className="font-medium text-sm text-slate-700 tabular-nums">
           {row.guestCount ?? 0}
         </span>
       ),
@@ -142,7 +151,9 @@ export default function DailySalesReportDetailsPage() {
       key: "captain",
       label: "Captain",
       render: (row) => (
-        <span className="text-slate-600">{row.captainName || "-"}</span>
+        <span className="text-xs text-slate-600 font-medium">
+          {row.captainName || "—"}
+        </span>
       ),
     },
 
@@ -150,8 +161,8 @@ export default function DailySalesReportDetailsPage() {
       key: "amount",
       label: "Total",
       render: (row) => (
-        <span className="font-semibold text-slate-800">
-          {formatNumber(row.totalAmount, true)}
+        <span className="font-semibold text-sm text-slate-900 tabular-nums">
+          {formatNumber(row.totalAmount ?? 0, true)}
         </span>
       ),
     },
@@ -160,7 +171,7 @@ export default function DailySalesReportDetailsPage() {
       key: "createdAt",
       label: "Created",
       render: (row) => (
-        <span className="text-slate-500 whitespace-nowrap">
+        <span className="text-xs text-slate-500 whitespace-nowrap">
           {formatDate(row.createdAt, "longTime")}
         </span>
       ),

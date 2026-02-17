@@ -18,7 +18,7 @@ function SidebarLinkGroup({
 
   return (
     <li
-      className={`relative mb-0.5 last:mb-0 ${
+      className={`relative mb-0.5 last:mb-0 font-semibold ${
         sidebarExpanded
           ? " rounded-md"
           : " rounded-lg mx-1 hover:bg-gray-100 transition-colors duration-200"

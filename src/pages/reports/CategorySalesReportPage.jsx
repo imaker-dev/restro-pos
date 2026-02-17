@@ -19,7 +19,6 @@ const CategorySalesReportPage = () => {
 
     dispatch(fetchCategorySalesReport({ outletId, dateRange }));
   }, [outletId, dateRange]);
-  console.log(categorySalesReport);
 
   const columns = [
     {
@@ -97,7 +96,7 @@ const CategorySalesReportPage = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between">
         <PageHeader title={"Category Sales Report"} />
 
         <CustomDateRangePicker

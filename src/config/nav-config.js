@@ -17,6 +17,8 @@ import {
   Warehouse,
   Info,
   ReceiptIndianRupee,
+  Utensils,
+  SlidersHorizontal,
 } from "lucide-react";
 import { ROLES } from "../constants";
 
@@ -78,6 +80,11 @@ export const navConfig = [
             path: "/payment-mode",
             roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER],
           },
+          {
+            name: "Tax Report",
+            path: "/tax-report",
+            roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER],
+          },
         ],
       },
     ],
@@ -119,13 +126,13 @@ export const navConfig = [
       },
       {
         name: "Menu Items",
-        icon: UtensilsCrossed,
+        icon: Utensils,
         path: "/items",
         roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER],
       },
       {
         name: "Modifiers / Add-ons",
-        icon: Percent,
+        icon: SlidersHorizontal,
         path: "/addons",
         roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER],
       },
@@ -182,30 +189,6 @@ export const navConfig = [
     ],
   },
 
-  {
-    title: "Billing & Plans",
-    roles: [ROLES.SUPER_ADMIN],
-    items: [
-      {
-        name: "Subscriptions",
-        icon: CreditCard,
-        path: "/subscriptions",
-        roles: [ROLES.SUPER_ADMIN],
-      },
-      {
-        name: "Packages / Plans",
-        icon: Layers,
-        path: "/plans",
-        roles: [ROLES.SUPER_ADMIN],
-      },
-      {
-        name: "Invoices",
-        icon: Receipt,
-        path: "/invoices",
-        roles: [ROLES.SUPER_ADMIN],
-      },
-    ],
-  },
 
   {
     title: "System",

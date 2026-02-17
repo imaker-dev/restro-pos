@@ -1,11 +1,10 @@
 import { io } from "socket.io-client";
-import { TOKEN_KEYS } from "../constants";
+import { getRawToken } from "../utils/authToken";
 
 let socket = null;
 
 export const connectSocket = () => {
-  const token = localStorage.getItem(TOKEN_KEYS.ACCESS);
-
+  const token = getRawToken();
   if (socket?.connected) return socket;
 
   socket = io(import.meta.env.VITE_SOCKET_URL, {

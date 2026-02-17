@@ -61,6 +61,16 @@ export const fetchPaymentModeReport = createAsyncThunk(
     return res.data;
   },
 );
+export const fetchTaxReport = createAsyncThunk(
+  "/fetch/tax/report",
+  async ({ outletId, dateRange }) => {
+    const res = await ReportServices.getTaxReportApi(
+      outletId,
+      dateRange,
+    );
+    return res.data;
+  },
+);
 
 const reportSlice = createSlice({
   name: "report",
@@ -81,6 +91,9 @@ const reportSlice = createSlice({
 
     paymentModeReport:null,
     isFetchingPaymentModeReport:false,
+
+    taxReport: null,
+    isFetchingTaxReport:false,
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -149,6 +162,17 @@ const reportSlice = createSlice({
       })
       .addCase(fetchPaymentModeReport.rejected, (state, action) => {
         state.isFetchingPaymentModeReport = false;
+        toast.error(action.error.message);
+      })
+      .addCase(fetchTaxReport.pending, (state) => {
+        state.isFetchingTaxReport = true;
+      })
+      .addCase(fetchTaxReport.fulfilled, (state, action) => {
+        state.isFetchingTaxReport = false;
+        state.taxReport = action.payload.data;
+      })
+      .addCase(fetchTaxReport.rejected, (state, action) => {
+        state.isFetchingTaxReport = false;
         toast.error(action.error.message);
       })
   },

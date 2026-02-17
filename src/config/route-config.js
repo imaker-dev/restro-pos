@@ -27,6 +27,8 @@ import ItemSalesReportPage from "../pages/reports/ItemSalesReportPage";
 import DailySalesReportDetailsPage from "../pages/reports/DailySalesReportDetailsPage";
 import DailySalesReportPage from "../pages/reports/DailySalesReportPage";
 import PaymentModeReportPage from "../pages/reports/PaymentModeReportPage";
+import TaxReportPage from "../pages/reports/TaxReportPage";
+import AllOrdersPage from "../pages/orders/AllOrdersPage";
 
 const routeConfig = [
   // { path: "/", element: Dashboard, roles: [ROLES.SUPER_ADMIN] },
@@ -53,6 +55,7 @@ const routeConfig = [
   { path: "/category-sales", element: CategorySalesReportPage, roles: [ROLES.SUPER_ADMIN, ROLES.MANAGER] },
   { path: "/staff-sales", element: StaffSalesReportPage, roles: [ROLES.SUPER_ADMIN, ROLES.MANAGER] },
   { path: "/payment-mode", element: PaymentModeReportPage, roles: [ROLES.SUPER_ADMIN, ROLES.MANAGER] },
+  { path: "/tax-report", element: TaxReportPage, roles: [ROLES.SUPER_ADMIN, ROLES.MANAGER] },
   
   { path: "/outlets", element: AllOutletsPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER] },
   { path: "/categories", element: AllCategoriesPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER,] },
@@ -67,6 +70,7 @@ const routeConfig = [
   { path: "/users/add", element: AddUserPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER] },
 
 
+  { path: "/orders", element: AllOrdersPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER] },
   { path: "/orders/details", element: OrderDetailsPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER] },
 
   { path: "/floors/sections/tables/history", element: TableHistoryPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER] },

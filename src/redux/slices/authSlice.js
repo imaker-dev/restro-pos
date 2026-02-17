@@ -3,8 +3,10 @@ import toast from "react-hot-toast";
 import AuthServices from "../services/AuthServices";
 import { TOKEN_KEYS } from "../../constants";
 import { disconnectSocket } from "../../socket/socket";
+import { clearAuthStorage, isLoggedIn } from "../../utils/authToken";
 
-const logIn = !!localStorage.getItem(TOKEN_KEYS.ACCESS);
+const logIn = isLoggedIn();
+
 const storedOutlet = localStorage.getItem(TOKEN_KEYS.OUTLET_ID);
 
 export const signIn = createAsyncThunk("/admin/signin", async (values) => {
@@ -37,9 +39,7 @@ const authSlice = createSlice({
     clearLoginState: (state) => {
       state.logIn = false;
       state.meData = null;
-      localStorage.removeItem(TOKEN_KEYS.ACCESS);
-      localStorage.removeItem(TOKEN_KEYS.REFRESH);
-
+      clearAuthStorage();
       toast.success("Logout successfully");
     },
     setOutletId: (state, action) => {
@@ -56,14 +56,14 @@ const authSlice = createSlice({
       .addCase(signIn.fulfilled, (state, action) => {
         state.isLogging = false;
         state.logIn = true;
-        localStorage.setItem(
-          TOKEN_KEYS.ACCESS,
-          action.payload.data.accessToken,
-        );
-        localStorage.setItem(
-          TOKEN_KEYS.REFRESH,
-          action.payload.data.refreshToken,
-        );
+        const { accessToken, refreshToken } = action.payload.data;
+
+        const rememberMe = action.meta.arg.rememberMe;
+        const storage = rememberMe ? localStorage : sessionStorage;
+
+        storage.setItem(TOKEN_KEYS.ACCESS, accessToken);
+        storage.setItem(TOKEN_KEYS.REFRESH, refreshToken);
+
         toast.success(action.payload.message);
       })
       .addCase(signIn.rejected, (state, action) => {

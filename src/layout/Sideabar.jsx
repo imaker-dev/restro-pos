@@ -241,7 +241,7 @@ const filteredNavConfig = navConfig
                                   />
 
                                   {effectiveExpanded && (
-                                    <span className="text-sm font-medium ml-3 transition-opacity duration-200">
+                                    <span className="text-sm font-semibold ml-3 transition-opacity duration-200">
                                       {item.name}
                                     </span>
                                   )}
@@ -373,7 +373,7 @@ const filteredNavConfig = navConfig
                               />
 
                               {effectiveExpanded && (
-                                <span className="text-sm font-medium ml-3 transition-opacity duration-200">
+                                <span className="text-sm font-semibold ml-3 transition-opacity duration-200">
                                   {item.name}
                                 </span>
                               )}

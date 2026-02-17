@@ -16,6 +16,7 @@ import { clearLoginState } from "../redux/slices/authSlice";
 import PermissionGuard from "../guard/PermissionGuard";
 import { ROLES } from "../constants";
 import OutletSwitcher from "./OutletSwitcher";
+import ThemeToggle from "../components/ThemeToggle";
 
 function Header({ sidebarOpen, setSidebarOpen }) {
   const dispatch = useDispatch();
@@ -54,13 +55,16 @@ function Header({ sidebarOpen, setSidebarOpen }) {
             {/* Header: Right side */}
             <div className="flex items-center space-x-2">
               {/* Search */}
-              <button
+              {/* <button
                 className={`w-8 h-8 flex items-center justify-center bg-slate-100 hover:bg-slate-200 rounded-full ml-3`}
                 aria-controls="search-modal"
               >
                 <span className="sr-only">Search</span>
                 <Search className="w-4 h-4 text-slate-500" />
-              </button>
+              </button> */}
+
+              
+              {/* <ThemeToggle /> */}
 
               {/* Notifications */}
               <button

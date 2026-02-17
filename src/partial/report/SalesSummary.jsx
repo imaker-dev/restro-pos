@@ -15,38 +15,52 @@ import StatCard from "../../components/StatCard";
 import { formatNumber } from "../../utils/numberFormatter";
 
 export default function SalesSummary({ data }) {
+  const statCards = [
+    {
+      icon: ShoppingCart,
+      label: "Total Orders",
+      value: formatNumber(data?.totalOrders),
+      subtitle: `${data?.completedOrders} completed, ${data?.activeOrders} active`,
+      color: "blue",
+    },
+    {
+      icon: DollarSign,
+      label: "Net Sales",
+      value: formatNumber(data?.netSales, true),
+      subtitle: `Avg: ₹${data?.averageOrderValue}`,
+      color: "green",
+    },
+    {
+      icon: TrendingUp,
+      label: "Gross Sales",
+      value: formatNumber(data?.grossSales, true),
+      subtitle: `Tax: ₹${data?.totalTax}`,
+      color: "orange",
+    },
+    {
+      icon: Banknote,
+      label: "Total Paid",
+      value: formatNumber(data?.totalPaid, true),
+      subtitle: `Tips: ₹${data?.totalTips}`,
+      color: "purple",
+    },
+  ];
+
   return (
     <div className="mb-8">
       {/* Main Summary Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <StatCard
-          icon={ShoppingCart}
-          label="Total Orders"
-          value={formatNumber(data?.totalOrders)}
-          subtitle={`${data?.completedOrders} completed, ${data?.activeOrders} active`}
-          color="blue"
-        />
-        <StatCard
-          icon={DollarSign}
-          label="Net Sales"
-          value={`${formatNumber(data?.netSales, true)}`}
-          subtitle={`Avg: ₹${data?.averageOrderValue}`}
-          color="green"
-        />
-        <StatCard
-          icon={TrendingUp}
-          label="Gross Sales"
-          value={`${formatNumber(data?.grossSales, true)}`}
-          subtitle={`Tax: ₹${data?.totalTax}`}
-          color="orange"
-        />
-        <StatCard
-          icon={Banknote}
-          label="Total Paid"
-          value={`${formatNumber(data?.totalPaid, true)}`}
-          subtitle={`Tips: ₹${data?.totalTips}`}
-          color="purple"
-        />
+        {statCards.map((card) => (
+          <StatCard
+            key={card?.label}
+            icon={card?.icon}
+            label={card?.label}
+            value={card?.value}
+            subtitle={card?.subtitle}
+            color={card?.color}
+            variant="secondary"
+          />
+        ))}
       </div>
 
       {/* Secondary Stats */}
