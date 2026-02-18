@@ -81,52 +81,51 @@ function Sidebar({
     setSidebarOpen(false);
   }, [pathname]);
 
-const filteredNavConfig = navConfig
-  .map((group) => {
-    const filteredItems = group.items
-      .map((item) => {
-        // CHILDREN CASE
-        if (item.children) {
-          const parentAllowed = hasAccess({
+  const filteredNavConfig = navConfig
+    .map((group) => {
+      const filteredItems = group.items
+        .map((item) => {
+          // CHILDREN CASE
+          if (item.children) {
+            const parentAllowed = hasAccess({
+              userRole,
+              userPermissions,
+              roles: item.roles,
+              permissions: item.permissions,
+              public: item.public, // ADD THIS
+            });
+
+            if (!parentAllowed) return null;
+
+            const children = item.children.filter((child) =>
+              hasAccess({
+                userRole,
+                userPermissions,
+                roles: child.roles,
+                permissions: child.permissions,
+                public: child.public, // ADD THIS
+              }),
+            );
+
+            return children.length ? { ...item, children } : null;
+          }
+
+          // NORMAL ITEM
+          return hasAccess({
             userRole,
             userPermissions,
             roles: item.roles,
             permissions: item.permissions,
             public: item.public, // ADD THIS
-          });
-
-          if (!parentAllowed) return null;
-
-          const children = item.children.filter((child) =>
-            hasAccess({
-              userRole,
-              userPermissions,
-              roles: child.roles,
-              permissions: child.permissions,
-              public: child.public, // ADD THIS
-            }),
-          );
-
-          return children.length ? { ...item, children } : null;
-        }
-
-        // NORMAL ITEM
-        return hasAccess({
-          userRole,
-          userPermissions,
-          roles: item.roles,
-          permissions: item.permissions,
-          public: item.public, // ADD THIS
+          })
+            ? item
+            : null;
         })
-          ? item
-          : null;
-      })
-      .filter(Boolean);
+        .filter(Boolean);
 
-    return filteredItems.length ? { ...group, items: filteredItems } : null;
-  })
-  .filter(Boolean);
-
+      return filteredItems.length ? { ...group, items: filteredItems } : null;
+    })
+    .filter(Boolean);
 
   return (
     <div className="min-w-fit">
@@ -153,14 +152,13 @@ const filteredNavConfig = navConfig
           <NavLink
             end
             to="/"
-            className={`bg-white  flex items-center ${effectiveExpanded ? 'justify-start' : 'justify-center'} h-16`}
+            className={`bg-white  flex items-center ${effectiveExpanded ? "justify-start" : "justify-center"} h-16`}
           >
             {effectiveExpanded && (
               <img src="/Images/Logo.svg" alt="" className="w-44" />
             )}
             {!effectiveExpanded && (
-              <img src="/Images/logo-icon.png" className="w-8"/>
-              
+              <img src="/Images/logo-icon.png" className="w-8" />
             )}
           </NavLink>
         </div>
@@ -337,7 +335,7 @@ const filteredNavConfig = navConfig
                           isActive ? "bg-primary-100" : ""
                         } ${
                           effectiveExpanded
-                            ? "px-3 py-2 rounded-sm"
+                            ? "px-2 py-2 rounded-sm"
                             : "px-2 py-2 rounded-lg mx-1 hover:bg-gray-100"
                         }`}
                       >

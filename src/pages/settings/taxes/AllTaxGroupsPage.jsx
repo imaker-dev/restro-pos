@@ -98,7 +98,7 @@ const AllTaxGroupsPage = () => {
       label: "View",
       icon: Eye,
       color: "slate",
-      onClick: (row) => navigate(`/settings/tax-types/tax?groupId=${row?.id}`),
+      onClick: (row) => navigate(`/settings/tax/details?groupId=${row?.id}`),
     },
   ];
 

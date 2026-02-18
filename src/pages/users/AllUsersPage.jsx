@@ -5,7 +5,7 @@ import { fetchAllUsers } from "../../redux/slices/userSlice";
 import SmartTable from "../../components/SmartTable";
 import { formatDate } from "../../utils/dateFormatter";
 import UserAvatar from "../../components/UserAvatar";
-import { Eye, Plus } from "lucide-react";
+import {  Edit3, Eye, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import SearchBar from "../../components/SearchBar";
 import StatusBadge from "../../layout/StatusBadge";
@@ -143,6 +143,12 @@ const AllUsersPage = () => {
       label: "View",
       icon: Eye,
       onClick: (row) => navigate(`/users/details?userId=${row.id}`),
+    },
+    {
+      label: "Edit",
+      icon: Edit3,
+      color:"blue",
+      onClick: (row) => navigate(`/users/add?userId=${row.id}`),
     },
   ];
 

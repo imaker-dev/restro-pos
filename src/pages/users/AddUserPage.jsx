@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import PageHeader from "../../layout/PageHeader";
@@ -6,9 +6,7 @@ import AccordionSection from "../../components/AccordionSection";
 
 import { InputField } from "../../components/fields/InputField";
 import { SelectField } from "../../components/fields/SelectField";
-
-import { User, Shield, User2, Mail, Loader2 } from "lucide-react";
-
+import { User, Shield, User2, Mail, Loader2, RefreshCw } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllOutlets } from "../../redux/slices/outletSlice";
 import { fetchAllRoles } from "../../redux/slices/roleSlice";
@@ -16,20 +14,22 @@ import { fetchAllFloors } from "../../redux/slices/floorSlice";
 import { fetchAllPermissions } from "../../redux/slices/permissionSlice";
 import { MultiSelectDropdownField } from "../../components/fields/MultiSelectDropdownField";
 import { handleResponse } from "../../utils/helpers";
-import { createUser } from "../../redux/slices/userSlice";
+import {
+  createUser,
+  fetchUserById,
+  updateUser,
+} from "../../redux/slices/userSlice";
 import { useNavigate } from "react-router-dom";
+import { useQueryParams } from "../../hooks/useQueryParams";
 
 const AddUserPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { userId } = useQueryParams();
 
-  useEffect(() => {
-    dispatch(fetchAllOutlets());
-    dispatch(fetchAllRoles());
-    // dispatch(fetchAllPermissions());
-  }, [dispatch]);
-
-  const { isCreatingUser } = useSelector((state) => state.user);
+  const { outletId } = useSelector((state) => state.auth);
+  const { userDetails, isFetchingUserDetails, isCreatingUser, isupdatingUser } =
+    useSelector((state) => state.user);
   const { allOutlets } = useSelector((s) => s.outlet);
   const { allRoles } = useSelector((s) => s.role);
   const { allFloors, loading: fetchingAllFloors } = useSelector((s) => s.floor);
@@ -37,53 +37,80 @@ const AddUserPage = () => {
   const { allPermissions } = useSelector((state) => state.permission);
   const { grouped } = allPermissions || {};
 
-  const initialValues = {
-    name: "",
-    email: "",
-    employeeCode: "",
-    password: "",
-    pin: "",
-    isActive: true,
+  useEffect(() => {
+    if (userId) {
+      dispatch(fetchUserById(userId));
+    }
 
-    outletId: "",
-    roleId: "",
+    dispatch(fetchAllOutlets());
+    dispatch(fetchAllRoles());
+    // dispatch(fetchAllPermissions());
 
-    floors: [],
+    if (outletId) {
+      dispatch(fetchAllFloors(outletId));
+    }
+  }, [dispatch, userId, outletId]);
 
-    permissions: [],
-  };
+  const initialValues = useMemo(() => {
+    if (!userId || !userDetails) {
+      return {
+        name: "",
+        email: "",
+        employeeCode: "",
+        password: "",
+        pin: "",
+        isActive: true,
+        outletId: outletId || "",
+        roleId: "",
+        floors: [],
+      };
+    }
 
-  const validationSchema = Yup.object({
-    name: Yup.string().required("Name required"),
+    // EDIT MODE
+    return {
+      name: userDetails.name || "",
+      email: userDetails.email || "",
+      employeeCode: userDetails.employeeCode || "",
+      password: "",
+      pin: "",
+      isActive: userDetails.isActive ?? true,
+      outletId: userDetails.roles?.[0]?.outletId || "",
+      roleId: userDetails.roles?.[0]?.id || "",
+      floors: userDetails.assignedFloors?.map((f) => String(f.floorId)) || [],
+    };
+  }, [userId, userDetails, outletId]);
 
-    email: Yup.string().email("Invalid email").required("Email required"),
+  const validationSchema = useMemo(() => {
+    return Yup.object({
+      name: Yup.string().required("Name required"),
+      email: Yup.string().email("Invalid email").required("Email required"),
+      employeeCode: Yup.string().required("Employee code required"),
+      outletId: Yup.string().required("Outlet required"),
+      roleId: Yup.string().required("Role required"),
 
-    employeeCode: Yup.string().required("Employee code required"),
+      password: userId
+        ? Yup.string() // EDIT → optional
+        : Yup.string()
+            .min(6, "Minimum 6 characters")
+            .matches(
+              /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).*$/,
+              "Password must contain at least one uppercase, one lowercase, and one number",
+            )
+            .required("Password required"),
 
-    password: Yup.string()
-      .min(6, "Minimum 6 characters")
-      .matches(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).*$/,
-        "Password must contain at least one uppercase, one lowercase, and one number",
-      )
-      .required("Password required"),
-
-    pin: Yup.string()
-      .matches(/^\d{4}$/, "PIN must be 4 digits")
-      .required("PIN required"),
-
-    outletId: Yup.string().required("Outlet required"),
-    roleId: Yup.string().required("Role required"),
-    // floors: Yup.array().min(1, "Select at least one floor"),
-  });
+      pin: userId
+        ? Yup.string() // EDIT → optional
+        : Yup.string()
+            .matches(/^\d{4}$/, "PIN must be 4 digits")
+            .required("PIN required"),
+    });
+  }, [userId]);
 
   const handleSubmit = async (values) => {
     const payload = {
       name: values.name?.trim(),
       email: values.email?.trim(),
       employeeCode: values.employeeCode?.trim(),
-      password: values.password,
-      pin: values.pin,
       isActive: Boolean(values.isActive),
 
       roles: [
@@ -96,37 +123,53 @@ const AddUserPage = () => {
       floors: (values.floors || []).map((floorId, index) => ({
         floorId: Number(floorId),
         outletId: Number(values.outletId),
-        isPrimary: index === 0, // first selected floor = primary
+        isPrimary: index === 0,
       })),
     };
 
-    console.log("FINAL PAYLOAD:", payload);
-    await handleResponse(dispatch(createUser(payload)), () => {
+    // only when creating
+    if (!userId) {
+      payload.password = values.password;
+      payload.pin = values.pin;
+    }
+
+    const action = userId
+      ? updateUser({ id: userId, values: payload })
+      : createUser(payload);
+
+    await handleResponse(dispatch(action), () => {
       navigate("/users");
     });
   };
 
+  // Loading state
+  if (isFetchingUserDetails && userId) {
+    return (
+      <div className="flex items-center justify-center h-[80dvh]">
+        <div className="text-center">
+          <RefreshCw className="w-12 h-12 text-primary-500 animate-spin mx-auto mb-4" />
+          <p className="text-gray-600">Loading user details...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
-      <PageHeader title="Create Staff Member" showBackButton />
+      <PageHeader
+        title={userId ? "Update Staff Member" : "Create Staff Member"}
+        showBackButton
+      />
 
       <Formik
         initialValues={initialValues}
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
+        enableReinitialize
       >
         {(formik) => {
-          // FLOOR API CALL ON OUTLET CHANGE
-          useEffect(() => {
-            if (formik.values.outletId) {
-              dispatch(fetchAllFloors(formik.values.outletId));
-              formik.setFieldValue("floors", []);
-            }
-          }, [formik.values.outletId]);
-
           return (
             <Form className="space-y-8" autoComplete="off">
-              {/* BASIC INFO */}
               {/* BASIC INFO */}
               <AccordionSection title="Basic Info" icon={User}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -171,13 +214,20 @@ const AddUserPage = () => {
 
                   {/* PASSWORD */}
                   <InputField
-                    label="Password"
+                    label={userId ? "Password (Optional)" : "Password"}
                     name="password"
                     type="password"
                     value={formik.values.password}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                     error={formik.touched.password && formik.errors.password}
+                    autoComplete="new-password"
+                    placeholder="Password@123"
+                    helperText={
+                      userId
+                        ? "Leave blank to keep current password"
+                        : "Must contain uppercase, lowercase and number"
+                    }
                   />
 
                   {/* PIN */}
@@ -194,24 +244,20 @@ const AddUserPage = () => {
                     }}
                     onBlur={formik.handleBlur}
                     error={formik.touched.pin && formik.errors.pin}
+                    autoComplete="off"
+                    helperText={
+                      userId
+                        ? "Leave blank to keep existing PIN"
+                        : "Enter a 4 digit numeric PIN"
+                    }
                   />
                 </div>
               </AccordionSection>
 
               {/* ROLE + OUTLET + FLOORS */}
               <AccordionSection title="Access Control" icon={Shield}>
-                <div className="grid grid-cols-2 gap-4 mb-6">
-                  <SelectField
-                    label="Outlet"
-                    name="outletId"
-                    options={allOutlets?.map((o) => ({
-                      value: o.id,
-                      label: o.name,
-                    }))}
-                    value={formik.values.outletId}
-                    onChange={formik.handleChange}
-                  />
-
+                <div className="grid md:grid-cols-2 gap-4 mb-6">
+                  {/* ROLE  */}
                   <SelectField
                     label="Role"
                     name="roleId"
@@ -221,42 +267,46 @@ const AddUserPage = () => {
                     }))}
                     value={formik.values.roleId}
                     onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    error={formik.touched.roleId && formik.errors.roleId}
+                  />
+
+                  {/* FLOORS */}
+                  <MultiSelectDropdownField
+                    label="Floors"
+                    name="floors"
+                    options={allFloors?.map((f) => ({
+                      id: f.id,
+                      label: f.name,
+                    }))}
+                    value={formik.values.floors}
+                    onChange={(val) => formik.setFieldValue("floors", val)}
+                    onBlur={formik.handleBlur}
+                    error={formik.touched.floors && formik.errors.floors}
+                    disabled={!formik.values.outletId}
+                    disabledText={
+                      !formik.values.outletId
+                        ? "Please select an outlet first"
+                        : "Floors unavailable"
+                    }
+                    loading={fetchingAllFloors}
                   />
                 </div>
-
-                {/* FLOORS */}
-                <MultiSelectDropdownField
-                  label="Floors"
-                  name="floors"
-                  options={allFloors?.map((f) => ({
-                    id: f.id,
-                    label: f.name,
-                  }))}
-                  value={formik.values.floors}
-                  onChange={(val) => formik.setFieldValue("floors", val)}
-                  onBlur={formik.handleBlur}
-                  error={formik.touched.floors && formik.errors.floors}
-                  disabled={!formik.values.outletId}
-                  disabledText={
-                    !formik.values.outletId
-                      ? "Please select an outlet first"
-                      : "Floors unavailable"
-                  }
-                  loading={fetchingAllFloors}
-                />
               </AccordionSection>
 
               <div className="flex justify-end">
                 <button
                   type="submit"
-                  disabled={isCreatingUser}
+                  disabled={isCreatingUser || isupdatingUser}
                   className="btn bg-primary-500 text-white flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
                 >
-                  {isCreatingUser ? (
+                  {isCreatingUser || isupdatingUser ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin" />
-                      Creating...
+                      {userId ? "Updating..." : "Creating..."}
                     </>
+                  ) : userId ? (
+                    "Update Staff"
                   ) : (
                     "Create Staff"
                   )}

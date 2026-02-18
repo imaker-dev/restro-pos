@@ -5,7 +5,7 @@ import * as Yup from "yup";
 import { Loader2 } from "lucide-react";
 import { InputField } from "../../components/fields/InputField";
 import { CheckboxField } from "../../components/fields/CheckboxField";
-import { SECTION_TYPES } from "../../constants";
+import { SECTION_TYPE_OPTIONS } from "../../constants/selectOptions";
 
 const validationSchema = Yup.object({
   name: Yup.string().trim().required("Section name is required").max(50),
@@ -15,18 +15,6 @@ const validationSchema = Yup.object({
   displayOrder: Yup.number().integer().nullable(),
   isActive: Yup.boolean(),
 });
-
-const SECTION_TYPE_OPTIONS = [
-  { value: SECTION_TYPES.DINE_IN, label: "Dine In" },
-  { value: SECTION_TYPES.TAKEAWAY, label: "Takeaway" },
-  { value: SECTION_TYPES.DELIVERY, label: "Delivery" },
-  { value: SECTION_TYPES.BAR, label: "Bar" },
-  { value: SECTION_TYPES.ROOFTOP, label: "Rooftop" },
-  { value: SECTION_TYPES.PRIVATE, label: "Private Dining" },
-  { value: SECTION_TYPES.OUTDOOR, label: "Outdoor" },
-  { value: SECTION_TYPES.AC, label: "AC Section" },
-  { value: SECTION_TYPES.NON_AC, label: "Non-AC Section" },
-];
 
 const SectionModal = ({
   isOpen,

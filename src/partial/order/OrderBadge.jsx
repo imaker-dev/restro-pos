@@ -17,30 +17,37 @@ const CONFIG = {
       dot: "bg-emerald-500",
       label: "Billed",
     },
-    served: {                // ✅ NEW
+    served: {
+      // ✅ NEW
       bg: "bg-teal-50",
       text: "text-teal-700",
       dot: "bg-teal-500",
       label: "Served",
     },
-  ready: {
-    bg: "bg-blue-50",
-    text: "text-blue-700",
-    dot: "bg-blue-500",
-    label: "Ready",
-  },
+    ready: {
+      bg: "bg-blue-50",
+      text: "text-blue-700",
+      dot: "bg-blue-500",
+      label: "Ready",
+    },
 
-  sent_to_kitchen: {
-    bg: "bg-indigo-50",
-    text: "text-indigo-700",
-    dot: "bg-indigo-500",
-    label: "Sent to Kitchen",
-  },
+    sent_to_kitchen: {
+      bg: "bg-indigo-50",
+      text: "text-indigo-700",
+      dot: "bg-indigo-500",
+      label: "Sent to Kitchen",
+    },
     pending: {
       bg: "bg-amber-50",
       text: "text-amber-700",
       dot: "bg-amber-500",
       label: "Pending",
+    },
+    confirmed: {
+      bg: "bg-sky-50",
+      text: "text-sky-700",
+      dot: "bg-sky-500",
+      label: "Confirmed",
     },
     cancelled: {
       bg: "bg-rose-50",
@@ -58,12 +65,20 @@ const CONFIG = {
       label: "Paid",
     },
     pending: {
-      bg: "bg-amber-50",     // optional tweak
+      bg: "bg-amber-50", // optional tweak
       text: "text-amber-700",
       dot: "bg-amber-500",
       label: "Pending",
     },
-    unpaid: {               // ✅ NEW
+    partial: {
+      bg: "bg-orange-50",
+      text: "text-orange-700",
+      dot: "bg-orange-500",
+      label: "Partial",
+    },
+
+    unpaid: {
+      // ✅ NEW
       bg: "bg-rose-50",
       text: "text-rose-700",
       dot: "bg-rose-500",
@@ -93,7 +108,6 @@ const CONFIG = {
   },
 };
 
-
 /**
  * Sizes
  */
@@ -110,7 +124,7 @@ export default function OrderBadge({
   showDot = true,
   className = "",
 }) {
-  console.log(value)
+
   const group = CONFIG[type] || CONFIG.status;
   const item = group[value] || {
     bg: "bg-slate-100",

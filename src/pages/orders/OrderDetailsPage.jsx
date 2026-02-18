@@ -24,9 +24,11 @@ import { formatNumber } from "../../utils/numberFormatter";
 import { formatDate } from "../../utils/dateFormatter";
 import { useDispatch, useSelector } from "react-redux";
 import { useQueryParams } from "../../hooks/useQueryParams";
-import { fetchOrderByIdApi } from "../../redux/slices/orderSlice";
+import { downlaodOrderInvoice, fetchOrderByIdApi } from "../../redux/slices/orderSlice";
 import OrderDetailsPageSkeleton from "../../partial/order/OrderDetailsPageSkeleton";
 import OrderBadge from "../../partial/order/OrderBadge";
+import { handleResponse } from "../../utils/helpers";
+import NoDataFound from "../../layout/NoDataFound";
 
 export default function OrderDetailsPage({ onDownload, onPrint }) {
   const dispatch = useDispatch();
@@ -74,12 +76,11 @@ export default function OrderDetailsPage({ onDownload, onPrint }) {
   const statusConfig = getStatusConfig(order?.status);
   const StatusIcon = statusConfig.icon;
 
-  const handleDownload = () => {
-    if (onDownload) {
-      onDownload(order);
-    } else {
-      console.log("Download order:", order?.order_number);
-    }
+  const handleDownload = async() => {
+    await handleResponse(dispatch(downlaodOrderInvoice(orderId)),(res) => {
+      console.log(res)
+    })
+
   };
 
   const handlePrint = () => {
@@ -199,11 +200,16 @@ export default function OrderDetailsPage({ onDownload, onPrint }) {
                 </h2>
               </div>
 
-              <div className="divide-y divide-gray-100">
-                {order?.items.map((item, index) => (
-                  <OrderItem key={item?.id} item={item} index={index} />
-                ))}
-              </div>
+             <div className="divide-y divide-gray-100">
+  {order?.items?.length > 0 ? (
+    order.items.map((item, index) => (
+      <OrderItem key={item?.id || index} item={item} index={index} />
+    ))
+  ) : (
+    <NoDataFound title="No items found"/> 
+  )}
+</div>
+
             </div>
           </div>
 

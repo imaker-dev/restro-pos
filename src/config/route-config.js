@@ -29,6 +29,8 @@ import DailySalesReportPage from "../pages/reports/DailySalesReportPage";
 import PaymentModeReportPage from "../pages/reports/PaymentModeReportPage";
 import TaxReportPage from "../pages/reports/TaxReportPage";
 import AllOrdersPage from "../pages/orders/AllOrdersPage";
+import UserDetailsPage from "../pages/users/UserDetailsPage";
+import ItemDetailsPage from "../pages/items/ItemDetailsPage";
 
 const routeConfig = [
   // { path: "/", element: Dashboard, roles: [ROLES.SUPER_ADMIN] },
@@ -60,13 +62,16 @@ const routeConfig = [
   { path: "/outlets", element: AllOutletsPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER] },
   { path: "/categories", element: AllCategoriesPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER,] },
   { path: "/items", element: AllItemsPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER] },
+  { path: "/items/details", element: ItemDetailsPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER] },
   { path: "/items/add", element: AddItemPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER] },
   { path: "/floors", element: AllFloorsPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER] },
   { path: "/floors/sections", element: AllSectionsPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER] },
   { path: "/floors/sections/tables", element: AllTablesPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER] },
   { path: "/addons", element: AllAddonsGroup, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER] },
   { path: "/addons/item", element: AllAddonItemsPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER] },
+
   { path: "/users", element: AllUsersPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER] },
+  { path: "/users/details", element: UserDetailsPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER] },
   { path: "/users/add", element: AddUserPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER] },
 
 
@@ -80,12 +85,12 @@ const routeConfig = [
 
   { path: "/settings", element: AllSettingsPage, roles: [ROLES.SUPER_ADMIN] },
   {
-    path: "/settings/tax-types",
+    path: "/settings/tax",
     element: AllTaxGroupsPage,
     roles: [ROLES.SUPER_ADMIN],
   },
   {
-    path: "/settings/tax-types/tax",
+    path: "/settings/tax/details",
     element: TaxGroupDetailsPage,
     roles: [ROLES.SUPER_ADMIN],
   },

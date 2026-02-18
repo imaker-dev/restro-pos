@@ -27,63 +27,58 @@ export const navConfig = [
     title: "Overview",
     roles: [ROLES.SUPER_ADMIN],
     items: [
-      {
-        name: "Dashboard",
-        icon: Home,
-        roles: [ROLES.SUPER_ADMIN],
-        children: [
-          { name: "Overview", path: "/", roles: [ROLES.SUPER_ADMIN] },
-          { name: "Sales", path: "/sales", roles: [ROLES.SUPER_ADMIN] },
-        ],
-      },
-      {
-        name: "Dashboard",
-        icon: Home,
-        path: "/",
-        roles: [ROLES.MANAGER],
-      },
+      // {
+      //   name: "Dashboard",
+      //   icon: Home,
+      //   roles: [ROLES.SUPER_ADMIN],
+      //   children: [
+      //     { name: "Overview", path: "/", roles: [ROLES.SUPER_ADMIN] },
+      //     { name: "Sales", path: "/sales", roles: [ROLES.SUPER_ADMIN] },
+      //   ],
+      // },
+
       {
         name: "Dashboard",
         icon: Home,
         path: "/",
-        roles: [ROLES.KITCHEN, ROLES.BAR],
+        roles: [ROLES.SUPER_ADMIN, ROLES.MANAGER, ROLES.KITCHEN, ROLES.BAR],
       },
 
       // 🔽 NEW REPORTS MENU
       {
         name: "Reports",
         icon: BarChart3,
-        roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER],
+        roles: [ROLES.SUPER_ADMIN, ROLES.MANAGER],
         children: [
           {
             name: "Daily Sales",
             path: "/daily-sales",
-            roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER],
+            roles: [ROLES.SUPER_ADMIN, ROLES.MANAGER],
           },
           {
             name: "Item Sales",
             path: "/item-sales",
-            roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER],
+            roles: [ROLES.SUPER_ADMIN, ROLES.MANAGER],
           },
           {
             name: "Category Sales",
             path: "/category-sales",
-            roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER],
+            roles: [ROLES.SUPER_ADMIN, ROLES.MANAGER],
           },
           {
             name: "Staff Sales",
             path: "/staff-sales",
-            roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER],
+            roles: [ROLES.SUPER_ADMIN, ROLES.MANAGER],
           },
           {
             name: "Payments Report",
             path: "/payment-mode",
-            roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER],
+            roles: [ROLES.SUPER_ADMIN, ROLES.MANAGER],
           },
           {
             name: "Tax Report",
             path: "/tax-report",
-            roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER],
+            roles: [ROLES.SUPER_ADMIN, ROLES.MANAGER],
           },
         ],
       },
@@ -97,13 +92,13 @@ export const navConfig = [
         name: "Outlets / Restaurants",
         icon: Building2,
         path: "/outlets",
-        roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER],
+        roles: [ROLES.SUPER_ADMIN, ROLES.MANAGER],
       },
       {
         name: "Users & Staff",
         icon: Users,
         path: "/users",
-        roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER],
+        roles: [ROLES.SUPER_ADMIN, ROLES.MANAGER],
       },
       {
         name: "Roles & Permissions",
@@ -128,19 +123,19 @@ export const navConfig = [
         name: "Menu Items",
         icon: Utensils,
         path: "/items",
-        roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER],
+        roles: [ROLES.SUPER_ADMIN, ROLES.MANAGER],
       },
       {
         name: "Modifiers / Add-ons",
         icon: SlidersHorizontal,
         path: "/addons",
-        roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER],
+        roles: [ROLES.SUPER_ADMIN, ROLES.MANAGER],
       },
       {
         name: "Inventory",
         icon: Warehouse,
         path: "/inventory",
-        roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER],
+        roles: [ROLES.SUPER_ADMIN, ROLES.MANAGER],
       },
       {
         name: "Suppliers",
@@ -165,13 +160,13 @@ export const navConfig = [
         name: "Orders",
         icon: ShoppingCart,
         path: "/orders",
-        roles: [ROLES.SUPER_ADMIN],
+        roles: [ROLES.SUPER_ADMIN, ROLES.MANAGER],
       },
       {
         name: "Tables & Floors",
         icon: Table,
         path: "/floors",
-        roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER],
+        roles: [ROLES.SUPER_ADMIN, ROLES.MANAGER],
       },
       {
         name: "Order Display",
@@ -188,7 +183,6 @@ export const navConfig = [
       },
     ],
   },
-
 
   {
     title: "System",

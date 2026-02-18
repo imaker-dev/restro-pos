@@ -53,7 +53,8 @@ function RangeList({ activeRange, onSelect, isMobile }) {
 export default function CustomDateRangePicker({
   onChange,
   value,
-  placeholder = "Select date range",
+  // placeholder = "Select date range",
+  placeholder = "Select date range to filter",
   defaultRange = "Last 7 Days", // New prop for prefilled range
   className = "",
 }) {
@@ -77,9 +78,18 @@ export default function CustomDateRangePicker({
   const [activeRange, setActiveRange] = useState(defaultRange);
   const [showCustomPicker, setShowCustomPicker] = useState(false);
 
+  // const [selectedRange, setSelectedRange] = useState(
+  //   value ? { ...value, key: "selection" } : getInitialRange,
+  // );
+
   const [selectedRange, setSelectedRange] = useState(
-    value ? { ...value, key: "selection" } : getInitialRange,
+    value
+      ? { ...value, key: "selection" }
+      : defaultRange
+        ? getInitialRange
+        : null,
   );
+
   const [tempRange, setTempRange] = useState(selectedRange);
 
   // Detect mobile screen size
@@ -308,10 +318,10 @@ export default function CustomDateRangePicker({
             {!showCustomPicker ? (
               // Simple range list
               <RangeList
-                  activeRange={activeRange}
-                  onSelect={handleRangeSelect}
-                  isMobile={isMobile}
-                />
+                activeRange={activeRange}
+                onSelect={handleRangeSelect}
+                isMobile={isMobile}
+              />
             ) : (
               // Custom date picker with calendar
               <div className="flex flex-col h-full max-h-[90vh]">

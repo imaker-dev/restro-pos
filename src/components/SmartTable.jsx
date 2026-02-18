@@ -1,10 +1,5 @@
 import React from "react";
-import {
-  ChevronDown,
-  ChevronsUpDown,
-  ChevronUp,
-  Loader2,
-} from "lucide-react";
+import { ChevronDown, ChevronsUpDown, ChevronUp, Loader2 } from "lucide-react";
 import { formatNumber } from "../utils/numberFormatter";
 import NoDataFound from "../layout/NoDataFound";
 import Shimmer from "../layout/Shimmer";
@@ -406,7 +401,7 @@ export default function SmartTable({
                                     }
                                   }}
                                   className={`
-                                    group inline-grid h-9 w-9 place-items-center rounded-lg
+                                    group inline-grid h-8 w-8 place-items-center rounded-lg
                                     transition-all duration-200
                                     ${
                                       isButtonDisabled

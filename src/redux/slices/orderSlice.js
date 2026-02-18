@@ -5,15 +5,46 @@ import OrderServices from "../services/OrderServices";
 
 export const fetchAllOrders = createAsyncThunk(
   "/fetch/all/orders",
-  async (id) => {
-    const res = await OrderServices.getAllOrdersApi(id);
+  async ({
+    outletId,
+    page,
+    limit,
+    search,
+    dateRange,
+    orderStatus,
+    orderType,
+    paymentStatus,
+    sortBy,
+    sortOrder,
+  }) => {
+    const res = await OrderServices.getAllOrdersApi(
+      outletId,
+      page,
+      limit,
+      search,
+      dateRange,
+      orderStatus,
+      orderType,
+      paymentStatus,
+      sortBy,
+      sortOrder,
+    );
     return res.data;
   },
 );
+
 export const fetchOrderByIdApi = createAsyncThunk(
   "/fetch/order/id",
   async (id) => {
     const res = await OrderServices.getOrdersByIdApi(id);
+    return res.data;
+  },
+);
+
+export const downlaodOrderInvoice = createAsyncThunk(
+  "/download/order/invoice",
+  async (id) => {
+    const res = await OrderServices.downlaodOrderInvoiceApi(id);
     return res.data;
   },
 );
@@ -25,6 +56,7 @@ const orderSlice = createSlice({
     allOrdersData: null,
     isFetchingOrderDetails: false,
     orderDetails: null,
+    isDownloadingInvoice:false,
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -50,7 +82,18 @@ const orderSlice = createSlice({
       .addCase(fetchOrderByIdApi.rejected, (state, action) => {
         state.isFetchingOrderDetails = false;
         toast.error(action.error.message);
-      });
+      })
+      .addCase(downlaodOrderInvoice.pending, (state) => {
+        state.isDownloadingInvoice = true;
+      })
+      .addCase(downlaodOrderInvoice.fulfilled, (state, action) => {
+        state.isDownloadingInvoice = false;
+        state.orderDetails = action.payload.data;
+      })
+      .addCase(downlaodOrderInvoice.rejected, (state, action) => {
+        state.isDownloadingInvoice = false;
+        toast.error(action.error.message);
+      })
   },
 });
 

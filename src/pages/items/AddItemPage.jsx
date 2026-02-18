@@ -10,6 +10,7 @@ import {
   IndianRupee,
   Info,
   Plus,
+  RefreshCw,
   Text,
   Trash2,
 } from "lucide-react";
@@ -29,7 +30,11 @@ import { fetchAllAddonGroups } from "../../redux/slices/addonSlice";
 import AccordionSection from "../../components/AccordionSection";
 import DragDropUploader from "../../components/DragDropUploader";
 import { handleResponse } from "../../utils/helpers";
-import { createItem, fetchItemsById } from "../../redux/slices/itemSlice";
+import {
+  createItem,
+  fetchItemsById,
+  updateItem,
+} from "../../redux/slices/itemSlice";
 import { useNavigate } from "react-router-dom";
 import { useQueryParams } from "../../hooks/useQueryParams";
 import { FOOD_TYPES } from "../../constants";
@@ -40,31 +45,9 @@ const AddItemPage = () => {
   const { itemId } = useQueryParams();
 
   const { outletId } = useSelector((state) => state.auth);
+  const { isFetchingItemDetails, itemDetails, isCreatingItem, isUpdatingItem } =
+    useSelector((state) => state.item);
 
-  useEffect(() => {
-    if (!allTaxGroup) {
-      dispatch(fetchAllTaxGroups());
-    }
-
-    if (itemId) {
-      dispatch(fetchItemsById(itemId));
-    }
-
-    if (outletId) {
-      dispatch(fetchAllCategories(outletId));
-      dispatch(fetchAllFloors(outletId));
-      dispatch(fetchAllKitchenStations(outletId));
-      dispatch(fetchAllAddonGroups(outletId));
-    }
-  }, [itemId, outletId]);
-
-  const { isFetchingItemDetails, itemDetails } = useSelector(
-    (state) => state.item,
-  );
-
-  const { allOutlets, loading: isFetchingOutlet } = useSelector(
-    (state) => state.outlet,
-  );
   const { allCategories, loading: isFetchingCategory } = useSelector(
     (state) => state.category,
   );
@@ -77,9 +60,40 @@ const AddItemPage = () => {
   const { allKitchenStations, isFetchingKitchens } = useSelector(
     (state) => state.kitchen,
   );
-
   const { allAddonGroups } = useSelector((state) => state.addon);
-  const { isCreatingItem } = useSelector((state) => state.item);
+
+  useEffect(() => {
+    if (itemId) {
+      dispatch(fetchItemsById(itemId));
+    }
+  }, [itemId, dispatch]);
+
+  useEffect(() => {
+    if (!allTaxGroup?.length) {
+      dispatch(fetchAllTaxGroups());
+    }
+  }, [allTaxGroup, dispatch]);
+
+  useEffect(() => {
+    if (!outletId) return;
+
+    dispatch(fetchAllCategories(outletId));
+    dispatch(fetchAllFloors(outletId));
+    dispatch(fetchAllKitchenStations(outletId));
+    dispatch(fetchAllAddonGroups(outletId));
+  }, [outletId, dispatch]);
+
+  // Loading state
+  if (isFetchingItemDetails && itemId) {
+    return (
+      <div className="flex items-center justify-center h-[80dvh]">
+        <div className="text-center">
+          <RefreshCw className="w-12 h-12 text-primary-500 animate-spin mx-auto mb-4" />
+          <p className="text-gray-600">Loading items details...</p>
+        </div>
+      </div>
+    );
+  }
 
   const initialValues = {
     outletId: outletId || "",
@@ -100,6 +114,51 @@ const AddItemPage = () => {
     addonGroupIds: [],
     variants: [{ name: "", price: "", isDefault: true }],
     image: [],
+  };
+
+  const getInitialValues = () => {
+    if (!itemId || !itemDetails) return initialValues;
+
+    return {
+      outletId: itemDetails.outlet_id || outletId,
+      categoryId: itemDetails.category_id || "",
+      name: itemDetails.name || "",
+      description: itemDetails.description || "",
+      itemType: itemDetails.item_type || "veg",
+
+      basePrice: itemDetails.base_price || "",
+
+      taxGroupId: itemDetails.tax_group_id || "",
+
+      hasVariants: Boolean(itemDetails.has_variants),
+      hasAddons: Boolean(itemDetails.has_addons),
+      allowSpecialNotes: Boolean(itemDetails.allow_special_notes),
+
+      minQuantity: itemDetails.min_quantity || 1,
+      maxQuantity: itemDetails.max_quantity || 10,
+
+      kitchenStationId: itemDetails.kitchenStations?.[0]?.id || "",
+
+      floorIds:
+        itemDetails.visibility?.floors
+          ?.filter((f) => f.is_available)
+          ?.map((f) => f.id) || [],
+
+      sectionIds: [],
+
+      addonGroupIds: itemDetails.addonGroups?.map((a) => a.id) || [],
+
+      variants:
+        itemDetails.variants?.length > 0
+          ? itemDetails.variants.map((v) => ({
+              name: v.name,
+              price: v.price,
+              isDefault: Boolean(v.is_default),
+            }))
+          : [{ name: "", price: "", isDefault: true }],
+
+      image: itemDetails.image_url ? [itemDetails.image_url] : [],
+    };
   };
 
   const validationSchema = Yup.object({
@@ -186,7 +245,10 @@ const AddItemPage = () => {
       payload.imageUrl = values.image[0];
     }
 
-    await handleResponse(dispatch(createItem(payload)), () => {
+    const action = itemId
+      ? updateItem({ id: itemId, values: payload })
+      : createItem(payload);
+    await handleResponse(dispatch(action), () => {
       navigate("/items");
     });
 
@@ -195,10 +257,10 @@ const AddItemPage = () => {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Create Item" showBackButton />
+      <PageHeader title={itemId ? "Edit Item" : "Create Item"} showBackButton />
 
       <Formik
-        initialValues={initialValues}
+        initialValues={getInitialValues()}
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
         enableReinitialize
@@ -558,10 +620,18 @@ const AddItemPage = () => {
             <div className="flex justify-end">
               <button
                 type="submit"
-                disabled={isCreatingItem || formik.isSubmitting}
+                disabled={
+                  isCreatingItem || isUpdatingItem || formik.isSubmitting
+                }
                 className="btn bg-primary-500 hover:bg-primary-600 text-white"
               >
-                {isCreatingItem ? "Creating..." : "Create Product"}
+                {isCreatingItem || isUpdatingItem
+                  ? itemId
+                    ? "Updating..."
+                    : "Creating..."
+                  : itemId
+                    ? "Update Product"
+                    : "Create Product"}
               </button>
             </div>
           </Form>

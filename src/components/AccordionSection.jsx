@@ -23,7 +23,7 @@ const AccordionSection = ({
 
   return (
     <div
-      className={`bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden ${className}`}
+      className={`bg-white rounded-lg border border-gray-200 overflow-hidden ${className}`}
     >
       {/* HEADER */}
       <div

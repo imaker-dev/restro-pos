@@ -19,12 +19,12 @@ export default false
         return Api.get(`/menu/items/category/${categoryId}`);
       },
       getItemByIdApi: (itemId) => {
-        return Api.get(`/menu/items/${itemId}`);
+        return Api.get(`/menu/items/${itemId}/details`);
       },
       createItemApi: (values) => {
         return Api.post(`/menu/items`, values);
       },
       updateItemApi: (id, values) => {
-        return Api.patch(`/menu/items/${id}`, values);
+        return Api.put(`/menu/items/${id}`, values);
       },
     };

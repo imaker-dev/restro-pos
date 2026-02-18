@@ -17,6 +17,7 @@ export function InputField({
   disabled = false,
   icon: Icon,
   iconPosition = "left",
+   autoComplete = "on",
 }) {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -66,6 +67,7 @@ export function InputField({
             ${error ? "border-red-500" : ""}
             ${disabled ? "bg-slate-100 text-slate-500 cursor-not-allowed" : ""}
           `}
+           autoComplete={autoComplete}
         />
 
         {/* RIGHT ICON AREA */}

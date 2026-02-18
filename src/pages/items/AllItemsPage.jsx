@@ -8,7 +8,7 @@ import {
 import { useQueryParams } from "../../hooks/useQueryParams";
 import SmartTable from "../../components/SmartTable";
 import { formatDate } from "../../utils/dateFormatter";
-import { Edit2, Plus } from "lucide-react";
+import { Edit2, Eye, Plus } from "lucide-react";
 import LightboxMedia from "../../components/LightboxMedia";
 import FoodTypeIcon from "../../partial/common/FoodTypeIcon";
 import { useNavigate } from "react-router-dom";
@@ -23,9 +23,9 @@ const AllItemsPage = () => {
   const { categoryId } = useQueryParams();
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [currentPage,setCurrentPage] = useState(1);
-  const [itemsPerPage,setItemsPerPage] = useState(10);
-  
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+
   const { allItems, loading, isCreatingItem, isUpdatingItem } = useSelector(
     (state) => state.item,
   );
@@ -137,10 +137,15 @@ const AllItemsPage = () => {
 
   const rowActions = [
     {
+      label: "Eye",
+      icon: Eye,
+      onClick: (row) => navigate(`/items/details?itemId=${row.id}`),
+    },
+    {
       label: "Update",
       icon: Edit2,
       color: "blue",
-      // onClick: (row) => navigate(`/items/add?itemId=${row.id}`)
+      onClick: (row) => navigate(`/items/add?itemId=${row.id}`),
     },
   ];
 
