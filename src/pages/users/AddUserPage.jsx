@@ -8,7 +8,6 @@ import { InputField } from "../../components/fields/InputField";
 import { SelectField } from "../../components/fields/SelectField";
 import { User, Shield, User2, Mail, Loader2, RefreshCw } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchAllOutlets } from "../../redux/slices/outletSlice";
 import { fetchAllRoles } from "../../redux/slices/roleSlice";
 import { fetchAllFloors } from "../../redux/slices/floorSlice";
 import { fetchAllPermissions } from "../../redux/slices/permissionSlice";
@@ -30,7 +29,6 @@ const AddUserPage = () => {
   const { outletId } = useSelector((state) => state.auth);
   const { userDetails, isFetchingUserDetails, isCreatingUser, isupdatingUser } =
     useSelector((state) => state.user);
-  const { allOutlets } = useSelector((s) => s.outlet);
   const { allRoles } = useSelector((s) => s.role);
   const { allFloors, loading: fetchingAllFloors } = useSelector((s) => s.floor);
 
@@ -42,7 +40,6 @@ const AddUserPage = () => {
       dispatch(fetchUserById(userId));
     }
 
-    dispatch(fetchAllOutlets());
     dispatch(fetchAllRoles());
     // dispatch(fetchAllPermissions());
 

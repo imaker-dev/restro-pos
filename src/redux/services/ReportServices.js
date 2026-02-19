@@ -70,6 +70,7 @@ export default false
           `/orders/reports/${outletId}/staff${query ? `?${query}` : ""}`,
         );
       },
+
       getPaymentModeReportApi: (outletId, dateRange) => {
         const params = new URLSearchParams();
 
@@ -84,6 +85,7 @@ export default false
           `/orders/reports/${outletId}/payment-modes${query ? `?${query}` : ""}`,
         );
       },
+      
       getTaxReportApi: (outletId, dateRange) => {
         const params = new URLSearchParams();
 

@@ -30,3 +30,9 @@ export const SECTION_TYPES = {
   AC: "ac",
   NON_AC: "non_ac",
 };
+
+export const SERVICE_TYPES = {
+  RESTAURANT: "restaurant",
+  BAR: "bar",
+  BOTH: "both", // default
+};

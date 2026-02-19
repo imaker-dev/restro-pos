@@ -31,6 +31,10 @@ import TaxReportPage from "../pages/reports/TaxReportPage";
 import AllOrdersPage from "../pages/orders/AllOrdersPage";
 import UserDetailsPage from "../pages/users/UserDetailsPage";
 import ItemDetailsPage from "../pages/items/ItemDetailsPage";
+import ShiftHistoryPage from "../pages/shift/ShiftHistoryPage";
+import ShiftHistoryDetailsPage from "../pages/shift/ShiftHistoryDetailsPage";
+import AllStationsPage from "../pages/stations/AllStationsPage";
+import AllPrintersPage from "../pages/printers/AllPrintersPage";
 
 const routeConfig = [
   // { path: "/", element: Dashboard, roles: [ROLES.SUPER_ADMIN] },
@@ -58,12 +62,16 @@ const routeConfig = [
   { path: "/staff-sales", element: StaffSalesReportPage, roles: [ROLES.SUPER_ADMIN, ROLES.MANAGER] },
   { path: "/payment-mode", element: PaymentModeReportPage, roles: [ROLES.SUPER_ADMIN, ROLES.MANAGER] },
   { path: "/tax-report", element: TaxReportPage, roles: [ROLES.SUPER_ADMIN, ROLES.MANAGER] },
+  { path: "/shift-history", element: ShiftHistoryPage, roles: [ROLES.SUPER_ADMIN, ROLES.MANAGER] },
+  { path: "/shift-history/details", element: ShiftHistoryDetailsPage, roles: [ROLES.SUPER_ADMIN, ROLES.MANAGER] },
   
   { path: "/outlets", element: AllOutletsPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER] },
   { path: "/categories", element: AllCategoriesPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER,] },
   { path: "/items", element: AllItemsPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER] },
   { path: "/items/details", element: ItemDetailsPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER] },
   { path: "/items/add", element: AddItemPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER] },
+  { path: "/stations", element: AllStationsPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER] },
+  { path: "/printers", element: AllPrintersPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER] },
   { path: "/floors", element: AllFloorsPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER] },
   { path: "/floors/sections", element: AllSectionsPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER] },
   { path: "/floors/sections/tables", element: AllTablesPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER] },

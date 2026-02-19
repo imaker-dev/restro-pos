@@ -19,6 +19,8 @@ import {
   ReceiptIndianRupee,
   Utensils,
   SlidersHorizontal,
+  Monitor,
+  Printer,
 } from "lucide-react";
 import { ROLES } from "../constants";
 
@@ -78,6 +80,11 @@ export const navConfig = [
           {
             name: "Tax Report",
             path: "/tax-report",
+            roles: [ROLES.SUPER_ADMIN, ROLES.MANAGER],
+          },
+          {
+            name: "Shift History",
+            path: "/shift-history",
             roles: [ROLES.SUPER_ADMIN, ROLES.MANAGER],
           },
         ],
@@ -162,6 +169,20 @@ export const navConfig = [
         path: "/orders",
         roles: [ROLES.SUPER_ADMIN, ROLES.MANAGER],
       },
+      {
+        name: "Printers",
+        icon: Printer,
+        path: "/printers",
+        roles: [ROLES.SUPER_ADMIN, ROLES.MANAGER],
+      },
+
+      {
+        name: "Stations",
+        icon: Monitor,
+        path: "/stations",
+        roles: [ROLES.SUPER_ADMIN, ROLES.MANAGER],
+      },
+
       {
         name: "Tables & Floors",
         icon: Table,

@@ -17,7 +17,7 @@ export function InputField({
   disabled = false,
   icon: Icon,
   iconPosition = "left",
-   autoComplete = "on",
+   autoComplete = "off",
 }) {
   const [showPassword, setShowPassword] = useState(false);
 

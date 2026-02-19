@@ -18,6 +18,10 @@ import uiSlice from "./redux/slices/uiSlice";
 import reportSlice from "./redux/slices/reportSlice";
 import dashboardSlice from "./redux/slices/dashboardSlice";
 import orderSlice from './redux/slices/orderSlice';
+import shiftSlice from './redux/slices/shiftSlice';
+import stationSlice from './redux/slices/stationSlice';
+import printerSlice from './redux/slices/printerSlice';
+
 
 const reducer = {
   auth: authSlice,
@@ -39,6 +43,9 @@ const reducer = {
   report: reportSlice,
   dashboard: dashboardSlice,
   order:orderSlice,
+  shift:shiftSlice,
+  station:stationSlice,
+  printer:printerSlice,
 };
 
 const store = configureStore({

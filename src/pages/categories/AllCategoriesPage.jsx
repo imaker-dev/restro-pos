@@ -14,6 +14,8 @@ import { useNavigate } from "react-router-dom";
 import CategoryModal from "../../partial/category/CategoryModal";
 import { handleResponse } from "../../utils/helpers";
 import StatusBadge from "../../layout/StatusBadge";
+import ServiceTypeBadge from "../../partial/category/ServiceTypeBadge";
+import LightboxMedia from "../../components/LightboxMedia";
 
 const AllCategoriesPage = () => {
   const dispatch = useDispatch();
@@ -43,14 +45,16 @@ const AllCategoriesPage = () => {
           <div className="flex items-center gap-3 max-w-[240px]">
             {/* Image or Icon */}
             {row.image_url ? (
-              <img
-                src={row.image_url}
-                alt={row.name}
-                className="w-9 h-9 rounded object-cover border border-slate-200"
-              />
+              <div className="h-10 w-10 rounded-md overflow-hidden bg-slate-100">
+                <LightboxMedia
+                  src={row.image_url}
+                  alt={row.name}
+                  caption={row.name}
+                />
+              </div>
             ) : (
               <div
-                className="w-9 h-9 rounded flex items-center justify-center text-lg border border-slate-200"
+                className="w-10 h-10 rounded flex items-center justify-center text-lg border border-slate-200"
                 style={{ backgroundColor: row.color_code || "#eee" }}
               >
                 {row.icon || "📦"}
@@ -68,6 +72,12 @@ const AllCategoriesPage = () => {
       },
     },
 
+    {
+      key: "service_type",
+      label: "Service",
+      sortable: true,
+      render: (row) => <ServiceTypeBadge value={row.service_type} />,
+    },
     {
       key: "description",
       label: "Description",
