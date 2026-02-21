@@ -5,17 +5,22 @@ export default false
       message: "You are Offline. Please turn on the internet",
     }
   : {
-      getAllUsersApi: (search) => {
-        const params = search ? { search } : {};
-        return Api.get("/users", { params });
+      getAllUsersApi: (page, limit, search) => {
+        let url = `/users?page=${page}&limit=${limit}`;
+
+        if (search && search.trim()) {
+          url += `&search=${encodeURIComponent(search.trim())}`;
+        }
+
+        return Api.get(url);
       },
       getUserByIdApi: (userId) => {
         return Api.get(`/users/${userId}`);
       },
-      addUserApi:(values) => {
-        return Api.post(`/users`,values)
+      addUserApi: (values) => {
+        return Api.post(`/users`, values);
       },
-      updateUserApi:(id,values) => {
-        return Api.put(`/users/${id}`,values)
-      }
+      updateUserApi: (id, values) => {
+        return Api.put(`/users/${id}`, values);
+      },
     };

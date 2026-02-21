@@ -5,6 +5,8 @@ import { fetchCategorySalesReport } from "../../redux/slices/reportSlice";
 import CustomDateRangePicker from "../../components/CustomDateRangePicker";
 import { formatNumber } from "../../utils/numberFormatter";
 import SmartTable from "../../components/SmartTable";
+import { IndianRupee, Layers, Package, Tag, TrendingUp } from "lucide-react";
+import StatCard from "../../components/StatCard";
 
 const CategorySalesReportPage = () => {
   const dispatch = useDispatch();
@@ -12,6 +14,7 @@ const CategorySalesReportPage = () => {
   const { categorySalesReport, isFetchingCategorySalesReport } = useSelector(
     (state) => state.report,
   );
+  const { categories, summary } = categorySalesReport || {};
   const { outletId } = useSelector((state) => state.auth);
 
   useEffect(() => {
@@ -19,6 +22,44 @@ const CategorySalesReportPage = () => {
 
     dispatch(fetchCategorySalesReport({ outletId, dateRange }));
   }, [outletId, dateRange]);
+
+  const stats = [
+    {
+      title: "Gross Revenue",
+      value: formatNumber(summary?.gross_revenue, true),
+      subtitle: "Before discounts",
+      icon: IndianRupee,
+      color: "green",
+    },
+    {
+      title: "Net Revenue",
+      value: formatNumber(summary?.net_revenue, true),
+      subtitle: "Final collected",
+      icon: TrendingUp,
+      color: "blue",
+    },
+    {
+      title: "Total Categories",
+      value: summary?.total_categories,
+      subtitle: "Active categories",
+      icon: Layers,
+      color: "purple",
+    },
+    {
+      title: "Total Quantity",
+      value: summary?.total_quantity,
+      subtitle: "Units sold",
+      icon: Package,
+      color: "amber",
+    },
+    {
+      title: "Discount",
+      value: formatNumber(summary?.discount_amount, true),
+      subtitle: "Total discount",
+      icon: Tag,
+      color: "rose",
+    },
+  ];
 
   const columns = [
     {
@@ -106,11 +147,23 @@ const CategorySalesReportPage = () => {
           }}
         />
       </div>
-
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
+        {stats?.map((stat, index) => (
+          <StatCard
+            key={index}
+            title={stat?.title}
+            value={stat?.value}
+            subtitle={stat?.subtitle}
+            icon={stat?.icon}
+            color={stat?.color}
+            // variant="secondary"
+          />
+        ))}
+      </div>
       <SmartTable
         title={"Category Sales"}
-        totalcount={categorySalesReport?.length}
-        data={categorySalesReport}
+        totalcount={categories?.length}
+        data={categories}
         columns={columns}
         loading={isFetchingCategorySalesReport}
         //   actions={rowActions}

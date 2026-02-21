@@ -30,6 +30,8 @@ const AddUserPage = () => {
   const { userDetails, isFetchingUserDetails, isCreatingUser, isupdatingUser } =
     useSelector((state) => state.user);
   const { allRoles } = useSelector((s) => s.role);
+  const {roles} = allRoles || {};
+
   const { allFloors, loading: fetchingAllFloors } = useSelector((s) => s.floor);
 
   const { allPermissions } = useSelector((state) => state.permission);
@@ -258,7 +260,7 @@ const AddUserPage = () => {
                   <SelectField
                     label="Role"
                     name="roleId"
-                    options={allRoles?.map((r) => ({
+                    options={roles?.map((r) => ({
                       value: r.id,
                       label: r.name,
                     }))}

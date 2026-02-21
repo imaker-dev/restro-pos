@@ -1,8 +1,8 @@
-import { cn } from "../utils/utils"
+import { cn } from "../utils/utils";
 
 /* ---------------- SAFE HELPERS ---------------- */
 const safeValue = (val, fallback = 0) =>
-  val === null || val === undefined || Number.isNaN(val) ? fallback : val
+  val === null || val === undefined || Number.isNaN(val) ? fallback : val;
 
 const safeTrend = (trend) =>
   trend && typeof trend === "object"
@@ -10,7 +10,7 @@ const safeTrend = (trend) =>
         isPositive: Boolean(trend.isPositive),
         value: trend.value ?? "",
       }
-    : null
+    : null;
 
 export const colorStyles = {
   blue: {
@@ -142,9 +142,9 @@ export default function StatCard({
   onClick,
   trend,
 }) {
-  const styles = colorStyles[color] || colorStyles.blue
-  const displayValue = safeValue(value)
-  const safeTrendData = safeTrend(trend)
+  const styles = colorStyles[color] || colorStyles.blue;
+  const displayValue = safeValue(value);
+  const safeTrendData = safeTrend(trend);
 
   /* ---------- PRIMARY ---------- */
   if (variant === "primary") {
@@ -165,7 +165,9 @@ export default function StatCard({
           <div>
             <p className="text-sm font-medium text-white/90">{title}</p>
             <p className="text-4xl font-bold mt-1">{displayValue}</p>
-            {subtitle && <p className="text-sm text-white/80 mt-2">{subtitle}</p>}
+            {subtitle && (
+              <p className="text-sm text-white/80 mt-2">{subtitle}</p>
+            )}
             {safeTrendData && (
               <span className="inline-block mt-2 text-xs font-semibold bg-white/20 px-2 py-0.5 rounded-full">
                 {safeTrendData.isPositive ? "↑" : "↓"} {safeTrendData.value}
@@ -180,7 +182,7 @@ export default function StatCard({
           )}
         </div>
       </div>
-    )
+    );
   }
 
   /* ---------- SECONDARY ---------- */
@@ -194,11 +196,21 @@ export default function StatCard({
           onClick && "cursor-pointer",
         )}
       >
-        <span className={cn("absolute top-3 right-3 w-2 h-2 rounded-full", styles.dot)} />
+        <span
+          className={cn(
+            "absolute top-3 right-3 w-2 h-2 rounded-full",
+            styles.dot,
+          )}
+        />
 
         <div className="flex items-center gap-3">
           {Icon && (
-            <div className={cn("w-9 h-9 rounded-lg flex items-center justify-center", styles.iconBg)}>
+            <div
+              className={cn(
+                "w-9 h-9 rounded-lg flex items-center justify-center",
+                styles.iconBg,
+              )}
+            >
               <Icon className="w-4 h-4 text-white" />
             </div>
           )}
@@ -210,44 +222,8 @@ export default function StatCard({
           </div>
         </div>
       </div>
-    )
+    );
   }
 
-  /* ---------- OUTLINED ---------- */
-  if (variant === "outlined") {
-    return (
-      <div
-        onClick={onClick}
-        className={cn(
-          "rounded-xl border-2 bg-white px-4 py-4 transition hover:shadow-lg",
-          styles.outlined,
-          onClick && "cursor-pointer",
-        )}
-      >
-        <p className="text-sm font-semibold">{title}</p>
-        <p className="text-3xl font-bold mt-1">{displayValue}</p>
-        {subtitle && <p className="text-sm text-gray-500 mt-1">{subtitle}</p>}
-      </div>
-    )
-  }
-
-  /* ---------- MINIMAL ---------- */
-  if (variant === "minimal") {
-    return (
-      <div
-        onClick={onClick}
-        className={cn(
-          "rounded-lg px-4 py-4 border border-gray-100 transition",
-          styles.minimal,
-          onClick && "cursor-pointer",
-        )}
-      >
-        <p className="text-sm font-medium">{title}</p>
-        <p className="text-3xl font-bold mt-1">{displayValue}</p>
-        {subtitle && <p className="text-sm text-gray-500">{subtitle}</p>}
-      </div>
-    )
-  }
-
-  return null
+  return null;
 }

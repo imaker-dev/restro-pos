@@ -156,21 +156,23 @@ const AllOrdersPage = () => {
       key: "amount",
       label: "Amount",
       sortable: true,
-      render: (row) =>  <div className="leading-tight max-w-[140px]">
-            <div className="text-slate-700 font-semibold">
-              {formatNumber(row.totalAmount, true)}
-            </div>
+      render: (row) => (
+        <div className="leading-tight max-w-[140px]">
+          <div className="text-slate-700 font-semibold">
+            {formatNumber(row.totalAmount, true)}
+          </div>
 
-            <div className="text-xs text-green-600 font-medium">
-              Paid {formatNumber(row.paidAmount, true)}
-            </div>
+          <div className="text-xs text-green-600 font-medium">
+            Paid {formatNumber(row.paidAmount, true)}
+          </div>
 
-            {/* {due > 0 && (
+          {/* {due > 0 && (
               <div className="text-xs text-red-500">
                 Due {formatNumber(due, true)}
               </div>
             )} */}
-          </div>,
+        </div>
+      ),
     },
 
     {

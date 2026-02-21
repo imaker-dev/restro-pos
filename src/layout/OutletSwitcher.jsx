@@ -23,9 +23,10 @@ const OutletSwitcher = () => {
   // Single outlet - no dropdown needed
   if (outlets.length === 1) {
     return (
-      <div className="flex items-center gap-2 px-3 py-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg">
-        <Hotel size={16} className="text-white/80 flex-shrink-0" />
-        <span className="text-sm font-medium text-white truncate max-w-[140px] sm:max-w-none">
+      <div className="w-48 lg:w-52 flex items-center gap-2 px-3 py-2 bg-gray-100 border border-gray-300 rounded-lg">
+        <Hotel size={16} className="text-gray-600 flex-shrink-0" />
+
+        <span className="flex-1 truncate text-sm font-medium text-gray-800">
           {selectedOutlet.name}
         </span>
       </div>

@@ -35,6 +35,10 @@ import ShiftHistoryPage from "../pages/shift/ShiftHistoryPage";
 import ShiftHistoryDetailsPage from "../pages/shift/ShiftHistoryDetailsPage";
 import AllStationsPage from "../pages/stations/AllStationsPage";
 import AllPrintersPage from "../pages/printers/AllPrintersPage";
+import SettingDetailsPage from "../pages/settings/SettingDetailsPage";
+import RunningOrdersPage from "../pages/reports/RunningOrdersPage";
+import ServiceTypeBreakdownReportPage from "../pages/reports/ServiceTypeBreakdownReportPage";
+import DayEndSummaryPage from "../pages/reports/DayEndSummaryPage";
 
 const routeConfig = [
   // { path: "/", element: Dashboard, roles: [ROLES.SUPER_ADMIN] },
@@ -48,7 +52,6 @@ const routeConfig = [
     },
     roles: [ROLES.SUPER_ADMIN, ROLES.MANAGER, ROLES.KITCHEN, ROLES.BAR],
   },
-  
   {
     path: "/kitchen-display",
     element: KitchenDisplayPage,
@@ -62,8 +65,11 @@ const routeConfig = [
   { path: "/staff-sales", element: StaffSalesReportPage, roles: [ROLES.SUPER_ADMIN, ROLES.MANAGER] },
   { path: "/payment-mode", element: PaymentModeReportPage, roles: [ROLES.SUPER_ADMIN, ROLES.MANAGER] },
   { path: "/tax-report", element: TaxReportPage, roles: [ROLES.SUPER_ADMIN, ROLES.MANAGER] },
+  { path: "/service-type-breakdown", element: ServiceTypeBreakdownReportPage, roles: [ROLES.SUPER_ADMIN, ROLES.MANAGER] },
   { path: "/shift-history", element: ShiftHistoryPage, roles: [ROLES.SUPER_ADMIN, ROLES.MANAGER] },
   { path: "/shift-history/details", element: ShiftHistoryDetailsPage, roles: [ROLES.SUPER_ADMIN, ROLES.MANAGER] },
+  { path: "/running-orders", element: RunningOrdersPage, roles: [ROLES.SUPER_ADMIN, ROLES.MANAGER] },
+  { path: "/day-end-summary", element: DayEndSummaryPage, roles: [ROLES.SUPER_ADMIN, ROLES.MANAGER] },
   
   { path: "/outlets", element: AllOutletsPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER] },
   { path: "/categories", element: AllCategoriesPage, roles: [ROLES.SUPER_ADMIN,ROLES.MANAGER,] },
@@ -92,6 +98,7 @@ const routeConfig = [
 
 
   { path: "/settings", element: AllSettingsPage, roles: [ROLES.SUPER_ADMIN] },
+  { path: "/settings/categories", element: SettingDetailsPage, roles: [ROLES.SUPER_ADMIN] },
   {
     path: "/settings/tax",
     element: AllTaxGroupsPage,

@@ -29,21 +29,21 @@ export const navConfig = [
     title: "Overview",
     roles: [ROLES.SUPER_ADMIN],
     items: [
-      // {
-      //   name: "Dashboard",
-      //   icon: Home,
-      //   roles: [ROLES.SUPER_ADMIN],
-      //   children: [
-      //     { name: "Overview", path: "/", roles: [ROLES.SUPER_ADMIN] },
-      //     { name: "Sales", path: "/sales", roles: [ROLES.SUPER_ADMIN] },
-      //   ],
-      // },
+      {
+        name: "Dashboard",
+        icon: Home,
+        roles: [ROLES.SUPER_ADMIN],
+        children: [
+          { name: "Overview", path: "/", roles: [ROLES.SUPER_ADMIN] },
+          { name: "Sales", path: "/sales", roles: [ROLES.SUPER_ADMIN] },
+        ],
+      },
 
       {
         name: "Dashboard",
         icon: Home,
         path: "/",
-        roles: [ROLES.SUPER_ADMIN, ROLES.MANAGER, ROLES.KITCHEN, ROLES.BAR],
+        roles: [ROLES.KITCHEN, ROLES.BAR],
       },
 
       // 🔽 NEW REPORTS MENU
@@ -83,14 +83,39 @@ export const navConfig = [
             roles: [ROLES.SUPER_ADMIN, ROLES.MANAGER],
           },
           {
-            name: "Shift History",
-            path: "/shift-history",
+            name: "Service Type Breakdown",
+            icon: BarChart3,
+            path: "/service-type-breakdown",
             roles: [ROLES.SUPER_ADMIN, ROLES.MANAGER],
           },
         ],
       },
     ],
   },
+  {
+  title: "Daily Operations",
+  roles: [ROLES.SUPER_ADMIN, ROLES.MANAGER],
+  items: [
+    // {
+    //   name: "Running Orders",
+    //   icon: ReceiptIndianRupee,
+    //   path: "/running-orders",
+    //   roles: [ROLES.SUPER_ADMIN, ROLES.MANAGER],
+    // },
+    {
+      name: "Shift Summary",
+      icon: Layers,
+      path: "/shift-history",
+      roles: [ROLES.SUPER_ADMIN, ROLES.MANAGER],
+    },
+    {
+      name: "Day End Summary",
+      icon: ReceiptIndianRupee,
+      path: "/day-end-summary",
+      roles: [ROLES.SUPER_ADMIN, ROLES.MANAGER],
+    },
+  ],
+},
   {
     title: "Organization",
     roles: [ROLES.SUPER_ADMIN],

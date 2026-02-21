@@ -11,7 +11,7 @@ const roleSlice = createSlice({
   name: "role",
   initialState: {
     loading: false,
-    allFloors: null,
+    allRoles: null,
   },
   reducers: {},
   extraReducers: (builder) => {

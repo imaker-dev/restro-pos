@@ -6,12 +6,15 @@ export default false
     }
     : {
         getAllPrintersApi: (outletId) => {
-            return Api.get(`/printers/outlet/${outletId}`);
+            return Api.get(`/printers/status/${outletId}`);
         },
         createPrinterApi:(values) => {
             return Api.post(`/printers`,values)
         },
         updatePrinterApi:(id,values) => {
-            return Api.post(`/printers/${id}`,values)
+            return Api.put(`/printers/${id}`,values)
+        },
+        testPrinterApi:(outletId,station,printerId) => {
+            return Api.get(`/printers/${printerId}/ping`)
         }
     };

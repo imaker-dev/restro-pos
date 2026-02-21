@@ -76,6 +76,10 @@ export const formatDate = (input, type = "short") => {
     case "longTime":
       return `${day} ${monthName}, ${year} ${hours12}:${minutes} ${meridian}`;
 
+      case "dayMonth":
+    return `${day} ${monthName}`;
+
+
     case "time":
       return `${hours12}:${minutes} ${meridian}`;
 

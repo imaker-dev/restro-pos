@@ -4,8 +4,8 @@ import UserServices from "../services/UserServices";
 
 export const fetchAllUsers = createAsyncThunk(
   "/fetch/outlets",
-  async ({ search }) => {
-    const res = await UserServices.getAllUsersApi(search);
+  async ({ page,limit,search }) => {
+    const res = await UserServices.getAllUsersApi(page, limit, search);
     return res.data;
   },
 );
@@ -43,7 +43,7 @@ const userSlice = createSlice({
       })
       .addCase(fetchAllUsers.fulfilled, (state, action) => {
         state.loading = false;
-        state.allUsers = action.payload.data;
+        state.allUsers = action.payload;
       })
       .addCase(fetchAllUsers.rejected, (state, action) => {
         state.loading = false;

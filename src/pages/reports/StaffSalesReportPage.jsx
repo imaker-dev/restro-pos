@@ -5,6 +5,14 @@ import { fetchStaffSalesReport } from "../../redux/slices/reportSlice";
 import CustomDateRangePicker from "../../components/CustomDateRangePicker";
 import SmartTable from "../../components/SmartTable";
 import { formatNumber } from "../../utils/numberFormatter";
+import {
+  IndianRupee,
+  Percent,
+  ShoppingBag,
+  UserCheck,
+  Users,
+} from "lucide-react";
+import StatCard from "../../components/StatCard";
 
 const StaffSalesReportPage = () => {
   const dispatch = useDispatch();
@@ -12,6 +20,8 @@ const StaffSalesReportPage = () => {
   const { staffSalesReport, isFetchingStaffSalesReport } = useSelector(
     (state) => state.report,
   );
+  const { staff, summary } = staffSalesReport || {};
+
   const [dateRange, setDateRange] = useState();
 
   useEffect(() => {
@@ -19,6 +29,44 @@ const StaffSalesReportPage = () => {
 
     dispatch(fetchStaffSalesReport({ outletId, dateRange }));
   }, [outletId, dateRange]);
+
+  const stats = [
+    {
+      title: "Total Sales",
+      value: formatNumber(summary?.total_sales, true),
+      subtitle: `${summary?.total_orders} orders`,
+      icon: IndianRupee,
+      color: "green",
+    },
+    {
+      title: "Total Staff",
+      value: summary?.total_staff,
+      subtitle: "Active staff",
+      icon: Users,
+      color: "blue",
+    },
+    {
+      title: "Total Guests",
+      value: parseInt(summary?.total_guests),
+      subtitle: "Customers served",
+      icon: ShoppingBag,
+      color: "purple",
+    },
+    {
+      title: "Avg Per Staff",
+      value: formatNumber(summary?.average_per_staff, true),
+      subtitle: "Revenue per staff",
+      icon: UserCheck,
+      color: "amber",
+    },
+    {
+      title: "Discounts & Cancels",
+      value: formatNumber(summary?.total_discounts, true),
+      subtitle: `${summary?.cancelled_orders} cancelled`,
+      icon: Percent,
+      color: "rose",
+    },
+  ];
 
   const columns = [
     {
@@ -110,10 +158,45 @@ const StaffSalesReportPage = () => {
         />
       </div>
 
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
+        {stats?.map((stat, index) => (
+          <StatCard
+            key={index}
+            title={stat?.title}
+            value={stat?.value}
+            subtitle={stat?.subtitle}
+            icon={stat?.icon}
+            color={stat?.color}
+            variant="primary"
+          />
+        ))}
+      </div>
+      {summary?.top_performer && (
+        <div
+          className="bg-amber-50 border border-amber-200 
+               rounded-lg px-4 py-2 
+               flex items-center justify-between text-sm"
+        >
+          <div className="flex items-center gap-2 truncate">
+            <UserCheck className="w-4 h-4 text-amber-600 shrink-0" />
+
+            <span className="text-amber-700 font-medium">Top Performer:</span>
+
+            <span className="text-slate-800 font-semibold truncate max-w-[220px]">
+              {summary?.top_performer}
+            </span>
+
+            <span className="text-slate-500">
+              ({formatNumber(summary?.top_performer_sales, true)} sales)
+            </span>
+          </div>
+        </div>
+      )}
+
       <SmartTable
         title={"Staff Sales"}
-        totalcount={staffSalesReport?.length}
-        data={staffSalesReport}
+        totalcount={staff?.length}
+        data={staff}
         columns={columns}
         loading={isFetchingStaffSalesReport}
         //   actions={rowActions}

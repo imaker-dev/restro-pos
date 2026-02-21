@@ -64,10 +64,28 @@ export const fetchPaymentModeReport = createAsyncThunk(
 export const fetchTaxReport = createAsyncThunk(
   "/fetch/tax/report",
   async ({ outletId, dateRange }) => {
-    const res = await ReportServices.getTaxReportApi(
-      outletId,
-      dateRange,
-    );
+    const res = await ReportServices.getTaxReportApi(outletId, dateRange);
+    return res.data;
+  },
+);
+export const fetchServiceTypeBreakdownReport = createAsyncThunk(
+  "/fetch/service-type/breakdown/report",
+  async ({ outletId, dateRange }) => {
+    const res = await ReportServices.getServiceTypeBreakdownReportApi(outletId, dateRange);
+    return res.data;
+  },
+);
+export const fetchRunningTable = createAsyncThunk(
+  "/fetch/running/table",
+  async (outletId) => {
+    const res = await ReportServices.getRunningTableApi(outletId);
+    return res.data;
+  },
+);
+export const fetchRunningOrder = createAsyncThunk(
+  "/fetch/running/order",
+  async (outletId) => {
+    const res = await ReportServices.getRunnigOrderApi(outletId);
     return res.data;
   },
 );
@@ -86,14 +104,22 @@ const reportSlice = createSlice({
     categorySalesReport: null,
     isFetchingCategorySalesReport: false,
 
-    staffSalesReport:null,
-    isFetchingStaffSalesReport:false,
+    staffSalesReport: null,
+    isFetchingStaffSalesReport: false,
 
-    paymentModeReport:null,
-    isFetchingPaymentModeReport:false,
+    paymentModeReport: null,
+    isFetchingPaymentModeReport: false,
 
     taxReport: null,
-    isFetchingTaxReport:false,
+    isFetchingTaxReport: false,
+
+    isFetchingRunningTable:false,
+    runningTables:null,
+
+    isFetchingRunningOrder:false,
+    runningOrders:null,
+
+
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -173,6 +199,39 @@ const reportSlice = createSlice({
       })
       .addCase(fetchTaxReport.rejected, (state, action) => {
         state.isFetchingTaxReport = false;
+        toast.error(action.error.message);
+      })
+      .addCase(fetchServiceTypeBreakdownReport.pending, (state) => {
+        state.isFetchingServiceTypeBreakdownReport = true;
+      })
+      .addCase(fetchServiceTypeBreakdownReport.fulfilled, (state, action) => {
+        state.isFetchingServiceTypeBreakdownReport = false;
+        state.serviceTypeBreakdownReport = action.payload.data;
+      })
+      .addCase(fetchServiceTypeBreakdownReport.rejected, (state, action) => {
+        state.isFetchingServiceTypeBreakdownReport = false;
+        toast.error(action.error.message);
+      })
+      .addCase(fetchRunningTable.pending, (state) => {
+        state.isFetchingRunningTable = true;
+      })
+      .addCase(fetchRunningTable.fulfilled, (state, action) => {
+        state.isFetchingRunningTable = false;
+        state.runningTables = action.payload.data;
+      })
+      .addCase(fetchRunningTable.rejected, (state, action) => {
+        state.isFetchingRunningTable = false;
+        toast.error(action.error.message);
+      })
+      .addCase(fetchRunningOrder.pending, (state) => {
+        state.isFetchingRunningOrder = true;
+      })
+      .addCase(fetchRunningOrder.fulfilled, (state, action) => {
+        state.isFetchingRunningOrder = false;
+        state.runningOrders = action.payload.data;
+      })
+      .addCase(fetchRunningOrder.rejected, (state, action) => {
+        state.isFetchingRunningOrder = false;
         toast.error(action.error.message);
       })
   },

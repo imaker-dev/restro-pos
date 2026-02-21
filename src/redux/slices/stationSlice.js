@@ -16,6 +16,14 @@ export const updateStation = createAsyncThunk("/update/stations", async ({id,val
   const res = await StationServices.updateStationApi(id,values);
   return res.data;
 });
+export const assignStationToUser = createAsyncThunk("/assign/station/user", async ({userId,values}) => {
+  const res = await StationServices.assignStationToUserApi(userId,values);
+  return res.data;
+});
+export const removeStationFromUser = createAsyncThunk("/remove/station/user", async ({userId,stationId}) => {
+  const res = await StationServices.removeStationFromUserApi(userId,stationId);
+  return res.data;
+});
 
 const stationSlice = createSlice({
   name: "station",
@@ -24,6 +32,8 @@ const stationSlice = createSlice({
     allStations: null,
     isCreatingStation:false,
     isUpdatingStation:false,
+    isAssigningStationToUser:false,
+    isRemovingStationToUser:false,
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -59,6 +69,28 @@ const stationSlice = createSlice({
       })
       .addCase(updateStation.rejected, (state, action) => {
         state.isUpdatingStation = false;
+        toast.error(action.error.message);
+      })
+      .addCase(assignStationToUser.pending, (state) => {
+        state.isAssigningStationToUser = true;
+      })
+      .addCase(assignStationToUser.fulfilled, (state, action) => {
+        state.isAssigningStationToUser = false;
+        toast.success(action.payload.message)
+      })
+      .addCase(assignStationToUser.rejected, (state, action) => {
+        state.isAssigningStationToUser = false;
+        toast.error(action.error.message);
+      })
+      .addCase(removeStationFromUser.pending, (state) => {
+        state.isRemovingStationToUser = true;
+      })
+      .addCase(removeStationFromUser.fulfilled, (state, action) => {
+        state.isRemovingStationToUser = false;
+        toast.success(action.payload.message)
+      })
+      .addCase(removeStationFromUser.rejected, (state, action) => {
+        state.isRemovingStationToUser = false;
         toast.error(action.error.message);
       })
   },

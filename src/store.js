@@ -21,7 +21,7 @@ import orderSlice from './redux/slices/orderSlice';
 import shiftSlice from './redux/slices/shiftSlice';
 import stationSlice from './redux/slices/stationSlice';
 import printerSlice from './redux/slices/printerSlice';
-
+import settingSlice from './redux/slices/settingSlice';
 
 const reducer = {
   auth: authSlice,
@@ -46,6 +46,7 @@ const reducer = {
   shift:shiftSlice,
   station:stationSlice,
   printer:printerSlice,
+  setting:settingSlice,
 };
 
 const store = configureStore({

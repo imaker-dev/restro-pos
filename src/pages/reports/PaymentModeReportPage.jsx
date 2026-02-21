@@ -6,7 +6,15 @@ import CustomDateRangePicker from "../../components/CustomDateRangePicker";
 import SmartTable from "../../components/SmartTable";
 import { formatNumber } from "../../utils/numberFormatter";
 import StatCard from "../../components/StatCard";
-import { HandCoins, IndianRupee, ShoppingCart } from "lucide-react";
+import {
+  CreditCard,
+  HandCoins,
+  IndianRupee,
+  ReceiptIndianRupee,
+  ShoppingCart,
+  TrendingUp,
+  Wallet,
+} from "lucide-react";
 
 const PaymentModeReportPage = () => {
   const dispatch = useDispatch();
@@ -24,6 +32,43 @@ const PaymentModeReportPage = () => {
     dispatch(fetchPaymentModeReport({ outletId, dateRange }));
   }, [outletId, dateRange]);
 
+  const stats = [
+    {
+      title: "Total Collected",
+      value: formatNumber(summary?.total_collected, true),
+      subtitle: "Final received amount",
+      icon: IndianRupee,
+      color: "green",
+    },
+    {
+      title: "Base Amount",
+      value: formatNumber(summary?.total_base_amount, true),
+      subtitle: "Before tips",
+      icon: Wallet,
+      color: "blue",
+    },
+    {
+      title: "Total Transactions",
+      value: summary?.total_transactions,
+      subtitle: "Completed payments",
+      icon: CreditCard,
+      color: "purple",
+    },
+    {
+      title: "Average Transaction",
+      value: formatNumber(summary?.average_transaction, true),
+      subtitle: "Per transaction",
+      icon: TrendingUp,
+      color: "amber",
+    },
+    {
+      title: "Total Tips",
+      value: formatNumber(summary?.total_tips, true),
+      subtitle: "Additional earnings",
+      icon: ReceiptIndianRupee,
+      color: "rose",
+    },
+  ];
 
   const columns = [
     {
@@ -108,30 +153,17 @@ const PaymentModeReportPage = () => {
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <StatCard
-          title="Total Transactions"
-          value={formatNumber(summary?.total_transactions)}
-          subtitle="All payment modes"
-          icon={ShoppingCart}
-          color="blue"
-        />
-
-        <StatCard
-          title="Total Collected"
-          value={formatNumber(summary?.total_collected, true)}
-          subtitle="Gross received amount"
-          icon={IndianRupee}
-          color="green"
-        />
-
-        <StatCard
-          title="Total Tips"
-          value={formatNumber(summary?.total_tips, true)}
-          subtitle="Customer gratuities"
-          icon={HandCoins}
-          color="purple"
-        />
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
+        {stats?.map((stat, index) => (
+          <StatCard
+            key={index}
+            title={stat?.title}
+            value={stat?.value}
+            subtitle={stat?.subtitle}
+            icon={stat?.icon}
+            color={stat?.color}
+          />
+        ))}
       </div>
 
       <SmartTable

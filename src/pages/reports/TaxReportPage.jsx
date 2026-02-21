@@ -17,8 +17,6 @@ const TaxReportPage = () => {
   );
   const { daily, taxComponents, summary } = taxReport || {};
 
-  console.log(taxReport);
-
   const [dateRange, setDateRange] = useState();
   const [activeTab, setActiveTab] = useState("daily");
 

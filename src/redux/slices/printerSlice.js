@@ -16,6 +16,10 @@ export const updatePrinter = createAsyncThunk("/update/printer", async ({id,valu
   const res = await PrinterServices.updatePrinterApi(id,values);
   return res.data;
 });
+export const testPrinter = createAsyncThunk("/test/printer", async ({outletId,station,printerId}) => {
+  const res = await PrinterServices.testPrinterApi(outletId,station,printerId);
+  return res.data;
+});
 
 const printerSlice = createSlice({
   name: "printer",
@@ -24,6 +28,7 @@ const printerSlice = createSlice({
     allPrinters: null,
     isCreatingPrinter:false,
     isUpdatingPrinter:false,
+    printerTestingId:null,
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -59,6 +64,17 @@ const printerSlice = createSlice({
       })
       .addCase(updatePrinter.rejected, (state, action) => {
         state.isUpdatingPrinter = false;
+        toast.error(action.error.message);
+      })
+      .addCase(testPrinter.pending, (state,action) => {
+        state.printerTestingId = action.meta.arg.station;
+      })
+      .addCase(testPrinter.fulfilled, (state, action) => {
+        state.printerTestingId = null;
+        toast.success(action.payload.message)
+      })
+      .addCase(testPrinter.rejected, (state, action) => {
+        state.printerTestingId = null;
         toast.error(action.error.message);
       })
   },

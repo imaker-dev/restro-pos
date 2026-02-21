@@ -20,6 +20,7 @@ import { fetchUserById } from "../../redux/slices/userSlice";
 import UserAvatar from "../../components/UserAvatar";
 import { formatDate } from "../../utils/dateFormatter";
 import StatCard from "../../components/StatCard";
+import { Link } from "react-router-dom";
 
 // ─── Card Component ────────────────────────────────────────────────────────────
 function Card({
@@ -96,6 +97,8 @@ export default function UserDetailsPage() {
     (state) => state.user,
   );
 
+  const { assignedStation } = user || {};
+
   useEffect(() => {
     if (userId) {
       dispatch(fetchUserById(userId));
@@ -136,23 +139,23 @@ export default function UserDetailsPage() {
     {
       icon: Shield,
       label: "Active Roles",
-      value: user.roles?.length || 0,
+      value: user?.roles?.length || 0,
     },
     {
       icon: MapPin,
       label: "Floor Assignments",
-      value: user.assignedFloors?.length || 0,
+      value: user?.assignedFloors?.length || 0,
     },
     {
       icon: Grid3x3,
       label: "Section Access",
-      value: user.assignedSections?.length || 0,
+      value: user?.assignedSections?.length || 0,
     },
     {
       icon: Activity,
       label: "Account Status",
-      value: user.isActive ? "Active" : "Inactive",
-      trend: user.isActive ? "Online" : undefined,
+      value: user?.isActive ? "Active" : "Inactive",
+      trend: user?.isActive ? "Online" : undefined,
     },
   ];
 
@@ -170,13 +173,13 @@ export default function UserDetailsPage() {
           {/* Avatar */}
           <div className="relative w-24 h-24">
             <UserAvatar
-              name={user.name}
-              url={user.avatarUrl}
+              name={user?.name}
+              url={user?.avatarUrl}
               className="w-full h-full border-4 border-white/20 shadow-lg"
             />
             <div
               className={`absolute bottom-2 right-2 w-4 h-4 rounded-full border-4 border-white ${
-                user.isActive ? "bg-emerald-500" : "bg-gray-400"
+                user?.isActive ? "bg-emerald-500" : "bg-gray-400"
               }`}
             />
           </div>
@@ -184,33 +187,33 @@ export default function UserDetailsPage() {
           {/* Info */}
           <div className="flex-1 min-w-0">
             <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">
-              {user.name}
+              {user?.name}
             </h1>
 
             <div className="flex flex-wrap items-center gap-3 mb-3">
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 backdrop-blur text-white text-sm font-medium border border-white/20">
                 <Shield size={14} />
-                {user.roles?.[0]?.name || "No role"}
+                {user?.roles?.[0]?.name || "No role"}
               </span>
               <span className="text-white/60">•</span>
               <span className="text-white/90 text-sm font-medium">
-                {user.roles?.[0]?.outletName || "No outlet"}
+                {user?.roles?.[0]?.outletName || "No outlet"}
               </span>
             </div>
 
             <div className="flex flex-wrap gap-3">
               <div className="flex items-center gap-2 text-white/90 text-sm">
                 <Mail size={15} className="text-white/60" />
-                <span className="truncate">{user.email}</span>
+                <span className="truncate">{user?.email}</span>
               </div>
               <div className="flex items-center gap-2 text-white/90 text-sm">
                 <Phone size={15} className="text-white/60" />
-                <span>{user.phone || "Not provided"}</span>
+                <span>{user?.phone || "Not provided"}</span>
               </div>
               <div className="flex items-center gap-2 text-white/90 text-sm">
                 <Hash size={15} className="text-white/60" />
                 <span className="font-mono font-medium">
-                  {user.employeeCode}
+                  {user?.employeeCode}
                 </span>
               </div>
             </div>
@@ -218,22 +221,25 @@ export default function UserDetailsPage() {
 
           {/* Actions */}
           <div className="flex gap-2 w-full md:w-auto">
-            <button className="flex-1 md:flex-initial btn bg-white hover:bg-gray-50 text-primary-700 px-5 py-2.5 rounded-lg font-medium shadow-sm flex items-center justify-center gap-2">
+            <Link
+              to={`/users/add?userId=${user?.id}`}
+              className="flex-1 md:flex-initial btn bg-white hover:bg-gray-50 text-primary-700 px-5 py-2.5 rounded-lg font-medium shadow-sm flex items-center justify-center gap-2"
+            >
               <Edit size={16} />
               Edit
-            </button>
+            </Link>
           </div>
         </div>
       </Card>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {stats.map((stat, index) => (
+        {stats?.map((stat, index) => (
           <StatCard
             key={index}
-            icon={stat.icon}
-            title={stat.label}
-            value={stat.value}
+            icon={stat?.icon}
+            title={stat?.label}
+            value={stat?.value}
             color="orange"
             variant="secondary"
           />
@@ -250,13 +256,13 @@ export default function UserDetailsPage() {
             icon={User}
           >
             <div className="space-y-0">
-              <InfoRow icon={User} label="Full Name" value={user.name} />
-              <InfoRow icon={Mail} label="Email Address" value={user.email} />
-              <InfoRow icon={Phone} label="Phone Number" value={user.phone} />
+              <InfoRow icon={User} label="Full Name" value={user?.name} />
+              <InfoRow icon={Mail} label="Email Address" value={user?.email} />
+              <InfoRow icon={Phone} label="Phone Number" value={user?.phone} />
               <InfoRow
                 icon={Hash}
                 label="Employee Code"
-                value={user.employeeCode}
+                value={user?.employeeCode}
                 mono
               />
             </div>
@@ -267,16 +273,16 @@ export default function UserDetailsPage() {
             title="Floor Assignments"
             subtitle="Assigned floors and primary access"
             icon={MapPin}
-            badge={`${user.assignedFloors?.length || 0} Floor${user.assignedFloors?.length !== 1 ? "s" : ""}`}
+            badge={`${user?.assignedFloors?.length || 0} Floor${user?.assignedFloors?.length !== 1 ? "s" : ""}`}
           >
-            {user.assignedFloors?.length > 0 ? (
+            {user?.assignedFloors?.length > 0 ? (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                {user.assignedFloors.map((floor) => (
+                {user?.assignedFloors?.map((floor) => (
                   <div
-                    key={floor.id}
+                    key={floor?.id}
                     className="relative p-5 rounded-lg border border-gray-200 hover:border-primary-300 hover:shadow-md transition-all"
                   >
-                    {floor.isPrimary && (
+                    {floor?.isPrimary && (
                       <span className="absolute top-3 right-3 px-2 py-1 rounded-md bg-amber-100 text-amber-700 text-xs font-bold">
                         PRIMARY
                       </span>
@@ -285,15 +291,15 @@ export default function UserDetailsPage() {
                     <div className="flex items-center gap-3 mb-4">
                       <div className="w-12 h-12 rounded-lg bg-primary-100 flex items-center justify-center flex-shrink-0">
                         <span className="text-xl font-bold text-primary-600">
-                          {floor.floorNumber}
+                          {floor?.floorNumber}
                         </span>
                       </div>
                       <div className="flex-1 min-w-0">
                         <h4 className="font-semibold text-gray-900 truncate">
-                          {floor.floorName}
+                          {floor?.floorName}
                         </h4>
                         <p className="text-xs font-mono text-gray-500">
-                          {floor.floorCode}
+                          {floor?.floorCode}
                         </p>
                       </div>
                     </div>
@@ -305,7 +311,7 @@ export default function UserDetailsPage() {
                           className="text-gray-400 flex-shrink-0"
                         />
                         <span className="text-gray-600 truncate">
-                          {floor.outletName}
+                          {floor?.outletName}
                         </span>
                       </div>
                     </div>
@@ -325,11 +331,11 @@ export default function UserDetailsPage() {
             title="Section Assignments"
             subtitle="Assigned sections and areas"
             icon={Grid3x3}
-            badge={`${user.assignedSections?.length || 0} Section${user.assignedSections?.length !== 1 ? "s" : ""}`}
+            badge={`${user?.assignedSections?.length || 0} Section${user?.assignedSections?.length !== 1 ? "s" : ""}`}
           >
-            {user.assignedSections?.length > 0 ? (
+            {user?.assignedSections?.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {user.assignedSections.map((section, idx) => (
+                {user?.assignedSections?.map((section, idx) => (
                   <div
                     key={idx}
                     className="p-5 rounded-lg border border-gray-200 hover:border-primary-300 hover:shadow-md transition-all"
@@ -354,13 +360,13 @@ export default function UserDetailsPage() {
             title="Roles & Outlet Assignments"
             subtitle="Active role assignments across outlets"
             icon={Shield}
-            badge={`${user.roles?.length || 0} Active`}
+            badge={`${user?.roles?.length || 0} Active`}
           >
-            {user.roles?.length > 0 ? (
+            {user?.roles?.length > 0 ? (
               <div className="grid grid-cols-1 gap-4">
-                {user.roles.map((role) => (
+                {user?.roles?.map((role) => (
                   <div
-                    key={role.id}
+                    key={role?.id}
                     className="p-5 rounded-lg border border-gray-200 hover:border-primary-300 hover:shadow-md transition-all"
                   >
                     <div className="flex items-start gap-3 mb-4">
@@ -369,10 +375,10 @@ export default function UserDetailsPage() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <h4 className="font-semibold text-gray-900 mb-1">
-                          {role.name}
+                          {role?.name}
                         </h4>
                         <p className="text-xs font-mono text-gray-500">
-                          {role.slug}
+                          {role?.slug}
                         </p>
                       </div>
                     </div>
@@ -385,7 +391,7 @@ export default function UserDetailsPage() {
                         />
                         <span className="text-gray-600">Outlet:</span>
                         <span className="font-medium text-gray-900 truncate">
-                          {role.outletName}
+                          {role?.outletName}
                         </span>
                       </div>
                       <div className="flex items-center gap-2 text-sm">
@@ -395,10 +401,10 @@ export default function UserDetailsPage() {
                         />
                         <span className="text-gray-600">Assigned:</span>
                         <span className="font-medium text-gray-700">
-                          {formatDate(role.assignedAt, "long")}
+                          {formatDate(role?.assignedAt, "long")}
                         </span>
                       </div>
-                      {role.expiresAt && (
+                      {role?.expiresAt && (
                         <div className="flex items-center gap-2 text-sm">
                           <Clock
                             size={14}
@@ -406,7 +412,7 @@ export default function UserDetailsPage() {
                           />
                           <span className="text-gray-600">Expires:</span>
                           <span className="font-medium text-amber-700">
-                            {formatDate(role.expiresAt, "long")}
+                            {formatDate(role?.expiresAt, "long")}
                           </span>
                         </div>
                       )}
@@ -418,6 +424,79 @@ export default function UserDetailsPage() {
               <div className="text-center py-12 text-gray-500">
                 <Shield size={48} className="mx-auto text-gray-300 mb-3" />
                 <p>No roles assigned to this user</p>
+              </div>
+            )}
+          </Card>
+
+          {/* Station */}
+          <Card
+            title="Station Assignment"
+            subtitle="Assigned station configuration"
+            icon={MapPin}
+            badge={assignedStation ? "1 Station" : "No Station"}
+          >
+            {assignedStation ? (
+              <div className="relative p-5 rounded-lg border border-gray-200 hover:border-primary-300 hover:shadow-md transition-all">
+                {/* PRIMARY BADGE */}
+                {assignedStation.isPrimary && (
+                  <span className="absolute top-3 right-3 px-2 py-1 rounded-md bg-amber-100 text-amber-700 text-xs font-bold">
+                    PRIMARY
+                  </span>
+                )}
+
+                {/* Header */}
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 rounded-lg bg-primary-100 flex items-center justify-center flex-shrink-0">
+                    <MapPin size={20} className="text-primary-600" />
+                  </div>
+
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-semibold text-gray-900 truncate">
+                      {assignedStation.stationName}
+                    </h4>
+                    <p className="text-xs font-mono text-gray-500">
+                      {assignedStation.stationCode}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Details */}
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-center gap-2">
+                    <Building2
+                      size={14}
+                      className="text-gray-400 flex-shrink-0"
+                    />
+                    <span className="text-gray-600 truncate">
+                      {assignedStation.outletName}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <Grid3x3
+                      size={14}
+                      className="text-gray-400 flex-shrink-0"
+                    />
+                    <span className="text-gray-600 capitalize">
+                      {assignedStation.stationType?.replaceAll("_", " ")}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <Hash size={14} className="text-gray-400 flex-shrink-0" />
+                    <span className="text-gray-600">
+                      Printer:{" "}
+                      {assignedStation.printer
+                        ? assignedStation.printer.name
+                        : "Not Assigned"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-12 text-gray-500">
+                <MapPin size={48} className="mx-auto text-gray-300 mb-3" />
+                <p>No station assigned</p>
               </div>
             )}
           </Card>

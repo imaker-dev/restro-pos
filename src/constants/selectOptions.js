@@ -38,3 +38,9 @@ export const SECTION_TYPE_OPTIONS = [
   { value: SECTION_TYPES.AC, label: "AC Section" },
   { value: SECTION_TYPES.NON_AC, label: "Non-AC Section" },
 ];
+
+export const SERVICE_TYPE_OPTIONS = [
+  { label: "Restaurant", value: "restaurant" },
+  { label: "Bar", value: "bar" },
+  { label: "Both", value: "both" }, // default
+];

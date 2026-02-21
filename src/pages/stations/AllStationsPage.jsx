@@ -16,14 +16,18 @@ import { handleResponse } from "../../utils/helpers";
 const AllStationsPage = () => {
   const dispatch = useDispatch();
   const { outletId } = useSelector((state) => state.auth);
-  const { allStations, loading } = useSelector((state) => state.station);
+  const { allStations, loading, isCreatingStation, isUpdatingStation } =
+    useSelector((state) => state.station);
 
   const [showStationModal, setShowStationModal] = useState(false);
   const [selectedStation, setSelectedStation] = useState(null);
 
+  const fetchStations = () => {
+    dispatch(fetchAllStations(outletId));
+  };
   useEffect(() => {
     if (outletId) {
-      dispatch(fetchAllStations(outletId));
+      fetchStations();
     }
   }, [outletId]);
 
@@ -126,7 +130,7 @@ const AllStationsPage = () => {
     const action = id ? updateStation({ id, values }) : createStation(values);
 
     await handleResponse(dispatch(action), () => {
-      fetchAllStations();
+      fetchStations();
       clearStationStates();
     });
   };
@@ -150,7 +154,8 @@ const AllStationsPage = () => {
         onClose={clearStationStates}
         station={selectedStation}
         onSubmit={handleAddStation}
-        loading={false}
+        outletId={outletId}
+        loading={isCreatingStation || isUpdatingStation}
       />
     </>
   );
