@@ -8,6 +8,7 @@ import { CheckboxField } from "../../components/fields/CheckboxField";
 import DragDropUploader from "../../components/DragDropUploader";
 import { SelectField } from "../../components/fields/SelectField";
 import { SERVICE_TYPES } from "../../constants";
+import InfoCard from "../../components/InfoCard";
 
 const validationSchema = Yup.object({
   name: Yup.string()
@@ -131,6 +132,7 @@ const CategoryModal = ({
           enableCrop={true}
           aspectRatio={1}
           uploadToServer={true}
+          size="sm"
         />
 
         {/* Active Checkbox */}
@@ -139,6 +141,17 @@ const CategoryModal = ({
           name="isActive"
           checked={formik.values.isActive}
           onChange={formik.handleChange}
+        />
+
+        <InfoCard
+          size="sm"
+          type="info"
+          title="Category Scope"
+          description={
+            isEditMode
+              ? "Updating this category will modify its name, service type, or visibility within the selected outlet only."
+              : "This category will be created under the selected outlet and will organize menu items within that outlet."
+          }
         />
 
         {/* Footer Buttons */}

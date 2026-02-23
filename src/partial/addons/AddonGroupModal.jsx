@@ -6,6 +6,7 @@ import { Loader2 } from "lucide-react";
 import { InputField } from "../../components/fields/InputField";
 import { CheckboxField } from "../../components/fields/CheckboxField";
 import { SelectField } from "../../components/fields/SelectField";
+import InfoCard from "../../components/InfoCard";
 
 const validationSchema = Yup.object({
   name: Yup.string()
@@ -20,34 +21,27 @@ const validationSchema = Yup.object({
     .oneOf(["single", "multiple"])
     .required("Selection type required"),
 
-minSelection: Yup.number()
-  .nullable()
-  .transform((value, originalValue) =>
-    originalValue === "" ? null : value
-  )
-  .when("selectionType", {
-    is: "multiple",
-    then: (schema) =>
-      schema
-        .required("Minimum required")
-        .min(0, "Cannot be negative"),
-    otherwise: (schema) => schema.nullable(),
-  }),
+  minSelection: Yup.number()
+    .nullable()
+    .transform((value, originalValue) => (originalValue === "" ? null : value))
+    .when("selectionType", {
+      is: "multiple",
+      then: (schema) =>
+        schema.required("Minimum required").min(0, "Cannot be negative"),
+      otherwise: (schema) => schema.nullable(),
+    }),
 
-maxSelection: Yup.number()
-  .nullable()
-  .transform((value, originalValue) =>
-    originalValue === "" ? null : value
-  )
-  .when("selectionType", {
-    is: "multiple",
-    then: (schema) =>
-      schema
-        .required("Maximum required")
-        .min(Yup.ref("minSelection"), "Max must be ≥ Min"),
-    otherwise: (schema) => schema.nullable(),
-  }),
-
+  maxSelection: Yup.number()
+    .nullable()
+    .transform((value, originalValue) => (originalValue === "" ? null : value))
+    .when("selectionType", {
+      is: "multiple",
+      then: (schema) =>
+        schema
+          .required("Maximum required")
+          .min(Yup.ref("minSelection"), "Max must be ≥ Min"),
+      otherwise: (schema) => schema.nullable(),
+    }),
 
   isRequired: Yup.boolean(),
 });
@@ -92,7 +86,7 @@ const AddonGroupModal = ({
   });
 
   const handleSelectionTypeChange = (e) => {
-      formik.handleChange(e);
+    formik.handleChange(e);
   };
 
   return (
@@ -180,6 +174,17 @@ const AddonGroupModal = ({
             Customer must select at least one option before adding to cart.
           </p>
         </div>
+
+        <InfoCard
+          size="sm"
+          type="info"
+          title="Addon Group Scope"
+          description={
+            isEditMode
+              ? "Updating this addon group will modify its selection rules and availability within the selected outlet only."
+              : "This addon group will be created for the selected outlet and can be assigned to products within that outlet."
+          }
+        />
 
         {/* FOOTER */}
         <div className="flex justify-end gap-3 pt-4">

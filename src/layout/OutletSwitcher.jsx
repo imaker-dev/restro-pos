@@ -95,7 +95,8 @@ const OutletSwitcher = () => {
                           />
                         </div>
                         <span
-                          className={`flex-1 text-sm ${
+                        title={outlet.name}
+                          className={`flex-1 text-sm truncate ${
                             selected
                               ? "font-semibold text-primary-600"
                               : "font-medium text-gray-700"

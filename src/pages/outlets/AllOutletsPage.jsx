@@ -5,17 +5,25 @@ import { fetchAllOutlets, updateOutlet } from "../../redux/slices/outletSlice";
 import SmartTable from "../../components/SmartTable";
 import {
   Building,
+  Building2,
+  Clock,
   Edit2,
   Edit3,
   Eye,
+  Hash,
   Layers,
   LayoutGrid,
+  Mail,
+  MapPin,
+  Phone,
   Plus,
+  Table2,
   Utensils,
 } from "lucide-react";
 import OutletUpdateModal from "../../partial/outlet/OutletUpdateModal";
 import { handleResponse } from "../../utils/helpers";
 import { useNavigate } from "react-router-dom";
+import StatusBadge from "../../layout/StatusBadge";
 
 const AllOutletsPage = () => {
   const dispatch = useDispatch();
@@ -36,77 +44,160 @@ const AllOutletsPage = () => {
   }, []);
 
   const columns = [
+    /* ===============================
+     OUTLET (Name + Legal + Code)
+  =============================== */
     {
       key: "name",
-      label: "Outlet Name",
+      label: "Outlet",
+      sortable: true,
       render: (row) => (
-        <span className="text-slate-700 font-medium">{row.name}</span>
+        <div className="flex flex-col gap-1 min-w-[240px]">
+          <div className="flex items-center gap-2">
+            <Building2 className="w-4 h-4 text-slate-400" />
+            <span className="font-semibold text-slate-800 truncate">
+              {row.name}
+            </span>
+          </div>
+
+          {row.legal_name && (
+            <span className="text-xs text-slate-500 truncate">
+              {row.legal_name}
+            </span>
+          )}
+
+          <div className="flex items-center gap-1 text-[11px] text-slate-400">
+            <Hash className="w-3 h-3" />
+            {row.code}
+          </div>
+        </div>
       ),
     },
+
+    /* ===============================
+     LOCATION
+  =============================== */
     {
-      key: "code",
-      label: "Code",
-      render: (row) => <span className="text-slate-600">{row.code}</span>,
-    },
-    {
-      key: "city",
-      label: "City",
+      key: "location",
+      label: "Location",
+      sortable: true,
       render: (row) => (
-        <span className="text-slate-700">{row.city || "-"}</span>
+        <div className="flex items-start gap-2 text-slate-700 max-w-[220px]">
+          <MapPin className="w-4 h-4 text-slate-400 mt-0.5 shrink-0" />
+          <div className="flex flex-col text-sm leading-tight">
+            <span>{row.city || "-"}</span>
+            <span className="text-xs text-slate-500">
+              {row.state || ""} {row.country ? `• ${row.country}` : ""}
+            </span>
+          </div>
+        </div>
       ),
     },
+
+    /* ===============================
+     CONTACT
+  =============================== */
     {
-      key: "phone",
-      label: "Phone",
+      key: "contact",
+      label: "Contact",
+      sortable: false,
       render: (row) => (
-        <span className="text-slate-600">{row.phone || "-"}</span>
+        <div className="flex flex-col gap-1 text-sm">
+          <div className="flex items-center gap-2 text-slate-600">
+            <Phone className="w-4 h-4 text-slate-400" />
+            {row.phone || "-"}
+          </div>
+
+          <div className="flex items-center gap-2 text-slate-500 text-xs">
+            <Mail className="w-4 h-4 text-slate-400" />
+            <span className="truncate max-w-[160px]">{row.email || "-"}</span>
+          </div>
+        </div>
       ),
     },
+
+    /* ===============================
+     TIMING
+  =============================== */
     {
       key: "timing",
-      label: "Timing",
+      label: "Operating Hours",
+      sortable: false,
       render: (row) => {
-        if (row.is_24_hours) return "24 Hours";
-        if (!row.opening_time || !row.closing_time) return "-";
+        if (row.is_24_hours) {
+          return (
+            <span className="px-2 py-1 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-700">
+              24 Hours
+            </span>
+          );
+        }
+
+        if (!row.opening_time || !row.closing_time) {
+          return <span className="text-slate-400">-</span>;
+        }
 
         return (
-          <span className="text-slate-600">
+          <div className="flex items-center gap-2 text-slate-600 text-sm">
+            <Clock className="w-4 h-4 text-slate-400" />
             {row.opening_time.slice(0, 5)} - {row.closing_time.slice(0, 5)}
-          </span>
+          </div>
         );
       },
     },
 
-    // NEW FLOORS COLUMN
+    /* ===============================
+     STRUCTURE (Floors + Tables)
+  =============================== */
     {
-      key: "floors",
-      label: "Floors",
+      key: "structure",
+      label: "Structure",
+      sortable: false,
       render: (row) => (
-        <span className="px-2 py-1 text-xs bg-indigo-100 text-indigo-700 rounded font-semibold">
-          {row.floor_count ?? 0}
-        </span>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <Layers className="w-4 h-4 text-indigo-400" />
+            <span className="text-sm font-semibold text-slate-700">
+              {row.floor_count ?? 0}
+            </span>
+            <span className="text-xs text-slate-500">Floors</span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Table2 className="w-4 h-4 text-emerald-400" />
+            <span className="text-sm font-semibold text-slate-700">
+              {row.table_count ?? 0}
+            </span>
+            <span className="text-xs text-slate-500">Tables</span>
+          </div>
+        </div>
       ),
     },
 
+    /* ===============================
+     STATUS
+  =============================== */
     {
-      key: "tables",
-      label: "Tables",
-      render: (row) => (
-        <span className="px-2 py-1 text-xs bg-emerald-100 text-emerald-700 rounded font-semibold">
-          {row.table_count ?? 0}
-        </span>
-      ),
+      key: "is_active",
+      label: "Status",
+      sortable: true,
+      render: (row) => <StatusBadge value={row.is_active} />,
     },
   ];
 
   const rowActions = [
     {
+      label: "View",
+      icon: Eye,
+      onClick: (row) => navigate(`/outlets/details?outletId=${row.id}`),
+    },
+    {
       label: "Edit",
       icon: Edit2,
       color: "blue",
-      onClick: (row) => {
-        (setSelectedOutlet(row), setShowTableUpdateModal(true));
-      },
+      // onClick: (row) => {
+      //   (setSelectedOutlet(row), setShowTableUpdateModal(true));
+      // },
+      onClick: (row) => navigate(`/outlets/add?outletId=${row.id}`),
     },
   ];
 
@@ -122,10 +213,19 @@ const AllOutletsPage = () => {
     });
   };
 
+  const actions = [
+    {
+      label: "Add New Outlet",
+      type: "primary",
+      icon: Plus,
+      onClick: () => navigate(`/outlets/add`),
+    },
+  ];
+
   return (
     <>
       <div className="space-y-6">
-        <PageHeader title={"All Outlets"} />
+        <PageHeader title={"All Outlets"} actions={actions} />
 
         <SmartTable
           title="Outlets"

@@ -33,6 +33,7 @@ export default function KitchenDisplayPage() {
 
   const { meData } = useSelector((state) => state.auth);
   const role = meData?.roles[0]?.slug || null;
+  const {assignedStations} = meData || {};
 
   const { allOrdersKot, loading } = useSelector((state) => state.kot);
   const { kotTab } = useSelector((state) => state.ui);

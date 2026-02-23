@@ -36,3 +36,11 @@ export const SERVICE_TYPES = {
   BAR: "bar",
   BOTH: "both", // default
 };
+
+export const STATION_TYPES = {
+  KITCHEN: "kitchen",
+  BAR: "bar",
+  DESSERT: "dessert",
+  MOCKTAIL: "mocktail",
+  OTHER: "other",
+};

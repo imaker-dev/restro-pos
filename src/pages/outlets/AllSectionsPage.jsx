@@ -89,16 +89,6 @@ const AllSectionsPage = () => {
     },
 
     {
-      key: "display_order",
-      label: "Order",
-      render: (row) => (
-        <span className="text-sm font-semibold text-slate-700">
-          #{row.display_order ?? 0}
-        </span>
-      ),
-    },
-
-    {
       key: "table_count",
       label: "Tables",
       render: (row) => (
@@ -132,7 +122,10 @@ const AllSectionsPage = () => {
     {
       label: "View",
       icon: Eye,
-      onClick: (row) => navigate(`/floors/sections/tables?sectionId=${row.id}&floorId=${floorId}`),
+      onClick: (row) =>
+        navigate(
+          `/floors/sections/tables?sectionId=${row.id}&floorId=${floorId}`,
+        ),
     },
     {
       label: "Edit",

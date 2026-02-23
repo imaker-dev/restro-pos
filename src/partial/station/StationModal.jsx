@@ -5,6 +5,12 @@ import * as Yup from "yup";
 import { Loader2 } from "lucide-react";
 import { InputField } from "../../components/fields/InputField";
 import { CheckboxField } from "../../components/fields/CheckboxField";
+import { SelectField } from "../../components/fields/SelectField";
+import { STATION_TYPE_OPTIONS } from "../../constants/selectOptions";
+
+/* ===============================
+   Validation Schema
+================================ */
 
 const validationSchema = Yup.object({
   name: Yup.string()
@@ -19,12 +25,16 @@ const validationSchema = Yup.object({
     .min(2, "Too short")
     .max(20, "Too long"),
 
-  description: Yup.string()
-    .trim()
-    .max(200, "Too long"),
+  stationType: Yup.string().required("Station type is required"),
+
+  description: Yup.string().trim().max(200, "Too long"),
 
   isActive: Yup.boolean(),
 });
+
+/* ===============================
+   Component
+================================ */
 
 const StationModal = ({
   isOpen,
@@ -42,13 +52,21 @@ const StationModal = ({
       outletId: station?.outlet_id || outletId || "",
       name: station?.name || "",
       code: station?.code || "",
+      stationType: station?.station_type || "", // default
       description: station?.description || "",
       isActive: station ? Boolean(station.is_active) : true,
     },
+
     validationSchema,
+
     onSubmit: async (values, { resetForm }) => {
       const payload = {
-        ...values,
+        outlet_id: values.outletId,
+        name: values.name,
+        code: values.code,
+        station_type: values.stationType,
+        description: values.description,
+        is_active: values.isActive,
       };
 
       if (isEditMode) {
@@ -88,7 +106,6 @@ const StationModal = ({
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
           error={formik.touched.name && formik.errors.name}
-          autoComplete="off"
         />
 
         {/* Station Code */}
@@ -99,15 +116,26 @@ const StationModal = ({
           placeholder="Enter unique code (e.g., KITCHEN)"
           value={formik.values.code}
           onChange={(e) =>
-            formik.setFieldValue(
-              "code",
-              e.target.value.toUpperCase()
-            )
+            formik.setFieldValue("code", e.target.value.toUpperCase())
           }
           onBlur={formik.handleBlur}
           error={formik.touched.code && formik.errors.code}
-          autoComplete="off"
         />
+
+        {/* Station Type */}
+<SelectField
+  label="Station Type"
+  name="stationType"
+  required
+  options={STATION_TYPE_OPTIONS}
+  value={formik.values.stationType}
+  onChange={formik.handleChange}
+  onBlur={formik.handleBlur}
+  error={
+    formik.touched.stationType &&
+    formik.errors.stationType
+  }
+/>
 
         {/* Description */}
         <InputField
@@ -117,11 +145,7 @@ const StationModal = ({
           value={formik.values.description}
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
-          error={
-            formik.touched.description &&
-            formik.errors.description
-          }
-          autoComplete="off"
+          error={formik.touched.description && formik.errors.description}
         />
 
         {/* Active Toggle */}
@@ -148,16 +172,14 @@ const StationModal = ({
             disabled={loading || !formik.isValid}
             className="btn bg-primary-500 text-white hover:bg-primary-600 disabled:opacity-50 flex items-center gap-2"
           >
-            {loading && (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            )}
+            {loading && <Loader2 className="h-4 w-4 animate-spin" />}
             {loading
               ? isEditMode
                 ? "Updating..."
                 : "Saving..."
               : isEditMode
-              ? "Update"
-              : "Save"}
+                ? "Update"
+                : "Save"}
           </button>
         </div>
       </form>

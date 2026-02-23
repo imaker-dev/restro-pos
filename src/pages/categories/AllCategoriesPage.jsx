@@ -35,17 +35,18 @@ const AllCategoriesPage = () => {
     fetchCategories();
   }, [outletId]);
 
-  const columns = [
+  const columns = [ 
     {
       key: "name",
       label: "Category",
-      sortable: true,
       render: (row) => {
+        const desc = row?.description?.trim?.();
+
         return (
-          <div className="flex items-center gap-3 max-w-[240px]">
-            {/* Image or Icon */}
+          <div className="flex items-start gap-3 max-w-[320px]">
+            {/* Image / Icon */}
             {row.image_url ? (
-              <div className="h-10 w-10 rounded-md overflow-hidden bg-slate-100">
+              <div className="h-11 w-11 rounded-lg overflow-hidden bg-slate-100 shrink-0">
                 <LightboxMedia
                   src={row.image_url}
                   alt={row.name}
@@ -54,79 +55,65 @@ const AllCategoriesPage = () => {
               </div>
             ) : (
               <div
-                className="w-10 h-10 rounded flex items-center justify-center text-lg border border-slate-200"
-                style={{ backgroundColor: row.color_code || "#eee" }}
+                className="w-11 h-11 rounded-lg flex items-center justify-center text-lg border border-slate-200 shrink-0"
+                style={{ backgroundColor: row.color_code || "#f1f5f9" }}
               >
-                {row.icon || "📦"}
+                {row.icon || "📂"}
               </div>
             )}
 
-            <span
-              className="text-slate-700 font-medium truncate"
-              title={row.name}
-            >
-              {row.name}
-            </span>
+            {/* Name + Description */}
+            <div className="flex flex-col min-w-0">
+              <span
+                className="font-semibold text-slate-800 truncate"
+                title={row.name}
+              >
+                {row.name}
+              </span>
+
+              <span
+                className={`text-xs truncate max-w-[240px] ${
+                  desc ? "text-slate-500" : "text-slate-400 italic"
+                }`}
+                title={desc || "No Description"}
+              >
+                {desc || "No Description"}
+              </span>
+            </div>
           </div>
         );
       },
     },
 
+    // 🔥 Service + Items merged
     {
-      key: "service_type",
+      key: "service_meta",
       label: "Service",
-      sortable: true,
-      render: (row) => <ServiceTypeBadge value={row.service_type} />,
-    },
-    {
-      key: "description",
-      label: "Description",
-      sortable: false,
-      render: (row) => {
-        const desc = row?.description?.trim?.();
-
-        return (
-          <span
-            className={`truncate max-w-[260px] block ${
-              desc ? "text-slate-600" : "text-slate-400 italic"
-            }`}
-            title={desc || "No Description"}
-          >
-            {desc || "No Description"}
-          </span>
-        );
-      },
-    },
-
-    // ⭐ ITEM COUNT COLUMN
-    {
-      key: "item_count",
-      label: "Items",
-      sortable: true,
       render: (row) => (
-        <span
-          className="px-2 py-1 text-xs rounded bg-indigo-100 text-indigo-700 font-semibold"
-          title={`${row.item_count} items`}
-        >
-          {row.item_count}
-        </span>
+        <div className="flex flex-col gap-1">
+          <div className="w-fut">
+            <ServiceTypeBadge value={row.service_type} />
+          </div>
+
+          <span className="text-xs text-slate-500">
+            {row.item_count} item{row.item_count !== 1 && "s"}
+          </span>
+        </div>
       ),
     },
 
     {
       key: "is_active",
       label: "Status",
-      sortable: true,
       render: (row) => <StatusBadge value={row.is_active} />,
     },
 
     {
-      key: "created_at",
-      label: "Created",
-      sortable: true,
+      key: "updated_at",
+      label: "updated",
       render: (row) => (
-        <span className="text-sm text-slate-600 truncate max-w-[160px] block">
-          {row.created_at ? formatDate(row.created_at, "long") : "—"}
+        <span className="text-sm text-slate-600 whitespace-nowrap">
+          {row.updated_at ? formatDate(row.updated_at, "longTime") : "—"}
         </span>
       ),
     },

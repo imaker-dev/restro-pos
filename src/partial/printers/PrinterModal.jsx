@@ -84,7 +84,7 @@ const PrinterModal = ({
 
     onSubmit: async (values, { resetForm }) => {
       const payload = {
-        outlet_id: values.outlet_id,
+        outletId: values.outlet_id,
         name: values.name,
         station_id: Number(values.station_id),
         printer_type: values.printer_type,

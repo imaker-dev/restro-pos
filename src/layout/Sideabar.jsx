@@ -3,7 +3,7 @@ import { NavLink, useLocation } from "react-router-dom";
 
 import SidebarLinkGroup from "./SidebarLinkGroup";
 import { navConfig } from "../config/nav-config";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronRight, ChevronsLeft } from "lucide-react";
 import { hasAccess } from "../utils/accessControl";
 import { useSelector } from "react-redux";
 
@@ -128,7 +128,24 @@ function Sidebar({
     .filter(Boolean);
 
   return (
-    <div className="min-w-fit">
+    <div className="min-w-fit relative">
+      <div className="hidden xl:block absolute -right-3 top-6 z-40">
+        <button
+          title={sidebarExpanded ? "Collapse sidebar" : "Expand sidebar"}
+          onClick={() => setSidebarExpanded(!sidebarExpanded)}
+          className="p-1 group relative flex items-center justify-center rounded-full bg-white border border-gray-200 shadow hover:shadow-lg hover:bg-gray-50 transition-all duration-200"
+        >
+          <span className="sr-only">Toggle sidebar</span>
+
+          <ChevronsLeft
+            className={`
+        w-3.5 h-3.5 text-gray-600
+        transition-transform duration-300 ease-in-out
+        ${!sidebarExpanded ? "rotate-180" : ""}
+      `}
+          />
+        </button>
+      </div>
       {/* Sidebar backdrop (mobile only) */}
       <div
         className={`fixed inset-0 bg-black/30 z-40 xl:hidden xl:z-auto transition-opacity duration-200 ${
@@ -405,42 +422,6 @@ function Sidebar({
               </ul>
             </div>
           ))}
-        </div>
-
-        {/* Expand / collapse button - only show on desktop */}
-        <div
-          className={`pt-6 hidden lg:inline-flex justify-end mt-auto ${
-            effectiveExpanded ? "" : "justify-center"
-          }`}
-        >
-          <div className={`${effectiveExpanded ? "px-3 py-2" : "px-2 py-2"}`}>
-            <button
-              onClick={() => setSidebarExpanded(!sidebarExpanded)}
-              className="group relative p-1 rounded-lg hover:bg-gray-100 transition-colors duration-200"
-            >
-              <span className="sr-only">Expand / collapse sidebar</span>
-              <svg
-                className={`w-6 h-6 fill-current transition-transform duration-300 ${
-                  sidebarExpanded ? "rotate-180" : ""
-                }`}
-                viewBox="0 0 24 24"
-              >
-                <path
-                  className="text-gray-400"
-                  d="M19.586 11l-5-5L16 4.586 23.414 12 16 19.414 14.586 18l5-5H7v-2z"
-                />
-                <path className="text-gray-600" d="M3 23H1V1h2z" />
-              </svg>
-
-              {/* Tooltip for collapse button */}
-              {!sidebarExpanded && (
-                <div className="absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-[60] shadow-lg">
-                  Expand sidebar
-                  <div className="absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-gray-900"></div>
-                </div>
-              )}
-            </button>
-          </div>
         </div>
       </div>
     </div>

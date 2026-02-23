@@ -38,6 +38,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useQueryParams } from "../../hooks/useQueryParams";
 import { FOOD_TYPES } from "../../constants";
+import InfoCard from "../../components/InfoCard";
 
 const AddItemPage = () => {
   const dispatch = useDispatch();
@@ -69,18 +70,13 @@ const AddItemPage = () => {
   }, [itemId, dispatch]);
 
   useEffect(() => {
-    if (!allTaxGroup?.length) {
-      dispatch(fetchAllTaxGroups());
-    }
-  }, [allTaxGroup, dispatch]);
-
-  useEffect(() => {
     if (!outletId) return;
 
     dispatch(fetchAllCategories(outletId));
     dispatch(fetchAllFloors(outletId));
     dispatch(fetchAllKitchenStations(outletId));
     dispatch(fetchAllAddonGroups(outletId));
+    dispatch(fetchAllTaxGroups(outletId));
   }, [outletId, dispatch]);
 
   // Loading state
@@ -109,7 +105,7 @@ const AddItemPage = () => {
     minQuantity: 1,
     maxQuantity: 10,
     kitchenStationId: "",
-    floorIds: [],
+    // floorIds: [],
     sectionIds: [],
     addonGroupIds: [],
     variants: [{ name: "", price: "", isDefault: true }],
@@ -139,10 +135,10 @@ const AddItemPage = () => {
 
       kitchenStationId: itemDetails.kitchenStations?.[0]?.id || "",
 
-      floorIds:
-        itemDetails.visibility?.floors
-          ?.filter((f) => f.is_available)
-          ?.map((f) => f.id) || [],
+      // floorIds:
+      //   itemDetails.visibility?.floors
+      //     ?.filter((f) => f.is_available)
+      //     ?.map((f) => f.id) || [],
 
       sectionIds: [],
 
@@ -178,7 +174,7 @@ const AddItemPage = () => {
 
     taxGroupId: Yup.string().required("Tax group is required"),
     kitchenStationId: Yup.string().required("Kitchen station is required"),
-    floorIds: Yup.array().min(1, "Select at least one floor"),
+    // floorIds: Yup.array().min(1, "Select at least one floor"),
     // sectionIds: Yup.array().min(1, "Select at least one section"),
     addonGroupIds: Yup.array(),
     variants: Yup.array().when("hasVariants", {
@@ -222,7 +218,7 @@ const AddItemPage = () => {
 
       kitchenStationId: Number(values.kitchenStationId),
 
-      floorIds: (values.floorIds || []).map(Number),
+      // floorIds: (values.floorIds || []).map(Number),
       sectionIds: (values.sectionIds || []).map(Number),
       addonGroupIds: (values.addonGroupIds || []).map(Number),
     };
@@ -270,9 +266,21 @@ const AddItemPage = () => {
             {/* PRODUCT INFO */}
             <AccordionSection title="Product Info" icon={Info}>
               <div className="space-y-4">
+                {/* PRODUCT NAME */}
+                <InputField
+                  label="Product Name"
+                  name="name"
+                  placeholder="Product Name"
+                  required
+                  value={formik.values.name}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  error={formik.touched.name && formik.errors.name}
+                />
+
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   {/* FLOORS */}
-                  <MultiSelectDropdownField
+                  {/* <MultiSelectDropdownField
                     label="Floors"
                     name="floorIds"
                     required
@@ -291,7 +299,7 @@ const AddItemPage = () => {
                     }}
                     onBlur={formik.handleBlur}
                     error={formik.touched.floorIds && formik.errors.floorIds}
-                  />
+                  /> */}
 
                   {/* KITCHEN STATIONS  */}
                   <SelectField
@@ -334,6 +342,19 @@ const AddItemPage = () => {
                     }
                   />
 
+                  {/* ITEM TYPE */}
+                  <SelectField
+                    label="Item Type"
+                    name="itemType"
+                    options={[
+                      { value: FOOD_TYPES.VEG, label: "Veg 🟢" },
+                      { value: FOOD_TYPES.NON_VEG, label: "Non-Veg 🔴" },
+                      { value: FOOD_TYPES.EGG, label: "Egg 🟡" },
+                    ]}
+                    value={formik.values.itemType}
+                    onChange={formik.handleChange}
+                  />
+
                   {/* SECTIONS */}
                   {/* <MultiSelectDropdownField
                   label="Sections"
@@ -349,32 +370,13 @@ const AddItemPage = () => {
                 /> */}
                 </div>
 
-                <div className="grid md:grid-cols-3 gap-6">
-                  {/* PRODUCT NAME */}
-                  <InputField
-                    label="Product Name"
-                    name="name"
-                    placeholder="Product Name"
-                    required
-                    value={formik.values.name}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    error={formik.touched.name && formik.errors.name}
-                  />
-
-                  {/* ITEM TYPE */}
-                  <SelectField
-                    label="Item Type"
-                    name="itemType"
-                    options={[
-                      { value: FOOD_TYPES.VEG, label: "Veg 🟢" },
-                      { value: FOOD_TYPES.NON_VEG, label: "Non-Veg 🔴" },
-                      { value: FOOD_TYPES.EGG, label: "Egg 🟡" },
-                    ]}
-                    value={formik.values.itemType}
-                    onChange={formik.handleChange}
-                  />
-                </div>
+                <TextareaField
+                  label="Product Description"
+                  name="description"
+                  value={formik.values.description}
+                  onChange={formik.handleChange}
+                  rows={3}
+                />
               </div>
             </AccordionSection>
 
@@ -578,16 +580,6 @@ const AddItemPage = () => {
               </div>
             </AccordionSection>
 
-            {/* DESCRIPTION */}
-            <AccordionSection title="Description" icon={Text}>
-              <TextareaField
-                label="Product Description"
-                name="description"
-                value={formik.values.description}
-                onChange={formik.handleChange}
-              />
-            </AccordionSection>
-
             {/* PRODUCT IMAGES */}
             <AccordionSection title="Product Image" icon={Image}>
               <div className="space-y-2">
@@ -615,6 +607,12 @@ const AddItemPage = () => {
                 )}
               </div>
             </AccordionSection>
+
+            <InfoCard
+              type="info"
+              title="Item Visibility"
+              description="This item appears only in the selected category of the chosen outlet."
+            />
 
             {/* SUBMIT */}
             <div className="flex justify-end">

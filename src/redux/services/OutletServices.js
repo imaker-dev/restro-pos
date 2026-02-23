@@ -8,6 +8,12 @@ export default false
         getAllOutletsApi: () => {
             return Api.get("/outlets");
         },
+        getOutletById: (id) => {
+            return Api.get(`/outlets/${id}`);
+        },
+        createOutletApi:(values) => {
+            return Api.post(`/outlets`,values)
+        },
         updateOutletApi:(id,values) => {
             return Api.put(`/outlets/${id}`,values)
         }

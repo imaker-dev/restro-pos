@@ -17,6 +17,7 @@ import {
 } from "../../redux/slices/stationSlice";
 import RemoveStationFromUserModal from "../../partial/user/RemoveStationFromUserModal";
 import Pagination from "../../components/Pagination";
+import RoleBadge from "../../partial/user/RoleBadge";
 
 const AllUsersPage = () => {
   const dispatch = useDispatch();
@@ -41,13 +42,14 @@ const AllUsersPage = () => {
         search: searchTerm,
         page: currentPage,
         limit: itemsPerPage,
+        outletId
       }),
     );
   };
 
   useEffect(() => {
     fetchUsers();
-  }, [searchTerm, currentPage, itemsPerPage]);
+  }, [searchTerm, currentPage, itemsPerPage,outletId]);
 
   const clearUserStates = () => {
     setShowAssignStationModal(false);
@@ -100,14 +102,9 @@ const AllUsersPage = () => {
       key: "role",
       label: "Role",
       sortable: true,
-      render: (row) => {
-        const role = row.roles?.[0] || "—";
-        return (
-          <span className="px-3 py-1 text-xs font-medium rounded-full bg-blue-50 text-blue-700">
-            {role}
-          </span>
-        );
-      },
+      render: (row) =>(
+        <RoleBadge role={row.roleSlugs?.[0]} />
+      )
     },
 
     {

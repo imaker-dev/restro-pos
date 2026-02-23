@@ -6,6 +6,7 @@ import { Loader2 } from "lucide-react";
 import { InputField } from "../../components/fields/InputField";
 import { CheckboxField } from "../../components/fields/CheckboxField";
 import { SECTION_TYPE_OPTIONS } from "../../constants/selectOptions";
+import { SelectField } from "../../components/fields/SelectField";
 
 const validationSchema = Yup.object({
   name: Yup.string().trim().required("Section name is required").max(50),
@@ -90,22 +91,22 @@ const SectionModal = ({
         />
 
         {/* Section Type */}
-        <div>
-          <label className="text-sm font-medium">Section Type *</label>
-          <select
-            name="sectionType"
-            value={formik.values.sectionType}
-            onChange={formik.handleChange}
-            className="form-input w-full mt-1"
-          >
-            <option value="">Select Type</option>
-            {SECTION_TYPE_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
-        </div>
+        <SelectField
+          label="Section Type"
+          name="sectionType"
+          required
+          value={formik.values.sectionType}
+          onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
+          error={formik.touched.sectionType && formik.errors.sectionType}
+          options={[
+            { label: "Select Type", value: "" },
+            ...SECTION_TYPE_OPTIONS.map((opt) => ({
+              label: opt.label,
+              value: opt.value,
+            })),
+          ]}
+        />
 
         {/* Description */}
         <InputField

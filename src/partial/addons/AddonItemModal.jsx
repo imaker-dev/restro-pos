@@ -6,6 +6,7 @@ import { Loader2 } from "lucide-react";
 import { InputField } from "../../components/fields/InputField";
 import { SelectField } from "../../components/fields/SelectField";
 import { FOOD_TYPES } from "../../constants";
+import InfoCard from "../../components/InfoCard";
 
 const validationSchema = Yup.object({
   name: Yup.string()
@@ -108,6 +109,17 @@ const AddonItemModal = ({
           ]}
           value={formik.values.itemType}
           onChange={formik.handleChange}
+        />
+
+        <InfoCard
+          size="sm"
+          type="info"
+          title="Addon Item Scope"
+          description={
+            isEditMode
+              ? "Updating this addon item will modify its price, type, or availability within the selected addon group."
+              : "This addon item will be added to the selected addon group and will be available only for products linked to that group."
+          }
         />
 
         {/* FOOTER */}

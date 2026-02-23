@@ -20,7 +20,7 @@ import { useNavigate } from "react-router-dom";
 import { useQueryParams } from "../../hooks/useQueryParams";
 import { fetchItemsById } from "../../redux/slices/itemSlice";
 import PageHeader from "../../layout/PageHeader";
-import LoadingOverlay from "../../components/LoadingOverlay";
+import LoadingOverlay from '../../components/LoadingOverlay';
 
 // ─── Badge Component ───────────────────────────────────────────────────────────
 function Badge({ icon: Icon, label, color = "gray" }) {

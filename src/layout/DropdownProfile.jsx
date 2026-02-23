@@ -87,9 +87,15 @@ function DropdownProfile({ align, onLogoutClick }) {
             <div className="font-medium text-slate-800 ">
               {meData?.name || "Admin Name"}
             </div>
-            <div className="text-xs text-slate-500  italic">
+            <div className="text-xs text-slate-500  italic mb-1">
               {meData?.email || "No Email"}
             </div>
+
+            {meData?.roles?.[0]?.name && (
+              <span className="shrink-0 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-primary-100 text-primary-600 border border-primary-100">
+                {meData.roles[0].name}
+              </span>
+            )}
           </div>
           <ul>
             <PermissionGuard roles={[ROLES.SUPER_ADMIN]}>

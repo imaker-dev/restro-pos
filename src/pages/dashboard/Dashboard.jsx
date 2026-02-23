@@ -117,17 +117,17 @@ export default function Page() {
       </div>
 
       {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      {/* <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         <WeeklyOrdersAnalytics />
         <PeakHours />
-      </div>
+      </div> */}
 
       {/* Analytics Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         {/* <FloorAnalytics /> */}
+      {/* <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         <TopItems />
         <StaffPerformance />
-      </div>
+      </div> */}
 
       {/* Staff & Satisfaction */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">

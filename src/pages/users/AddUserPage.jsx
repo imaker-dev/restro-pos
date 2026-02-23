@@ -20,6 +20,7 @@ import {
 } from "../../redux/slices/userSlice";
 import { useNavigate } from "react-router-dom";
 import { useQueryParams } from "../../hooks/useQueryParams";
+import InfoCard from "../../components/InfoCard";
 
 const AddUserPage = () => {
   const dispatch = useDispatch();
@@ -30,7 +31,7 @@ const AddUserPage = () => {
   const { userDetails, isFetchingUserDetails, isCreatingUser, isupdatingUser } =
     useSelector((state) => state.user);
   const { allRoles } = useSelector((s) => s.role);
-  const {roles} = allRoles || {};
+  const { roles } = allRoles || {};
 
   const { allFloors, loading: fetchingAllFloors } = useSelector((s) => s.floor);
 
@@ -292,6 +293,16 @@ const AddUserPage = () => {
                   />
                 </div>
               </AccordionSection>
+
+              <InfoCard
+                type="info"
+                title="Outlet-Specific Access"
+                description={
+                  userId
+                    ? "Updating this staff member will modify their role and floor access within the selected outlet only. Changes will not affect other outlets."
+                    : "This staff member will be assigned to the selected outlet. Their role and operational access will be restricted to that outlet only."
+                }
+              />
 
               <div className="flex justify-end">
                 <button

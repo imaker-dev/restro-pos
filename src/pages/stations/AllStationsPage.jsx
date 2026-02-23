@@ -35,7 +35,6 @@ const AllStationsPage = () => {
     {
       key: "name",
       label: "Station",
-      sortable: true,
       render: (row) => (
         <div className="flex flex-col max-w-[220px]">
           <span className="font-semibold text-slate-800 truncate">
@@ -49,7 +48,6 @@ const AllStationsPage = () => {
     {
       key: "station_type",
       label: "Type",
-      sortable: true,
       render: (row) => (
         <span>{row.station_type}</span>
         // <StationTypeBadge value={row.station_type} />
@@ -59,7 +57,6 @@ const AllStationsPage = () => {
     {
       key: "description",
       label: "Description",
-      sortable: false,
       render: (row) => {
         const desc = row?.description?.trim?.();
 
@@ -79,7 +76,6 @@ const AllStationsPage = () => {
     {
       key: "is_active",
       label: "Status",
-      sortable: true,
       render: (row) => (
         <StatusBadge
           value={Boolean(row.is_active)}
@@ -92,10 +88,9 @@ const AllStationsPage = () => {
     {
       key: "updated_at",
       label: "Updated",
-      sortable: true,
       render: (row) => (
         <span className="text-sm text-slate-600 truncate max-w-[160px] block">
-          {row.updated_at ? formatDate(row.updated_at, "long") : "—"}
+          {row.updated_at ? formatDate(row.updated_at, "longTime") : "—"}
         </span>
       ),
     },
@@ -132,6 +127,7 @@ const AllStationsPage = () => {
     await handleResponse(dispatch(action), () => {
       fetchStations();
       clearStationStates();
+      resetForm();
     });
   };
 
@@ -149,6 +145,7 @@ const AllStationsPage = () => {
           loading={loading}
         />
       </div>
+      
       <StationModal
         isOpen={showStationModal}
         onClose={clearStationStates}

@@ -23,8 +23,10 @@ export function InputField({
 
   const isPassword = type === "password";
 
-  const rightDefaultIcon =
-    type === "date" ? Calendar : type === "time" ? Clock : null;
+  // const rightDefaultIcon =
+  //   type === "date" ? Calendar : type === "time" ? Clock : null;
+  
+  const rightDefaultIcon = null;
 
   const FinalRightIcon = iconPosition === "right" ? Icon : null;
   const FinalLeftIcon = iconPosition === "left" ? Icon : null;

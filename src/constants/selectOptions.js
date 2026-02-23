@@ -1,4 +1,4 @@
-import { SECTION_TYPES } from "../constants";
+import { SECTION_TYPES, STATION_TYPES } from "../constants";
 
 export const ORDER_STATUS_OPTIONS = [
   { label: "All Status", value: "" },
@@ -43,4 +43,12 @@ export const SERVICE_TYPE_OPTIONS = [
   { label: "Restaurant", value: "restaurant" },
   { label: "Bar", value: "bar" },
   { label: "Both", value: "both" }, // default
+];
+
+export const STATION_TYPE_OPTIONS = [
+  { label: "Kitchen", value: STATION_TYPES.KITCHEN },
+  { label: "Bar", value: STATION_TYPES.BAR },
+  { label: "Dessert", value: STATION_TYPES.DESSERT },
+  { label: "Mocktail", value: STATION_TYPES.MOCKTAIL },
+  { label: "Other", value: STATION_TYPES.OTHER },
 ];

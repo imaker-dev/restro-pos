@@ -3,7 +3,17 @@ import PageHeader from "../../../layout/PageHeader";
 import { useQueryParams } from "../../../hooks/useQueryParams";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchTaxGroupById } from "../../../redux/slices/taxSlice";
-import { Percent, CheckCircle2, XCircle, Layers } from "lucide-react";
+import {
+  Percent,
+  Calendar,
+  CheckCircle,
+  XCircle,
+  Layers,
+  FileText,
+} from "lucide-react";
+import { formatDate } from "../../../utils/dateFormatter";
+import LoadingOverlay from "../../../components/LoadingOverlay";
+import NoDataFound from "../../../layout/NoDataFound";
 
 const TaxGroupDetailsPage = () => {
   const { groupId } = useQueryParams();
@@ -13,92 +23,115 @@ const TaxGroupDetailsPage = () => {
     if (groupId) dispatch(fetchTaxGroupById(groupId));
   }, [groupId]);
 
-  const { isFetchingTaxGroupDetails, taxGroupDetails } = useSelector(
+  const { isFetchingTaxGroupDetails, taxGroupDetails: taxData } = useSelector(
     (state) => state.tax,
   );
 
   if (isFetchingTaxGroupDetails) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-gray-500">
-        <div className="animate-pulse text-lg font-medium">
-          Loading Tax Group...
-        </div>
-      </div>
-    );
+    return <LoadingOverlay text="Loading Tax Group..." />;
   }
 
-  if (!taxGroupDetails) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-gray-400">
-        No Tax Group Found
-      </div>
-    );
+  if (!taxData) {
+    return <NoDataFound title="No Tax Group Found" />;
   }
-
-  const { name, code, total_rate, is_inclusive, is_active, components } =
-    taxGroupDetails;
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
+    <div className="space-y-6">
       <PageHeader
-        title={name}
-        badge={[
-          <div className="flex items-center gap-2 px-4 py-2 rounded-md bg-gray-50 border border-gray-200 text-gray-700 ">
-            <span className="font-medium">{total_rate}%</span>
-          </div>,
-
-          <div className="px-4 py-2 rounded-md bg-gray-50 border border-gray-200 text-gray-700  font-medium">
-            {is_inclusive ? "Inclusive Tax" : "Exclusive Tax"}
-          </div>,
-
-          <div
-            className={`flex items-center gap-2 px-4 py-2 rounded-md border  font-medium ${
-              is_active
-                ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                : "bg-red-50 text-red-700 border-red-200"
-            }`}
-          >
-            {is_active ? <CheckCircle2 size={16} /> : <XCircle size={16} />}
-            {is_active ? "Active" : "Inactive"}
-          </div>,
-        ]}
+        title={taxData?.name}
+        description={taxData?.description}
         showBackButton
+        badge={
+          taxData?.is_active ? (
+            <span className="flex items-center gap-2 bg-emerald-50 text-emerald-600 px-4 py-1.5 rounded-full text-sm font-medium">
+              <CheckCircle size={16} />
+              Active
+            </span>
+          ) : (
+            <span className="flex items-center gap-2 bg-rose-50 text-rose-600 px-4 py-1.5 rounded-full text-sm font-medium">
+              <XCircle size={16} />
+              Inactive
+            </span>
+          )
+        }
       />
 
-      {/* Components */}
-      <div>
-        {components?.length === 0 ? (
-          <div className="text-gray-400 text-center py-10 border rounded-xl bg-gray-50">
-            No Components Added
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            {components?.map((comp) => (
-              <div
-                key={comp.id}
-                className="group relative bg-white border border-gray-200 rounded-lg p-4 hover:shadow hover:-translate-y-1 transition-all duration-200"
-              >
-                <div className="flex items-center justify-between">
-                  <h4 className="font-medium text-gray-900 group-hover:text-primary-600 transition">
-                    {comp.name}
-                  </h4>
+      <div className="w-full bg-white rounded-md border border-slate-200/60 p-6 space-y-8">
+        {/* ===== Basic Info ===== */}
+        <div className="grid md:grid-cols-2 gap-6">
+          <InfoCard
+            icon={<Percent size={18} />}
+            label="Total Tax Rate"
+            value={`${taxData?.total_rate}%`}
+          />
 
-                  <span className="text-lg font-bold text-gray-800 bg-gray-100 px-3 py-1 rounded-lg">
-                    {comp.rate}%
-                  </span>
+          <InfoCard
+            icon={<FileText size={18} />}
+            label="Tax Code"
+            value={taxData?.code}
+          />
+
+          <InfoCard
+            icon={<Calendar size={18} />}
+            label="Created At"
+            value={formatDate(taxData?.created_at, "longTime")}
+          />
+
+          <InfoCard
+            icon={<Calendar size={18} />}
+            label="Updated At"
+            value={formatDate(taxData?.updated_at, "longTime")}
+          />
+        </div>
+
+        {/* ===== Components Section ===== */}
+        <div>
+          <div className="flex items-center gap-3 mb-6">
+            <Layers className="text-primary-600" size={22} />
+            <h2 className="text-xl font-semibold text-slate-800">
+              Tax Components
+            </h2>
+          </div>
+
+          <div className="space-y-4">
+            {taxData?.components?.map((component) => (
+              <div
+                key={component?.id}
+                className="group flex justify-between items-center p-5 rounded-2xl border border-slate-200 bg-slate-50/50 hover:bg-white hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300"
+              >
+                <div>
+                  <p className="text-base font-semibold text-slate-800">
+                    {component?.name}
+                  </p>
+                  <p className="text-sm text-slate-500 mt-1">
+                    Code: {component?.code}
+                  </p>
                 </div>
 
-                <p className="text-sm text-gray-400 mt-">
-                  Applied to this tax group
-                </p>
+                <div className="bg-primary-600 text-white px-5 py-2 rounded text-sm font-semibold shadow">
+                  {component?.rate}%
+                </div>
               </div>
             ))}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
 };
 
 export default TaxGroupDetailsPage;
+
+function InfoCard({ icon, label, value }) {
+  return (
+    <div className="flex items-start gap-4 p-5 rounded-2xl bg-slate-50 border border-slate-200 hover:bg-white hover:shadow-md transition-all duration-300">
+      <div className="p-2 rounded-lg bg-primary-50 text-primary-600">
+        {icon}
+      </div>
+      <div>
+        <p className="text-sm text-slate-500">{label}</p>
+        <p className="text-lg font-semibold text-slate-800 mt-1">{value}</p>
+      </div>
+    </div>
+  );
+}
