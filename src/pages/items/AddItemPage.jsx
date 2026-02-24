@@ -205,7 +205,7 @@ const AddItemPage = () => {
       description: values.description?.trim() || null,
       itemType: values.itemType,
 
-      basePrice: values.hasVariants ? null : Number(values.basePrice),
+      basePrice: values.hasVariants ? 0 : Number(values.basePrice),
 
       taxGroupId: Number(values.taxGroupId),
 

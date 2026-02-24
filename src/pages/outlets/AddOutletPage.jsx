@@ -26,6 +26,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useQueryParams } from "../../hooks/useQueryParams";
 import LoadingOverlay from "../../components/LoadingOverlay";
+import { fetchMeData } from "../../redux/slices/authSlice";
 
 const AddOutletPage = () => {
   const dispatch = useDispatch();
@@ -149,6 +150,7 @@ const AddOutletPage = () => {
       : createOutlet(payload);
 
     await handleResponse(dispatch(action), () => {
+      dispatch(fetchMeData());
       resetForm();
       navigate("/outlets");
     });

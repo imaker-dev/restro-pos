@@ -24,16 +24,15 @@ import { formatDate } from "../../utils/dateFormatter";
 import SearchBar from "../../components/SearchBar";
 import { ORDER_STATUSES } from "../../utils/orderStatusConfig";
 import { setKotTab } from "../../redux/slices/uiSlice";
-import { ROLES } from "../../constants";
 import { useNavigate } from "react-router-dom";
+import { formatText } from "../../utils/utils";
 
-export default function KitchenDisplayPage() {
+export default function OrderDisplayPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const { meData } = useSelector((state) => state.auth);
-  const role = meData?.roles[0]?.slug || null;
-  const {assignedStations} = meData || {};
+  const { assignedStations } = meData || {};
 
   const { allOrdersKot, loading } = useSelector((state) => state.kot);
   const { kotTab } = useSelector((state) => state.ui);
@@ -52,7 +51,7 @@ export default function KitchenDisplayPage() {
       dispatch(
         fetchAllOrdersKot({
           status: kotTab,
-          station: role === ROLES.BAR ? "Bar" : role,
+          station: assignedStations.stationId,
         }),
       ),
       () => {
@@ -130,20 +129,15 @@ export default function KitchenDisplayPage() {
     },
   ];
 
-  const ROLE_UI = {
-    kitchen: {
-      title: "Kitchen Display",
-      subtitle: "Manage food orders efficiently",
-      emptyTitle: "Kitchen All Caught Up 🍳",
-    },
-    bartender: {
-      title: "Bar Display",
-      subtitle: "Prepare drinks efficiently",
-      emptyTitle: "No Drinks Pending 🍹",
-    },
-  };
+  const stationName = assignedStations?.stationName || "Station";
+  const stationType = assignedStations?.stationType || "general";
+  const outletName = assignedStations?.outletName || "";
 
-  const ui = ROLE_UI[role];
+  const ui = {
+    subtitle: `Manage ${stationType} orders efficiently`,
+    emptyTitle: `All ${formatText(stationType)} Orders Completed 🎉`,
+    emptyMessage: `No ${stationType} orders at the moment.`,
+  };
 
   return (
     <div>
@@ -158,8 +152,11 @@ export default function KitchenDisplayPage() {
               <ChevronLeft className="w-6 h-6 text-white" />
             </button>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">{ui?.title}</h1>
-              <p className="text-sm text-gray-500"> {ui?.subtitle}</p>
+              <h1 className="text-2xl font-bold text-gray-900">
+                {stationName}
+              </h1>
+
+              <p className="text-sm text-gray-500">{outletName}</p>
             </div>
           </div>
 
@@ -168,12 +165,10 @@ export default function KitchenDisplayPage() {
             <div className="flex items-center">
               {Object.entries(ORDER_STATUSES).map(([key, status]) => (
                 <div key={key} className={`flex items-center gap-2 px-2 py-1 `}>
-                  {/* DOT */}
                   <span
                     className={`w-2 h-2 rounded-full shadow-sm ${status.dotColor}`}
                   />
 
-                  {/* LABEL */}
                   <span className={`text-xs font-medium ${status.color}`}>
                     {status.label}
                   </span>
@@ -206,29 +201,29 @@ export default function KitchenDisplayPage() {
                     : "No live connection"
               }
               className={`
-    inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium
-    transition border
-    ${
-      connecting
-        ? "bg-yellow-50 text-yellow-700 border-yellow-200 hover:bg-yellow-100"
-        : connected
-          ? "bg-green-50 text-green-700 border-green-200 hover:bg-green-100"
-          : "bg-red-50 text-red-700 border-red-200 hover:bg-red-100"
-    }
-  `}
+                inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium
+                transition border
+                ${
+                  connecting
+                    ? "bg-yellow-50 text-yellow-700 border-yellow-200 hover:bg-yellow-100"
+                    : connected
+                      ? "bg-green-50 text-green-700 border-green-200 hover:bg-green-100"
+                      : "bg-red-50 text-red-700 border-red-200 hover:bg-red-100"
+                }
+              `}
             >
               {/* Dot Indicator */}
               <span
                 className={`
-      w-2 h-2 rounded-full
-      ${
-        connecting
-          ? "bg-yellow-500 animate-pulse"
-          : connected
-            ? "bg-green-500 animate-pulse"
-            : "bg-red-500"
-      }
-    `}
+                  w-2 h-2 rounded-full
+                  ${
+                    connecting
+                      ? "bg-yellow-500 animate-pulse"
+                      : connected
+                        ? "bg-green-500 animate-pulse"
+                        : "bg-red-500"
+                  }
+                `}
               />
 
               {/* Icon */}
@@ -323,10 +318,8 @@ export default function KitchenDisplayPage() {
             {/* Subtitle */}
             <p className="text-gray-500 text-sm text-center max-w-sm">
               {kotTab
-                ? `No ${kotTab} ${role === ROLES.BAR ? "drinks" : "orders"} right now.`
-                : ROLES.BAR === "bartender"
-                  ? "No drinks at the moment."
-                  : "There are no orders at the moment."}
+                ? `No ${kotTab} orders at ${stationName} right now.`
+                : `There are no orders at ${stationName} at the moment.`}
             </p>
 
             {/* Actions */}

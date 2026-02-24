@@ -6,6 +6,10 @@ export const fetchAllSection = createAsyncThunk("/fetch/sections", async (id) =>
   const res = await SectionServices.getAllSectionsApi(id);
   return res.data;
 });
+export const fetchAllSectionWithTables = createAsyncThunk("/fetch/sections-with-tables", async (floorId) => {
+  const res = await SectionServices.getAllSectionWithTablesApi(floorId);
+  return res.data;
+});
 export const createSection = createAsyncThunk("/create/section", async (values) => {
   const res = await SectionServices.createSectionApi(values);
   return res.data;
@@ -20,6 +24,7 @@ const sectionSlice = createSlice({
   initialState: {
     loading: false,
     allSections: null,
+    allSectionsWithTables:null,
     isCreatingSections:false,
     isUpdatingSections:false,
   },
@@ -34,6 +39,17 @@ const sectionSlice = createSlice({
         state.allSections = action.payload.data;
       })
       .addCase(fetchAllSection.rejected, (state, action) => {
+        state.loading = false;
+        toast.error(action.error.message);
+      })
+      .addCase(fetchAllSectionWithTables.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchAllSectionWithTables.fulfilled, (state, action) => {
+        state.loading = false;
+        state.allSectionsWithTables = action.payload.data;
+      })
+      .addCase(fetchAllSectionWithTables.rejected, (state, action) => {
         state.loading = false;
         toast.error(action.error.message);
       })

@@ -25,7 +25,7 @@ const validationSchema = Yup.object({
     .min(2, "Too short")
     .max(20, "Too long"),
 
-  stationType: Yup.string().required("Station type is required"),
+  // stationType: Yup.string().required("Station type is required"),
 
   description: Yup.string().trim().max(200, "Too long"),
 
@@ -52,7 +52,7 @@ const StationModal = ({
       outletId: station?.outlet_id || outletId || "",
       name: station?.name || "",
       code: station?.code || "",
-      stationType: station?.station_type || "", // default
+      // stationType: station?.station_type || "", // default
       description: station?.description || "",
       isActive: station ? Boolean(station.is_active) : true,
     },
@@ -64,7 +64,7 @@ const StationModal = ({
         outlet_id: values.outletId,
         name: values.name,
         code: values.code,
-        station_type: values.stationType,
+        // station_type: values.stationType,
         description: values.description,
         is_active: values.isActive,
       };
@@ -123,19 +123,16 @@ const StationModal = ({
         />
 
         {/* Station Type */}
-<SelectField
-  label="Station Type"
-  name="stationType"
-  required
-  options={STATION_TYPE_OPTIONS}
-  value={formik.values.stationType}
-  onChange={formik.handleChange}
-  onBlur={formik.handleBlur}
-  error={
-    formik.touched.stationType &&
-    formik.errors.stationType
-  }
-/>
+        {/* <SelectField
+          label="Station Type"
+          name="stationType"
+          required
+          options={STATION_TYPE_OPTIONS}
+          value={formik.values.stationType}
+          onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
+          error={formik.touched.stationType && formik.errors.stationType}
+        /> */}
 
         {/* Description */}
         <InputField

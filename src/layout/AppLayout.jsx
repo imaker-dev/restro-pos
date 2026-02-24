@@ -14,7 +14,7 @@ function AppLayout({ children }) {
      You can control per route what to show
   */
   const layoutRules = {
-    "/kitchen-display": {
+    "/order-display": {
       sidebar: false,
       header: false,
     },

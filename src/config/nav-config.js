@@ -231,7 +231,7 @@ export const navConfig = [
       {
         name: "Order Display",
         icon: ReceiptIndianRupee,
-        path: "/kitchen-display",
+        path: "/order-display",
         roles: [ROLES.KITCHEN, ROLES.BAR],
       },
 

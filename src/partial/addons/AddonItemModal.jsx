@@ -2,7 +2,7 @@ import React from "react";
 import ModalBasic from "../../components/ModalBasic";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { Loader2 } from "lucide-react";
+import { IndianRupee, Loader2 } from "lucide-react";
 import { InputField } from "../../components/fields/InputField";
 import { SelectField } from "../../components/fields/SelectField";
 import { FOOD_TYPES } from "../../constants";
@@ -96,6 +96,7 @@ const AddonItemModal = ({
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
           error={formik.touched.price && formik.errors.price}
+          icon={IndianRupee}
         />
 
         {/* ITEM TYPE */}

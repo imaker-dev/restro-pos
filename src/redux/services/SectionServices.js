@@ -8,6 +8,9 @@ export default false
         getAllSectionsApi: (floorId) => {
             return Api.get(`/outlets/floors/${floorId}/sections`);
         },
+        getAllSectionWithTablesApi:(floorId) => {
+            return Api.get(`/outlets/floors/${floorId}/sections-with-tables`)
+        },
         createSectionApi:(values) => {
             return Api.post(`/outlets/sections`,values)
         },

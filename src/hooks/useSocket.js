@@ -8,30 +8,26 @@ import { ROLES } from "../constants";
 
 export const useSocket = () => {
   const dispatch = useDispatch();
-  const { logIn, meData } = useSelector((state) => state.auth);
-
-  const role = meData?.roles?.[0];
-  const station = role?.slug;
-  const outletId = role?.outletId;
+  const { logIn, meData, outletId } = useSelector((state) => state.auth);
+  const { assignedStations } = meData || {};
 
   useEffect(() => {
-    if (!logIn || !station || !outletId) return;
+    if (!logIn || !outletId || !assignedStations) return;
 
     const socket = connectSocket();
-    registerSocketListeners(socket, dispatch,store.getState);
+    registerSocketListeners(socket, dispatch, store.getState);
 
     const joinRooms = () => {
       // STATION JOIN
       socket.emit(
         JOIN_STATION,
         {
-          station: station === ROLES.BAR ? "bar" : station,
           outletId: outletId,
+          station: assignedStations?.stationId || assignedStations?.stationType,
         },
         (res) => {
           console.log("Station Join:", res?.success ? "OK" : "FAIL");
         },
-        // socket.emit("join:bar", 4)
       );
     };
 
@@ -47,5 +43,5 @@ export const useSocket = () => {
       socket.off("connect", joinRooms); // IMPORTANT
       disconnectSocket();
     };
-  }, [logIn, station, outletId]);
+  }, [logIn, outletId, assignedStations]);
 };

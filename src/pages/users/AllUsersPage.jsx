@@ -243,26 +243,7 @@ const AllUsersPage = () => {
 
                 {/* Filter Dropdowns */}
                 <div className="flex items-center gap-2">
-                  <div className="relative">
-                    <select className="appearance-none pl-3 pr-8 py-2 border border-slate-200 rounded text-sm bg-white hover:bg-slate-50 focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer">
-                      <option>Warehouse</option>
-                    </select>
-                    {/* <ChevronDown className="absolute right-2 top-2.5 h-4 w-4 text-slate-400 pointer-events-none" /> */}
-                  </div>
 
-                  <div className="relative">
-                    <select className="appearance-none pl-3 pr-8 py-2 border border-slate-200 rounded text-sm bg-white hover:bg-slate-50 focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer">
-                      <option>Store</option>
-                    </select>
-                    {/* <ChevronDown className="absolute right-2 top-2.5 h-4 w-4 text-slate-400 pointer-events-none" /> */}
-                  </div>
-
-                  <div className="relative">
-                    <select className="appearance-none pl-3 pr-8 py-2 border border-slate-200 rounded text-sm bg-white hover:bg-slate-50 focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer">
-                      <option>Product</option>
-                    </select>
-                    {/* <ChevronDown className="absolute right-2 top-2.5 h-4 w-4 text-slate-400 pointer-events-none" /> */}
-                  </div>
                 </div>
               </div>
             </div>

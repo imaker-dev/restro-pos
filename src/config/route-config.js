@@ -8,7 +8,6 @@ import AllSettingsPage from "../pages/settings/AllSettingsPage";
 import AllTaxGroupsPage from "../pages/settings/taxes/AllTaxGroupsPage";
 import TaxGroupDetailsPage from "../pages/settings/taxes/TaxGroupDetailsPage";
 import AddUserPage from "../pages/users/AddUserPage";
-import KitchenDisplayPage from "../pages/kitchen-display/KitchenDisplayPage";
 import { ROLES } from "../constants";
 import Dashboard from "../pages/dashboard/Dashboard";
 import OrderDashboard from "../pages/dashboard/OrderDashboard";
@@ -16,7 +15,6 @@ import AllTablesPage from "../pages/outlets/AllTablesPage";
 import AllAddonsGroup from "../pages/addons/AllAddonsGroup";
 import AllAddonItemsPage from "../pages/addons/AllAddonItemsPage";
 import AllFloorsPage from "../pages/outlets/AllFloorsPage";
-import AllSectionsPage from "../pages/outlets/AllSectionsPage";
 import TableHistoryPage from "../pages/tables/TableHistoryPage";
 import TableReportPage from "../pages/tables/TableReportPage";
 import TableKotPage from "../pages/tables/TableKotPage";
@@ -41,6 +39,9 @@ import ServiceTypeBreakdownReportPage from "../pages/reports/ServiceTypeBreakdow
 import DayEndSummaryPage from "../pages/reports/DayEndSummaryPage";
 import AddOutletPage from "../pages/outlets/AddOutletPage";
 import OutletDetails from "../pages/outlets/OutletDetails";
+import AllVersionsPage from "../pages/versions/AllVersionsPage";
+import AddVersionPage from "../pages/versions/AddVersionPage";
+import OrderDisplayPage from "../pages/kitchen-display/OrderDisplayPage";
 
 const routeConfig = [
   // { path: "/", element: Dashboard, roles: [ROLES.SUPER_ADMIN] },
@@ -56,8 +57,8 @@ const routeConfig = [
     roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER, ROLES.KITCHEN, ROLES.BAR],
   },
   {
-    path: "/kitchen-display",
-    element: KitchenDisplayPage,
+    path: "/order-display",
+    element: OrderDisplayPage,
     roles: [ROLES.BAR, ROLES.KITCHEN],
   },
 
@@ -83,9 +84,11 @@ const routeConfig = [
   { path: "/items/add", element: AddItemPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN,ROLES.MANAGER] },
   { path: "/stations", element: AllStationsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN,ROLES.MANAGER] },
   { path: "/printers", element: AllPrintersPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN,ROLES.MANAGER] },
+  
   { path: "/floors", element: AllFloorsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN,ROLES.MANAGER] },
-  { path: "/floors/sections", element: AllSectionsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN,ROLES.MANAGER] },
+  { path: "/floors/tables", element: AllTablesPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN,ROLES.MANAGER] },
   { path: "/floors/sections/tables", element: AllTablesPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN,ROLES.MANAGER] },
+
   { path: "/addons", element: AllAddonsGroup, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN,ROLES.MANAGER] },
   { path: "/addons/item", element: AllAddonItemsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN,ROLES.MANAGER] },
 
@@ -104,16 +107,11 @@ const routeConfig = [
 
   { path: "/settings", element: AllSettingsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN] },
   { path: "/settings/categories", element: SettingDetailsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN] },
-  {
-    path: "/tax-groups",
-    element: AllTaxGroupsPage,
-    roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN],
-  },
-  {
-    path: "/tax-groups/details",
-    element: TaxGroupDetailsPage,
-    roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN],
-  },
+  { path: "/tax-groups",element: AllTaxGroupsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN], },
+  { path: "/tax-groups/details", element: TaxGroupDetailsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN], },
+
+  { path: "/versions", element: AllVersionsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN], },
+  { path: "/versions/add", element: AddVersionPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN], },
 ];
 
 export default routeConfig;

@@ -5,6 +5,8 @@ import {
   User,
   CreditCard,
   UserCog,
+  ChefHat,
+  Martini,
 } from "lucide-react";
 
 /**
@@ -39,6 +41,20 @@ const ROLE_VARIANTS = {
     icon: CreditCard,
   },
 
+  kitchen: {
+    bg: "bg-amber-50",
+    text: "text-amber-700",
+    dot: "bg-amber-500",
+    icon: ChefHat,
+  },
+
+  bartender: {
+    bg: "bg-teal-50",
+    text: "text-teal-700",
+    dot: "bg-teal-500",
+    icon: Martini,
+  },
+
   staff: {
     bg: "bg-slate-100",
     text: "text-slate-700",
@@ -70,25 +86,17 @@ export default function RoleBadge({
   showIcon = true,
   className = "",
 }) {
-    console.log(role)
   if (!role) {
-    return (
-      <span className="text-xs text-slate-400">
-        —
-      </span>
-    );
+    return <span className="text-xs text-slate-400">—</span>;
   }
 
   const normalized = role.toLowerCase();
-  const config =
-    ROLE_VARIANTS[normalized] || ROLE_VARIANTS.default;
+  const config = ROLE_VARIANTS[normalized] || ROLE_VARIANTS.default;
 
   const sizeClass = SIZES[size] || SIZES.md;
   const Icon = config.icon;
 
-  const label =
-    normalized.charAt(0).toUpperCase() +
-    normalized.slice(1);
+  const label = normalized.charAt(0).toUpperCase() + normalized.slice(1);
 
   return (
     <span
@@ -108,9 +116,7 @@ export default function RoleBadge({
         />
       )}
 
-      {showIcon && (
-        <Icon className="w-3.5 h-3.5 opacity-80" />
-      )}
+      {showIcon && <Icon className="w-3.5 h-3.5 opacity-80" />}
 
       {label}
     </span>
