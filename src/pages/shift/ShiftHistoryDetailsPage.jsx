@@ -24,6 +24,7 @@ import StatusBadge from "../../layout/StatusBadge";
 import StatCard from "../../components/StatCard";
 import { formatNumber } from "../../utils/numberFormatter";
 import SmartTable from "../../components/SmartTable";
+import LoadingOverlay from "../../components/LoadingOverlay";
 
 const ShiftHistoryDetailsPage = () => {
   const dispatch = useDispatch();
@@ -41,14 +42,7 @@ const ShiftHistoryDetailsPage = () => {
   }, [shiftId]);
 
   if (isFetchingShiftHistoryDetails) {
-    return (
-      <div>
-        <PageHeader title="Shift History Details" showBackButton />
-        <div className="flex items-center justify-center py-12">
-          <div className="w-8 h-8 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin" />
-        </div>
-      </div>
-    );
+    return <LoadingOverlay text="Getching shift history..." />;
   }
 
   if (!shift) {

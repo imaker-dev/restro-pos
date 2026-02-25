@@ -42,6 +42,8 @@ import OutletDetails from "../pages/outlets/OutletDetails";
 import AllVersionsPage from "../pages/versions/AllVersionsPage";
 import AddVersionPage from "../pages/versions/AddVersionPage";
 import OrderDisplayPage from "../pages/kitchen-display/OrderDisplayPage";
+import AddBulkItemPage from "../pages/items/AddBulkItemPage";
+import SetupGuide from "../pages/guide/SetupGuidePage";
 
 const routeConfig = [
   // { path: "/", element: Dashboard, roles: [ROLES.SUPER_ADMIN] },
@@ -82,6 +84,7 @@ const routeConfig = [
   { path: "/items", element: AllItemsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN,ROLES.MANAGER] },
   { path: "/items/details", element: ItemDetailsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN,ROLES.MANAGER] },
   { path: "/items/add", element: AddItemPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN,ROLES.MANAGER] },
+  { path: "/items/bulk-add", element: AddBulkItemPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN,ROLES.MANAGER] },
   { path: "/stations", element: AllStationsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN,ROLES.MANAGER] },
   { path: "/printers", element: AllPrintersPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN,ROLES.MANAGER] },
   
@@ -112,6 +115,8 @@ const routeConfig = [
 
   { path: "/versions", element: AllVersionsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN], },
   { path: "/versions/add", element: AddVersionPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN], },
+
+  { path: "/guide", element: SetupGuide, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN], },
 ];
 
 export default routeConfig;

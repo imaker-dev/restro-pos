@@ -128,13 +128,13 @@ const AddVersionPage = () => {
     };
     console.log(payload);
 
-    // const action = versionId
-    //   ? updateVersion({ id: versionId, values: payload })
-    //   : createVersion(payload);
+    const action = versionId
+      ? updateVersion({ id: versionId, values: payload })
+      : createVersion(payload);
 
-    // await handleResponse(dispatch(action), () => {
-    //   navigate("/versions");
-    // });
+    await handleResponse(dispatch(action), () => {
+      navigate("/versions");
+    });
   };
 
   if (isFetchingVersionDetails && versionId) {

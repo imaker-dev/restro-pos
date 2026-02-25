@@ -14,6 +14,7 @@ import {
   Timer,
   Hash,
   ArrowUpRight,
+  Phone,
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -98,7 +99,7 @@ const readyPct = (ready, total) =>
   total > 0 ? Math.round((ready / total) * 100) : 0;
 
 /* ─── Order Card ─────────────────────────────────────────── */
-const OrderCard = ({ order, onViewDetails }) => {
+const OrderCard = ({ order }) => {
   const sc = STATUS_CFG[order?.status] || STATUS_CFG.pending;
   const pct = readyPct(order?.ready_count, order?.item_count);
   const hasItems = order?.item_count > 0;
@@ -164,46 +165,96 @@ const OrderCard = ({ order, onViewDetails }) => {
         {/* Divider */}
         <div className="border-t border-slate-100 mb-3" />
 
-        {/* Row 2: Table, Floor, Guests, Captain */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-3">
-          <div className="flex flex-col gap-0.5">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1">
-              <Layers size={9} /> Table
-            </span>
-            <span className="text-sm font-bold text-slate-800">
-              {order?.table_name}
-            </span>
-            <span className="text-[11px] text-slate-400 font-mono">
-              {order?.table_number}
-            </span>
-          </div>
+        {/* Row 2: Always 2×2 grid — consistent across all order types */}
+        <div className="grid grid-cols-2 gap-x-4 gap-y-3 mb-3">
+          {order?.order_type === "takeaway" ? (
+            <>
+              {/* Row 1 col 1: Captain */}
+              <div className="flex flex-col gap-0.5">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1">
+                  <User size={9} /> Captain
+                </span>
+                <span className="text-sm font-semibold text-slate-700 truncate">
+                  {order?.created_by_name || "—"}
+                </span>
+              </div>
 
-          <div className="flex flex-col gap-0.5">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1">
-              <MapPin size={9} /> Floor
-            </span>
-            <span className="text-sm font-semibold text-slate-700">
-              {order?.floor_name}
-            </span>
-          </div>
+              {/* Row 1 col 2: Guests */}
+              <div className="flex flex-col gap-0.5">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1">
+                  <Users size={9} /> Guests
+                </span>
+                <span className="text-sm font-bold text-slate-800">
+                  {order?.guest_count}
+                </span>
+              </div>
 
-          <div className="flex flex-col gap-0.5">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1">
-              <Users size={9} /> Guests
-            </span>
-            <span className="text-sm font-bold text-slate-800">
-              {order?.guest_count}
-            </span>
-          </div>
+              {/* Row 2 col 1: Customer name (or empty spacer) */}
+              <div className="flex flex-col gap-0.5">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1">
+                  <User size={9} /> Customer
+                </span>
+                <span className="text-sm font-semibold text-slate-700 truncate">
+                  {order?.customer_name || "—"}
+                </span>
+              </div>
 
-          <div className="flex flex-col gap-0.5">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1">
-              <User size={9} /> Captain
-            </span>
-            <span className="text-sm font-semibold text-slate-700 truncate">
-              {order?.created_by_name || "—"}
-            </span>
-          </div>
+              {/* Row 2 col 2: Phone (or empty spacer) */}
+              <div className="flex flex-col gap-0.5">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1">
+                  <Phone size={9} /> Phone
+                </span>
+                <span className="text-sm font-semibold text-slate-700 font-mono">
+                  {order?.customer_phone || "—"}
+                </span>
+              </div>
+            </>
+          ) : (
+            <>
+              {/* Row 1 col 1: Table */}
+              <div className="flex flex-col gap-0.5">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1">
+                  <Layers size={9} /> Table
+                </span>
+                <span className="text-sm font-bold text-slate-800">
+                  {order?.table_number && order?.table_number}
+                  <span className="text-[11px] text-slate-400 font-mono ml-2">
+                    ({order?.table_name || "—"})
+                  </span>
+                </span>
+              </div>
+
+              {/* Row 1 col 2: Floor */}
+              <div className="flex flex-col gap-0.5">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1">
+                  <MapPin size={9} /> Floor
+                </span>
+                <span className="text-sm font-semibold text-slate-700">
+                  {order?.floor_name || "—"}
+                </span>
+              </div>
+
+              {/* Row 2 col 1: Guests */}
+              <div className="flex flex-col gap-0.5">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1">
+                  <Users size={9} /> Guests
+                </span>
+                <span className="text-sm font-bold text-slate-800">
+                  {order?.guest_count}
+                </span>
+              </div>
+
+              {/* Row 2 col 2: Captain */}
+              <div className="flex flex-col gap-0.5">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1">
+                  <User size={9} /> Captain
+                </span>
+                <span className="text-sm font-semibold text-slate-700 truncate">
+                  {order?.created_by_name || "—"}
+                </span>
+              </div>
+            </>
+          )}
         </div>
 
         {/* Row 3: Item Progress */}
@@ -308,7 +359,7 @@ const OrderCard = ({ order, onViewDetails }) => {
 };
 
 /* ─── Table Card ─────────────────────────────────────────── */
-const TableCard = ({ table, onViewDetails }) => {
+const TableCard = ({ table }) => {
   const sc = STATUS_CFG[table?.order?.status] || STATUS_CFG.pending;
   const urg = urgencyColor(table?.order?.durationMinutes || 0);
 
@@ -495,8 +546,8 @@ export default function RunningOrdersPage() {
     }
   }, [outletId, dispatch]);
 
-  if(isFetchingRunningOrder || isFetchingRunningTable) {
-    return <LoadingOverlay text="Loading Report..."/>
+  if (isFetchingRunningOrder || isFetchingRunningTable) {
+    return <LoadingOverlay text="Loading Report..." />;
   }
   return (
     <div className="space-y-6">

@@ -45,14 +45,14 @@ const AllStationsPage = () => {
       ),
     },
 
-    {
-      key: "station_type",
-      label: "Type",
-      render: (row) => (
-        <span>{row.station_type}</span>
-        // <StationTypeBadge value={row.station_type} />
-      ),
-    },
+    // {
+    //   key: "station_type",
+    //   label: "Type",
+    //   render: (row) => (
+    //     <span>{row.station_type}</span>
+    //     // <StationTypeBadge value={row.station_type} />
+    //   ),
+    // },
 
     {
       key: "description",

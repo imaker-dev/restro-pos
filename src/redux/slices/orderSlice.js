@@ -41,10 +41,10 @@ export const fetchOrderByIdApi = createAsyncThunk(
   },
 );
 
-export const downlaodOrderInvoice = createAsyncThunk(
+export const downloadOrderInvoice = createAsyncThunk(
   "/download/order/invoice",
   async (id) => {
-    const res = await OrderServices.downlaodOrderInvoiceApi(id);
+    const res = await OrderServices.downloadOrderInvoiceApi(id);
     return res.data;
   },
 );
@@ -83,14 +83,14 @@ const orderSlice = createSlice({
         state.isFetchingOrderDetails = false;
         toast.error(action.error.message);
       })
-      .addCase(downlaodOrderInvoice.pending, (state) => {
+      .addCase(downloadOrderInvoice.pending, (state) => {
         state.isDownloadingInvoice = true;
       })
-      .addCase(downlaodOrderInvoice.fulfilled, (state, action) => {
+      .addCase(downloadOrderInvoice.fulfilled, (state, action) => {
         state.isDownloadingInvoice = false;
         state.orderDetails = action.payload.data;
       })
-      .addCase(downlaodOrderInvoice.rejected, (state, action) => {
+      .addCase(downloadOrderInvoice.rejected, (state, action) => {
         state.isDownloadingInvoice = false;
         toast.error(action.error.message);
       })

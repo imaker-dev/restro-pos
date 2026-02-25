@@ -42,13 +42,6 @@ const DayEndSummaryPage = () => {
     return (a / b).toFixed(fixed);
   };
 
-  if (isFetchingDailyEndSummary) {
-    return (
-      <div className="p-10 text-center text-gray-500">
-        Loading premium analytics...
-      </div>
-    );
-  }
 
   const stats = [
     {

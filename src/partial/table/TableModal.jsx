@@ -6,6 +6,7 @@ import { Loader2 } from "lucide-react";
 import { InputField } from "../../components/fields/InputField";
 import { SelectField } from "../../components/fields/SelectField";
 import { CheckboxField } from "../../components/fields/CheckboxField";
+import ToggleField from "../../components/fields/ToggleField";
 
 const validationSchema = Yup.object({
   name: Yup.string().trim().max(50),
@@ -167,11 +168,12 @@ const TableModal = ({
 
         {/* CHECKBOXES */}
         <div className="space-y-2">
-          <CheckboxField
-            label="Merge with other tables"
-            name="isMergeable"
+          <ToggleField
+            label="Allow Table Merge"
+            description="Combine with nearby tables."
             checked={formik.values.isMergeable}
-            onChange={formik.handleChange}
+            onChange={(value) => formik.setFieldValue("isMergeable", value)}
+            colorClass="bg-indigo-600"
           />
 
           <CheckboxField

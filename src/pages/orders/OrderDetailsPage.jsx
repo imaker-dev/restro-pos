@@ -24,18 +24,24 @@ import { formatNumber } from "../../utils/numberFormatter";
 import { formatDate } from "../../utils/dateFormatter";
 import { useDispatch, useSelector } from "react-redux";
 import { useQueryParams } from "../../hooks/useQueryParams";
-import { downlaodOrderInvoice, fetchOrderByIdApi } from "../../redux/slices/orderSlice";
+import {
+  downloadOrderInvoice,
+  fetchOrderByIdApi,
+} from "../../redux/slices/orderSlice";
 import OrderDetailsPageSkeleton from "../../partial/order/OrderDetailsPageSkeleton";
 import OrderBadge from "../../partial/order/OrderBadge";
 import { handleResponse } from "../../utils/helpers";
 import NoDataFound from "../../layout/NoDataFound";
+import { downloadBlob } from "../../utils/blob";
 
-export default function OrderDetailsPage({ onDownload, onPrint }) {
+export default function OrderDetailsPage() {
   const dispatch = useDispatch();
   const { orderId } = useQueryParams();
-  const { orderDetails: order, isFetchingOrderDetails } = useSelector(
-    (state) => state.order,
-  );
+  const {
+    orderDetails: order,
+    isFetchingOrderDetails,
+    isDownloadingInvoice,
+  } = useSelector((state) => state.order);
 
   useEffect(() => {
     if (orderId) {
@@ -76,19 +82,13 @@ export default function OrderDetailsPage({ onDownload, onPrint }) {
   const statusConfig = getStatusConfig(order?.status);
   const StatusIcon = statusConfig.icon;
 
-  const handleDownload = async() => {
-    await handleResponse(dispatch(downlaodOrderInvoice(orderId)),(res) => {
-      console.log(res)
-    })
-
-  };
-
-  const handlePrint = () => {
-    if (onPrint) {
-      onPrint(order);
-    } else {
-      window.print();
-    }
+  const handleDownload = async () => {
+    await handleResponse(dispatch(downloadOrderInvoice(orderId)), (res) => {
+      downloadBlob({
+        data: res.payload,
+        fileName: order?.order_number || "ORDER",
+      });
+    });
   };
 
   const actions = [
@@ -97,12 +97,7 @@ export default function OrderDetailsPage({ onDownload, onPrint }) {
       type: "export",
       icon: Download,
       onClick: () => handleDownload(),
-    },
-    {
-      label: "Print",
-      type: "primary",
-      icon: Printer,
-      onClick: () => handlePrint(),
+      loading: isDownloadingInvoice,
     },
   ];
 
@@ -200,16 +195,19 @@ export default function OrderDetailsPage({ onDownload, onPrint }) {
                 </h2>
               </div>
 
-             <div className="divide-y divide-gray-100">
-  {order?.items?.length > 0 ? (
-    order.items.map((item, index) => (
-      <OrderItem key={item?.id || index} item={item} index={index} />
-    ))
-  ) : (
-    <NoDataFound title="No items found"/> 
-  )}
-</div>
-
+              <div className="divide-y divide-gray-100">
+                {order?.items?.length > 0 ? (
+                  order.items.map((item, index) => (
+                    <OrderItem
+                      key={item?.id || index}
+                      item={item}
+                      index={index}
+                    />
+                  ))
+                ) : (
+                  <NoDataFound title="No items found" />
+                )}
+              </div>
             </div>
           </div>
 

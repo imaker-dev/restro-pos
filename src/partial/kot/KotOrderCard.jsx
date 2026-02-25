@@ -52,9 +52,10 @@ const KotOrderCard = ({
           <div>
             <h3 className="font-bold text-gray-900">{order?.kotNumber}</h3>
             <p className="text-sm text-gray-500">
-              {/* {orderTypeInfo.label} */}
-              {order?.tableNumber && `Table No: ${order?.tableNumber}`} •{" "}
-              {formatDate(order?.createdAt, "timeAgo")}
+              {order?.tableNumber
+                ? `Table No: ${order.tableNumber}`
+                : "Takeaway"}{" "}
+              • {formatDate(order?.createdAt, "timeAgo")}
             </p>
           </div>
         </div>
@@ -82,7 +83,7 @@ const KotOrderCard = ({
                       <FoodTypeIcon type={item?.itemType} size="xs" />
                       <p
                         title={item?.name}
-                                              className={`text-sm font-medium truncate max-w-[300px]
+                        className={`text-sm font-medium truncate max-w-[300px]
                           ${
                             item?.status === "cancelled"
                               ? "line-through text-red-500 opacity-70"

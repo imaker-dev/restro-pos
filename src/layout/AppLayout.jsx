@@ -18,6 +18,10 @@ function AppLayout({ children }) {
       sidebar: false,
       header: false,
     },
+    "/guide": {
+      sidebar: false,
+      header: false,
+    },
     "/unauthorized": {
       sidebar: false,
       header: false,

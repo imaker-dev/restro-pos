@@ -15,7 +15,6 @@ import {
   Trash2,
 } from "lucide-react";
 import {
-  CheckboxField,
   RadioField,
 } from "../../components/fields/CheckboxField";
 import { TextareaField } from "../../components/fields/TextareaField";
@@ -39,6 +38,7 @@ import { useNavigate } from "react-router-dom";
 import { useQueryParams } from "../../hooks/useQueryParams";
 import { FOOD_TYPES } from "../../constants";
 import InfoCard from "../../components/InfoCard";
+import ToggleField from "../../components/fields/ToggleField";
 
 const AddItemPage = () => {
   const dispatch = useDispatch();
@@ -205,8 +205,9 @@ const AddItemPage = () => {
       description: values.description?.trim() || null,
       itemType: values.itemType,
 
-      basePrice: values.hasVariants ? 0 : Number(values.basePrice),
-
+      basePrice: values.hasVariants
+        ? Number(values.variants?.[0]?.price) || 0
+        : Number(values.basePrice),
       taxGroupId: Number(values.taxGroupId),
 
       hasVariants: Boolean(values.hasVariants),
@@ -399,13 +400,14 @@ const AddItemPage = () => {
                   error={formik.touched.taxGroupId && formik.errors.taxGroupId}
                 />
 
-                {/* Checkbox */}
-                <CheckboxField
-                  label="This product has multiple variants such as size, quantity, or packaging options"
+                <ToggleField
+                  label="Enable Size / Portion Variations"
+                  description="Turn this on if the dish is available in multiple sizes like Half / Full, Regular / Large, or different serving portions."
                   checked={formik.values.hasVariants}
-                  onChange={(e) =>
-                    formik.setFieldValue("hasVariants", e.target.checked)
+                  onChange={(value) =>
+                    formik.setFieldValue("hasVariants", value)
                   }
+                  colorClass="bg-indigo-600"
                 />
 
                 {/* BASE PRICE – SHOW ONLY WHEN NO VARIANTS */}
@@ -549,12 +551,12 @@ const AddItemPage = () => {
                   </FieldArray>
                 )}
 
-                <CheckboxField
-                  label="Enable Addons for this product (customers can select extra items like toppings, sides, or upgrades)"
+                <ToggleField
+                  label="Enable Add-Ons & Extras"
+                  description="Turn this on to allow guests to select additional items such as toppings, sides, beverages, or special upgrades."
                   checked={formik.values.hasAddons}
-                  onChange={(e) =>
-                    formik.setFieldValue("hasAddons", e.target.checked)
-                  }
+                  onChange={(value) => formik.setFieldValue("hasAddons", value)}
+                  colorClass="bg-emerald-600"
                 />
 
                 {/* ADDON GROUPS */}

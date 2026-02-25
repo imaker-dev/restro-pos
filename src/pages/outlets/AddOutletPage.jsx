@@ -15,7 +15,6 @@ import {
   Save,
   Plus,
 } from "lucide-react";
-import { CheckboxField } from "../../components/fields/CheckboxField";
 import { handleResponse } from "../../utils/helpers";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -27,6 +26,7 @@ import { useNavigate } from "react-router-dom";
 import { useQueryParams } from "../../hooks/useQueryParams";
 import LoadingOverlay from "../../components/LoadingOverlay";
 import { fetchMeData } from "../../redux/slices/authSlice";
+import ToggleField from "../../components/fields/ToggleField";
 
 const AddOutletPage = () => {
   const dispatch = useDispatch();
@@ -380,42 +380,44 @@ const AddOutletPage = () => {
 
             {/* OPERATING HOURS */}
             <AccordionSection title="Operating Hours" icon={Clock}>
-              <div className="grid md:grid-cols-3 gap-6 items-end mb-4">
-                <InputField
-                  label="Opening Time"
-                  name="openingTime"
-                  type="time"
-                  placeholder="Select opening time"
-                  value={formik.values.openingTime}
-                  onChange={formik.handleChange}
-                  disabled={formik.values.is24Hours}
+              <div className="space-y-4">
+                <ToggleField
+                  label="Open 24 Hours"
+                  description="Enable this if the outlet operates round-the-clock without fixed opening or closing hours."
+                  checked={formik.values.is24Hours}
+                  onChange={(value) => {
+                    formik.setFieldValue("is24Hours", value);
+
+                    if (value) {
+                      formik.setFieldValue("openingTime", "00:00");
+                      formik.setFieldValue("closingTime", "23:59");
+                    }
+                  }}
+                  colorClass="bg-indigo-600"
                 />
 
-                <InputField
-                  label="Closing Time"
-                  name="closingTime"
-                  type="time"
-                  placeholder="Select closing time"
-                  value={formik.values.closingTime}
-                  onChange={formik.handleChange}
-                  disabled={formik.values.is24Hours}
-                />
+                <div className="grid md:grid-cols-3 gap-6 items-end">
+                  <InputField
+                    label="Opening Time"
+                    name="openingTime"
+                    type="time"
+                    placeholder="Select opening time"
+                    value={formik.values.openingTime}
+                    onChange={formik.handleChange}
+                    disabled={formik.values.is24Hours}
+                  />
+
+                  <InputField
+                    label="Closing Time"
+                    name="closingTime"
+                    type="time"
+                    placeholder="Select closing time"
+                    value={formik.values.closingTime}
+                    onChange={formik.handleChange}
+                    disabled={formik.values.is24Hours}
+                  />
+                </div>
               </div>
-
-              <CheckboxField
-                label="Operate 24 Hours (No Fixed Opening or Closing Time)"
-                name="is24Hours"
-                checked={formik.values.is24Hours}
-                onChange={(e) => {
-                  const checked = e.target.checked;
-                  formik.setFieldValue("is24Hours", checked);
-
-                  if (checked) {
-                    formik.setFieldValue("openingTime", "00:00");
-                    formik.setFieldValue("closingTime", "23:59");
-                  }
-                }}
-              />
             </AccordionSection>
 
             {/* SUBMIT */}

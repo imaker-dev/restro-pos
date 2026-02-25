@@ -132,6 +132,15 @@ const AddUserPage = () => {
       payload.password = values.password;
       payload.pin = values.pin;
     }
+    if (userId) {
+      if (values.password?.trim()) {
+        payload.password = values.password;
+      }
+
+      if (values.pin?.trim()) {
+        payload.pin = values.pin;
+      }
+    }
 
     const action = userId
       ? updateUser({ id: userId, values: payload })

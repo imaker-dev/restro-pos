@@ -64,7 +64,7 @@ export default false
         return Api.get(`/orders/${orderId}`);
         // return Api.get(`/orders/admin/detail/${orderId}`);
       },
-      downlaodOrderInvoiceApi:(orderId) => {
-        return Api.get(`/orders/${orderId}/invoice`,{responseType:"blob"})
+      downloadOrderInvoiceApi:(invoiceId) => {
+        return Api.get(`/orders/invoice/${invoiceId}/download`,{responseType:"blob"})
       }
     };

@@ -106,7 +106,7 @@ const kotSlice = createSlice({
         items: rawKot.items.map((i) => ({
           id: i.id,
           name: i.name,
-          variantName: i.variant || null,
+          variantName: i.variantName || null,
           quantity: Number(i.quantity),
           itemType: i.itemType,
           status: "pending",

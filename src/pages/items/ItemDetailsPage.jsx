@@ -20,7 +20,7 @@ import { useNavigate } from "react-router-dom";
 import { useQueryParams } from "../../hooks/useQueryParams";
 import { fetchItemsById } from "../../redux/slices/itemSlice";
 import PageHeader from "../../layout/PageHeader";
-import LoadingOverlay from '../../components/LoadingOverlay';
+import LoadingOverlay from "../../components/LoadingOverlay";
 
 // ─── Badge Component ───────────────────────────────────────────────────────────
 function Badge({ icon: Icon, label, color = "gray" }) {
@@ -327,14 +327,6 @@ const ItemDetailsPage = () => {
                           ) : (
                             <XCircle size={14} className="text-gray-400" />
                           )}
-                        </div>
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="text-gray-600 font-mono">
-                            {station?.code}
-                          </span>
-                          <span className="text-gray-500">
-                            {station?.station_type?.replace(/_/g, " ")}
-                          </span>
                         </div>
                       </div>
                     ))}

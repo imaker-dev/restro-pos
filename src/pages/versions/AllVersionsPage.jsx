@@ -25,7 +25,7 @@ const AllVersionsPage = () => {
   const navigate = useNavigate();
 
   const { allVersions, loading } = useSelector((state) => state.version);
-  console.log(allVersions);
+
   useEffect(() => {
     dispatch(fetchAllVersions());
   }, []);
@@ -42,7 +42,7 @@ const AllVersionsPage = () => {
   const columns = [
     /* ===============================
      VERSION
-  =============================== */
+    =============================== */
     {
       key: "version",
       label: "Version",
@@ -68,7 +68,7 @@ const AllVersionsPage = () => {
 
     /* ===============================
      RELEASE SUMMARY
-  =============================== */
+    =============================== */
     {
       key: "release_notes",
       label: "Release Summary",
@@ -95,7 +95,7 @@ const AllVersionsPage = () => {
 
     /* ===============================
      PLATFORM DISTRIBUTION
-  =============================== */
+    =============================== */
     {
       key: "platforms",
       label: "Distribution",
@@ -137,7 +137,7 @@ const AllVersionsPage = () => {
 
     /* ===============================
      UPDATE POLICY
-  =============================== */
+    =============================== */
     {
       key: "force_update",
       label: "Update Policy",
@@ -158,7 +158,7 @@ const AllVersionsPage = () => {
 
     /* ===============================
      STATUS
-  =============================== */
+    =============================== */
     {
       key: "is_active",
       label: "Status",
@@ -171,8 +171,8 @@ const AllVersionsPage = () => {
     },
 
     /* ===============================
-     CREATED
-  =============================== */
+     UPDATED
+    =============================== */
     {
       key: "updated_at",
       label: "Updated On",

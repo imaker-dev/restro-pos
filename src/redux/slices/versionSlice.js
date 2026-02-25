@@ -29,7 +29,7 @@ const versionSlice = createSlice({
     isCreatingVersion:false,
     isUpdatingVersion:false,
     isFetchingVersionDetails:false,
-    versionsDetails:null,
+    versionDetails:null,
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -50,7 +50,7 @@ const versionSlice = createSlice({
       })
       .addCase(fetchVersionById.fulfilled, (state, action) => {
         state.isFetchingVersionDetails = false;
-        state.versionsDetails = action.payload.data;
+        state.versionDetails = action.payload.data;
       })
       .addCase(fetchVersionById.rejected, (state, action) => {
         state.isFetchingVersionDetails = false;

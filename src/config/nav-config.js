@@ -21,6 +21,7 @@ import {
   SlidersHorizontal,
   Monitor,
   Printer,
+  Smartphone,
 } from "lucide-react";
 import { ROLES } from "../constants";
 
@@ -254,6 +255,12 @@ export const navConfig = [
         path: "/settings",
         roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN],
       },
+      {
+        name: "App Versions",
+        icon: Smartphone,
+        path: "/versions",
+        roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN],
+      },
       // {
       //   name: "Audit Logs",
       //   icon: Shield,
@@ -261,8 +268,8 @@ export const navConfig = [
       //   roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN],
       // },
       {
-        name: "Help",
-        path: "/help",
+        name: "Guide",
+        path: "/guide",
         icon: Info,
         public: true,
       },

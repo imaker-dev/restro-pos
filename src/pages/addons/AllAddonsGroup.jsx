@@ -41,14 +41,23 @@ const AllAddonsGroup = () => {
   const columns = [
     {
       key: "name",
-      label: "Group Name",
+      label: "Addon Group",
       render: (row) => (
-        <div className="max-w-[260px]">
-          <p className="font-medium text-slate-800">{row.name}</p>
+        <div className="max-w-[280px]">
+          <div className="flex items-center gap-2">
+            <p className="font-semibold text-slate-800 truncate">{row.name}</p>
+
+            {!row.is_active && (
+              <span className="text-[10px] bg-slate-200 text-slate-600 px-2 py-0.5 rounded">
+                Inactive
+              </span>
+            )}
+          </div>
+
           {row.description && (
             <p
               title={row.description}
-              className="text-xs text-slate-500 line-clamp-2"
+              className="text-xs text-slate-500 line-clamp-2 mt-1"
             >
               {row.description}
             </p>
@@ -59,48 +68,44 @@ const AllAddonsGroup = () => {
 
     {
       key: "selection_type",
-      label: "Selection",
-      render: (row) => (
-        <span
-          className={`px-2.5 py-1 text-xs rounded-md font-medium
-        ${
-          row.selection_type === "single"
-            ? "bg-blue-100 text-blue-700"
-            : "bg-emerald-100 text-emerald-700"
-        }`}
-        >
-          {row.selection_type === "single"
-            ? "Single Choice"
-            : "Multiple Choice"}
-        </span>
-      ),
-    },
+      label: "Selection Rules",
+      render: (row) => {
+        const isSingle = row.selection_type === "single";
 
-    {
-      key: "range",
-      label: "Min / Max",
-      sortable: false,
-      render: (row) =>
-        row.selection_type === "multiple" ? (
-          <span className="text-slate-600 font-medium">
-            {row.min_selection} / {row.max_selection}
-          </span>
-        ) : (
-          <span className="text-slate-400">—</span>
-        ),
+        return (
+          <div className="space-y-1">
+            <span
+              className={`px-2.5 py-1 text-xs rounded-md font-medium inline-block
+              ${
+                isSingle
+                  ? "bg-indigo-50 text-indigo-700"
+                  : "bg-emerald-50 text-emerald-700"
+              }`}
+            >
+              {isSingle ? "Single Choice" : "Multiple Choice"}
+            </span>
+
+            {!isSingle && (
+              <div className="text-xs text-slate-500">
+                Min {row.min_selection} · Max {row.max_selection}
+              </div>
+            )}
+          </div>
+        );
+      },
     },
 
     {
       key: "is_required",
-      label: "Required",
+      label: "Requirement",
       render: (row) => (
         <span
           className={`px-2.5 py-1 text-xs rounded-md font-medium
-        ${
-          row.is_required
-            ? "bg-rose-100 text-rose-700"
-            : "bg-slate-100 text-slate-600"
-        }`}
+          ${
+            row.is_required
+              ? "bg-rose-50 text-rose-700"
+              : "bg-slate-100 text-slate-600"
+          }`}
         >
           {row.is_required ? "Mandatory" : "Optional"}
         </span>
@@ -111,25 +116,33 @@ const AllAddonsGroup = () => {
       key: "addon_count",
       label: "Addons",
       render: (row) => (
-        <span className="font-semibold text-slate-800">
-          {row.addon_count ?? 0}
-        </span>
-      ),
-    },
+        <div className="flex items-center gap-2">
+          <span className="text-slate-800 font-semibold">
+            {row.addon_count ?? 0}
+          </span>
 
-    {
-      key: "is_active",
-      label: "Status",
-      render: (row) => <StatusBadge value={row.is_active} />,
+          <span className="text-xs text-slate-400">items</span>
+        </div>
+      ),
     },
 
     {
       key: "updated_at",
       label: "Last Updated",
       render: (row) => (
-        <span className="text-slate-500 whitespace-nowrap">
+        <div className="text-sm text-slate-700">
           {formatDate(row.updated_at, "longTime")}
-        </span>
+        </div>
+      ),
+    },
+
+    {
+      key: "status",
+      label: "Status",
+      render: (row) => (
+        <div>
+          <StatusBadge value={row.is_active} />
+        </div>
       ),
     },
   ];

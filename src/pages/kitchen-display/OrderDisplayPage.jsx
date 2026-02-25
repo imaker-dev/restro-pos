@@ -130,13 +130,12 @@ export default function OrderDisplayPage() {
   ];
 
   const stationName = assignedStations?.stationName || "Station";
-  const stationType = assignedStations?.stationType || "general";
   const outletName = assignedStations?.outletName || "";
 
   const ui = {
-    subtitle: `Manage ${stationType} orders efficiently`,
-    emptyTitle: `All ${formatText(stationType)} Orders Completed 🎉`,
-    emptyMessage: `No ${stationType} orders at the moment.`,
+    subtitle: `Manage orders efficiently`,
+    emptyTitle: `All Orders Completed 🎉`,
+    emptyMessage: `No orders at the moment.`,
   };
 
   return (
@@ -310,12 +309,10 @@ export default function OrderDisplayPage() {
               <CheckCircle2 className="w-10 h-10 text-green-600" />
             </div>
 
-            {/* Title */}
             <h2 className="text-xl font-semibold text-gray-900 mb-1">
               {ui.emptyTitle}
             </h2>
 
-            {/* Subtitle */}
             <p className="text-gray-500 text-sm text-center max-w-sm">
               {kotTab
                 ? `No ${kotTab} orders at ${stationName} right now.`
