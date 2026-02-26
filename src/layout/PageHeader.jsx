@@ -2,6 +2,7 @@ import React from "react";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Breadcrumbs from "../components/Breadcrumb";
+import PermissionGuard from "../guard/PermissionGuard";
 
 const buttonVariants = {
   primary: "bg-primary-500 text-white hover:bg-primary-600",
@@ -88,25 +89,19 @@ const PageHeader = ({
                   </>
                 );
 
-                /* LINK ACTION */
-                if (action.href) {
-                  return (
-                    <a
-                      key={index}
-                      href={action.href}
-                      target={action.target || "_blank"}
-                      rel="noopener noreferrer"
-                      className={`btn lg:btn-lg ${variantClass} flex items-center ${
-                        isDisabled ? "pointer-events-none opacity-70" : ""
-                      }`}
-                    >
-                      {content}
-                    </a>
-                  );
-                }
-
-                /* BUTTON ACTION */
-                return (
+                const buttonElement = action.href ? (
+                  <a
+                    key={index}
+                    href={action.href}
+                    target={action.target || "_blank"}
+                    rel="noopener noreferrer"
+                    className={`btn lg:btn-lg ${variantClass} flex items-center ${
+                      isDisabled ? "pointer-events-none opacity-70" : ""
+                    }`}
+                  >
+                    {content}
+                  </a>
+                ) : (
                   <button
                     key={index}
                     type="button"
@@ -119,6 +114,21 @@ const PageHeader = ({
                     {content}
                   </button>
                 );
+
+                // 🔐 Wrap only if roles or permissions exist
+                if (action.roles || action.permissions) {
+                  return (
+                    <PermissionGuard
+                      key={index}
+                      roles={action.roles}
+                      permissions={action.permissions}
+                    >
+                      {buttonElement}
+                    </PermissionGuard>
+                  );
+                }
+
+                return buttonElement;
               })}
             </div>
           )}

@@ -6,6 +6,7 @@ import { navConfig } from "../config/nav-config";
 import { ChevronDown, ChevronRight, ChevronsLeft } from "lucide-react";
 import { hasAccess } from "../utils/accessControl";
 import { useSelector } from "react-redux";
+import Tooltip from "../components/Tooltip";
 
 function Sidebar({
   sidebarOpen,
@@ -130,22 +131,27 @@ function Sidebar({
   return (
     <div className="min-w-fit relative">
       <div className="hidden xl:block absolute -right-3 top-6 z-40">
-        <button
-          title={sidebarExpanded ? "Collapse sidebar" : "Expand sidebar"}
-          onClick={() => setSidebarExpanded(!sidebarExpanded)}
-          className="p-1 group relative flex items-center justify-center rounded-full bg-white border border-gray-200 shadow hover:shadow-lg hover:bg-gray-50 transition-all duration-200"
+        <Tooltip
+          content={sidebarExpanded ? "Collapse sidebar" : "Expand sidebar"}
+          position="right"
         >
-          <span className="sr-only">Toggle sidebar</span>
+          <button
+            onClick={() => setSidebarExpanded(!sidebarExpanded)}
+            className="p-1 group relative flex items-center justify-center rounded-full bg-white border border-gray-200 shadow hover:shadow-lg hover:bg-gray-50 transition-all duration-200"
+          >
+            <span className="sr-only">Toggle sidebar</span>
 
-          <ChevronsLeft
-            className={`
-        w-3.5 h-3.5 text-gray-600
-        transition-transform duration-300 ease-in-out
-        ${!sidebarExpanded ? "rotate-180" : ""}
-      `}
-          />
-        </button>
+            <ChevronsLeft
+              className={`
+          w-3.5 h-3.5 text-gray-600
+          transition-transform duration-300 ease-in-out
+          ${!sidebarExpanded ? "rotate-180" : ""}
+        `}
+            />
+          </button>
+        </Tooltip>
       </div>
+
       {/* Sidebar backdrop (mobile only) */}
       <div
         className={`fixed inset-0 bg-black/30 z-40 xl:hidden xl:z-auto transition-opacity duration-200 ${
@@ -164,12 +170,12 @@ function Sidebar({
         } ${effectiveExpanded ? "w-64" : "xl:w-20"}`}
       >
         {/* Sidebar header */}
-        <div className="bg-white px-4 border-b border-gray-200 sticky top-0 z-10">
+        <div className="bg-white px-4 border-b border-gray-200 sticky top-0 z-10 h-16">
           {/* Logo */}
           <NavLink
             end
             to="/"
-            className={`bg-white  flex items-center ${effectiveExpanded ? "justify-start" : "justify-center"} h-16`}
+            className={`flex items-center ${effectiveExpanded ? "justify-start" : "justify-center"} h-16`}
           >
             {effectiveExpanded && (
               <img src="/Images/Logo.svg" alt="" className="w-44" />
@@ -221,75 +227,73 @@ function Sidebar({
                         itemName={item.name}
                       >
                         {(handleClick, open) => (
-                          <div className="group relative">
-                            <a
-                              href="#0"
-                              className={`block truncate transition-all duration-200 rounded-md px-2 py-2 ${
-                                isActive
-                                  ? "bg-primary-100 text-primary-600"
-                                  : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-                              } ${effectiveExpanded ? "" : "flex justify-center"}`}
-                              onClick={(e) => {
-                                e.preventDefault();
-                                if (!effectiveExpanded && !isMobile) {
-                                  setSidebarExpanded(true);
-                                }
-                                handleClick();
-                              }}
+                          <div className="bg-red-100group relative">
+                            <Tooltip
+                              content={item.name}
+                              position="right"
+                              disabled={effectiveExpanded || isMobile}
                             >
-                              <div
-                                className={`flex items-center ${
-                                  effectiveExpanded
-                                    ? "justify-between"
-                                    : "justify-center"
-                                }`}
+                              <a
+                                href="#0"
+                                className={`block truncate transition-all duration-200 rounded-md p-2.5 ${
+                                  isActive
+                                    ? "bg-primary-100 text-primary-600"
+                                    : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                                } ${effectiveExpanded ? "" : "flex justify-center"}`}
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  if (!effectiveExpanded && !isMobile) {
+                                    setSidebarExpanded(true);
+                                  }
+                                  handleClick();
+                                }}
                               >
                                 <div
                                   className={`flex items-center ${
                                     effectiveExpanded
-                                      ? ""
-                                      : "justify-center w-full"
+                                      ? "justify-between"
+                                      : "justify-center"
                                   }`}
                                 >
-                                  <item.icon
-                                    className={`shrink-0 h-4 w-4 ${iconClass} transition-colors duration-200`}
-                                  />
+                                  <div
+                                    className={`flex items-center ${
+                                      effectiveExpanded
+                                        ? ""
+                                        : "justify-center w-full"
+                                    }`}
+                                  >
+                                    <item.icon
+                                      className={`shrink-0 h-4 w-4 ${iconClass} transition-colors duration-200`}
+                                    />
+
+                                    {effectiveExpanded && (
+                                      <span className="text-sm font-semibold ml-3 transition-opacity duration-200">
+                                        {item.name}
+                                      </span>
+                                    )}
+                                  </div>
 
                                   {effectiveExpanded && (
-                                    <span className="text-sm font-semibold ml-3 transition-opacity duration-200">
-                                      {item.name}
-                                    </span>
+                                    <div className="flex shrink-0 ml-2">
+                                      <div
+                                        className={`flex items-center justify-center h-5 w-5 rounded-full transition-all duration-200 ${
+                                          open
+                                            ? "bg-primary-200 text-primary-600"
+                                            : "bg-gray-100 text-gray-500 group-hover:bg-gray-200"
+                                        }`}
+                                      >
+                                        <ChevronRight
+                                          className={`h-3 w-3 transition-transform duration-300 ease-in-out ${
+                                            open ? "rotate-90" : ""
+                                          }`}
+                                          strokeWidth={2.5}
+                                        />
+                                      </div>
+                                    </div>
                                   )}
                                 </div>
-
-                                {effectiveExpanded && (
-                                  <div className="flex shrink-0 ml-2">
-                                    <div
-                                      className={`flex items-center justify-center h-5 w-5 rounded-full transition-all duration-200 ${
-                                        open
-                                          ? "bg-primary-200 text-primary-600"
-                                          : "bg-gray-100 text-gray-500 group-hover:bg-gray-200"
-                                      }`}
-                                    >
-                                      <ChevronRight
-                                        className={`h-3 w-3 transition-transform duration-300 ease-in-out ${
-                                          open ? "rotate-90" : ""
-                                        }`}
-                                        strokeWidth={2.5}
-                                      />
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-                            </a>
-
-                            {/* Tooltip for collapsed state */}
-                            {!effectiveExpanded && !isMobile && (
-                              <div className="absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10 shadow-lg">
-                                {item.name}
-                                <div className="absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-gray-900"></div>
-                              </div>
-                            )}
+                              </a>
+                            </Tooltip>
 
                             {/* Submenu */}
                             {effectiveExpanded && (
@@ -346,76 +350,69 @@ function Sidebar({
                     );
                   } else {
                     return (
-                      <li
+                      <Tooltip
                         key={item.name}
-                        className={`mb-0.5 last:mb-0 transition-all duration-200 ${
-                          isActive ? "bg-primary-100" : ""
-                        } ${
-                          effectiveExpanded
-                            ? "px-2 py-2 rounded-sm"
-                            : "px-2 py-2 rounded-lg mx-1 hover:bg-gray-100"
-                        }`}
+                        content={item.name}
+                        position="right"
+                        disabled={effectiveExpanded || isMobile}
                       >
-                        <NavLink
-                          end
-                          to={item.path}
-                          className={`group relative block text-gray-800 truncate transition duration-150 ${
-                            isActive
-                              ? "text-primary-500 hover:text-primary-600"
-                              : "hover:text-gray-900"
+                        <li
+                          className={`p-2.5 mb-0.5 last:mb-0 transition-all duration-200 ${
+                            isActive ? "bg-primary-100" : ""
                           } ${
                             effectiveExpanded
-                              ? ""
-                              : "flex items-center justify-center"
+                              ? "rounded-sm"
+                              : "rounded-lg mx-1 hover:bg-gray-100"
                           }`}
                         >
-                          <div
-                            className={`flex items-center ${
+                          <NavLink
+                            end
+                            to={item.path}
+                            className={`group relative block text-gray-800 truncate transition duration-150 ${
+                              isActive
+                                ? "text-primary-500 hover:text-primary-600"
+                                : "hover:text-gray-900"
+                            } ${
                               effectiveExpanded
-                                ? "justify-between"
-                                : "justify-center"
+                                ? ""
+                                : "flex items-center justify-center"
                             }`}
                           >
                             <div
                               className={`flex items-center ${
                                 effectiveExpanded
-                                  ? "grow"
-                                  : "justify-center w-full"
+                                  ? "justify-between"
+                                  : "justify-center"
                               }`}
                             >
-                              <item.icon
-                                className={`shrink-0 h-4 w-4 ${iconClass} transition-colors duration-200`}
-                              />
+                              <div
+                                className={`flex items-center ${
+                                  effectiveExpanded
+                                    ? "grow"
+                                    : "justify-center w-full"
+                                }`}
+                              >
+                                <item.icon
+                                  className={`shrink-0 h-4 w-4 ${iconClass} transition-colors duration-200`}
+                                />
 
-                              {effectiveExpanded && (
-                                <span className="text-sm font-semibold ml-3 transition-opacity duration-200">
-                                  {item.name}
-                                </span>
-                              )}
-                            </div>
-                            {effectiveExpanded && item.badge && (
-                              <div className="flex flex-shrink-0 ml-2">
-                                <span className="inline-flex items-center justify-center h-5 text-xs font-medium text-white bg-primary-500 px-2 rounded transition-all duration-200">
-                                  {item.badge}
-                                </span>
+                                {effectiveExpanded && (
+                                  <span className="text-sm font-semibold ml-3 transition-opacity duration-200">
+                                    {item.name}
+                                  </span>
+                                )}
                               </div>
-                            )}
-                          </div>
-
-                          {/* Tooltip for collapsed state */}
-                          {!effectiveExpanded && !isMobile && (
-                            <div className="absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-[60] shadow-lg flex items-center">
-                              {item.name}
-                              {item.badge && (
-                                <span className="inline-flex items-center justify-center h-4 text-xs font-medium text-white bg-primary-500 px-1.5 rounded ml-2">
-                                  {item.badge}
-                                </span>
+                              {effectiveExpanded && item.badge && (
+                                <div className="flex flex-shrink-0 ml-2">
+                                  <span className="inline-flex items-center justify-center h-5 text-xs font-medium text-white bg-primary-500 px-2 rounded transition-all duration-200">
+                                    {item.badge}
+                                  </span>
+                                </div>
                               )}
-                              <div className="absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-gray-900"></div>
                             </div>
-                          )}
-                        </NavLink>
-                      </li>
+                          </NavLink>
+                        </li>
+                      </Tooltip>
                     );
                   }
                 })}

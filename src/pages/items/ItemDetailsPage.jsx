@@ -308,34 +308,24 @@ const ItemDetailsPage = () => {
                   badge={item?.kitchenStations?.length}
                 />
 
-                {item?.kitchenStations?.length > 0 ? (
-                  <div className="space-y-2">
-                    {item?.kitchenStations?.map((station) => (
-                      <div
-                        key={station.id}
-                        className="p-3 rounded-lg border border-gray-200 hover:border-primary-200 transition-colors"
-                      >
-                        <div className="flex items-center justify-between mb-1">
-                          <p className="text-sm font-semibold text-gray-900">
-                            {station?.name}
-                          </p>
-                          {station?.is_active ? (
-                            <CheckCircle2
-                              size={14}
-                              className="text-emerald-500"
-                            />
-                          ) : (
-                            <XCircle size={14} className="text-gray-400" />
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-sm text-gray-500 text-center py-6">
-                    No stations assigned
-                  </p>
-                )}
+                {item?.kitchen_station_name ? (
+  <div className="p-3 rounded-lg border border-gray-200 hover:border-primary-200 transition-colors">
+    <div className="flex items-center justify-between mb-1">
+      <p className="text-sm font-semibold text-gray-900">
+        {item?.kitchen_station_name}
+      </p>
+
+    </div>
+
+    <p className="text-xs text-gray-500">
+      Code: {item?.kitchen_station_code}
+    </p>
+  </div>
+) : (
+  <p className="text-sm text-gray-500 text-center py-6">
+    No station assigned
+  </p>
+)}
               </div>
             </div>
 

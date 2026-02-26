@@ -20,7 +20,6 @@ import {
 import { TextareaField } from "../../components/fields/TextareaField";
 import { MultiSelectDropdownField } from "../../components/fields/MultiSelectDropdownField";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchAllOutlets } from "../../redux/slices/outletSlice";
 import { fetchAllCategories } from "../../redux/slices/categorySlice";
 import { fetchAllTaxGroups } from "../../redux/slices/taxSlice";
 import { fetchAllFloors } from "../../redux/slices/floorSlice";
@@ -52,6 +51,8 @@ const AddItemPage = () => {
   const { allCategories, loading: isFetchingCategory } = useSelector(
     (state) => state.category,
   );
+  const {data} = allCategories || {};
+
   const { allTaxGroup, loading: isFetchingTaxGroup } = useSelector(
     (state) => state.tax,
   );
@@ -72,7 +73,7 @@ const AddItemPage = () => {
   useEffect(() => {
     if (!outletId) return;
 
-    dispatch(fetchAllCategories(outletId));
+    dispatch(fetchAllCategories({outletId}));
     dispatch(fetchAllFloors(outletId));
     dispatch(fetchAllKitchenStations(outletId));
     dispatch(fetchAllAddonGroups(outletId));
@@ -331,7 +332,7 @@ const AddItemPage = () => {
                     disabled={!formik.values.outletId}
                     disabledText="Select outlet first"
                     loading={isFetchingCategory}
-                    options={allCategories?.map((c) => ({
+                    options={data?.map((c) => ({
                       value: c.id,
                       label: c.name,
                     }))}

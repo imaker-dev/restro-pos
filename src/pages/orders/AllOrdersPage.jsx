@@ -85,6 +85,18 @@ const AllOrdersPage = () => {
   const { allOrdersData, loading } = useSelector((state) => state.order);
   const { orders, pagination, summary } = allOrdersData || {};
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [
+    searchTerm,
+    dateRange,
+    orderStatus,
+    orderType,
+    paymentStatus,
+    sortBy,
+    sortOrder,
+  ]);
+
   const columns = [
     {
       key: "orderNumber",

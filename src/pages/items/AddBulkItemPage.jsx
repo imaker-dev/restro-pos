@@ -1,188 +1,150 @@
-import React, { useState } from "react";
-import Papa from "papaparse";
+import React, { useState, useRef, useCallback, useEffect } from "react";
 import PageHeader from "../../layout/PageHeader";
-import { UploadCloud, AlertTriangle } from "lucide-react";
+import { handleResponse } from "../../utils/helpers";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  downloadBulkUploadTemplate,
+  previewBulkUploadFile,
+  uploadBulkUploadFile,
+  validateBulkUploadFile,
+} from "../../redux/slices/bulkUploadSlice";
+import { downloadBlob } from "../../utils/blob";
+import TemplateSection from "../../partial/bulk-items/TemplateSection";
+import UploadSection from "../../partial/bulk-items/UploadSection";
+import ValidationSection from "../../partial/bulk-items/ValidationSection";
+import PreviewSection from "../../partial/bulk-items/PreviewSection";
+import SuccessSection from "../../partial/bulk-items/SuccessSection";
+import StepIndicator from "../../partial/bulk-items/StepIndicator";
 
-const headers = [
-  "outletId",
-  "categoryId",
-  "name",
-  "description",
-  "itemType",
-  "taxGroupId",
-  "kitchenStationId",
-  "hasVariants",
-  "variantName",
-  "variantPrice",
-  "isDefault",
-  "basePrice",
-  "hasAddons",
-  "addonGroupIds",
-  "allowSpecialNotes",
-  "minQuantity",
-  "maxQuantity",
-  "imageUrl",
-];
+// ─── Prevent accidental page leave ───────────────────────────────────────────
+function usePreventNavigation(active) {
+  useEffect(() => {
+    if (!active) return;
+    const handler = (e) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [active]);
+}
 
+// ─────────────────────────────────────────────────────────────────────────────
+// MAIN PAGE
+// ─────────────────────────────────────────────────────────────────────────────
 const AddBulkItemPage = () => {
-  const [rows, setRows] = useState([]);
-  const [errors, setErrors] = useState({});
+  const dispatch = useDispatch();
+  const { outletId } = useSelector((state) => state.auth);
+  const {
+    loadingTemplate,
+    isValidating,
+    validationData,
+    isPreviewing,
+    previewData,
+    isUploading,
+    uploadResult,
+  } = useSelector((state) => state.bulkUpload);
 
-  /* ------------------------------
-     FILE PARSE
-  ------------------------------ */
-  const handleFileUpload = (file) => {
-    Papa.parse(file, {
-      header: true,
-      skipEmptyLines: true,
-      complete: (results) => {
-        setRows(results.data);
-        validate(results.data);
-      },
+  const [formData, setFormData] = useState(null);
+  const [step, setStep] = useState(1);
+  const [maxReached, setMaxReached] = useState(1);
+
+  usePreventNavigation(step > 1 && step < 5);
+
+  const goToStep = (s) => {
+    setStep(s);
+    setMaxReached((prev) => Math.max(prev, s));
+  };
+
+  const downloadTemplate = async () => {
+    await handleResponse(dispatch(downloadBulkUploadTemplate()), (res) => {
+      downloadBlob({
+        data: res.payload,
+        fileName: "Item_Bulk_Upload_Template",
+      });
     });
   };
 
-  /* ------------------------------
-     HANDLE CELL CHANGE
-  ------------------------------ */
-  const handleChange = (rowIndex, field, value) => {
-    const updated = [...rows];
-    updated[rowIndex][field] = value;
-    setRows(updated);
-    validate(updated);
-  };
+  const handleFileSelected = async (selectedFile) => {
+    const fd = new FormData();
+    fd.append("file", selectedFile);
+    fd.append("outletId", outletId);
 
-  /* ------------------------------
-     VALIDATION PER ROW
-  ------------------------------ */
-  const validate = (data) => {
-    const newErrors = {};
+    setFormData(fd);
 
-    data.forEach((row, index) => {
-      const rowErrors = {};
-
-      if (!row.outletId) rowErrors.outletId = "Required";
-      if (!row.categoryId) rowErrors.categoryId = "Required";
-      if (!row.name) rowErrors.name = "Required";
-      if (!row.taxGroupId) rowErrors.taxGroupId = "Required";
-      if (!row.kitchenStationId)
-        rowErrors.kitchenStationId = "Required";
-
-      if (row.hasVariants === "true") {
-        if (!row.variantName)
-          rowErrors.variantName = "Required";
-        if (!row.variantPrice)
-          rowErrors.variantPrice = "Required";
-      } else {
-        if (!row.basePrice)
-          rowErrors.basePrice = "Required";
-      }
-
-      if (Object.keys(rowErrors).length > 0) {
-        newErrors[index] = rowErrors;
-      }
+    await handleResponse(dispatch(validateBulkUploadFile(fd)), async (res) => {
+      goToStep(3);
+      // if (res?.payload?.isValid) {
+      //   await dispatch(previewBulkUploadFile(formData));
+      // }
     });
-
-    setErrors(newErrors);
   };
 
-  /* ------------------------------
-     UPLOAD
-  ------------------------------ */
+  const handlePreviewData = async () => {
+    if (!formData) return;
+    await handleResponse(dispatch(previewBulkUploadFile(formData)), () => {
+      goToStep(4);
+    });
+  };
+
   const handleUpload = async () => {
-    if (Object.keys(errors).length > 0) return;
+    if (!formData) return;
+    await handleResponse(dispatch(uploadBulkUploadFile(formData)), () => {
+      goToStep(5);
+    });
+  };
 
-    console.log("Uploading cleaned rows:", rows);
-
-    // send rows to backend
+  const handleReset = () => {
+    setStep(1);
+    setMaxReached(1);
   };
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Bulk Upload Items" showBackButton />
+      <PageHeader title="Bulk Upload Items" />
 
-      {/* Upload Section */}
-      <div className="border-2 border-dashed p-6 rounded-lg text-center">
-        <UploadCloud className="mx-auto mb-2" />
-        <input
-          type="file"
-          accept=".csv"
-          onChange={(e) =>
-            handleFileUpload(e.target.files[0])
-          }
+      <div>
+        <StepIndicator
+          currentStep={step}
+          maxReached={maxReached}
+          onStepClick={setStep}
         />
+
+        <div className="">
+          {step === 1 && (
+            <TemplateSection
+              onDownload={downloadTemplate}
+              onNext={() => goToStep(2)}
+              loading={loadingTemplate}
+            />
+          )}
+          {step === 2 && (
+            <UploadSection
+              onFileSelected={handleFileSelected}
+              isValidating={isValidating}
+            />
+          )}
+          {step === 3 && validationData && (
+            <ValidationSection
+              validationData={validationData}
+              loading={isPreviewing}
+              onNext={handlePreviewData}
+              onReset={handleReset}
+            />
+          )}
+          {step === 4 && previewData && (
+            <PreviewSection
+              previewData={previewData}
+              onReset={handleReset}
+              onUpload={handleUpload}
+              isUploading={isUploading}
+            />
+          )}
+          {step === 5 && (
+            <SuccessSection uploadResult={uploadResult} onReset={handleReset} />
+          )}
+        </div>
       </div>
-
-      {/* Error Summary */}
-      {Object.keys(errors).length > 0 && (
-        <div className="bg-red-50 p-3 rounded-lg flex items-center gap-2 text-red-600">
-          <AlertTriangle size={16} />
-          {Object.keys(errors).length} rows contain errors
-        </div>
-      )}
-
-      {/* Editable Table */}
-      {rows.length > 0 && (
-        <div className="overflow-auto border rounded-lg">
-          <table className="min-w-full text-sm">
-            <thead className="bg-gray-100">
-              <tr>
-                {headers.map((h) => (
-                  <th
-                    key={h}
-                    className="px-3 py-2 text-left border"
-                  >
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-
-            <tbody>
-              {rows.map((row, rowIndex) => (
-                <tr key={rowIndex}>
-                  {headers.map((field) => (
-                    <td
-                      key={field}
-                      className={`border px-2 py-1 ${
-                        errors[rowIndex]?.[field]
-                          ? "bg-red-100"
-                          : ""
-                      }`}
-                    >
-                      <input
-                        type="text"
-                        value={row[field] || ""}
-                        onChange={(e) =>
-                          handleChange(
-                            rowIndex,
-                            field,
-                            e.target.value
-                          )
-                        }
-                        className="w-full outline-none bg-transparent"
-                      />
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {/* Upload Button */}
-      {rows.length > 0 && (
-        <div className="flex justify-end">
-          <button
-            disabled={Object.keys(errors).length > 0}
-            onClick={handleUpload}
-            className="btn bg-primary-500 text-white"
-          >
-            Upload Items
-          </button>
-        </div>
-      )}
     </div>
   );
 };

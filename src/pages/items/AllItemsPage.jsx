@@ -1,19 +1,16 @@
 import React, { useEffect, useState } from "react";
 import PageHeader from "../../layout/PageHeader";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  fetchAllItems,
-  fetchAllItemsByCategory,
-} from "../../redux/slices/itemSlice";
+import { fetchAllItems } from "../../redux/slices/itemSlice";
 import { useQueryParams } from "../../hooks/useQueryParams";
 import SmartTable from "../../components/SmartTable";
-import { formatDate } from "../../utils/dateFormatter";
 import { Edit2, Eye, Plus } from "lucide-react";
 import LightboxMedia from "../../components/LightboxMedia";
 import FoodTypeIcon from "../../partial/common/FoodTypeIcon";
 import { useNavigate } from "react-router-dom";
 import StatusBadge from "../../layout/StatusBadge";
 import SearchBar from "../../components/SearchBar";
+import Pagination from "../../components/Pagination";
 
 const AllItemsPage = () => {
   const dispatch = useDispatch();
@@ -26,21 +23,29 @@ const AllItemsPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
-  const { allItems, loading, isCreatingItem, isUpdatingItem } = useSelector(
-    (state) => state.item,
-  );
+  const { allItems, loading } = useSelector((state) => state.item);
+
+  const { data, pagination } = allItems || {};
 
   const fetchItems = () => {
-    if (categoryId) {
-      dispatch(fetchAllItemsByCategory(categoryId));
-    } else {
-      dispatch(fetchAllItems({ outletId, search: searchTerm }));
-    }
+    dispatch(
+      fetchAllItems({
+        outletId,
+        search: searchTerm,
+        page: currentPage,
+        limit: itemsPerPage,
+        categoryId,
+      }),
+    );
   };
 
   useEffect(() => {
     fetchItems();
-  }, [categoryId, outletId, searchTerm]);
+  }, [categoryId, outletId, searchTerm, currentPage, itemsPerPage]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, categoryId]);
 
   const columns = [
     {
@@ -111,11 +116,19 @@ const AllItemsPage = () => {
       label: "Details",
       sortable: false,
       render: (row) => (
-        <div className="flex flex-col text-sm">
-          <span className="text-slate-700">
-            {row.preparation_time_mins} mins prep
-          </span>
+        <div className="flex flex-col text-sm gap-1">
+          {/* Kitchen Station */}
+          {row.kitchen_station_name ? (
+            <div className="flex items-center gap-2">
+              <span className="text-slate-700 font-medium">
+                {row.kitchen_station_name}
+              </span>
+            </div>
+          ) : (
+            <span className="text-xs text-slate-400">No kitchen assigned</span>
+          )}
 
+          {/* Variants */}
           <span className="text-xs text-slate-500">
             Variants: {row.has_variants ? "Yes" : "No"}
           </span>
@@ -167,6 +180,12 @@ const AllItemsPage = () => {
       icon: Plus,
       onClick: () => navigate(`/items/add`),
     },
+    {
+      label: "Add Bulk Items",
+      type: "export",
+      icon: Plus,
+      onClick: () => navigate(`/items/bulk-add`),
+    },
   ];
 
   return (
@@ -190,11 +209,25 @@ const AllItemsPage = () => {
 
           <SmartTable
             // title="Items"
-            totalcount={allItems?.length}
-            data={allItems}
+            totalcount={pagination?.total}
+            data={data}
             columns={columns}
             actions={rowActions}
             loading={loading}
+          />
+
+          <Pagination
+            totalItems={pagination?.total}
+            currentPage={currentPage}
+            pageSize={itemsPerPage}
+            totalPages={pagination?.totalPages}
+            onPageChange={(page) => setCurrentPage(page)}
+            maxPageNumbers={5}
+            showPageSizeSelector={true}
+            onPageSizeChange={(size) => {
+              setCurrentPage(1);
+              setItemsPerPage(size);
+            }}
           />
         </div>
       </div>

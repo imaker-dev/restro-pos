@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import PageHeader from "../../layout/PageHeader";
-import { useQueryParams } from "../../hooks/useQueryParams";
 import {
   createCategory,
   fetchAllCategories,
@@ -16,6 +15,10 @@ import { handleResponse } from "../../utils/helpers";
 import StatusBadge from "../../layout/StatusBadge";
 import ServiceTypeBadge from "../../partial/category/ServiceTypeBadge";
 import LightboxMedia from "../../components/LightboxMedia";
+import Pagination from "../../components/Pagination";
+import SearchBar from "../../components/SearchBar";
+import { SERVICE_TYPES } from "../../constants";
+import { formatText } from "../../utils/utils";
 
 const AllCategoriesPage = () => {
   const dispatch = useDispatch();
@@ -25,17 +28,37 @@ const AllCategoriesPage = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [serviceType, setServiceType] = useState("");
+
   const { allCategories, loading, isCreatingCategory, isUpdatingCategory } =
     useSelector((state) => state.category);
 
+  const { data, pagination } = allCategories || {};
+
   const fetchCategories = () => {
-    dispatch(fetchAllCategories(outletId));
+    dispatch(
+      fetchAllCategories({
+        outletId,
+        page: currentPage,
+        limit: itemsPerPage,
+        serviceType: serviceType,
+        search: searchTerm,
+      }),
+    );
   };
+
   useEffect(() => {
     fetchCategories();
-  }, [outletId]);
+  }, [outletId, currentPage, itemsPerPage, serviceType, searchTerm]);
 
-  const columns = [ 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [serviceType, searchTerm]);
+
+  const columns = [
     {
       key: "name",
       label: "Category",
@@ -91,7 +114,7 @@ const AllCategoriesPage = () => {
       label: "Service",
       render: (row) => (
         <div className="flex flex-col gap-1">
-          <div className="w-fut">
+          <div className="w-fit">
             <ServiceTypeBadge value={row.service_type} />
           </div>
 
@@ -163,13 +186,54 @@ const AllCategoriesPage = () => {
       <div className="space-y-6">
         <PageHeader title={"All Categories"} actions={actions} />
 
-        <SmartTable
-          title="Categories"
-          totalcount={allCategories?.length}
-          data={allCategories}
-          columns={columns}
-          actions={rowActions}
-          loading={loading}
+        <div className="bg-white">
+          {/* Header Section */}
+          <div className="border-b border-slate-200">
+            <div className="px-6 py-5">
+              <div className="flex items-center justify-between gap-4">
+                {/* Search Bar */}
+                <SearchBar
+                  placeholder="Search categories..."
+                  onSearch={(value) => setSearchTerm(value)}
+                />
+
+                <select
+                  className="form-select"
+                  value={serviceType}
+                  onChange={(e) => setServiceType(e.target.value)}
+                >
+                  <option value="">All</option>
+                  {Object.values(SERVICE_TYPES).map((value) => (
+                    <option key={value} value={value}>
+                      {formatText(value)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+          <SmartTable
+            // title="Categories"
+            totalcount={pagination?.total}
+            data={data}
+            columns={columns}
+            actions={rowActions}
+            loading={loading}
+          />
+        </div>
+
+        <Pagination
+          totalItems={pagination?.total}
+          currentPage={currentPage}
+          pageSize={itemsPerPage}
+          totalPages={pagination?.totalPages}
+          onPageChange={(page) => setCurrentPage(page)}
+          maxPageNumbers={5}
+          showPageSizeSelector={true}
+          onPageSizeChange={(size) => {
+            setCurrentPage(1);
+            setItemsPerPage(size);
+          }}
         />
       </div>
 

@@ -14,6 +14,7 @@ import { formatDate } from "../../utils/dateFormatter";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import { ORDER_STATUSES, STATUS_FLOW } from "../../utils/orderStatusConfig";
 import { useSelector } from "react-redux";
+import { useTimeAgo } from "../../utils/useTimeAgo";
 
 const ITEMS_TO_SHOW = 3;
 
@@ -44,6 +45,8 @@ const KotOrderCard = ({
     : order?.items.slice(0, ITEMS_TO_SHOW);
   const hasMoreItems = order?.items.length > ITEMS_TO_SHOW;
 
+  // const liveTimeAgo = useTimeAgo(order?.createdAt, 1000);
+
   return (
     <div>
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
@@ -56,6 +59,7 @@ const KotOrderCard = ({
                 ? `Table No: ${order.tableNumber}`
                 : "Takeaway"}{" "}
               • {formatDate(order?.createdAt, "timeAgo")}
+              {/* {liveTimeAgo} */}
             </p>
           </div>
         </div>

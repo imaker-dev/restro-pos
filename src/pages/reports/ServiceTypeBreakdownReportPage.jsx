@@ -110,21 +110,22 @@ const SummaryCard = ({ title, value, icon: Icon, gradient }) => (
 const ServiceTypeBreakdownReportPage = () => {
   const dispatch = useDispatch();
   const { outletId } = useSelector((state) => state.auth);
-  const { serviceTypeBreakdownReport,isFetchingServiceTypeBreakdownReport } = useSelector((state) => state.report);
+  const { serviceTypeBreakdownReport, isFetchingServiceTypeBreakdownReport } =
+    useSelector((state) => state.report);
   const [dateRange, setDateRange] = useState();
 
   useEffect(() => {
-    if (outletId) {
-      dispatch(fetchServiceTypeBreakdownReport({ outletId,dateRange }));
-    }
-  }, [outletId,dateRange]);
+    if (!outletId || !dateRange?.startDate || !dateRange?.endDate) return;
+
+    dispatch(fetchServiceTypeBreakdownReport({ outletId, dateRange }));
+  }, [outletId, dateRange]);
 
   const summary = serviceTypeBreakdownReport?.summary;
   const breakdown = serviceTypeBreakdownReport?.breakdown;
 
   if (isFetchingServiceTypeBreakdownReport) {
-  return <ServiceTypeBreakdownReportSkeleton />;
-}
+    return <ServiceTypeBreakdownReportSkeleton />;
+  }
 
   return (
     <div className="space-y-8">

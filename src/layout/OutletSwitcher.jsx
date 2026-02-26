@@ -6,10 +6,8 @@ import { setOutletId } from "../redux/slices/authSlice";
 
 const OutletSwitcher = () => {
   const dispatch = useDispatch();
-  const { meData, outletId } = useSelector((s) => s.auth);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-
-  const outlets = meData?.outlets || [];
+  const { outlets, outletId } = useSelector((state) => state.auth);
   if (!outlets.length) return null;
 
   const selectedOutlet =
@@ -95,7 +93,7 @@ const OutletSwitcher = () => {
                           />
                         </div>
                         <span
-                        title={outlet.name}
+                          title={outlet.name}
                           className={`flex-1 text-sm truncate ${
                             selected
                               ? "font-semibold text-primary-600"

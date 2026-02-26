@@ -5,8 +5,17 @@ export default false
       message: "You are Offline. Please turn on the internet",
     }
   : {
-      getAllCategoriesApi: (outletId) => {
-        return Api.get(`/menu/categories/outlet/${outletId}`);
+      getAllCategoriesApi: (outletId, page, limit, serviceType, search) => {
+        let url = `/menu/categories/outlet/${outletId}?page=${page}&limit=${limit}`;
+
+        if (search) {
+          url += `&search=${encodeURIComponent(search)}`;
+        }
+        if (serviceType) {
+          url += `&serviceType=${serviceType}`;
+        }
+
+        return Api.get(url);
       },
       createCategoryApi: (values) => {
         return Api.post("/menu/categories", values);

@@ -18,12 +18,14 @@ import {
   Phone,
   Plus,
   Table2,
+  Trash2,
   Utensils,
 } from "lucide-react";
 import OutletUpdateModal from "../../partial/outlet/OutletUpdateModal";
 import { handleResponse } from "../../utils/helpers";
 import { useNavigate } from "react-router-dom";
 import StatusBadge from "../../layout/StatusBadge";
+import { ROLES } from "../../constants";
 
 const AllOutletsPage = () => {
   const dispatch = useDispatch();
@@ -194,10 +196,14 @@ const AllOutletsPage = () => {
       label: "Edit",
       icon: Edit2,
       color: "blue",
-      // onClick: (row) => {
-      //   (setSelectedOutlet(row), setShowTableUpdateModal(true));
-      // },
       onClick: (row) => navigate(`/outlets/add?outletId=${row.id}`),
+    },
+    {
+      label: "Delete",
+      icon: Trash2,
+      color: "red",
+      roles: [ROLES.SUPER_ADMIN],
+      onClick: (row) => navigate(`/outlets/delete?outletId=${row.id}`),
     },
   ];
 
@@ -219,6 +225,7 @@ const AllOutletsPage = () => {
       type: "primary",
       icon: Plus,
       onClick: () => navigate(`/outlets/add`),
+      roles:[ROLES.SUPER_ADMIN]
     },
   ];
 

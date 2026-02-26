@@ -36,26 +36,31 @@ const AllUsersPage = () => {
   );
 
   const { data, pagination } = allUsers || {};
+
   const fetchUsers = () => {
     dispatch(
       fetchAllUsers({
         search: searchTerm,
         page: currentPage,
         limit: itemsPerPage,
-        outletId
+        outletId,
       }),
     );
   };
 
   useEffect(() => {
     fetchUsers();
-  }, [searchTerm, currentPage, itemsPerPage,outletId]);
+  }, [searchTerm, currentPage, itemsPerPage, outletId]);
 
   const clearUserStates = () => {
     setShowAssignStationModal(false);
     setShowRemoveStationModal(false);
     setSelectedUser(null);
   };
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
 
   const columns = [
     {
@@ -102,9 +107,7 @@ const AllUsersPage = () => {
       key: "role",
       label: "Role",
       sortable: true,
-      render: (row) =>(
-        <RoleBadge role={row.roleSlugs?.[0]} />
-      )
+      render: (row) => <RoleBadge role={row.roleSlugs?.[0]} />,
     },
 
     {
@@ -242,9 +245,7 @@ const AllUsersPage = () => {
                 />
 
                 {/* Filter Dropdowns */}
-                <div className="flex items-center gap-2">
-
-                </div>
+                <div className="flex items-center gap-2"></div>
               </div>
             </div>
           </div>

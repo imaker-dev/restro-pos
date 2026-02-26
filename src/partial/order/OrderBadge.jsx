@@ -1,4 +1,5 @@
 import React from "react";
+import Tooltip from "../../components/Tooltip";
 
 /**
  * Color + Label Config
@@ -23,6 +24,12 @@ const CONFIG = {
       text: "text-teal-700",
       dot: "bg-teal-500",
       label: "Served",
+    },
+    preparing: {
+      bg: "bg-orange-50",
+      text: "text-orange-700",
+      dot: "bg-orange-500",
+      label: "Preparing",
     },
     ready: {
       bg: "bg-blue-50",
@@ -124,7 +131,6 @@ export default function OrderBadge({
   showDot = true,
   className = "",
 }) {
-
   const group = CONFIG[type] || CONFIG.status;
   const item = group[value] || {
     bg: "bg-slate-100",
@@ -135,22 +141,31 @@ export default function OrderBadge({
 
   const sizeClass = SIZES[size] || SIZES.md;
 
+  const TYPE_LABELS = {
+    status: "Order Status",
+    payment: "Payment Status",
+    type: "Order Type",
+  };
+
   return (
-    <span
-      className={`
+    <Tooltip content={TYPE_LABELS[type] || "Badge"}>
+      {" "}
+      <span
+        className={`
         inline-flex items-center rounded-md font-semibold capitalize
         ${sizeClass}
         ${item.bg} ${item.text}
         ${className}
       `}
-    >
-      {showDot && (
-        <span
-          className={`h-1.5 w-1.5 rounded-full ${item.dot}`}
-          aria-hidden="true"
-        />
-      )}
-      {item.label}
-    </span>
+      >
+        {showDot && (
+          <span
+            className={`h-1.5 w-1.5 rounded-full ${item.dot}`}
+            aria-hidden="true"
+          />
+        )}
+        {item.label}
+      </span>
+    </Tooltip>
   );
 }

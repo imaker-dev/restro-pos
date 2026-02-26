@@ -32,7 +32,7 @@ export default function Page() {
 
   useEffect(() => {
     dispatch(fetchAllDahboardStats({ outletId, dateRange }));
-  }, [dateRange]);
+}, [dateRange,outletId]);
 
   const { dahbordStats } = useSelector((state) => state.dashboard);
 

@@ -9,6 +9,24 @@ const logIn = isLoggedIn();
 
 const storedOutlet = localStorage.getItem(TOKEN_KEYS.OUTLET_ID);
 
+const resolveOutlet = (outlets) => {
+  if (!outlets?.length) {
+    localStorage.removeItem(TOKEN_KEYS.OUTLET_ID);
+    return null;
+  }
+
+  const raw = localStorage.getItem(TOKEN_KEYS.OUTLET_ID);
+  const stored = raw ? Number(raw) : null;
+
+  const isValid = outlets.some((o) => o.id === stored);
+
+  if (isValid) return stored;
+
+  const defaultOutlet = outlets[0].id;
+  localStorage.setItem(TOKEN_KEYS.OUTLET_ID, String(defaultOutlet));
+  return defaultOutlet;
+};
+
 export const signIn = createAsyncThunk("/admin/signin", async (values) => {
   const res = await AuthServices.signInApi(values);
   return res.data;
@@ -33,6 +51,7 @@ const authSlice = createSlice({
     loading: false,
     isLogging: false,
     meData: null,
+    outlets: [],
     outletId: storedOutlet ? Number(storedOutlet) : null,
   },
   reducers: {
@@ -56,7 +75,10 @@ const authSlice = createSlice({
       .addCase(signIn.fulfilled, (state, action) => {
         state.isLogging = false;
         state.logIn = true;
-        const { accessToken, refreshToken } = action.payload.data;
+        const { accessToken, refreshToken, outlets } = action.payload.data;
+
+        state.outlets = outlets || [];
+        state.outletId = resolveOutlet(outlets);
 
         const rememberMe = action.meta.arg.rememberMe;
         const storage = rememberMe ? localStorage : sessionStorage;
@@ -77,22 +99,10 @@ const authSlice = createSlice({
         state.loading = false;
         state.meData = action.payload.data;
 
-        const outlets = action.payload.data.outletIds || [];
+        const outlets = action.payload.data.outlets || [];
+        state.outlets = outlets;
 
-        if (outlets.length === 0) return;
-
-        const storedOutlet = localStorage.getItem(TOKEN_KEYS.OUTLET_ID);
-        const storedOutletNum = Number(storedOutlet);
-
-        const isValidOutlet = storedOutlet && outlets.includes(storedOutletNum);
-
-        if (!isValidOutlet) {
-          const defaultOutlet = outlets[0];
-          state.outletId = defaultOutlet;
-          localStorage.setItem(TOKEN_KEYS.OUTLET_ID, defaultOutlet);
-        } else {
-          state.outletId = storedOutlet;
-        }
+        state.outletId = resolveOutlet(outlets);
       })
 
       .addCase(fetchMeData.rejected, (state, action) => {

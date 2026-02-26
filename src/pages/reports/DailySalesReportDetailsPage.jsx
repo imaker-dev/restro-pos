@@ -58,6 +58,10 @@ export default function DailySalesReportDetailsPage() {
     );
   }, [outletId, date, currentPage, itemsPerPage]);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [date]);
+
   const columns = [
     {
       key: "orderNumber",

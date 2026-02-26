@@ -275,6 +275,27 @@ export default function CustomDateRangePicker({
     }
   }, []); // Only run on mount
 
+  useEffect(() => {
+  if (!value?.startDate || !value?.endDate) return;
+
+  const valueStart = value.startDate;
+  const valueEnd = value.endDate;
+
+  const matchedRange = PREDEFINED_RANGES.find((range) => {
+    const preset = getDateRange(range);
+    return (
+      toISODate(preset.startDate) === valueStart &&
+      toISODate(preset.endDate) === valueEnd
+    );
+  });
+
+  if (matchedRange) {
+    setActiveRange(matchedRange);
+  } else {
+    setActiveRange("Custom Range");
+  }
+}, [value, getDateRange]);
+
   return (
     <div ref={containerRef} className={`relative inline-block ${className}`}>
       {/* BUTTON */}

@@ -5,6 +5,8 @@ import NoDataFound from "../layout/NoDataFound";
 import Shimmer from "../layout/Shimmer";
 import ActionMenu from "./ActionMenu";
 import { getActionColor } from "../utils/actionColors";
+import { useSelector } from "react-redux";
+import { hasAccess } from "../utils/accessControl";
 
 export default function SmartTable({
   title,
@@ -36,11 +38,30 @@ export default function SmartTable({
   currentPage,
   pageSize,
 }) {
+
+  const { meData } = useSelector((state) => state.auth);
+
+const visibleActions = React.useMemo(() => {
+  if (!meData) return [];
+
+  return actions.filter((action) => {
+    if (!action.roles && !action.permissions) return true;
+
+    return hasAccess({
+      userRole: meData.roles?.[0]?.slug,
+      userPermissions: meData.permissions,
+      roles: action.roles,
+      permissions: action.permissions,
+    });
+  });
+}, [actions, meData]);
+
+
   const columnCount =
     (showSr ? 1 : 0) +
     (selectable ? 1 : 0) +
     columns.length +
-    (actions.length > 0 ? 1 : 0) +
+    (visibleActions.length > 0 ? 1 : 0) +
     (expandable ? 1 : 0);
 
   const [expandedRows, setExpandedRows] = React.useState(() => new Set());
@@ -120,7 +141,7 @@ export default function SmartTable({
                   {col.label}
                 </th>
               ))}
-              {actions?.length > 0 && (
+              {visibleActions?.length > 0 && (
                 <th className="px-3 py-3 text-right">Actions</th>
               )}
             </tr>
@@ -185,7 +206,7 @@ export default function SmartTable({
                 );
               })}
 
-              {actions?.length > 0 && (
+              {visibleActions?.length > 0 && (
                 <th className="px-6 py-3 text-right text-slate-700">Actions</th>
               )}
 
@@ -220,10 +241,10 @@ export default function SmartTable({
                     </td>
                   ))}
 
-                  {actions?.length > 0 && (
+                  {visibleActions?.length > 0 && (
                     <td className="px-6 py-4 text-right">
                       <div className="flex justify-end gap-2">
-                        {actions.map((_, aIdx) => (
+                        {visibleActions.map((_, aIdx) => (
                           <div
                             key={aIdx}
                             className="
@@ -320,7 +341,7 @@ export default function SmartTable({
                       {actions?.length > 0 && (
                         <td className="px-6 py-3 text-right">
                           <div className="flex justify-end gap-2">
-                            {actions.map((action) => {
+                            {actions.map((action,actionIndex) => {
                               /* ================================
      🔹 ACTION MENU (submenu)
   ================================= */
@@ -387,7 +408,7 @@ export default function SmartTable({
 
                               return (
                                 <button
-                                  key={action.label}
+                                  key={`${action.label}-${actionIndex}`}
                                   type="button"
                                   title={
                                     disabledTooltipText || action.label || ""

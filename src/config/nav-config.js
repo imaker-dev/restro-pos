@@ -133,7 +133,7 @@ export const navConfig = [
         name: "Outlets / Restaurants",
         icon: Building2,
         path: "/outlets",
-        roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
+        roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN],
       },
       {
         name: "Users & Staff",
@@ -259,7 +259,7 @@ export const navConfig = [
         name: "App Versions",
         icon: Smartphone,
         path: "/versions",
-        roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN],
+        roles: [ROLES.SUPER_ADMIN],
       },
       // {
       //   name: "Audit Logs",
