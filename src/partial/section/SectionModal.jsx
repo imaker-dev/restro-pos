@@ -116,17 +116,18 @@ const SectionModal = ({
           value={formik.values.description}
           onChange={formik.handleChange}
         />
-
-        {/* Display Order */}
+        
+        {/* Floor Section Display Order */}
         <InputField
           label="Display Order"
           name="displayOrder"
           placeholder="1, 2, 3"
           type="number"
+          tooltip="Determines the order in which sections are displayed within the selected floor. This does not affect other floors."
+          helperText="Lower numbers appear first within this floor."
           value={formik.values.displayOrder}
           onChange={formik.handleChange}
         />
-
         {/* Active */}
         <CheckboxField
           label="Enable Section"

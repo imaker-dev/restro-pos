@@ -1,6 +1,6 @@
 import React from "react";
 import { ArrowLeft, Loader2 } from "lucide-react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Breadcrumbs from "../components/Breadcrumb";
 import PermissionGuard from "../guard/PermissionGuard";
 
@@ -17,16 +17,42 @@ const PageHeader = ({
   title,
   description,
   showBackButton = false,
+  backLabel = "Back",
+  onlyBack = false, // ✅ NEW PROP
   actions = [],
   badge = null,
 }) => {
   const navigate = useNavigate();
 
+  // ✅ If onlyBack is true → render ONLY back button
+  if (onlyBack) {
+    return (
+      <div className="w-full">
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-2 text-[12px] font-semibold text-slate-500 hover:text-slate-800 transition-colors group"
+          type="button"
+        >
+          <span className="w-7 h-7 rounded-lg border border-slate-200 bg-white shadow-sm flex items-center justify-center group-hover:border-slate-300 transition-colors">
+            <ArrowLeft
+              size={13}
+              className="text-slate-500"
+              strokeWidth={2.5}
+            />
+          </span>
+          {backLabel}
+        </button>
+      </div>
+    );
+  }
+
   return (
     <header className="flex flex-col gap-4 sm:gap-6 w-full">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 lg:gap-4 w-full">
+
         {/* Title Section */}
         <div className="flex items-start sm:items-center space-x-3 sm:space-x-4 flex-1 min-w-0">
+
           {showBackButton && (
             <button
               onClick={() => navigate(-1)}
@@ -50,7 +76,6 @@ const PageHeader = ({
               <div className="mt-1">
                 <Breadcrumbs />
               </div>
-              // <div className="mt-2">{generateBreadcrumbs()}</div>
             )}
           </div>
         </div>
@@ -115,7 +140,6 @@ const PageHeader = ({
                   </button>
                 );
 
-                // 🔐 Wrap only if roles or permissions exist
                 if (action.roles || action.permissions) {
                   return (
                     <PermissionGuard

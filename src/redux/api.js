@@ -45,6 +45,7 @@ axiosInstance.interceptors.response.use(
 
       const logoutErrors = [
         "Access token required",
+        "Invalid access token",
         "Invalid or expired token",
         "The user belonging to this token no longer exists",
       ];

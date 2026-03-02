@@ -6,6 +6,7 @@ import CustomDateRangePicker from "../../components/CustomDateRangePicker";
 import { Utensils, Wine, Layers, BarChart3 } from "lucide-react";
 import { formatNumber } from "../../utils/numberFormatter";
 import ServiceTypeBreakdownReportSkeleton from "../../partial/report/ServiceTypeBreakdownReportSkeleton";
+import StatCard from "../../components/StatCard";
 
 /* ---------------- Color Mapping (Safe for Tailwind) ---------------- */
 const colorMap = {
@@ -85,26 +86,7 @@ const StatRow = ({ label, value }) => {
     </div>
   );
 };
-/* ---------------- Summary Card ---------------- */
-const SummaryCard = ({ title, value, icon: Icon, gradient }) => (
-  <div
-    className={`relative overflow-hidden rounded-2xl p-6 text-white shadow-md bg-gradient-to-br ${gradient}`}
-  >
-    <div className="absolute -top-10 -right-10 w-24 h-24 bg-white/10 rounded-full" />
-    <div className="absolute -bottom-8 -left-8 w-20 h-20 bg-white/10 rounded-full" />
 
-    <div className="relative flex items-center justify-between">
-      <div>
-        <p className="text-xs opacity-80">{title}</p>
-        <p className="text-3xl font-bold mt-1">{value}</p>
-      </div>
-
-      <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
-        <Icon className="w-5 h-5 text-white" />
-      </div>
-    </div>
-  </div>
-);
 
 /* ---------------- MAIN PAGE ---------------- */
 const ServiceTypeBreakdownReportPage = () => {
@@ -123,6 +105,39 @@ const ServiceTypeBreakdownReportPage = () => {
   const summary = serviceTypeBreakdownReport?.summary;
   const breakdown = serviceTypeBreakdownReport?.breakdown;
 
+  const summaryCards = [
+    {
+      title: "Total Revenue",
+      value: formatNumber(summary?.total_revenue, true),
+      icon: BarChart3,
+      color: "indigo",
+    },
+    {
+      title: "Total Quantity",
+      value: summary?.total_quantity,
+      icon: Layers,
+      color: "emerald",
+    },
+    {
+      title: "Restaurant Revenue",
+      value: formatNumber(summary?.restaurant_revenue, true),
+      icon: Utensils,
+      color: "blue",
+    },
+    {
+      title: "Bar Revenue",
+      value: formatNumber(summary?.bar_revenue, true),
+      icon: Wine,
+      color: "purple",
+    },
+    {
+      title: "Shared Revenue",
+      value: formatNumber(summary?.shared_revenue, true),
+      icon: Layers,
+      color: "amber",
+    },
+  ];
+
   if (isFetchingServiceTypeBreakdownReport) {
     return <ServiceTypeBreakdownReportSkeleton />;
   }
@@ -139,44 +154,19 @@ const ServiceTypeBreakdownReportPage = () => {
       </div>
 
       {/* ---------------- SUMMARY SECTION ---------------- */}
-      {summary && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
-          <SummaryCard
-            title="Total Revenue"
-            value={formatNumber(summary.total_revenue, true)}
-            icon={BarChart3}
-            gradient="from-indigo-500 to-indigo-600"
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+        {summaryCards.map((card, index) => (
+          <StatCard
+            key={index}
+            title={card.title}
+            value={card.value}
+            icon={card.icon}
+            color={card.color}
+            variant="v3"
+            mode="solid"
           />
-
-          <SummaryCard
-            title="Total Quantity"
-            value={summary.total_quantity}
-            icon={Layers}
-            gradient="from-emerald-500 to-emerald-600"
-          />
-
-          <SummaryCard
-            title="Restaurant Revenue"
-            value={formatNumber(summary.restaurant_revenue, true)}
-            icon={Utensils}
-            gradient="from-blue-500 to-blue-600"
-          />
-
-          <SummaryCard
-            title="Bar Revenue"
-            value={formatNumber(summary.bar_revenue, true)}
-            icon={Wine}
-            gradient="from-purple-500 to-purple-600"
-          />
-
-          <SummaryCard
-            title="Shared Revenue"
-            value={formatNumber(summary.shared_revenue, true)}
-            icon={Layers}
-            gradient="from-amber-500 to-amber-600"
-          />
-        </div>
-      )}
+        ))}
+      </div>
 
       {/* ---------------- BREAKDOWN SECTION ---------------- */}
       {breakdown && (

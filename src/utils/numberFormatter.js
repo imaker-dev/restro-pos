@@ -12,3 +12,10 @@ export function formatNumber(num, showRupee = false, decimals) {
 
   return showRupee ? `₹${formattedNumber}` : formattedNumber;
 }
+
+
+// Safe number conversion
+export const num = (value) => {
+  const n = Number(value);
+  return isNaN(n) ? 0 : n;
+};

@@ -1,317 +1,265 @@
-import {
-  ShoppingCart,
-  Users,
-  TrendingUp,
-  IndianRupee,
-  Eye,
-  Utensils,
-  BarChart3,
-  Truck,
-  DollarSign,
-  CreditCard,
-  Wallet,
-} from "lucide-react";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchDailySalesReport } from "../../redux/slices/reportSlice";
-import CustomDateRangePicker from "../../components/CustomDateRangePicker";
 import PageHeader from "../../layout/PageHeader";
+import CustomDateRangePicker from "../../components/CustomDateRangePicker";
+import {
+  ShoppingBag,
+  IndianRupee,
+  TrendingUp,
+  Users,
+  Banknote,
+  Smartphone,
+  CreditCard,
+  BarChart2,
+  Eye,
+  ChevronRight,
+  CalendarDays,
+  Wallet,
+  Tag,
+} from "lucide-react";
+import { formatNumber, num } from "../../utils/numberFormatter";
 import StatCard from "../../components/StatCard";
-import { formatNumber } from "../../utils/numberFormatter";
-import SmartTable from "../../components/SmartTable";
-import { formatDate } from "../../utils/dateFormatter";
-import { useNavigate } from "react-router-dom";
-import AccordionSection from "../../components/AccordionSection";
+import DailySalesCard from "../../partial/report/daily-sales-report/DailySalesCard";
+import LoadingOverlay from "../../components/LoadingOverlay";
+import MetricPanel from "../../partial/report/daily-sales-report/MetricPanel";
+import OrderTypeBar from "../../partial/report/daily-sales-report/OrderTypeBar";
+import PayRow from "../../partial/report/daily-sales-report/PayRow";
+import NoDataFound from "../../layout/NoDataFound";
 
-export default function DailySalesReportPage() {
+const DailySalesReportPage = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
-
-  const { outletId } = useSelector((state) => state.auth);
+  const { outletId } = useSelector((s) => s.auth);
   const { dailySalesReport, isFetchingDailyReports } = useSelector(
-    (state) => state.report,
+    (s) => s.report,
   );
-  const { daily, summary } = dailySalesReport || {};
-
   const [dateRange, setDateRange] = useState();
 
   useEffect(() => {
     if (!dateRange?.startDate || !dateRange?.endDate) return;
-
     dispatch(fetchDailySalesReport({ outletId, dateRange }));
   }, [dateRange, outletId]);
 
-  const toNumber = (val) => Number(val || 0);
+  const report = dailySalesReport?.data || dailySalesReport || {};
+  const { daily = [], summary } = report;
 
-  const columns = [
-    {
-      key: "report_date",
-      label: "Date",
-      render: (row) => (
-        <div className="max-w-[180px]">
-          <p className="font-medium text-slate-800">
-            {formatDate(row.report_date, "long")}
-          </p>
-          <p className="text-xs text-slate-500">
-            Guests: {toNumber(row.total_guests)}
-          </p>
-        </div>
-      ),
-    },
+  const totalColl = num(summary?.total_collection);
 
+  const salesStats = [
     {
-      key: "orders",
-      label: "Orders",
-      render: (row) => (
-        <div className="space-y-1">
-          <p className="font-semibold text-slate-800">
-            {row.total_orders} Orders
-          </p>
-          <p className="text-xs text-slate-500">
-            Dine-In: {row.dine_in_orders} • Takeaway: {row.takeaway_orders}
-          </p>
-          <p className="text-xs text-slate-500">
-            Delivery: {row.delivery_orders} • Cancelled: {row.cancelled_orders}
-          </p>
-        </div>
-      ),
-    },
-
-    {
-      key: "sales_summary",
-      label: "Sales",
-      sortable: false,
-      render: (row) => (
-        <div className="text-xs space-y-0.5">
-          <p>
-            Gross:{" "}
-            <span className="font-medium text-slate-700">
-              {formatNumber(toNumber(row.gross_sales), true)}
-            </span>
-          </p>
-          <p>
-            Net:{" "}
-            <span className="font-semibold text-emerald-700">
-              {formatNumber(toNumber(row.net_sales), true)}
-            </span>
-          </p>
-          <p>Tax: {formatNumber(toNumber(row.tax_amount), true)}</p>
-          <p>Discount: {formatNumber(toNumber(row.discount_amount), true)}</p>
-        </div>
-      ),
-    },
-
-    {
-      key: "extra_charges",
-      label: "Charges",
-      sortable: false,
-      render: (row) => (
-        <div className="text-xs space-y-0.5 text-slate-600">
-          <p>Service: {formatNumber(toNumber(row.service_charge), true)}</p>
-          <p>Packaging: {formatNumber(toNumber(row.packaging_charge), true)}</p>
-          <p>Delivery: {formatNumber(toNumber(row.delivery_charge), true)}</p>
-          <p>Round Off: {formatNumber(toNumber(row.round_off), true)}</p>
-        </div>
-      ),
-    },
-
-    {
-      key: "collection",
-      label: "Collection",
-      render: (row) => (
-        <div className="space-y-1">
-          <p className="font-semibold text-indigo-700">
-            {formatNumber(toNumber(row.total_collection), true)}
-          </p>
-          <p className="text-xs text-slate-500">
-            Tip: {formatNumber(toNumber(row.tip_amount), true)}
-          </p>
-        </div>
-      ),
-    },
-
-    {
-      key: "payments",
-      label: "Payment Split",
-      sortable: false,
-      render: (row) => (
-        <div className="text-xs text-slate-600 space-y-0.5">
-          <p>Cash: {formatNumber(toNumber(row.cash_collection), true)}</p>
-          <p>UPI: {formatNumber(toNumber(row.upi_collection), true)}</p>
-          <p>Card: {formatNumber(toNumber(row.card_collection), true)}</p>
-          <p>Wallet: {formatNumber(toNumber(row.wallet_collection), true)}</p>
-          <p>Credit: {formatNumber(toNumber(row.credit_collection), true)}</p>
-        </div>
-      ),
-    },
-
-    {
-      key: "averages",
-      label: "Averages",
-      render: (row) => (
-        <div className="text-xs space-y-0.5">
-          <p>
-            Avg Order:{" "}
-            <span className="font-medium text-slate-700">
-              {formatNumber(toNumber(row.average_order_value), true)}
-            </span>
-          </p>
-          <p>
-            Avg Guest:{" "}
-            <span className="font-medium text-slate-700">
-              {formatNumber(toNumber(row.average_guest_spend), true)}
-            </span>
-          </p>
-        </div>
-      ),
-    },
-  ];
-
-  const rowActions = [
-    {
-      label: "View",
-      icon: Eye,
+      label: "Gross Sales",
+      value: formatNumber(summary?.gross_sales, true),
+      sub: "Before discounts",
+      icon: IndianRupee,
       color: "slate",
-      onClick: (row) =>
-        navigate(`/daily-sales/details?date=${row.report_date}`),
-    },
-  ];
-
-  const summaryStats = [
-    {
-      title: "Total Orders",
-      value: summary?.total_orders || 0,
-      subtitle: `${summary?.cancelled_orders || 0} Cancelled`,
-      icon: ShoppingCart,
-      color: "blue",
+      dark: true,
     },
     {
-      title: "Dine-in Orders",
-      value: summary?.dine_in_orders || 0,
-      subtitle: "Orders served at tables",
-      icon: Utensils,
-      color: "green",
-    },
-    {
-      title: "Takeaway Orders",
-      value: summary?.takeaway_orders || 0,
-      subtitle: "Packed & picked up",
-      icon: ShoppingCart,
-      color: "purple",
-    },
-    {
-      title: "Delivery Orders",
-      value: summary?.delivery_orders || 0,
-      subtitle: "Online / Delivery apps",
-      icon: Truck,
-      color: "indigo",
-    },
-    {
-      title: "Total Guests",
-      value: summary?.total_guests || 0,
-      subtitle: "Guests served",
-      icon: Users,
-      color: "cyan",
-    },
-    {
-      title: "Gross Sales",
-      value: formatNumber(summary?.gross_sales || 0, true),
-      subtitle: "Before tax & charges",
-      icon: DollarSign,
-      color: "emerald",
-    },
-    {
-      title: "Net Sales",
-      value: formatNumber(summary?.net_sales || 0, true),
-      subtitle: "After tax & service charge",
+      label: "Net Sales",
+      value: formatNumber(summary?.net_sales, true),
+      sub: "After discounts",
       icon: TrendingUp,
       color: "green",
     },
     {
-      title: "Tax Collected",
-      value: formatNumber(summary?.tax_amount || 0, true),
-      subtitle: "Total tax applied",
-      icon: BarChart3,
+      label: "Total Discount",
+      value: formatNumber(summary?.discount_amount, true),
+      sub: "Savings given",
+      icon: Tag,
       color: "orange",
     },
     {
-      title: "Service Charge",
-      value: formatNumber(summary?.service_charge || 0, true),
-      subtitle: "Service fees collected",
-      icon: Wallet,
-      color: "yellow",
-    },
-    {
-      title: "Total Collection",
-      value: formatNumber(summary?.total_collection || 0, true),
-      subtitle: "Total received",
-      icon: CreditCard,
+      label: "Total Tax",
+      value: formatNumber(summary?.tax_amount, true),
+      sub: "Tax collected",
+      icon: BarChart2,
       color: "blue",
     },
+  ];
+
+  const orderStats = [
     {
-      title: "Cash Collection",
-      value: formatNumber(summary?.cash_collection || 0, true),
-      subtitle: "Cash payments",
-      icon: IndianRupee,
+      label: "Total Orders",
+      value: formatNumber(summary?.total_orders),
+      sub: formatNumber(summary?.cancelled_orders) + " cancelled",
+      icon: ShoppingBag,
+      color: "slate",
+    },
+    {
+      label: "Total Guests",
+      value: formatNumber(summary?.total_orders),
+      sub: "Covers served",
+      icon: Users,
+      color: "purple",
+    },
+    {
+      label: "Avg Order",
+      value: formatNumber(summary?.average_order_value, true),
+      sub: "Per order value",
+      icon: TrendingUp,
       color: "green",
     },
     {
-      title: "Average Order Value",
-      value: formatNumber(summary?.average_order_value || 0, true),
-      subtitle: "Per order average",
-      icon: TrendingUp,
-      color: "purple",
+      label: "Avg Daily",
+      value: formatNumber(summary?.average_daily_sales, true),
+      sub: "Over " + formatNumber(summary?.total_days) + " days",
+      icon: CalendarDays,
+      color: "blue",
     },
   ];
-  
+
+  if (isFetchingDailyReports) {
+    return <LoadingOverlay text="Loading sales report.." />;
+  }
+
   return (
     <div className="space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-        {/* Header Section */}
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <PageHeader
-          title={"Daily Sales Report"}
-          description={
-            "Real-time analytics and performance metrics for your business"
-          }
+          title="Daily Sales Report"
+          description="Performance metrics broken down day by day"
         />
-        <CustomDateRangePicker
-          value={dateRange}
-          onChange={(newRange) => {
-            setDateRange(newRange);
-          }}
-        />
+        <CustomDateRangePicker value={dateRange} onChange={setDateRange} />
       </div>
 
-      {/* Summary Stats Grid */}
-      <AccordionSection
-        icon={BarChart3}
-        title="Sales & Orders Summary"
-        defaultOpen={false}
-      >
-        {" "}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {summaryStats?.map((stat, index) => (
-            <StatCard
-              key={index}
-              title={stat?.title}
-              value={stat?.value}
-              subtitle={stat?.subtitle}
-              icon={stat?.icon}
-              color={stat?.color}
-              variant="secondary"
-            />
-          ))}
-        </div>
-      </AccordionSection>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        {salesStats.map((stat, i) => (
+          <StatCard
+            key={i}
+            icon={stat.icon}
+            title={stat.label}
+            value={stat.value}
+            subtitle={stat.sub}
+            color={stat.color}
+            mode={stat.dark ? "solid" : ""}
+            variant="v9"
+          />
+        ))}
+      </div>
 
-      <SmartTable
-        title={"Daily Sales"}
-        totalcount={daily?.length}
-        data={daily}
-        columns={columns}
-        loading={isFetchingDailyReports}
-        actions={rowActions}
-      />
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        {orderStats.map((stat, i) => (
+          <StatCard
+            key={i}
+            icon={stat.icon}
+            title={stat.label}
+            value={stat.value}
+            subtitle={stat.sub}
+            color={stat.color}
+            variant="v9"
+          />
+        ))}
+      </div>
+
+      {/* ── Collection + Order types ── */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Collection */}
+        <MetricPanel
+          icon={Wallet}
+          title="Total Collection"
+          right={
+            <span className="text-[13px] font-black text-slate-900 tabular-nums">
+              {formatNumber(summary?.total_collection, true)}
+            </span>
+          }
+        >
+          <PayRow
+            type="cash"
+            amount={summary?.cash_collection}
+            total={totalColl}
+          />
+          <PayRow
+            type="card"
+            amount={summary?.card_collection}
+            total={totalColl}
+          />
+          <PayRow
+            type="upi"
+            amount={summary?.upi_collection}
+            total={totalColl}
+          />
+          <PayRow
+            type="wallet"
+            amount={summary?.wallet_collection}
+            total={totalColl}
+          />
+          <PayRow
+            type="credit"
+            amount={summary?.credit_collection}
+            total={totalColl}
+          />
+        </MetricPanel>
+
+        <MetricPanel
+          icon={ShoppingBag}
+          title="Orders by Type"
+          right={
+            <span className="text-[13px] font-black text-slate-900 tabular-nums">
+              {num(summary?.total_orders)} total
+            </span>
+          }
+        >
+          <OrderTypeBar
+            type="dine_in"
+            value={summary?.dine_in_orders}
+            total={summary?.total_orders}
+          />
+
+          <OrderTypeBar
+            type="takeaway"
+            value={summary?.takeaway_orders}
+            total={summary?.total_orders}
+          />
+
+          <OrderTypeBar
+            type="delivery"
+            value={summary?.delivery_orders}
+            total={summary?.total_orders}
+          />
+
+          <OrderTypeBar
+            type="cancelled"
+            value={summary?.cancelled_orders}
+            total={summary?.total_orders}
+          />
+        </MetricPanel>
+      </div>
+
+      {/* ── Daily rows ── */}
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded-lg bg-slate-900 flex items-center justify-center">
+              <CalendarDays size={13} className="text-white" strokeWidth={2} />
+            </div>
+            <h2 className="text-[13px] font-black text-slate-800">
+              Daily Breakdown
+            </h2>
+          </div>
+          <span className="text-[10px] font-bold text-slate-400 bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-full">
+            {daily?.length} day{daily?.length !== 1 ? "s" : ""}
+          </span>
+        </div>
+
+        {daily?.length === 0 ? (
+          <NoDataFound 
+          icon={CalendarDays}
+          title="No daily data"
+          description="No sales found for the selected range"
+          className="bg-white rounded-2xl border border-dashed border-slate-200 py-20"
+          />
+          
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {daily?.map((day, i) => (
+              <DailySalesCard key={day.report_date} day={day} />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
-}
+};
+
+export default DailySalesReportPage;

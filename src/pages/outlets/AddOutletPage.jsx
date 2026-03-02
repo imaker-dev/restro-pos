@@ -126,14 +126,13 @@ const AddOutletPage = () => {
     postalCode: Yup.string().required("Postal code is required"),
 
     phone: Yup.string().required("Phone number is required"),
-    email: Yup.string()
-      .email("Invalid email format")
-      .required("Email is required"),
+    gstin: Yup.string().nullable(),
 
-    // Compliance required now
-    gstin: Yup.string().required("GSTIN is required"),
-    // fssaiNumber: Yup.string().required("FSSAI number is required"),
-    panNumber: Yup.string().required("PAN number is required"),
+    fssaiNumber: Yup.string().nullable(),
+
+    panNumber: Yup.string().nullable(),
+
+    email: Yup.string().email("Invalid email format").nullable(),
 
     currencyCode: Yup.string().required("Currency is required"),
     timezone: Yup.string().required("Timezone is required"),
@@ -325,7 +324,6 @@ const AddOutletPage = () => {
                   label="Official Email"
                   name="email"
                   type="email"
-                  required
                   placeholder="e.g. contact@urbantandoor.com"
                   value={formik.values.email}
                   onChange={formik.handleChange}
@@ -344,7 +342,6 @@ const AddOutletPage = () => {
                 <InputField
                   label="GSTIN"
                   name="gstin"
-                  required
                   placeholder="e.g. 27ABCDE1234F1Z5"
                   value={formik.values.gstin}
                   onChange={formik.handleChange}
@@ -355,7 +352,6 @@ const AddOutletPage = () => {
                 <InputField
                   label="FSSAI License Number"
                   name="fssaiNumber"
-                  required
                   placeholder="14 digit FSSAI license number"
                   value={formik.values.fssaiNumber}
                   onChange={formik.handleChange}
@@ -368,7 +364,6 @@ const AddOutletPage = () => {
                 <InputField
                   label="PAN Number"
                   name="panNumber"
-                  required
                   placeholder="e.g. ABCDE1234F"
                   value={formik.values.panNumber}
                   onChange={formik.handleChange}

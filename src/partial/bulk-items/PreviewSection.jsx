@@ -1,7 +1,18 @@
-import { CheckCircle2, Layers, Loader2, PackagePlus, Plus, PlusCircle, RotateCcw, Search, Tag, UtensilsCrossed, X } from "lucide-react";
+import {
+  CheckCircle2,
+  Layers,
+  Loader2,
+  PackagePlus,
+  Plus,
+  PlusCircle,
+  RotateCcw,
+  Search,
+  Tag,
+  UtensilsCrossed,
+  X,
+} from "lucide-react";
 import { useState } from "react";
 import FoodTypeIcon from "../common/FoodTypeIcon";
-
 
 function FoodDot({ type }) {
   const map = {
@@ -20,7 +31,12 @@ function FoodDot({ type }) {
   );
 }
 
-export default function PreviewSection({ previewData, onReset, onUpload, isUploading }) {
+export default function PreviewSection({
+  previewData,
+  onReset,
+  onUpload,
+  isUploading,
+}) {
   const [activeTab, setActiveTab] = useState("items");
   const [search, setSearch] = useState("");
 
@@ -146,7 +162,7 @@ export default function PreviewSection({ previewData, onReset, onUpload, isUploa
                   <TH>Name</TH>
                   <TH>Category</TH>
                   <TH>Price</TH>
-                  <TH>GST</TH>
+                  <TH>Tax</TH>
                   <TH>Station</TH>
                 </tr>
               )}
@@ -204,7 +220,7 @@ export default function PreviewSection({ previewData, onReset, onUpload, isUploa
                     {activeTab === "items" && (
                       <>
                         <td className="px-4 py-3 text-[12px] font-semibold text-slate-800 flex gap-2 items-center">
-                            <FoodTypeIcon type={row.foodType} />
+                          <FoodTypeIcon type={row.foodType} />
                           {row.name}
                         </td>
                         <td className="px-4 py-3 text-[12px] text-slate-600">
@@ -213,9 +229,19 @@ export default function PreviewSection({ previewData, onReset, onUpload, isUploa
                         <td className="px-4 py-3 text-[12px] font-bold text-slate-800">
                           ₹{row.price}
                         </td>
-                        
-                        <td className="px-4 py-3 text-[12px] text-slate-600">
-                          {row.gst}%
+
+                        <td className="px-4 py-3 text-[12px]">
+                          {row.gst != null && row.gst !== "" ? (
+                            <span className="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full font-semibold text-[11px]">
+                              GST {row.gst}%
+                            </span>
+                          ) : row.vat != null && row.vat !== "" ? (
+                            <span className="text-violet-700 bg-violet-50 px-2 py-0.5 rounded-full font-semibold text-[11px]">
+                              VAT {row.vat}%
+                            </span>
+                          ) : (
+                            <span className="text-slate-400">—</span>
+                          )}
                         </td>
                         <td className="px-4 py-3 text-[12px] text-slate-500">
                           {row.station}
@@ -291,7 +317,7 @@ export default function PreviewSection({ previewData, onReset, onUpload, isUploa
                     {activeTab === "addons" && (
                       <>
                         <td className="px-4 py-3 text-[12px] font-semibold text-slate-800 flex items-center gap-2">
-                            <FoodTypeIcon type={row.foodType} />
+                          <FoodTypeIcon type={row.foodType} />
                           {row.name}
                         </td>
                         <td className="px-4 py-3 text-[12px] text-slate-600">
@@ -306,7 +332,6 @@ export default function PreviewSection({ previewData, onReset, onUpload, isUploa
                             `₹${row.price}`
                           )}
                         </td>
-                        
                       </>
                     )}
                   </tr>

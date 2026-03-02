@@ -241,7 +241,7 @@ export default function UserDetailsPage() {
             title={stat?.label}
             value={stat?.value}
             color="orange"
-            variant="secondary"
+            variant="v5"
           />
         ))}
       </div>

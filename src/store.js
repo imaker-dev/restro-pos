@@ -24,6 +24,7 @@ import printerSlice from './redux/slices/printerSlice';
 import settingSlice from './redux/slices/settingSlice';
 import versionSlice from './redux/slices/versionSlice';
 import bulkUploadSlice from './redux/slices/bulkUploadSlice';
+import customerSlice from './redux/slices/customerSlice';
 
 const reducer = {
   auth: authSlice,
@@ -51,6 +52,7 @@ const reducer = {
   setting:settingSlice,
   version:versionSlice,
   bulkUpload:bulkUploadSlice,
+  customer:customerSlice,
 };
 
 const store = configureStore({

@@ -156,7 +156,6 @@ const CategorySalesReportPage = () => {
             subtitle={stat?.subtitle}
             icon={stat?.icon}
             color={stat?.color}
-            // variant="secondary"
           />
         ))}
       </div>

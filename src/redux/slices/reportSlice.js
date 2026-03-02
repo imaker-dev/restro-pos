@@ -89,6 +89,27 @@ export const fetchRunningOrder = createAsyncThunk(
     return res.data;
   },
 );
+export const fetchSectionSalesReport = createAsyncThunk(
+  "/fetch/section-sales/report",
+  async ({outletId,dateRange}) => {
+    const res = await ReportServices.getSectionSalesReportApi(outletId,dateRange);
+    return res.data;
+  },
+);
+export const fetchStationSalesReport = createAsyncThunk(
+  "/fetch/station-sales/report",
+  async ({outletId,dateRange}) => {
+    const res = await ReportServices.getStationSalesReportApi(outletId,dateRange);
+    return res.data;
+  },
+);
+export const fetchCancellationReport = createAsyncThunk(
+  "/fetch/canellation/report",
+  async ({outletId,dateRange}) => {
+    const res = await ReportServices.getCancellationReportApi(outletId,dateRange);
+    return res.data;
+  },
+);
 
 const reportSlice = createSlice({
   name: "report",
@@ -118,6 +139,15 @@ const reportSlice = createSlice({
 
     isFetchingRunningOrder:false,
     runningOrders:null,
+
+    isFetchingSectionSalesReport:false,
+    sectionSalesReport:null,
+
+    isFetchingStationSalesReport:false,
+    stationSalesReport:null,
+
+    isFetchingCancellationReport:false,
+    cancellationReport:null,
 
 
   },
@@ -232,6 +262,39 @@ const reportSlice = createSlice({
       })
       .addCase(fetchRunningOrder.rejected, (state, action) => {
         state.isFetchingRunningOrder = false;
+        toast.error(action.error.message);
+      })
+      .addCase(fetchSectionSalesReport.pending, (state) => {
+        state.isFetchingSectionSalesReport = true;
+      })
+      .addCase(fetchSectionSalesReport.fulfilled, (state, action) => {
+        state.isFetchingSectionSalesReport = false;
+        state.sectionSalesReport = action.payload.data;
+      })
+      .addCase(fetchSectionSalesReport.rejected, (state, action) => {
+        state.isFetchingSectionSalesReport = false;
+        toast.error(action.error.message);
+      })
+      .addCase(fetchStationSalesReport.pending, (state) => {
+        state.isFetchingStationSalesReport = true;
+      })
+      .addCase(fetchStationSalesReport.fulfilled, (state, action) => {
+        state.isFetchingStationSalesReport = false;
+        state.stationSalesReport = action.payload.data;
+      })
+      .addCase(fetchStationSalesReport.rejected, (state, action) => {
+        state.isFetchingStationSalesReport = false;
+        toast.error(action.error.message);
+      })
+      .addCase(fetchCancellationReport.pending, (state) => {
+        state.isFetchingCancellationReport = true;
+      })
+      .addCase(fetchCancellationReport.fulfilled, (state, action) => {
+        state.isFetchingCancellationReport = false;
+        state.cancellationReport = action.payload.data;
+      })
+      .addCase(fetchCancellationReport.rejected, (state, action) => {
+        state.isFetchingCancellationReport = false;
         toast.error(action.error.message);
       })
   },

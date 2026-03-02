@@ -133,8 +133,7 @@ const AddItemPage = () => {
 
       minQuantity: itemDetails.min_quantity || 1,
       maxQuantity: itemDetails.max_quantity || 10,
-
-      kitchenStationId: itemDetails.kitchenStations?.[0]?.id || "",
+      kitchenStationId: itemDetails.kitchen_station_id || "",
 
       // floorIds:
       //   itemDetails.visibility?.floors

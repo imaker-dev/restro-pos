@@ -22,6 +22,7 @@ import {
   Monitor,
   Printer,
   Smartphone,
+  XCircle,
 } from "lucide-react";
 import { ROLES } from "../constants";
 
@@ -97,6 +98,24 @@ export const navConfig = [
             path: "/service-type-breakdown",
             roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
           },
+          {
+            name: "Station Sales",
+            path: "/station-sales",
+            icon: Monitor,
+            roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
+          },
+          {
+            name: "Section Sales",
+            path: "/section-sales",
+            icon: Layers, // better than Users
+            roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
+          },
+          {
+            name: "Cancellation Report",
+            path: "/cancellation-report",
+            icon: XCircle,
+            roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
+          },
         ],
       },
     ],
@@ -106,10 +125,16 @@ export const navConfig = [
     roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
     items: [
       {
-        name: "Running Tables & Orders",
+        name: "Running Orders",
         icon: ReceiptIndianRupee,
         path: "/running-orders",
-        roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER],
+        roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
+      },
+      {
+        name: "Running Tables",
+        icon: ReceiptIndianRupee,
+        path: "/running-tables",
+        roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
       },
       {
         name: "Shift Summary",
@@ -209,10 +234,11 @@ export const navConfig = [
         path: "/orders",
         roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
       },
+
       {
-        name: "Printers",
-        icon: Printer,
-        path: "/printers",
+        name: "Customers",
+        icon: Users,
+        path: "/customers",
         roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
       },
 
@@ -220,6 +246,13 @@ export const navConfig = [
         name: "Stations",
         icon: Monitor,
         path: "/stations",
+        roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
+      },
+
+      {
+        name: "Printers",
+        icon: Printer,
+        path: "/printers",
         roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
       },
 

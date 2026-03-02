@@ -178,7 +178,7 @@ function Sidebar({
             className={`flex items-center ${effectiveExpanded ? "justify-start" : "justify-center"} h-16`}
           >
             {effectiveExpanded && (
-              <img src="/Images/Logo.svg" alt="" className="w-44" />
+              <img src="/Images/Logo.svg" alt="" className="w-40" />
             )}
             {!effectiveExpanded && (
               <img src="/Images/logo-icon.png" className="w-8" />

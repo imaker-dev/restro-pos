@@ -10,6 +10,7 @@ import {
   Banknote,
   QrCode,
   IndianRupee,
+  CreditCard,
 } from "lucide-react";
 import StatCard from "../../components/StatCard";
 import { formatNumber } from "../../utils/numberFormatter";
@@ -46,6 +47,36 @@ export default function SalesSummary({ data }) {
     },
   ];
 
+
+const {paymentBreakdown} = data || {};
+
+const paymentModes = [
+  {
+    key: "cash",
+    label: "Cash",
+    icon: Banknote,
+    color: "text-emerald-600",
+  },
+  {
+    key: "card",
+    label: "Card",
+    icon: CreditCard,
+    color: "text-indigo-600",
+  },
+  {
+    key: "upi",
+    label: "UPI",
+    icon: QrCode,
+    color: "text-blue-600",
+  },
+  {
+    key: "split",
+    label: "Split",
+    icon: ShoppingCart,
+    color: "text-purple-600",
+  },
+];
+
   return (
     <div className="mb-8">
       {/* Main Summary Grid */}
@@ -54,11 +85,10 @@ export default function SalesSummary({ data }) {
           <StatCard
             key={card?.label}
             icon={card?.icon}
-            label={card?.label}
+            title={card?.label}
             value={card?.value}
             subtitle={card?.subtitle}
             color={card?.color}
-            variant="secondary"
           />
         ))}
       </div>

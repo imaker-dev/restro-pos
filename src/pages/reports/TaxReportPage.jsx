@@ -217,7 +217,8 @@ const TaxReportPage = () => {
             title={card?.title}
             value={card?.value}
             color={card?.color}
-            variant="secondary"
+            variant="v3"
+            mode="solid"
           />
         ))}
       </div>

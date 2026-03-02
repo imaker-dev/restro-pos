@@ -17,7 +17,8 @@ export function InputField({
   disabled = false,
   icon: Icon,
   iconPosition = "left",
-   autoComplete = "off",
+  autoComplete = "off",
+  tooltip,
 }) {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -25,7 +26,7 @@ export function InputField({
 
   // const rightDefaultIcon =
   //   type === "date" ? Calendar : type === "time" ? Clock : null;
-  
+
   const rightDefaultIcon = null;
 
   const FinalRightIcon = iconPosition === "right" ? Icon : null;
@@ -38,6 +39,7 @@ export function InputField({
   return (
     <FieldWrapper
       label={label}
+      tooltip={tooltip}
       id={inputId}
       required={required}
       error={error}
@@ -69,7 +71,7 @@ export function InputField({
             ${error ? "border-red-500" : ""}
             ${disabled ? "bg-slate-100 text-slate-500 cursor-not-allowed" : ""}
           `}
-           autoComplete={autoComplete}
+          autoComplete={autoComplete}
         />
 
         {/* RIGHT ICON AREA */}

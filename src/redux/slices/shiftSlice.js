@@ -4,8 +4,8 @@ import ShiftServices from "../services/ShiftServices";
 
 export const fetchShiftHistory = createAsyncThunk(
   "/fetch/shift/history",
-  async (outletId) => {
-    const res = await ShiftServices.getAllShiftHistoryApi(outletId);
+  async ({outletId,dateRange}) => {
+    const res = await ShiftServices.getAllShiftHistoryApi(outletId,dateRange);
     return res.data;
   },
 );

@@ -1,477 +1,735 @@
-// OrderDetailsPage.jsx
 import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useQueryParams } from "../../hooks/useQueryParams";
+import { fetchOrderByIdApi } from "../../redux/slices/orderSlice";
 import {
-  Receipt,
-  Package,
-  Clock,
+  UtensilsCrossed,
+  Store,
   User,
-  CheckCircle2,
-  XCircle,
-  ChefHat,
-  Wine,
-  Calendar,
-  Hash,
   CreditCard,
-  FileText,
-  Download,
-  Printer,
-  ArrowLeft,
+  Banknote,
+  Smartphone,
+  Tag,
+  Table2,
+  Users,
+  BadgeCheck,
+  Hash,
+  CalendarDays,
   ReceiptIndianRupee,
 } from "lucide-react";
 import PageHeader from "../../layout/PageHeader";
-import FoodTypeIcon from "../../partial/common/FoodTypeIcon";
-import { formatNumber } from "../../utils/numberFormatter";
-import { formatDate } from "../../utils/dateFormatter";
-import { useDispatch, useSelector } from "react-redux";
-import { useQueryParams } from "../../hooks/useQueryParams";
-import {
-  downloadOrderInvoice,
-  fetchOrderByIdApi,
-} from "../../redux/slices/orderSlice";
-import OrderDetailsPageSkeleton from "../../partial/order/OrderDetailsPageSkeleton";
 import OrderBadge from "../../partial/order/OrderBadge";
-import { handleResponse } from "../../utils/helpers";
+import { formatNumber, num } from "../../utils/numberFormatter";
+import StatCard from "../../components/StatCard";
+import MetricPanel from "../../partial/report/daily-sales-report/MetricPanel";
+import { formatDate } from "../../utils/dateFormatter";
 import NoDataFound from "../../layout/NoDataFound";
-import { downloadBlob } from "../../utils/blob";
+import LoadingOverlay from "../../components/LoadingOverlay";
 
-export default function OrderDetailsPage() {
+// ─────────────────────── CONFIG ───────────────────────────────────────────────
+
+const PAY_METHOD = {
+  cash: {
+    label: "Cash",
+    icon: Banknote,
+    bg: "bg-emerald-50",
+    text: "text-emerald-700",
+    border: "border-emerald-200",
+  },
+  upi: {
+    label: "UPI",
+    icon: Smartphone,
+    bg: "bg-blue-50",
+    text: "text-blue-700",
+    border: "border-blue-200",
+  },
+  card: {
+    label: "Card",
+    icon: CreditCard,
+    bg: "bg-indigo-50",
+    text: "text-indigo-700",
+    border: "border-indigo-200",
+  },
+};
+
+// ─────────────────────── ATOMS ────────────────────────────────────────────────
+
+// Single info row — skips render if value is falsy
+const Row = ({ label, value, mono = false, cls = "", href }) => {
+  if (value === null || value === undefined || value === "") return null;
+  const valEl = href ? (
+    <a
+      href={href}
+      className="text-xs font-semibold text-blue-600 hover:underline text-right"
+    >
+      {value}
+    </a>
+  ) : (
+    <span
+      className={`text-xs font-semibold text-right text-slate-700 ${mono ? "font-mono text-slate-500" : ""} ${cls}`}
+    >
+      {value}
+    </span>
+  );
+  return (
+    <div className="flex items-baseline justify-between gap-6 py-2.5 border-b border-slate-50 last:border-0">
+      <span className="text-xs text-slate-400 shrink-0">{label}</span>
+      {valEl}
+    </div>
+  );
+};
+
+// ─────────────────────── MAIN ─────────────────────────────────────────────────
+
+const OrderDetailsPage = () => {
   const dispatch = useDispatch();
   const { orderId } = useQueryParams();
-  const {
-    orderDetails: order,
-    isFetchingOrderDetails,
-    isDownloadingInvoice,
-  } = useSelector((state) => state.order);
+  const { orderDetails: data, isFetchingOrderDetails } = useSelector(
+    (s) => s.order,
+  );
 
   useEffect(() => {
-    if (orderId) {
-      dispatch(fetchOrderByIdApi(orderId));
-    }
+    if (orderId) dispatch(fetchOrderByIdApi(orderId));
   }, [orderId]);
 
-  const getStatusConfig = (status) => {
-    const configs = {
-      completed: {
-        color: "emerald",
-        icon: CheckCircle2,
-        label: "Completed",
-        bg: "bg-emerald-50",
-        text: "text-emerald-700",
-        border: "border-emerald-200",
-      },
-      pending: {
-        color: "amber",
-        icon: Clock,
-        label: "Pending",
-        bg: "bg-amber-50",
-        text: "text-amber-700",
-        border: "border-amber-200",
-      },
-      cancelled: {
-        color: "red",
-        icon: XCircle,
-        label: "Cancelled",
-        bg: "bg-red-50",
-        text: "text-red-700",
-        border: "border-red-200",
-      },
-    };
-    return configs[status] || configs.pending;
-  };
+  if (isFetchingOrderDetails)
+    return <LoadingOverlay text="Loading Order Details..." />;
 
-  const statusConfig = getStatusConfig(order?.status);
-  const StatusIcon = statusConfig.icon;
+  if (!data && !isFetchingOrderDetails)
+    return (
+      <NoDataFound
+        icon={ReceiptIndianRupee}
+        title="Select an order to view its details."
+      />
+    );
 
-  const handleDownload = async () => {
-    await handleResponse(dispatch(downloadOrderInvoice(orderId)), (res) => {
-      downloadBlob({
-        data: res.payload,
-        fileName: order?.order_number || "ORDER",
-      });
-    });
-  };
+  // ── derived ──
+  const inv = data.invoice || {};
 
-  const actions = [
-    {
-      label: "Download",
-      type: "export",
-      icon: Download,
-      onClick: () => handleDownload(),
-      loading: isDownloadingInvoice,
+  const isDineIn = data?.orderType === "dine_in";
+  const items = data?.items || [];
+  const discounts = data?.discounts || [];
+  const splits = data?.payments?.[0]?.splitBreakdown || [];
+  const taxRows = Object.values(data?.taxBreakup || {}).filter(
+    (t) => num(t.taxAmount) > 0,
+  );
+
+  // price breakup line items — only show non-zero rows
+  const breakupLines = [
+    { label: "Subtotal", value: num(data.subtotal), cls: "text-slate-700" },
+    num(data.discountAmount) > 0 && {
+      label: discounts[0]?.discountName
+        ? `Discount — ${discounts[0].discountName}`
+        : "Discount",
+      value: -num(data.discountAmount),
+      cls: "text-amber-600",
+      prefix: "−",
     },
-  ];
-
-  if (isFetchingOrderDetails) {
-    return <OrderDetailsPageSkeleton />;
-  }
+    num(data.serviceCharge) > 0 && {
+      label: "Service Charge",
+      value: num(data.serviceCharge),
+    },
+    num(data.packagingCharge) > 0 && {
+      label: "Packaging Charge",
+      value: num(data.packagingCharge),
+    },
+    num(data.deliveryCharge) > 0 && {
+      label: "Delivery Charge",
+      value: num(data.deliveryCharge),
+    },
+    // tax rows inline
+    ...taxRows.map((t) => ({
+      label: `${t.name} (${t.rate}% )`,
+      value: num(t.taxAmount),
+      cls: "text-sky-700",
+    })),
+    data.roundOff != null && {
+      label: "Round Off",
+      value: num(data.roundOff),
+      cls: "text-slate-500",
+    },
+  ].filter(Boolean);
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <PageHeader
-        title={"Order Details"}
-        description={order?.order_number}
-        showBackButton
-        actions={actions}
-      />
+    <div className="space-y-5">
+      <PageHeader onlyBack backLabel="Back to Orders" />
 
-      {/* Main Content */}
-      <div>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column - Order Info & Items */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Order Info Card */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-              {/* Status Banner */}
-              <div
-                className={`${statusConfig.bg} ${statusConfig.text} px-6 py-4 border-b ${statusConfig.border}`}
-              >
-                <div className="flex items-center justify-between flex-wrap gap-4">
-                  <div className="flex items-center gap-3">
-                    <StatusIcon className="w-6 h-6" />
-                    <div>
-                      <p className="font-semibold text-lg">
-                        {statusConfig.label}
-                      </p>
-                      <p className="text-sm opacity-80">
-                        Payment: {order?.payment_status}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-2xl font-bold">
-                      {formatNumber(order?.total_amount, true)}
-                    </p>
-                    <p className="text-sm opacity-80">Total Amount</p>
-                  </div>
-                </div>
+      {/* ── ORDER HERO SECTION ── */}
+      <div
+        className="relative rounded-2xl overflow-hidden shadow-lg"
+        style={{
+          background:
+            "linear-gradient(135deg, var(--color-primary-600), var(--color-primary-700))",
+        }}
+      >
+        {/* Highlight line */}
+        <div
+          className="absolute top-0 left-0 right-0 h-[1px]"
+          style={{
+            background:
+              "linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)",
+          }}
+        />
+
+        {/* Soft radial glow */}
+        <div className="absolute -top-16 -right-16 w-56 h-56 rounded-full bg-white/10 pointer-events-none" />
+
+        <div className="relative z-10 px-6 py-5 text-white">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+            {/* LEFT SIDE */}
+            <div className="space-y-3 min-w-0">
+              {/* Date */}
+              <p className="flex items-center gap-1.5 text-xs text-white/70 font-medium">
+                <CalendarDays size={12} />
+                {formatDate(data?.createdAt, "longTime")}
+              </p>
+
+              {/* Order Number */}
+              <h1 className="text-[28px] sm:text-[32px] font-extrabold tracking-tight leading-none truncate">
+                {data?.orderNumber}
+              </h1>
+
+              {/* Badges */}
+              <div className="flex flex-wrap gap-2">
+                <OrderBadge type="status" value={data?.status} size="sm" />
+                <OrderBadge type="type" value={data?.orderType} size="sm" />
+                <OrderBadge
+                  type="payment"
+                  value={data?.paymentStatus}
+                  size="sm"
+                />
               </div>
 
-              {/* Order Metadata */}
-              <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <InfoItem
-                  icon={Hash}
-                  label="Order Number"
-                  value={order?.order_number}
-                />
-                <InfoItem
-                  icon={Package}
-                  label="Order Type"
-                  value={order?.order_type}
-                  badge
-                />
-                <InfoItem
-                  icon={Calendar}
-                  label="Created"
-                  value={formatDate(order?.created_at, "longTime")}
-                />
-                <InfoItem
-                  icon={Clock}
-                  label="Billed At"
-                  value={formatDate(order?.billed_at, "longTime")}
-                />
-                <InfoItem
-                  icon={User}
-                  label="Created By"
-                  value={order?.created_by_name}
-                />
-                <InfoItem
-                  icon={User}
-                  label="Guest Count"
-                  value={order?.guest_count}
-                />
-              </div>
-            </div>
-
-            {/* Items List */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-              <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-                <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                  <ReceiptIndianRupee className="w-5 h-5" />
-                  Order Items
-                  <span className="ml-auto text-sm font-normal text-gray-600">
-                    {order?.items?.length} items
+              {/* Extra Meta */}
+              <div className="flex flex-wrap gap-x-5 gap-y-1 text-xs text-white/70">
+                {data?.guestCount != null && (
+                  <span className="flex items-center gap-1">
+                    <Users size={11} />
+                    {data?.guestCount}{" "}
+                    {data?.guestCount === 1 ? "Guest" : "Guests"}
                   </span>
-                </h2>
-              </div>
+                )}
 
-              <div className="divide-y divide-gray-100">
-                {order?.items?.length > 0 ? (
-                  order.items.map((item, index) => (
-                    <OrderItem
-                      key={item?.id || index}
-                      item={item}
-                      index={index}
-                    />
-                  ))
-                ) : (
-                  <NoDataFound title="No items found" />
+                {data?.createdBy?.name && (
+                  <span className="flex items-center gap-1">
+                    <Hash size={11} />
+                    {data?.createdBy.name}
+                  </span>
                 )}
               </div>
             </div>
-          </div>
 
-          {/* Right Column - Summary & Actions */}
-          <div className="space-y-6">
-            {/* Payment Summary */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden sticky top-20">
-              <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-                <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                  <CreditCard className="w-5 h-5" />
-                  Payment Summary
-                </h2>
-              </div>
+            {/* RIGHT SIDE - Total */}
+            <div className="flex-shrink-0 lg:text-right">
+              <p className="text-[10px] font-semibold text-white/70 uppercase tracking-wider">
+                Grand Total
+              </p>
 
-              <div className="p-6 space-y-4">
-                <SummaryRow label="Subtotal" value={order?.subtotal} />
-                <SummaryRow
-                  label="Tax"
-                  value={order?.tax_amount}
-                  highlight="text-blue-600"
-                />
-                {parseFloat(order?.discount_amount) > 0 && (
-                  <SummaryRow
-                    label="Discount"
-                    value={`-${order?.discount_amount}`}
-                    highlight="text-green-600"
-                  />
-                )}
-                {parseFloat(order?.service_charge) > 0 && (
-                  <SummaryRow
-                    label="Service Charge"
-                    value={order?.service_charge}
-                  />
-                )}
-                {parseFloat(order?.packaging_charge) > 0 && (
-                  <SummaryRow
-                    label="Packaging Charge"
-                    value={order?.packaging_charge}
-                  />
-                )}
-                {parseFloat(order?.delivery_charge) > 0 && (
-                  <SummaryRow
-                    label="Delivery Charge"
-                    value={order?.delivery_charge}
-                  />
-                )}
-                {parseFloat(order?.round_off) !== 0 && (
-                  <SummaryRow
-                    label="Round Off"
-                    value={order?.round_off}
-                    highlight={
-                      parseFloat(order?.round_off) < 0
-                        ? "text-red-600"
-                        : "text-green-600"
-                    }
-                  />
-                )}
+              <p className="text-[36px] font-bold tabular-nums leading-none">
+                {formatNumber(data?.totalAmount, true)}
+              </p>
 
-                <div className="pt-4 border-t-2 border-gray-200 space-y-2">
-                  <SummaryRow
-                    label="Total Amount"
-                    value={order?.total_amount}
-                    bold
-                    large
-                  />
-
-                  <SummaryRow
-                    label="Paid Amount"
-                    value={order?.paid_amount}
-                    highlight="text-green-600"
-                  />
-                  {parseFloat(order?.due_amount) > 0 && (
-                    <SummaryRow
-                      label="Due Amount"
-                      value={order?.due_amount}
-                      highlight="text-red-600"
-                      bold
-                    />
-                  )}
-                </div>
-              </div>
+              <p className="text-[11px] text-white/70 mt-1">
+                Paid: {formatNumber(data?.paidAmount, true)}
+              </p>
             </div>
-
-            {/* Additional Info */}
-            {(order?.special_instructions || order?.internal_notes) && (
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-                  <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                    <FileText className="w-5 h-5" />
-                    Notes
-                  </h2>
-                </div>
-                <div className="p-6 space-y-4">
-                  {order.special_instructions && (
-                    <div>
-                      <p className="text-sm font-medium text-gray-700 mb-1">
-                        Special Instructions
-                      </p>
-                      <p className="text-sm text-gray-600 bg-amber-50 p-3 rounded-lg border border-amber-200">
-                        {order.special_instructions}
-                      </p>
-                    </div>
-                  )}
-                  {order.internal_notes && (
-                    <div>
-                      <p className="text-sm font-medium text-gray-700 mb-1">
-                        Internal Notes
-                      </p>
-                      <p className="text-sm text-gray-600 bg-blue-50 p-3 rounded-lg border border-blue-200">
-                        {order.internal_notes}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </div>
-    </div>
-  );
-}
 
-// Helper Components
-function InfoItem({ icon: Icon, label, value, badge }) {
-  return (
-    <div className="flex items-start gap-3">
-      <div className="p-2 bg-gray-100 rounded-lg">
-        <Icon className="w-4 h-4 text-gray-600" />
+      {/* ── STAT TILES ── */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        {[
+          {
+            label: "Grand Total",
+            value: formatNumber(data?.totalAmount, true),
+            color: "slate",
+          },
+          {
+            label: "Amount Paid",
+            value: formatNumber(data?.paidAmount, true),
+            color: "emerald",
+          },
+          {
+            label: "Tax Collected",
+            value: formatNumber(data?.totalTax, true),
+            color: "sky",
+          },
+          {
+            label: "Total Discount",
+            value: formatNumber(data?.discountAmount, true),
+            color: "amber",
+          },
+        ].map(({ label, value, color }) => (
+          <StatCard
+            key={label}
+            title={label}
+            value={value}
+            color={color}
+            variant="v6"
+          />
+        ))}
       </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-xs text-gray-500 mb-0.5">{label}</p>
-        {badge ? (
-          <OrderBadge type="type" value={value} size="sm" />
+
+      {/* ── TABLE & SEATING — dine_in only ── */}
+      {isDineIn && (
+        <MetricPanel
+          icon={Table2}
+          title="Table & Seating"
+          // desc=""
+          right={
+            <span className="text-xs font-bold text-orange-700 bg-orange-50 border border-orange-200 px-2.5 py-1 rounded-full">
+              {data?.tableName}
+            </span>
+          }
+        >
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {[
+              { label: "Table", value: data?.tableName },
+              { label: "Floor", value: data?.floorName },
+              { label: "Section", value: data?.sectionName },
+              {
+                label: "Capacity",
+                value:
+                  data?.tableCapacity != null
+                    ? `${data?.tableCapacity} seats`
+                    : null,
+              },
+            ]
+              .filter((r) => r.value)
+              .map(({ label, value }) => (
+                <div
+                  key={label}
+                  className="bg-slate-50 rounded-xl px-3.5 py-3 border border-slate-100"
+                >
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">
+                    {label}
+                  </p>
+                  <p className="text-sm font-bold text-slate-800">{value}</p>
+                </div>
+              ))}
+          </div>
+        </MetricPanel>
+      )}
+
+      {/* ── ORDERED ITEMS ── */}
+      <MetricPanel
+        icon={UtensilsCrossed}
+        title="Ordered Items"
+        // desc=""
+        noPad
+        right={
+          <span className="text-xs font-semibold text-slate-500 bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-full">
+            {items?.length} {items?.length === 1 ? "item" : "items"}
+          </span>
+        }
+      >
+        {items?.length === 0 ? (
+          <div className="p-5">
+            <NoDataFound
+              icon={UtensilsCrossed}
+              title="No items in this order"
+            />
+          </div>
         ) : (
-          <p className="text-sm font-medium text-gray-900 truncate">{value}</p>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[600px]">
+              <thead>
+                <tr className="border-b border-slate-200 bg-slate-50/60">
+                  {[
+                    "#",
+                    "Item",
+                    "Category",
+                    "Station",
+                    "Qty",
+                    "Rate",
+                    "Total",
+                  ].map((h, i) => (
+                    <th
+                      key={h}
+                      className={`py-3 text-[10px] font-bold uppercase tracking-wider text-slate-400
+                        ${i === 0 ? "pl-5 pr-2 text-left w-8" : i <= 3 ? "px-3 text-left" : i === 6 ? "pl-3 pr-5 text-right" : "px-3 text-right"}`}
+                    >
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {items?.map((item, idx) => (
+                  <tr
+                    key={item?.id}
+                    className="border-b border-slate-50 last:border-0 hover:bg-slate-50/60 transition-colors"
+                  >
+                    <td className="pl-5 pr-2 py-3.5 text-xs text-slate-300 tabular-nums">
+                      {idx + 1}
+                    </td>
+                    <td className="px-3 py-3.5">
+                      <div className="flex items-start gap-2">
+                        {/* FSSAI dot-in-square */}
+                        <div
+                          className={`mt-0.5 w-3.5 h-3.5 rounded-sm border-2 flex items-center justify-center shrink-0
+                            ${item?.itemType === "veg" ? "border-emerald-600" : "border-red-600"}`}
+                        >
+                          <div
+                            className={`w-1.5 h-1.5 rounded-full ${item?.itemType === "veg" ? "bg-emerald-600" : "bg-red-600"}`}
+                          />
+                        </div>
+                        <div>
+                          <p className="text-[13px] font-semibold text-slate-800 leading-tight">
+                            {item?.itemName}
+                          </p>
+                          {item?.variantName && (
+                            <span className="inline-block mt-0.5 text-[10px] font-medium text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">
+                              {item?.variantName}
+                            </span>
+                          )}
+                          {item?.specialInstructions && (
+                            <p className="mt-0.5 text-[10px] italic text-amber-600">
+                              "{item?.specialInstructions}"
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-3 py-3.5">
+                      <span className="text-xs text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md font-medium whitespace-nowrap">
+                        {item?.categoryName || "—"}
+                      </span>
+                    </td>
+                    <td className="px-3 py-3.5">
+                      <span className="text-xs font-semibold text-orange-700 bg-orange-50 border border-orange-100 px-2 py-0.5 rounded-md whitespace-nowrap">
+                        {item?.stationName || "—"}
+                      </span>
+                    </td>
+                    <td className="px-3 py-3.5 text-right text-sm font-bold text-slate-800 tabular-nums">
+                      {parseFloat(item?.quantity || 0).toFixed(0)}
+                    </td>
+                    <td className="px-3 py-3.5 text-right text-sm text-slate-500 tabular-nums">
+                      {formatNumber(item?.unitPrice, true)}
+                    </td>
+                    <td className="pl-3 pr-5 py-3.5 text-right text-[13px] font-bold text-slate-900 tabular-nums">
+                      {formatNumber(item?.totalPrice, true)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot>
+                <tr className="bg-slate-50 border-t-2 border-slate-200">
+                  <td
+                    colSpan={4}
+                    className="pl-5 py-3 text-xs font-bold text-slate-500 uppercase tracking-wide"
+                  >
+                    Subtotal
+                  </td>
+                  <td className="px-3 py-3 text-right text-xs font-bold text-slate-700 tabular-nums">
+                    {items
+                      .reduce((s, i) => s + parseFloat(i?.quantity || 0), 0)
+                      .toFixed(0)}
+                  </td>
+                  <td className="px-3 py-3" />
+                  <td className="pl-3 pr-5 py-3 text-right text-[15px] font-extrabold text-slate-900 tabular-nums">
+                    {formatNumber(data?.subtotal, true)}
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        )}
+      </MetricPanel>
+
+      {/* ── PAYMENT + DISCOUNTS (2 col) ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        {/* Payment */}
+        <MetricPanel
+          icon={CreditCard}
+          title="Payment"
+          // desc=""
+          right={
+            data?.payments?.[0]?.paymentMode === "split" ? (
+              <span className="text-[10px] font-bold uppercase tracking-wide text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
+                Split
+              </span>
+            ) : null
+          }
+        >
+          {splits.length === 0 && !data?.payments?.length ? (
+            <NoDataFound icon={CreditCard} title="No payment recorded" />
+          ) : (
+            <div className="space-y-2">
+              {(splits.length > 0 ? splits : data?.payments || []).map(
+                (p, i) => {
+                  const cfg = PAY_METHOD[p.paymentMode] || {
+                    label: p.paymentMode,
+                    icon: CreditCard,
+                    bg: "bg-slate-50",
+                    text: "text-slate-600",
+                    border: "border-slate-200",
+                  };
+                  const Icon = cfg?.icon;
+                  return (
+                    <div
+                      key={p.id || i}
+                      className={`flex items-center gap-3 px-3.5 py-3 rounded-xl border ${cfg?.bg} ${cfg?.border}`}
+                    >
+                      <Icon size={15} className={cfg?.text} />
+                      <span
+                        className={`text-sm font-semibold flex-1 ${cfg?.text}`}
+                      >
+                        {cfg?.label}
+                      </span>
+                      <span className="text-sm font-bold text-slate-900 tabular-nums">
+                        {formatNumber(p?.amount, true)}
+                      </span>
+                    </div>
+                  );
+                },
+              )}
+            </div>
+          )}
+          <div className="mt-4 pt-4 border-t border-dashed border-slate-200 space-y-2.5">
+            <div className="flex justify-between items-center">
+              <span className="text-xs text-slate-500">Total Paid</span>
+              <span className="text-sm font-bold text-emerald-600 tabular-nums">
+                {formatNumber(data?.paidAmount, true)}
+              </span>
+            </div>
+            {num(data?.balanceDue) > 0 && (
+              <div className="flex justify-between items-center">
+                <span className="text-xs text-slate-500">Balance Due</span>
+                <span className="text-sm font-bold text-red-600 tabular-nums">
+                  {formatNumber(data?.balanceDue, true)}
+                </span>
+              </div>
+            )}
+            {num(data?.balanceDue) === 0 && (
+              <div className="flex items-center gap-1.5">
+                <BadgeCheck size={13} className="text-emerald-500" />
+                <span className="text-xs font-semibold text-emerald-600">
+                  Fully settled
+                </span>
+              </div>
+            )}
+          </div>
+        </MetricPanel>
+
+        {/* Discounts */}
+        <MetricPanel
+          icon={Tag}
+          title="Discounts"
+          // desc=""
+        >
+          {discounts?.length === 0 ? (
+            <NoDataFound icon={Tag} title="No discounts applied" />
+          ) : (
+            <div className="space-y-3">
+              {discounts?.map((d) => (
+                <div
+                  key={d?.id}
+                  className="rounded-xl border border-amber-100 bg-amber-50/50 p-4"
+                >
+                  <div className="flex items-start justify-between gap-2 mb-3">
+                    <p className="text-sm font-bold text-amber-900 leading-snug">
+                      {d?.discountName || "Discount"}
+                    </p>
+                    <span className="text-xs font-extrabold text-amber-700 bg-white border border-amber-200 px-2 py-0.5 rounded-full shrink-0">
+                      {d?.discountType === "percentage"
+                        ? `${d?.discountValue}%`
+                        : formatNumber(d?.discountValue, true)}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-1.5">
+                    {[
+                      { l: "Applied on", v: d?.appliedOn?.replace(/_/g, " ") },
+                      {
+                        l: "Amount saved",
+                        v: formatNumber(d?.discountAmount, true),
+                      },
+                      { l: "Issued by", v: d?.createdByName || "—" },
+                      { l: "Time", v: formatDate(d?.createdAt, "time") },
+                    ]
+                      .filter((r) => r.v)
+                      .map(({ l, v }) => (
+                        <div key={l}>
+                          <p className="text-[10px] text-slate-400 mb-0.5">
+                            {l}
+                          </p>
+                          <p className="text-xs font-semibold text-slate-700 capitalize">
+                            {v}
+                          </p>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+          {discounts.length > 0 && (
+            <div className="mt-4 pt-4 border-t border-dashed border-slate-200 flex justify-between items-center">
+              <span className="text-xs text-slate-500">Total Saved</span>
+              <span className="text-sm font-bold text-amber-600 tabular-nums">
+                − {formatNumber(data.totalDiscount, true)}
+              </span>
+            </div>
+          )}
+        </MetricPanel>
+      </div>
+
+      {/* ── PRICE BREAKUP ── */}
+      <MetricPanel
+        icon={ReceiptIndianRupee}
+        title="Price Breakup"
+        noPad
+        // desc=""
+      >
+        {/* Line items */}
+        <div className="px-5 py-4 space-y-0 divide-y divide-slate-50">
+          {breakupLines?.map(
+            ({ label, value, cls = "text-slate-700", prefix }) => (
+              <div
+                key={label}
+                className="flex justify-between items-baseline gap-6 py-2.5"
+              >
+                <span className="text-xs text-slate-400 leading-relaxed">
+                  {label}
+                </span>
+                <span
+                  className={`text-xs font-semibold tabular-nums shrink-0 ${cls}`}
+                >
+                  {prefix
+                    ? `${prefix} ${formatNumber(Math.abs(value), true)}`
+                    : formatNumber(value, true)}
+                </span>
+              </div>
+            ),
+          )}
+        </div>
+
+        {/* Footer strip */}
+        <div className="bg-slate-900 px-6 py-5 flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1">
+              Total Payable
+            </p>
+            {inv.amountInWords && (
+              <p className="text-xs text-slate-500 italic leading-relaxed max-w-sm">
+                {inv.amountInWords}
+              </p>
+            )}
+          </div>
+          <div className="flex items-center gap-8">
+            <div className="text-right">
+              <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-1">
+                Paid
+              </p>
+              <p className="text-base font-bold text-emerald-400 tabular-nums">
+                {formatNumber(data.paidAmount, true)}
+              </p>
+            </div>
+            {num(data.balanceDue) > 0 && (
+              <div className="text-right">
+                <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-1">
+                  Balance
+                </p>
+                <p className="text-base font-bold text-red-400 tabular-nums">
+                  {formatNumber(data.balanceDue, true)}
+                </p>
+              </div>
+            )}
+            <div className="text-right border-l border-slate-700 pl-8">
+              <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-1">
+                Grand Total
+              </p>
+              <p className="text-3xl font-extrabold text-white tabular-nums leading-none">
+                {formatNumber(data.totalAmount, true)}
+              </p>
+            </div>
+          </div>
+        </div>
+      </MetricPanel>
+
+      {/* ── OUTLET + CUSTOMER ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <MetricPanel
+          icon={Store}
+          title="Outlet"
+          // desc=""
+        >
+          <Row
+            label="Name"
+            value={data?.outletName}
+            cls="text-slate-900 font-bold"
+          />
+          <Row
+            label="Address"
+            value={[data?.outletAddress, data?.outletCity, data?.outletState]
+              .filter(Boolean)
+              .join(", ")}
+          />
+          <Row label="GSTIN" value={data?.outletGstin} mono />
+          <Row label="FSSAI" value={data?.outletFssai} mono />
+        </MetricPanel>
+
+        <MetricPanel
+          icon={User}
+          title="Customer"
+          // desc=""
+        >
+          {data?.customerName ? (
+            <>
+              <Row
+                label="Name"
+                value={data?.customerName}
+                cls="text-slate-900 font-bold"
+              />
+              <Row
+                label="Phone"
+                value={data?.customerPhone}
+                href={data?.customerPhone ? `tel:${data?.customerPhone}` : null}
+              />
+              <Row
+                label="Email"
+                value={data?.customerEmail}
+                href={
+                  data?.customerEmail ? `mailto:${data?.customerEmail}` : null
+                }
+              />
+              <Row label="Company" value={data?.customer_company_name} />
+              <Row label="GSTIN" value={data?.customerGstin} mono />
+              <Row
+                label="GST State"
+                value={
+                  data?.customer_gst_state
+                    ? `${data?.customer_gst_state}${data?.customer_gst_state_code ? ` (${data?.customer_gst_state_code})` : ""}`
+                    : null
+                }
+              />
+            </>
+          ) : (
+            <NoDataFound
+              icon={User}
+              title="No customer linked — walk-in order"
+            />
+          )}
+        </MetricPanel>
+      </div>
+
+      {/* ── FOOTER ── */}
+      <div className="text-center py-4 border-t border-slate-200 space-y-1">
+        <p className="text-sm font-bold text-slate-600">{data?.outletName}</p>
+        <p className="text-xs text-slate-400">
+          {[data?.outletAddress, data?.outletCity, data?.outletState]
+            .filter(Boolean)
+            .join(" · ")}
+        </p>
+        {data?.outletGstin && (
+          <p className="text-[10px] font-mono text-slate-300">
+            GSTIN: {data?.outletGstin}
+          </p>
         )}
       </div>
     </div>
   );
-}
+};
 
-function OrderItem({ item, index }) {
-  const isBar = item.counter_name?.toLowerCase().includes("bar");
-  const isKitchen = item.station_name;
-
-  return (
-    <div
-      className="p-6 hover:bg-gray-50 transition-colors"
-      style={{
-        animation: `slideIn 0.3s ease-out ${index * 0.05}s both`,
-      }}
-    >
-      <div className="flex gap-4">
-        {/* Item Number */}
-        <div className="flex-shrink-0">
-          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-gray-800 to-gray-600 flex items-center justify-center text-white font-bold">
-            {index + 1}
-          </div>
-        </div>
-
-        {/* Item Details */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-4 mb-2">
-            <div className="flex-1">
-              <h3 className="text-base font-semibold text-gray-900">
-                {item.item_name}
-                {item.variant_name && (
-                  <span className="text-sm font-normal text-gray-600 ml-2">
-                    ({item.variant_name})
-                  </span>
-                )}
-              </h3>
-              {item.short_name && item.short_name !== item.item_name && (
-                <p className="text-xs text-gray-500">Code: {item.short_name}</p>
-              )}
-            </div>
-            <div className="text-right flex-shrink-0">
-              <p className="text-lg font-bold text-gray-900">
-                {formatNumber(item.total_price, true)}
-              </p>
-              <p className="text-xs text-gray-500">
-                {formatNumber(item.unit_price, true)} ×{" "}
-                {parseFloat(item.quantity)}
-              </p>
-            </div>
-          </div>
-
-          {/* Metadata */}
-          <div className="flex flex-wrap items-center gap-2 mb-3">
-            <OrderBadge
-              type="status"
-              value={item.status}
-              size="md"
-              showDot={false}
-            />
-
-            {isBar && (
-              <span className="px-2 py-1 text-xs font-medium bg-purple-100 text-purple-700 rounded flex items-center gap-1">
-                <Wine className="w-3 h-3" />
-                {item.counter_name}
-              </span>
-            )}
-
-            {isKitchen && (
-              <span className="px-2 py-1 text-xs font-medium bg-orange-100 text-orange-700 rounded flex items-center gap-1">
-                <ChefHat className="w-3 h-3" />
-                {item.station_name}
-              </span>
-            )}
-            <FoodTypeIcon type={item.item_type} size="lg" />
-
-            {item.kot_id && (
-              <span className="text-xs text-gray-500">KOT #{item.kot_id}</span>
-            )}
-          </div>
-
-          {/* Tax Breakdown */}
-          {item.tax_details && (
-            <div className="text-xs text-gray-600 bg-gray-50 p-2 rounded">
-              Tax: {formatNumber(item.tax_amount, true)}
-              {JSON.parse(item.tax_details).map((tax, i) => (
-                <span key={i} className="ml-2">
-                  • {tax.componentName}: {tax.rate}%
-                </span>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-
-      <style jsx>{`
-        @keyframes slideIn {
-          from {
-            opacity: 0;
-            transform: translateY(10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-      `}</style>
-    </div>
-  );
-}
-
-function SummaryRow({ label, value, bold, large, highlight }) {
-  return (
-    <div className="flex items-center justify-between">
-      <span
-        className={`${bold ? "font-semibold" : "font-medium"} ${
-          large ? "text-base" : "text-sm"
-        } text-gray-700`}
-      >
-        {label}
-      </span>
-      <span
-        className={`${bold ? "font-bold" : "font-semibold"} ${
-          large ? "text-lg" : "text-sm"
-        } ${highlight || "text-gray-900"}`}
-      >
-        {formatNumber(value, true)}
-      </span>
-    </div>
-  );
-}
+export default OrderDetailsPage;

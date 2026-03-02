@@ -139,10 +139,12 @@ const FloorModal = ({
           type="number"
           required
           placeholder="1, 2, 3"
+          tooltip="This sets the order in which the floor appears in the list. It does not change the actual floor number."
           value={formik.values.displayOrder}
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
           error={formik.touched.displayOrder && formik.errors.displayOrder}
+          helperText="Lower numbers appear first."
         />
 
         {/* Description */}

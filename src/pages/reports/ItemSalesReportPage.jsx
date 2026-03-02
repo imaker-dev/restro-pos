@@ -158,7 +158,6 @@ const ItemSalesReportPage = () => {
             subtitle={stat.subtitle}
             icon={stat.icon}
             color={stat.color}
-            variant="secondary"
           />
         ))}
       </div>

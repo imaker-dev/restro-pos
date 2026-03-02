@@ -223,13 +223,13 @@ const AllOrdersPage = () => {
     {
       title: "Total Amount",
       value: formatNumber(summary?.totalAmount, true),
-      color: "green",
+      color: "indigo",
       icon: IndianRupee,
     },
     {
       title: "Completed Amount",
       value: formatNumber(summary?.completedAmount, true),
-      color: "emerald",
+      color: "green",
       icon: CheckCircle,
     },
     {
@@ -241,19 +241,19 @@ const AllOrdersPage = () => {
     {
       title: "Dine-In Orders",
       value: formatNumber(summary?.dineInCount),
-      color: "indigo",
+      color: "purple",
       icon: Utensils,
     },
     {
       title: "Takeaway Orders",
       value: formatNumber(summary?.takeawayCount),
-      color: "purple",
+      color: "cyan",
       icon: Package,
     },
     {
       title: "Delivery Orders",
       value: formatNumber(summary?.deliveryCount),
-      color: "cyan",
+      color: "sky",
       icon: Truck,
     },
     {
@@ -290,7 +290,6 @@ const AllOrdersPage = () => {
               value={card.value}
               color={card.color}
               icon={card.icon}
-              variant="secondary"
             />
           ))}
         </div>

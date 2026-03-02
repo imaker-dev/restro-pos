@@ -14,6 +14,7 @@ import {
   UtensilsCrossed,
   XCircle,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export default function SuccessSection({ uploadResult, onReset }) {
   const created = uploadResult?.created || {};
@@ -262,13 +263,13 @@ export default function SuccessSection({ uploadResult, onReset }) {
       <div className="flex flex-wrap gap-3 justify-between pt-1">
         <button
           onClick={onReset}
-          className="flex items-center gap-2 text-[13px] font-semibold bg-white border border-slate-200 text-slate-700 px-5 py-2.5 rounded-xl hover:bg-slate-50 transition-all"
+          className="flex items-center gap-2 text-[13px] font-semibold bg-white border border-slate-200 text-slate-700 px-5 py-2.5 rounded-xl hover:bg-slate-50"
         >
           <RefreshCw size={14} /> Import More
         </button>
-        <button className="flex items-center gap-2 text-[13px] font-bold bg-gradient-to-r from-primary-500 to-primary-600 text-white px-5 py-2.5 rounded-xl hover:opacity-90 transition-all shadow-md">
+        <Link to={'/items'} className="flex items-center gap-2 text-[13px] font-bold bg-primary-600 text-white px-5 py-2.5 rounded-xl hover:opacity-90">
           <Eye size={14} /> View All Products <ChevronRight size={13} />
-        </button>
+        </Link>
       </div>
     </div>
   );

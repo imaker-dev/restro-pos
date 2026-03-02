@@ -112,6 +112,8 @@ export default function Page() {
             title={stat.title}
             value={stat.value}
             color={stat.color}
+            variant="v1"
+            mode="solid"
           />
         ))}
       </div>

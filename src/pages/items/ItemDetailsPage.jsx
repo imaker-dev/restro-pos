@@ -300,6 +300,70 @@ const ItemDetailsPage = () => {
                 )}
               </div>
 
+              {/* Addon Groups */}
+              {item?.has_addons && item?.addonGroups?.length > 0 && (
+                <div className="bg-white rounded-xl border border-gray-200 p-4">
+                  <SectionHeader
+                    icon={ShoppingBag}
+                    title="Addon Groups"
+                    badge={item?.addonGroups?.length}
+                  />
+
+                  <div className="space-y-4">
+                    {item?.addonGroups?.map((group) => (
+                      <div
+                        key={group?.id}
+                        className="border border-gray-200 rounded-lg p-4"
+                      >
+                        {/* Group Header */}
+                        <div className="flex items-center justify-between mb-3">
+                          <div>
+                            <p className="text-sm font-semibold text-gray-900">
+                              {group?.name}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {group?.selection_type === "single"
+                                ? "Single Selection"
+                                : "Multiple Selection"}{" "}
+                              • Min {group?.min_selection} • Max{" "}
+                              {group?.max_selection}
+                            </p>
+                          </div>
+
+                          {group?.is_required && (
+                            <span className="px-2 py-0.5 text-xs rounded bg-red-50 text-red-600 border border-red-200">
+                              Required
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Addons List */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+                          {group?.addons?.map((addon) => (
+                            <div
+                              key={addon?.id}
+                              className="p-2.5 rounded-lg border border-gray-200 bg-white hover:border-primary-200 transition-colors"
+                            >
+                              <div className="flex items-center justify-between">
+                                <p className="text-sm font-medium text-gray-900 truncate">
+                                  {addon?.name}
+                                </p>
+
+                                <p className="text-xs font-semibold text-primary-600 ml-3">
+                                  {Number(addon?.price) > 0
+                                    ? `₹${addon?.price}`
+                                    : "Free"}
+                                </p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Kitchen Stations */}
               <div className="bg-white rounded-xl border border-gray-200 p-4">
                 <SectionHeader
@@ -309,23 +373,22 @@ const ItemDetailsPage = () => {
                 />
 
                 {item?.kitchen_station_name ? (
-  <div className="p-3 rounded-lg border border-gray-200 hover:border-primary-200 transition-colors">
-    <div className="flex items-center justify-between mb-1">
-      <p className="text-sm font-semibold text-gray-900">
-        {item?.kitchen_station_name}
-      </p>
+                  <div className="p-3 rounded-lg border border-gray-200 hover:border-primary-200 transition-colors">
+                    <div className="flex items-center justify-between mb-1">
+                      <p className="text-sm font-semibold text-gray-900">
+                        {item?.kitchen_station_name}
+                      </p>
+                    </div>
 
-    </div>
-
-    <p className="text-xs text-gray-500">
-      Code: {item?.kitchen_station_code}
-    </p>
-  </div>
-) : (
-  <p className="text-sm text-gray-500 text-center py-6">
-    No station assigned
-  </p>
-)}
+                    <p className="text-xs text-gray-500">
+                      Code: {item?.kitchen_station_code}
+                    </p>
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-500 text-center py-6">
+                    No station assigned
+                  </p>
+                )}
               </div>
             </div>
 

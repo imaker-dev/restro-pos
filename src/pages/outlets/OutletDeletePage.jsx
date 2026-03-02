@@ -304,7 +304,7 @@ const OutletDeletePage = () => {
                       title={meta?.label}
                       value={count}
                       color={meta?.color}
-                      variant="secondary"
+                      variant="v5"
                     />
                   );
                 })}

@@ -1,41 +1,41 @@
 // ---------- TIME AGO ----------
 export const timeAgo = (input) => {
-  if (!input) return "Just now";
+  console.log(input)
+  if (input == null) return "Just now";
 
   const date = new Date(input);
-  if (isNaN(date)) return "Invalid date";
+  if (isNaN(date.getTime())) return "Invalid date";
 
-  let diff = Date.now() - date.getTime();
+  const now = Date.now();
+  let diff = Math.floor((now - date.getTime()) / 1000);
 
-  // Prevent negative time (future dates)
-  if (diff < 0) diff = 0;
+  if (diff <= 0) return "Just now";
 
-  const s = Math.floor(diff / 1000);
-  if (s < 5) return "Just now";
-  if (s < 60) return `${s}s ago`;
+  const units = [
+    { label: "y", seconds: 60 * 60 * 24 * 365 },
+    { label: "mo", seconds: 60 * 60 * 24 * 30 },
+    { label: "d", seconds: 60 * 60 * 24 },
+    { label: "h", seconds: 60 * 60 },
+    { label: "m", seconds: 60 },
+    { label: "s", seconds: 1 },
+  ];
 
-  const m = Math.floor(s / 60);
-  if (m < 60) return `${m}m ago`;
+  for (const unit of units) {
+    const value = Math.floor(diff / unit.seconds);
+    if (value >= 1) {
+      return `${value}${unit.label} ago`;
+    }
+  }
 
-  const h = Math.floor(m / 60);
-  if (h < 24) return `${h}h ago`;
-
-  const d = Math.floor(h / 24);
-  if (d < 30) return `${d}d ago`;
-
-  const mo = Math.floor(d / 30);
-  if (mo < 12) return `${mo}mo ago`;
-
-  const y = Math.floor(mo / 12);
-  return `${y}y ago`;
+  return "Just now";
 };
 
 // ---------- FORMAT DATE ----------
 export const formatDate = (input, type = "short") => {
-  if (!input) return "Not provided";
+  if (input == null) return "Not provided";
 
   const date = new Date(input);
-  if (isNaN(date)) return "Invalid date";
+  if (isNaN(date.getTime())) return "Invalid date";
 
   const day = String(date.getDate()).padStart(2, "0");
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -76,28 +76,64 @@ export const formatDate = (input, type = "short") => {
     case "longTime":
       return `${day} ${monthName}, ${year} ${hours12}:${minutes} ${meridian}`;
 
-      case "dayMonth":
-    return `${day} ${monthName}`;
-
+    case "dayMonth":
+      return `${day} ${monthName}`;
 
     case "time":
       return `${hours12}:${minutes} ${meridian}`;
 
     case "timeAgo":
-      return timeAgo(date);
+      return timeAgo(input);
 
     default:
       return `${day}-${month}-${year}`;
   }
 };
 
+// ---------- DURATION BETWEEN TWO DATES ----------
+export const formatDurationBetween = (
+  start,
+  end,
+  type = "short" // short | long
+) => {
+  if (!start || !end) return null;
+
+  const startDate = new Date(start);
+  const endDate = new Date(end);
+
+  if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+    return null;
+  }
+
+  const diffMs = endDate - startDate;
+  if (diffMs <= 0) return null;
+
+  const totalMinutes = Math.floor(diffMs / 60000);
+
+  const days = Math.floor(totalMinutes / (60 * 24));
+  const hours = Math.floor((totalMinutes % (60 * 24)) / 60);
+  const minutes = totalMinutes % 60;
+
+  if (type === "long") {
+    const parts = [];
+    if (days) parts.push(`${days} day${days !== 1 ? "s" : ""}`);
+    if (hours) parts.push(`${hours} hour${hours !== 1 ? "s" : ""}`);
+    if (minutes) parts.push(`${minutes} min${minutes !== 1 ? "s" : ""}`);
+    return parts.join(" ");
+  }
+
+  // short format (default)
+  if (days > 0) return `${days}d ${hours}h`;
+  if (hours > 0) return `${hours}h ${minutes}m`;
+  return `${minutes}m`;
+};
+
 // ---------- INPUT FORMAT ----------
 export const formatDateForInput = (dateString) => {
-  if (!dateString) return "";
+  if (dateString == null) return "";
 
   const date = new Date(dateString);
-  if (isNaN(date)) return "";
-
+  if (isNaN(date.getTime())) return "";
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");

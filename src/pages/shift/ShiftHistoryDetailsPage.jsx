@@ -1,39 +1,89 @@
-import React, { useEffect, useState } from "react";
 import {
-  DollarSign,
-  TrendingUp,
-  TrendingDown,
+  Activity,
+  ArrowLeft,
+  Banknote,
+  BarChart2,
+  CalendarDays,
+  CheckCircle2,
   Clock,
-  User,
-  ShoppingBag,
   CreditCard,
-  AlertCircle,
-  CheckCircle,
-  Receipt,
-  Users,
-  Calendar,
-  Building2,
-  ChevronRight,
+  Hash,
+  IndianRupee,
+  Layers,
+  Lock,
+  Package,
+  ReceiptIndianRupee,
+  ShoppingBag,
+  Smartphone,
+  Tag,
+  TrendingDown,
+  TrendingUp,
+  Truck,
+  Unlock,
+  User,
+  Utensils,
+  Wallet,
+  XCircle,
 } from "lucide-react";
-import PageHeader from "../../layout/PageHeader";
-import { useQueryParams } from "../../hooks/useQueryParams";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchShiftHistoryByid } from "../../redux/slices/shiftSlice";
-import { formatDate } from "../../utils/dateFormatter";
-import StatusBadge from "../../layout/StatusBadge";
-import StatCard from "../../components/StatCard";
-import { formatNumber } from "../../utils/numberFormatter";
-import SmartTable from "../../components/SmartTable";
+import { useQueryParams } from "../../hooks/useQueryParams";
 import LoadingOverlay from "../../components/LoadingOverlay";
+import { fetchShiftHistoryByid } from "../../redux/slices/shiftSlice";
+import { formatNumber, num } from "../../utils/numberFormatter";
+import StatCard from "../../components/StatCard";
+import { useNavigate } from "react-router-dom";
+import { formatDate, formatDurationBetween } from "../../utils/dateFormatter";
+import MetricPanel from "../../partial/report/daily-sales-report/MetricPanel";
+import PayRow from "../../partial/report/daily-sales-report/PayRow";
+import SmartTable from "../../components/SmartTable";
+import StatusBadge from "../../layout/StatusBadge";
+import Tabs from "../../components/Tabs";
+
+function FieldRow({
+  label,
+  value,
+  valueClass = "text-slate-800",
+  border = true,
+}) {
+  return (
+    <div
+      className={`flex items-center justify-between gap-6 py-2.5 ${border ? "border-b border-slate-100" : ""}`}
+    >
+      <span className="text-[11.5px] text-slate-500 font-medium whitespace-nowrap">
+        {label}
+      </span>
+      <span
+        className={`text-[12px] font-bold tabular-nums text-right ${valueClass}`}
+      >
+        {value}
+      </span>
+    </div>
+  );
+}
 
 const ShiftHistoryDetailsPage = () => {
   const dispatch = useDispatch();
-  const { shiftId } = useQueryParams();
-  const [activeTab, setActiveTab] = useState("transactions");
+  const navigate = useNavigate();
 
+  const { shiftId } = useQueryParams();
+
+  const [activeTab, setActiveTab] = useState("transaction");
   const { shiftHistoryDetails: shift, isFetchingShiftHistoryDetails } =
     useSelector((state) => state.shift);
-  const { transactions, staffActivity } = shift || {};
+
+  const {
+    transactions = [],
+    staffActivity = [],
+    orderStats,
+    paymentBreakdown,
+    paymentSummary,
+    orders,
+  } = shift || {};
+
+  const isOpen = shift?.status === "open";
+
+  const maxStaff = Math.max(...staffActivity.map((s) => num(s.totalSales)), 1);
 
   useEffect(() => {
     if (shiftId) {
@@ -45,79 +95,106 @@ const ShiftHistoryDetailsPage = () => {
     return <LoadingOverlay text="Getching shift history..." />;
   }
 
-  if (!shift) {
-    return (
-      <div>
-        <PageHeader title="Shift History Details" showBackButton />
-        <div className="text-center py-12 text-gray-500">Shift not found</div>
-      </div>
-    );
-  }
+  const variance = Number(shift?.cashVariance || 0);
 
-  // Calculate shift duration
-  const shiftDuration = () => {
-    if (!shift.openingTime || !shift.closingTime) return "—";
-    const start = new Date(shift.openingTime);
-    const end = new Date(shift.closingTime);
-    const diff = Math.abs(end - start);
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    return `${hours}h ${minutes}m`;
-  };
+  const duration = shift
+    ? formatDurationBetween(shift?.openingTime, shift?.closingTime)
+    : null;
 
-  const stats = [
+  const kpiTiles = [
     {
-      title: "Opening Cash",
-      value: formatNumber(shift?.openingCash || 0, true),
-      subtitle: "Cash at shift start",
-      icon: DollarSign,
+      label: "Opening Cash",
+      value: formatNumber(shift?.openingCash, true),
+      sub: "Float at start",
+      color: "blue",
+      icon: IndianRupee,
+    },
+    {
+      label: "Closing Cash",
+      value: formatNumber(shift?.closingCash, true),
+      sub: "Cash at end",
+      color: "violet",
+      icon: Wallet,
+    },
+    {
+      label: "Total Orders",
+      value: formatNumber(shift?.totalOrders),
+      sub: shift?.cancelledOrders
+        ? `${formatNumber(shift.cancelledOrders)} cancelled`
+        : "processed",
+      color: "slate",
+      icon: ShoppingBag,
+    },
+    {
+      label: "Cash Variance",
+      value: variance === 0 ? "Balanced" : formatNumber(Math.abs(variance)),
+      sub:
+        variance > 0 ? "Surplus" : variance < 0 ? "Shortage" : "No discrepancy",
+      color: variance > 0 ? "emerald" : variance < 0 ? "rose" : "slate",
+      icon:
+        variance > 0 ? TrendingUp : variance < 0 ? TrendingDown : CheckCircle2,
+    },
+  ];
+
+  const orderStatsData = [
+    // ── Core Orders ──
+    {
+      label: "Total Orders",
+      value: formatNumber(orderStats?.totalOrders),
+      icon: ShoppingBag,
+      color: "slate",
+    },
+    {
+      label: "Completed Orders",
+      value: formatNumber(orderStats?.completedOrders),
+      icon: CheckCircle2,
+      color: "emerald",
+    },
+    {
+      label: "Cancelled Orders",
+      value: formatNumber(orderStats?.cancelledOrders),
+      icon: XCircle,
+      color: "rose",
+    },
+
+    // ── Order Types ──
+    {
+      label: "Dine-In",
+      value: formatNumber(orderStats?.dineInOrders),
+      icon: Utensils,
       color: "blue",
     },
     {
-      title: "Expected Cash",
-      value: formatNumber(shift?.expectedCash || 0, true),
-      subtitle: "System calculated amount",
+      label: "Takeaway",
+      value: formatNumber(orderStats?.takeawayOrders),
+      icon: Package,
+      color: "amber",
+    },
+    {
+      label: "Delivery",
+      value: formatNumber(orderStats?.deliveryOrders),
+      icon: Truck,
+      color: "cyan",
+    },
+
+    // ── Order Value Metrics ──
+    {
+      label: "Avg Order Value",
+      value: formatNumber(orderStats?.avgOrderValue, true),
+      icon: IndianRupee,
+      color: "violet",
+    },
+    {
+      label: "Max Order Value",
+      value: formatNumber(orderStats?.maxOrderValue, true),
       icon: TrendingUp,
-      color: "green",
+      color: "emerald",
     },
     {
-      title: "Closing Cash",
-      value: shift?.closingTime
-        ? formatNumber(shift?.closingCash || 0, true)
-        : "-",
-      subtitle: shift?.closingTime
-        ? "Cash counted at closing"
-        : "Shift still open",
-      icon: Receipt,
-      color: "purple",
-    },
-    {
-      title: "Cash Variance",
-      value: shift?.closingTime
-        ? `${shift?.cashVariance > 0 ? "+" : ""}${formatNumber(
-            shift?.cashVariance || 0,
-            true,
-          )}`
-        : "-",
-      subtitle:
-        shift?.cashVariance < 0
-          ? "Shortage detected"
-          : shift?.cashVariance > 0
-            ? "Excess cash"
-            : "Balanced",
-      icon:
-        shift?.cashVariance < 0
-          ? TrendingDown
-          : shift?.cashVariance > 0
-            ? TrendingUp
-            : CheckCircle,
-      color:
-        shift?.cashVariance < 0
-          ? "red"
-          : shift?.cashVariance > 0
-            ? "yellow"
-            : "green",
-      notes: shift?.varianceNotes || null,
+      label: "Min Order Value",
+      value: formatNumber(orderStats?.minOrderValue, true),
+      icon: TrendingDown,
+      color: "rose",
     },
   ];
 
@@ -227,354 +304,391 @@ const ShiftHistoryDetailsPage = () => {
     },
   ];
 
-  const staffColumns = [
-    // Rank + Name
+  const tabs = [
     {
-      key: "userName",
-      label: "Staff",
-      render: (row, index) => (
-        <div className="flex items-center gap-3">
-          <span className="text-xs font-semibold text-slate-400 w-6">
-            #{index + 1}
-          </span>
-
-          <div>
-            <div className="font-medium text-slate-800">{row.userName}</div>
-            <div className="text-xs text-slate-500">
-              {row.ordersHandled} Orders
-            </div>
-          </div>
-        </div>
-      ),
+      id: "transaction",
+      label: "Transactions",
+      icon: ReceiptIndianRupee,
+      count: transactions.length,
     },
-
-    // Total Sales (Primary metric)
     {
-      key: "totalSales",
-      label: "Total Sales",
-      render: (row) => (
-        <div className="text-right">
-          <div className="text-lg font-bold text-emerald-600">
-            {formatNumber(row.totalSales, true)}
-          </div>
-          <div className="text-xs text-slate-400">
-            Avg ₹
-            {row.ordersHandled > 0
-              ? formatNumber(row.totalSales / row.ordersHandled)
-              : 0}
-          </div>
-        </div>
-      ),
+      id: "order",
+      label: "All Orders",
+      icon: Package,
+      count: orders?.length,
     },
   ];
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Shift History Details"
-        description={`${shift?.outletName || "Shift"} - ${formatDate(shift?.sessionDate, "short")}`}
-        showBackButton
-      />
+      <button
+        onClick={() => navigate(-1)}
+        className="flex items-center gap-2 text-[12px] font-semibold text-slate-500 hover:text-slate-800 transition-colors group"
+      >
+        <span className="w-7 h-7 rounded-lg border border-slate-200 bg-white shadow-sm flex items-center justify-center group-hover:border-slate-300 transition-colors">
+          <ArrowLeft size={13} className="text-slate-500" strokeWidth={2.5} />
+        </span>
+        Back to Shift History
+      </button>
 
-      {/* Header Summary */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <Building2 size={18} className="text-gray-400" />
-              <h2 className="text-xl font-bold text-gray-900">
-                {shift?.outletName}
-              </h2>
-            </div>
-            <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600">
-              <div className="flex items-center gap-1.5">
-                <Calendar size={14} />
-                {formatDate(shift?.sessionDate, "long")}
+      {/* ── UNIVERSAL SHIFT HERO ── */}
+      <div
+        className="relative rounded-2xl overflow-hidden shadow-lg"
+        style={{
+          background:
+            "linear-gradient(135deg, var(--color-primary-600), var(--color-primary-700))",
+        }}
+      >
+        {/* Soft highlight line */}
+        <div
+          className="absolute top-0 left-0 right-0 h-[1px]"
+          style={{
+            background:
+              "linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)",
+          }}
+        />
+
+        {/* Soft radial glow */}
+        <div className="absolute -top-16 -right-16 w-56 h-56 rounded-full bg-white/10 pointer-events-none" />
+
+        <div className="relative z-10 px-5 py-4 text-white">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+            {/* Avatar + Identity */}
+            <div className="flex items-center gap-4 flex-1 min-w-0">
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-white/15 border border-white/20 backdrop-blur">
+                <User size={22} strokeWidth={1.7} />
               </div>
-              <span>•</span>
-              <div className="flex items-center gap-1.5">
-                <Clock size={14} />
-                {shiftDuration()}
+
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                  <h1 className="text-[20px] font-bold leading-none truncate">
+                    {shift.cashierName}
+                  </h1>
+
+                  <StatusBadge
+                    value={isOpen}
+                    trueText="Open"
+                    falseText="Closed"
+                    size="sm"
+                  />
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  {shift.floorName && (
+                    <span className="flex items-center gap-1 px-2 py-1 rounded-md bg-white/10 border border-white/20 text-[10px] text-white/80">
+                      <Layers size={12} />
+                      {shift.floorName}
+                    </span>
+                  )}
+                  {shift.outletName && (
+                    <span className="flex items-center gap-1 px-2 py-1 rounded-md bg-white/10 border border-white/20 text-[10px] text-white/80">
+                      <Hash size={12} />
+                      {shift.outletName}
+                    </span>
+                  )}
+                  <span className="flex items-center gap-1 px-2 py-1 rounded-md bg-white/10 border border-white/20 text-[10px] text-white/80">
+                    <CalendarDays size={12} />
+                    {formatDate(shift.sessionDate, "long")}
+                  </span>
+                  <span className="flex items-center gap-1 px-2 py-1 rounded-md bg-white/10 border border-white/20 text-[10px] text-white/80">
+                    <Hash size={12} />
+                    Shift #{shift.id}
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="flex items-center gap-3">
-            <StatusBadge
-              value={shift?.status === "open"}
-              trueText="Open"
-              falseText="Closed"
-            />
-          </div>
-        </div>
-
-        {/* Opening/Closing Info */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 pt-4 border-t border-gray-200">
-          <div>
-            <p className="text-xs text-gray-500 mb-1">Opened By</p>
-            <p className="text-sm font-semibold text-gray-900">
-              {shift?.openedByName}
-            </p>
-            <p className="text-xs text-gray-500">
-              {formatDate(shift?.openingTime, "long")}
-            </p>
-          </div>
-          {shift?.closedByName && (
-            <div>
-              <p className="text-xs text-gray-500 mb-1">Closed By</p>
-              <p className="text-sm font-semibold text-gray-900">
-                {shift?.closedByName}
+            {/* Total Sales */}
+            <div className="flex-shrink-0 sm:text-right">
+              <p className="text-[9px] font-semibold text-white/70 uppercase tracking-wider">
+                Total Sales
               </p>
-              <p className="text-xs text-gray-500">
-                {formatDate(shift?.closingTime, "long")}
+              <p className="text-[32px] font-bold tabular-nums leading-none">
+                {formatNumber(shift.totalSales, true)}
+              </p>
+              <p className="text-[11px] text-white/70 mt-1">
+                {formatNumber(shift.totalOrders)} orders processed
               </p>
             </div>
-          )}
+          </div>
+
+          {/* Bottom Metrics */}
+          <div className="grid grid-cols-3 gap-3 mt-4">
+            {[
+              {
+                icon: Unlock,
+                label: "Opened",
+                primary: formatDate(shift.openingTime, "time"),
+                secondary: formatDate(shift.openingTime, "long"),
+              },
+              {
+                icon: Lock,
+                label: "Closed",
+                primary: shift.closingTime
+                  ? formatDate(shift.closingTime, "time")
+                  : "In Progress",
+                secondary: shift.closingTime
+                  ? formatDate(shift.closingTime, "long")
+                  : "—",
+              },
+              {
+                icon: Clock,
+                label: "Duration",
+                primary: duration || "—",
+                secondary: isOpen ? "Shift active" : "Total session time",
+              },
+            ].map(({ icon: Icon, label, primary, secondary }) => (
+              <div
+                key={label}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/10 border border-white/20 backdrop-blur-sm"
+              >
+                <Icon size={13} strokeWidth={2} />
+
+                <div className="min-w-0">
+                  <p className="text-[9px] font-semibold text-white/70 uppercase tracking-wide">
+                    {label}
+                  </p>
+                  <p className="text-[14px] font-bold tabular-nums leading-none truncate">
+                    {primary}
+                  </p>
+                  <p className="text-[9px] text-white/70 truncate">
+                    {secondary}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Cash Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats?.map((stat, index) => (
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        {kpiTiles.map(({ label, value, sub, color, icon: Icon }) => (
           <StatCard
-            key={index}
-            title={stat?.title}
-            value={stat?.value}
-            subtitle={stat?.subtitle}
-            icon={stat?.icon}
-            color={stat?.color}
+            key={label}
+            title={label}
+            icon={Icon}
+            value={value}
+            subtitle={sub}
+            color={color}
+            variant="v9"
+            mode="solid"
           />
         ))}
       </div>
 
-      {/* Sales & Orders Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Sales Breakdown */}
-        <div className="bg-white rounded-xl border border-gray-200">
-          <div className="px-5 py-4 border-b border-gray-100">
-            <h3 className="text-sm font-semibold text-gray-900">
-              Sales Summary
-            </h3>
-          </div>
-          <div className="p-5 space-y-3">
-            <div className="flex items-center justify-between p-3 rounded-lg bg-gray-50">
-              <span className="text-sm text-gray-700">Total Sales</span>
-              <span className="text-lg font-bold text-gray-900">
-                ₹{shift?.totalSales?.toLocaleString()}
-              </span>
-            </div>
-            <div className="flex items-center justify-between p-3 rounded-lg bg-blue-50">
-              <span className="text-sm text-gray-700">Cash Sales</span>
-              <span className="text-sm font-semibold text-gray-900">
-                ₹{shift?.totalCashSales?.toLocaleString()}
-              </span>
-            </div>
-            <div className="flex items-center justify-between p-3 rounded-lg bg-purple-50">
-              <span className="text-sm text-gray-700">Card Sales</span>
-              <span className="text-sm font-semibold text-gray-900">
-                ₹{shift?.totalCardSales?.toLocaleString()}
-              </span>
-            </div>
-            <div className="flex items-center justify-between p-3 rounded-lg bg-emerald-50">
-              <span className="text-sm text-gray-700">UPI Sales</span>
-              <span className="text-sm font-semibold text-gray-900">
-                ₹{shift?.totalUpiSales?.toLocaleString()}
-              </span>
-            </div>
-            <div className="flex items-center justify-between p-3 rounded-lg bg-amber-50">
-              <span className="text-sm text-gray-700">Discounts</span>
-              <span className="text-sm font-semibold text-amber-700">
-                -₹{shift?.totalDiscounts?.toLocaleString()}
-              </span>
-            </div>
-            {(shift?.totalRefunds > 0 || shift?.totalCancellations > 0) && (
-              <div className="pt-2 border-t border-gray-200 space-y-2">
-                {shift?.totalRefunds > 0 && (
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600">Refunds</span>
-                    <span className="font-medium text-red-600">
-                      -₹{shift.totalRefunds.toLocaleString()}
-                    </span>
-                  </div>
-                )}
-                {shift?.totalCancellations > 0 && (
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600">Cancellations</span>
-                    <span className="font-medium text-red-600">
-                      {shift.totalCancellations}
-                    </span>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
+      {/* ── Tab switcher ── */}
+      <Tabs
+        tabs={tabs}
+        active={activeTab}
+        onChange={setActiveTab}
+        variant="v2"
+      />
 
-        {/* Order Stats */}
-        <div className="bg-white rounded-xl border border-gray-200">
-          <div className="px-5 py-4 border-b border-gray-100">
-            <h3 className="text-sm font-semibold text-gray-900">
-              Order Statistics
-            </h3>
-          </div>
-          <div className="p-5 space-y-3">
-            <div className="flex items-center justify-between p-3 rounded-lg bg-gray-50">
-              <span className="text-sm text-gray-700">Total Orders</span>
-              <span className="text-lg font-bold text-gray-900">
-                {shift?.orderStats?.totalOrders || 0}
-              </span>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-100">
-                <p className="text-xs text-gray-600 mb-1">Completed</p>
-                <p className="text-lg font-bold text-emerald-700">
-                  {shift?.orderStats?.completedOrders || 0}
-                </p>
+      <div
+        className="grid grid-cols-1 lg:grid-cols-3 gap-4"
+        style={{ animationDelay: "120ms" }}
+      >
+        {/* ── LEFT (2 cols) ───────────────────────────────── */}
+        <div className="lg:col-span-2 space-y-4">
+          {/* Cash + Payments row */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Cash Summary */}
+            <MetricPanel
+              icon={Wallet}
+              title="Cash Summary"
+              desc="Opening · Closing · Variance"
+            >
+              <div>
+                <FieldRow
+                  label="Opening Cash"
+                  value={formatNumber(shift.openingCash, true)}
+                />
+                <FieldRow
+                  label="Closing Cash"
+                  value={formatNumber(shift.closingCash, true)}
+                />
+                <FieldRow
+                  label="Expected Cash"
+                  value={formatNumber(shift.expectedCash, true)}
+                  valueClass="text-slate-400"
+                  border={false}
+                />
               </div>
-              <div className="p-3 rounded-lg bg-red-50 border border-red-100">
-                <p className="text-xs text-gray-600 mb-1">Cancelled</p>
-                <p className="text-lg font-bold text-red-700">
-                  {shift?.orderStats?.cancelledOrders || 0}
-                </p>
-              </div>
-            </div>
-            <div className="grid grid-cols-3 gap-2 pt-2 border-t border-gray-200">
-              <div className="text-center p-2 rounded bg-blue-50">
-                <p className="text-xs text-gray-600 mb-1">Dine-in</p>
-                <p className="text-sm font-bold text-gray-900">
-                  {shift?.orderStats?.dineInOrders || 0}
-                </p>
-              </div>
-              <div className="text-center p-2 rounded bg-purple-50">
-                <p className="text-xs text-gray-600 mb-1">Takeaway</p>
-                <p className="text-sm font-bold text-gray-900">
-                  {shift?.orderStats?.takeawayOrders || 0}
-                </p>
-              </div>
-              <div className="text-center p-2 rounded bg-amber-50">
-                <p className="text-xs text-gray-600 mb-1">Delivery</p>
-                <p className="text-sm font-bold text-gray-900">
-                  {shift?.orderStats?.deliveryOrders || 0}
-                </p>
-              </div>
-            </div>
-            <div className="pt-2 border-t border-gray-200 space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-gray-600">Avg Order Value</span>
-                <span className="font-semibold text-gray-900">
-                  ₹
-                  {parseFloat(shift?.orderStats?.avgOrderValue || 0).toFixed(2)}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Max Order Value</span>
-                <span className="font-semibold text-gray-900">
-                  ₹{shift?.orderStats?.maxOrderValue?.toLocaleString() || 0}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Min Order Value</span>
-                <span className="font-semibold text-gray-900">
-                  ₹{shift?.orderStats?.minOrderValue?.toLocaleString() || 0}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+            </MetricPanel>
 
-      {/* Payment Breakdown */}
-      {shift?.paymentBreakdown && shift.paymentBreakdown.length > 0 && (
-        <div className="bg-white rounded-xl border border-gray-200">
-          <div className="px-5 py-4 border-b border-gray-100">
-            <h3 className="text-sm font-semibold text-gray-900">
-              Payment Breakdown
-            </h3>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-gray-200">
-                  <th className="px-5 py-3 text-left text-xs font-semibold text-gray-700">
-                    Payment Mode
-                  </th>
-                  <th className="px-5 py-3 text-right text-xs font-semibold text-gray-700">
-                    Transactions
-                  </th>
-                  <th className="px-5 py-3 text-right text-xs font-semibold text-gray-700">
-                    Total Amount
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {shift.paymentBreakdown.map((payment, idx) => (
-                  <tr key={idx} className="hover:bg-gray-50">
-                    <td className="px-5 py-3">
-                      <div className="flex items-center gap-2">
-                        <CreditCard size={16} className="text-gray-400" />
-                        <span className="text-sm font-medium text-gray-900 capitalize">
-                          {payment.mode}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-5 py-3 text-right text-sm text-gray-600">
-                      {payment.count}
-                    </td>
-                    <td className="px-5 py-3 text-right text-sm font-semibold text-gray-900">
-                      ₹{payment.total?.toLocaleString()}
-                    </td>
-                  </tr>
+            {/* Payment breakdown from summary */}
+            <MetricPanel
+              icon={Wallet}
+              title="Payment Collection"
+              desc="Sales by payment type"
+              right={
+                <span className="text-[13px] font-black text-slate-900 tabular-nums">
+                  {formatNumber(paymentSummary?.total, true)}
+                </span>
+              }
+            >
+              {Object.entries(paymentSummary || {})
+                .filter(([key, amount]) => key !== "total" && num(amount) > 0)
+                .map(([mode, amount]) => (
+                  <PayRow
+                    key={mode}
+                    type={mode}
+                    amount={amount}
+                    total={paymentSummary?.total || 1}
+                  />
                 ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-      <div className="flex gap-2 border-b border-slate-200">
-        <button
-          onClick={() => setActiveTab("transactions")}
-          className={`px-4 py-2 text-sm font-medium border-b-2 transition ${
-            activeTab === "transactions"
-              ? "border-primary-500 text-primary-600"
-              : "border-transparent text-slate-500 hover:text-slate-700"
-          }`}
-        >
-          Transactions
-        </button>
 
-        <button
-          onClick={() => setActiveTab("staff")}
-          className={`px-4 py-2 text-sm font-medium border-b-2 transition ${
-            activeTab === "staff"
-              ? "border-primary-500 text-primary-600"
-              : "border-transparent text-slate-500 hover:text-slate-700"
-          }`}
-        >
-          Staff Report
-        </button>
+              {(!paymentSummary || paymentSummary.total === 0) && (
+                <p className="text-[12px] text-slate-400 text-center py-6">
+                  No payment data
+                </p>
+              )}
+            </MetricPanel>
+          </div>
+
+          {/* Order Statistics */}
+          <MetricPanel
+            icon={BarChart2}
+            title="Order Statistics"
+            desc="Performance breakdown for this shift"
+          >
+            <div className="grid grid-cols-2 md:grid-cols-3  gap-3">
+              {orderStatsData?.map((item) => (
+                <StatCard
+                  key={item.label}
+                  title={item.label}
+                  value={item.value}
+                  icon={item.icon}
+                  color={item.color}
+                  variant="v5"
+                  // mode="solid"
+                />
+              ))}
+            </div>
+          </MetricPanel>
+        </div>
+
+        {/* ── RIGHT SIDEBAR ───────────────────────────────── */}
+        <div className="space-y-4">
+          {/* Shift Details */}
+          <MetricPanel icon={CalendarDays} title="Shift Details">
+            <FieldRow
+              label="Session Date"
+              value={formatDate(shift.sessionDate, "long")}
+            />
+            <FieldRow
+              label="Opened At"
+              value={formatDate(shift.openingTime, "time")}
+            />
+            <FieldRow
+              label="Closed At"
+              value={
+                shift.closingTime ? formatDate(shift.closingTime, "time") : "—"
+              }
+            />
+            <FieldRow label="Duration" value={duration || "—"} border={false} />
+          </MetricPanel>
+
+          {/* Staff Activity */}
+          {staffActivity.length > 0 && (
+            <MetricPanel
+              icon={User}
+              title="Staff Activity"
+              desc="Per cashier performance"
+            >
+              <div className="space-y-4">
+                {[...staffActivity]
+                  .sort((a, b) => num(b.totalSales) - num(a.totalSales))
+                  .map((s) => (
+                    <div key={s.userId}>
+                      <div className="flex items-center gap-2.5 mb-2">
+                        <div className="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center flex-shrink-0">
+                          <User
+                            size={13}
+                            className="text-white"
+                            strokeWidth={2}
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[12px] font-black text-slate-800 truncate leading-tight">
+                            {s.userName}
+                          </p>
+                          <p className="text-[10px] text-slate-400 font-medium">
+                            {s.ordersHandled} orders ·{" "}
+                            {formatNumber(s.totalSales)}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
+                        <div
+                          className="h-full rounded-full bg-slate-700 transition-all duration-700"
+                          style={{
+                            width: `${(num(s.totalSales) / maxStaff) * 100}%`,
+                          }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            </MetricPanel>
+          )}
+
+          {/* Session Activity */}
+          {(shift.openedByName || shift.closedByName) && (
+            <MetricPanel icon={User} title="Staff Activity">
+              <div className="space-y-2.5">
+                {shift.openedByName && (
+                  <div className="flex items-center gap-3 px-3.5 py-3 rounded-xl bg-emerald-50 border border-emerald-200">
+                    <div className="w-7 h-7 rounded-lg bg-emerald-100 border border-emerald-200 flex items-center justify-center flex-shrink-0">
+                      <Unlock
+                        size={12}
+                        className="text-emerald-600"
+                        strokeWidth={2.5}
+                      />
+                    </div>
+                    <div>
+                      <p className="text-[8.5px] font-black text-emerald-500 uppercase tracking-wider">
+                        Opened by
+                      </p>
+                      <p className="text-[12.5px] font-black text-slate-800">
+                        {shift.openedByName}
+                      </p>
+                    </div>
+                  </div>
+                )}
+                {shift.closedByName && (
+                  <div className="flex items-center gap-3 px-3.5 py-3 rounded-xl bg-slate-100 border border-slate-200">
+                    <div className="w-7 h-7 rounded-lg bg-slate-200 border border-slate-300 flex items-center justify-center flex-shrink-0">
+                      <Lock
+                        size={12}
+                        className="text-slate-600"
+                        strokeWidth={2.5}
+                      />
+                    </div>
+                    <div>
+                      <p className="text-[8.5px] font-black text-slate-400 uppercase tracking-wider">
+                        Closed by
+                      </p>
+                      <p className="text-[12.5px] font-black text-slate-800">
+                        {shift.closedByName}
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </MetricPanel>
+          )}
+        </div>
       </div>
 
-      {activeTab === "transactions" && (
-        <SmartTable
-          title={"Transactions"}
-          totalcount={transactions?.length}
-          data={transactions}
-          columns={transactionColumns}
-          loading={isFetchingShiftHistoryDetails}
-          //   actions={rowActions}
-        />
-      )}
-
-      {activeTab === "staff" && (
-        <SmartTable
-          title={"Staff Activity"}
-          totalcount={staffActivity?.length}
-          data={staffActivity}
-          columns={staffColumns}
-          loading={isFetchingShiftHistoryDetails}
-          //   actions={rowActions}
-        />
-      )}
+      <SmartTable
+        title={"Transactions"}
+        totalcount={transactions?.length}
+        data={transactions}
+        columns={transactionColumns}
+        loading={isFetchingShiftHistoryDetails}
+        //   actions={rowActions}
+      />
     </div>
   );
 };

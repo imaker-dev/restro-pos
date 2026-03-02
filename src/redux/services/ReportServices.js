@@ -122,4 +122,34 @@ export default false
       getRunnigOrderApi: (outletId) => {
         return Api.get(`/reports/running-orders?outletId=${outletId}`);
       },
+      getSectionSalesReportApi: (outletId, dateRange = {}) => {
+        const params = {};
+
+        if (dateRange.startDate && dateRange.endDate) {
+          params.startDate = dateRange.startDate;
+          params.endDate = dateRange.endDate;
+        }
+
+        return Api.get(`/orders/reports/${outletId}/floor-section`, { params });
+      },
+      getStationSalesReportApi: (outletId, dateRange = {}) => {
+        const params = {};
+
+        if (dateRange.startDate && dateRange.endDate) {
+          params.startDate = dateRange.startDate;
+          params.endDate = dateRange.endDate;
+        }
+
+        return Api.get(`/orders/reports/${outletId}/counter`, { params });
+      },
+      getCancellationReportApi: (outletId, dateRange = {}) => {
+        const params = {};
+
+        if (dateRange?.startDate && dateRange?.endDate) {
+          params.startDate = dateRange.startDate;
+          params.endDate = dateRange.endDate;
+        }
+
+        return Api.get(`/orders/reports/${outletId}/cancellations`, { params });
+      },
     };
