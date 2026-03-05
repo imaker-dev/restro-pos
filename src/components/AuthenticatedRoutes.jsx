@@ -3,7 +3,7 @@ import { Route, Routes, Navigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import routeConfig from "../config/route-config";
 import AppLayout from "../layout/AppLayout";
-import PageNotFound from "../pages/PageNotFOund";
+import PageNotFound from "../pages/PageNotFound";
 import UnauthorizedPage from "../pages/UnauthorizedPage";
 import { hasAccess } from "../utils/accessControl";
 
