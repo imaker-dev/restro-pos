@@ -1,12 +1,11 @@
 import {
-  Activity,
   ArrowLeft,
-  Banknote,
+  ArrowRight,
   BarChart2,
   CalendarDays,
   CheckCircle2,
   Clock,
-  CreditCard,
+  Eye,
   Hash,
   IndianRupee,
   Layers,
@@ -14,8 +13,6 @@ import {
   Package,
   ReceiptIndianRupee,
   ShoppingBag,
-  Smartphone,
-  Tag,
   TrendingDown,
   TrendingUp,
   Truck,
@@ -39,6 +36,7 @@ import PayRow from "../../partial/report/daily-sales-report/PayRow";
 import SmartTable from "../../components/SmartTable";
 import StatusBadge from "../../layout/StatusBadge";
 import Tabs from "../../components/Tabs";
+import OrderBadge from "../../partial/order/OrderBadge";
 
 function FieldRow({
   label,
@@ -198,112 +196,6 @@ const ShiftHistoryDetailsPage = () => {
     },
   ];
 
-  const transactionColumns = [
-    // Date + Type
-    {
-      key: "createdAt",
-      label: "Date / Type",
-      render: (row) => {
-        const typeStyles = {
-          sale: "text-emerald-600",
-          opening: "text-blue-600",
-          closing: "text-amber-600",
-        };
-
-        return (
-          <div className="space-y-0.5">
-            <div className="text-sm font-medium text-slate-800">
-              {formatDate(row.createdAt, "long")}
-            </div>
-            <div className="text-xs flex items-center gap-2">
-              <span className="text-slate-400">
-                {formatDate(row.createdAt, "time")}
-              </span>
-              <span
-                className={`capitalize font-medium ${typeStyles[row.type]}`}
-              >
-                • {row.type}
-              </span>
-            </div>
-          </div>
-        );
-      },
-    },
-
-    // Amount + Balance After
-    {
-      key: "amount",
-      label: "Amount ",
-      render: (row) => (
-        <div className="text-right space-y-0.5">
-          <div
-            className={`font-semibold ${
-              row.type === "closing"
-                ? "text-red-600"
-                : row.type === "opening"
-                  ? "text-blue-600"
-                  : "text-emerald-600"
-            }`}
-          >
-            {row.amount > 0 ? "+" : ""}
-            {formatNumber(row.amount, true)}
-          </div>
-
-          <div className="text-xs text-slate-500">
-            Bal:{" "}
-            <span className="font-medium text-slate-800">
-              {formatNumber(row.balanceAfter, true)}
-            </span>
-          </div>
-        </div>
-      ),
-    },
-
-    // Balance Flow (Before → After)
-    {
-      key: "balanceFlow",
-      label: "Balance Flow",
-      render: (row) => (
-        <div className="text-xs text-slate-600">
-          {formatNumber(row.balanceBefore, true)} →{" "}
-          <span className="font-medium text-slate-800">
-            {formatNumber(row.balanceAfter, true)}
-          </span>
-        </div>
-      ),
-    },
-
-    // Description (Main info)
-    {
-      key: "description",
-      label: "Description",
-      render: (row) => (
-        <div className="space-y-0.5 max-w-[250px]">
-          <div className="text-sm text-slate-700 truncate">
-            {row.description || "-"}
-          </div>
-
-          {row.referenceType && (
-            <div className="text-xs text-slate-500 capitalize">
-              {row.referenceType.replace("_", " ")} • ID {row.referenceId}
-            </div>
-          )}
-        </div>
-      ),
-    },
-
-    // User
-    {
-      key: "userName",
-      label: "Processed By",
-      render: (row) => (
-        <span className="text-sm text-slate-600 whitespace-nowrap">
-          {row.userName}
-        </span>
-      ),
-    },
-  ];
-
   const tabs = [
     {
       id: "transaction",
@@ -316,6 +208,263 @@ const ShiftHistoryDetailsPage = () => {
       label: "All Orders",
       icon: Package,
       count: orders?.length,
+    },
+  ];
+
+  const transactionColumns = [
+    {
+      key: "type",
+      label: "Type",
+      sortable: true,
+      render: (row) => {
+        const type = row.type?.toLowerCase();
+
+        const styles = {
+          opening: "bg-green-50 text-green-700",
+          closing: "bg-red-50 text-red-700",
+        };
+
+        return (
+          <span
+            className={`px-2.5 py-1 rounded-md text-xs font-medium capitalize ${
+              styles[type] || "bg-slate-100 text-slate-700"
+            }`}
+          >
+            {type?.replace("_", " ") || "unknown"}
+          </span>
+        );
+      },
+    },
+
+    {
+      key: "description",
+      label: "Description",
+      sortable: false,
+      render: (row) => (
+        <div className="leading-tight max-w-[240px]">
+          <div className="text-slate-800 font-medium">
+            {row.description || "—"}
+          </div>
+
+          {row.notes && (
+            <div
+              className="text-xs text-slate-500 truncate mt-0.5"
+              title={row.notes}
+            >
+              {row.notes}
+            </div>
+          )}
+        </div>
+      ),
+    },
+
+    {
+      key: "amount",
+      label: "Amount",
+      sortable: true,
+      render: (row) => {
+        const isDebit = row.amount < 0;
+
+        return (
+          <div className="font-semibold">
+            <span className={isDebit ? "text-red-600" : "text-green-600"}>
+              {isDebit ? "-" : "+"}
+              {formatNumber(Math.abs(row.amount), true)}
+            </span>
+          </div>
+        );
+      },
+    },
+
+    {
+      key: "balance",
+      label: "Balance",
+      sortable: true,
+      render: (row) => {
+        const increased = row.balanceAfter > row.balanceBefore;
+
+        return (
+          <div className="flex items-center gap-2 min-w-[140px]">
+            <div className="text-sm text-slate-700">
+              {formatNumber(row.balanceBefore, true)}
+            </div>
+
+            <ArrowRight
+              size={16}
+              className={increased ? "text-green-600" : "text-red-600"}
+            />
+
+            <div className="font-semibold text-slate-800">
+              {formatNumber(row.balanceAfter, true)}
+            </div>
+          </div>
+        );
+      },
+    },
+
+    {
+      key: "user",
+      label: "User",
+      sortable: true,
+      render: (row) => (
+        <div className="leading-tight max-w-[160px]">
+          <div className="text-sm text-slate-700 font-medium truncate">
+            {row.userName || "—"}
+          </div>
+        </div>
+      ),
+    },
+
+    {
+      key: "createdAt",
+      label: "Time",
+      sortable: true,
+      render: (row) => (
+        <div className="leading-tight">
+          <div className="text-sm text-slate-700">
+            {formatDate(row.createdAt, "longTime")}
+          </div>
+        </div>
+      ),
+    },
+  ];
+
+  const orderColumns = [
+    {
+      key: "orderNumber",
+      label: "Order",
+      sortable: true,
+      sortKey: "createdAt",
+      render: (row) => (
+        <div className="leading-tight max-w-[160px]">
+          <div
+            className="font-semibold text-slate-800 truncate"
+            title={row.orderNumber}
+          >
+            {row.orderNumber}
+          </div>
+
+          <div className="text-xs text-slate-500">
+            {formatDate(row.createdAt, "longTime")}
+          </div>
+        </div>
+      ),
+    },
+
+    {
+      key: "orderType",
+      label: "Type",
+      sortable: true,
+      render: (row) => <OrderBadge type="type" value={row.orderType} />,
+    },
+
+    {
+      key: "table",
+      label: "Table",
+      sortable: true,
+      render: (row) => (
+        <div className="leading-tight max-w-[120px]">
+          <div className="font-medium text-slate-700">
+            {row.tableNumber || "—"}
+          </div>
+
+          <div className="text-xs text-slate-500">
+            {row.tableName || "No Table"}
+          </div>
+        </div>
+      ),
+    },
+
+    {
+      key: "items",
+      label: "Items",
+      sortable: false,
+      render: (row) => (
+        <div className="leading-tight max-w-[220px]">
+          <div className="text-sm text-slate-700 font-medium">
+            {row.items?.length || 0} items
+          </div>
+
+          <div
+            className="text-xs text-slate-500 truncate"
+            title={row.items?.map((i) => i.itemName).join(", ")}
+          >
+            {row.items
+              ?.slice(0, 2)
+              .map((i) => i.itemName)
+              .join(", ")}
+            {row.items?.length > 2 && " ..."}
+          </div>
+        </div>
+      ),
+    },
+
+    {
+      key: "status",
+      label: "Order Status",
+      sortable: true,
+      render: (row) => <OrderBadge type="status" value={row.status} />,
+    },
+
+    {
+      key: "paymentStatus",
+      label: "Payment",
+      sortable: true,
+      render: (row) => (
+        <div className="leading-tight">
+          <OrderBadge type="payment" value={row.paymentStatus} />
+
+          <div className="text-xs text-slate-500 mt-1">
+            {row.paymentMode || "—"}
+          </div>
+        </div>
+      ),
+    },
+
+    {
+      key: "amount",
+      label: "Amount",
+      sortable: true,
+      render: (row) => {
+        const due = row.totalAmount - row.paidAmount;
+
+        return (
+          <div className="leading-tight min-w-[120px]">
+            <div className="font-semibold text-slate-800">
+              {formatNumber(row.totalAmount, true)}
+            </div>
+
+            <div className="text-xs text-green-600">
+              Paid {formatNumber(row.paidAmount, true)}
+            </div>
+
+            {due > 0 && (
+              <div className="text-xs text-red-500">
+                Due {formatNumber(due, true)}
+              </div>
+            )}
+          </div>
+        );
+      },
+    },
+
+    {
+      key: "staff",
+      label: "Staff",
+      sortable: true,
+      render: (row) => (
+        <div className="text-sm text-slate-700 max-w-[140px] truncate">
+          {row.createdByName || "—"}
+        </div>
+      ),
+    },
+  ];
+
+  const orderActions = [
+    {
+      label: "View",
+      icon: Eye,
+      onClick: (row) => navigate(`/orders/details?orderId=${row.id}`),
     },
   ];
 
@@ -476,14 +625,6 @@ const ShiftHistoryDetailsPage = () => {
         ))}
       </div>
 
-      {/* ── Tab switcher ── */}
-      <Tabs
-        tabs={tabs}
-        active={activeTab}
-        onChange={setActiveTab}
-        variant="v2"
-      />
-
       <div
         className="grid grid-cols-1 lg:grid-cols-3 gap-4"
         style={{ animationDelay: "120ms" }}
@@ -615,7 +756,7 @@ const ShiftHistoryDetailsPage = () => {
                           </p>
                           <p className="text-[10px] text-slate-400 font-medium">
                             {s.ordersHandled} orders ·{" "}
-                            {formatNumber(s.totalSales)}
+                            {formatNumber(s.totalSales, true)}
                           </p>
                         </div>
                       </div>
@@ -681,14 +822,35 @@ const ShiftHistoryDetailsPage = () => {
         </div>
       </div>
 
-      <SmartTable
-        title={"Transactions"}
-        totalcount={transactions?.length}
-        data={transactions}
-        columns={transactionColumns}
-        loading={isFetchingShiftHistoryDetails}
-        //   actions={rowActions}
+      {/* ── Tab switcher ── */}
+      <Tabs
+        tabs={tabs}
+        active={activeTab}
+        onChange={setActiveTab}
+        variant="v2"
       />
+
+      {activeTab === "transaction" && (
+        <SmartTable
+          title={"Transactions"}
+          totalcount={transactions?.length}
+          data={transactions}
+          columns={transactionColumns}
+          loading={isFetchingShiftHistoryDetails}
+          //   actions={rowActions}
+        />
+      )}
+
+      {activeTab === "order" && (
+        <SmartTable
+          title={"Orders"}
+          totalcount={orders?.length}
+          data={orders}
+          columns={orderColumns}
+          loading={isFetchingShiftHistoryDetails}
+          actions={orderActions}
+        />
+      )}
     </div>
   );
 };

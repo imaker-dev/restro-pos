@@ -109,6 +109,7 @@ const StationSalesPage = () => {
             color={card.color}
             icon={card.icon}
             subtitle={card.subtitle}
+            variant="v9"
           />
         ))}
       </div>

@@ -65,14 +65,14 @@ const CancellationReport = () => {
     {
       icon: IndianRupee,
       title: "Order Cancel Loss",
-      value: formatNumber(summary?.total_order_cancel_amount),
+      value: formatNumber(summary?.total_order_cancel_amount,true),
       subtitle: "Revenue from full orders",
       color: "purple",
     },
     {
       icon: TrendingDown,
       title: "Item Cancel Loss",
-      value: formatNumber(summary?.total_item_cancel_amount),
+      value: formatNumber(summary?.total_item_cancel_amount,true),
       subtitle: "Revenue from voided items",
       color: "gray",
     },
@@ -123,6 +123,7 @@ const CancellationReport = () => {
             color={card.color}
             icon={card.icon}
             subtitle={card.subtitle}
+            variant="v9"
           />
         ))}
       </div>
@@ -169,7 +170,6 @@ const CancellationReport = () => {
         active={activeTab}
         onChange={setActiveTab}
         variant="v2"
-        color="violet"
       />
 
       {/* ── Order cancellations ── */}

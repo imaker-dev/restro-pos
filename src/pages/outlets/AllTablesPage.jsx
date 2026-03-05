@@ -22,6 +22,7 @@ import SectionCardSkeleton from "../../partial/table/SectionCardSkeleton";
 import { emitUpdateTable } from "../../socket/socketEmitters";
 import { TABLE_MERGED, TABLE_UNMERGED } from "../../socket/socketEvents";
 import { handleResponse } from "../../utils/helpers";
+import ChangeTableModal from "../../partial/table/ChangeTableModal";
 
 const canSelectForMerge = (table) =>
   table.status === "available" &&
@@ -56,6 +57,9 @@ const AllTablesPage = () => {
   const [mergeMode, setMergeMode] = useState(false);
   const [activeMergeSectionId, setActiveMergeSectionId] = useState(null);
   const [selectedTables, setSelectedTables] = useState([]);
+
+  const [showChangeTableModal, setShowChangeTableModal] = useState(false);
+  const [tableToMove, setTableToMove] = useState(null);
 
   const fetchTables = () => {
     dispatch(fetchAllSectionWithTables(floorId));
@@ -125,11 +129,7 @@ const AllTablesPage = () => {
 
     const [primaryTableId, ...otherTableIds] = selectedTables;
 
-    emitUpdateTable(TABLE_MERGED, { tableId: primaryTableId }, (res) => {
-      // if (res?.success) {
-      //   fetchTables();
-      // }
-    });
+    
 
     await handleResponse(
       dispatch(
@@ -139,6 +139,7 @@ const AllTablesPage = () => {
         }),
       ),
       () => {
+        emitUpdateTable(TABLE_MERGED, { tableId: primaryTableId });
         cancelMergeMode();
         fetchTables();
       },
@@ -146,15 +147,42 @@ const AllTablesPage = () => {
   };
 
   const handleSplitTable = async (id) => {
-    emitUpdateTable(TABLE_UNMERGED, { tableId: id }, (res) => {
-      // if (res?.success) {
-      //   fetchTables();
-      // }
-    });
-
     await handleResponse(dispatch(splitTable(id)), () => {
+      emitUpdateTable(TABLE_UNMERGED, { tableId: id })
       fetchTables();
     });
+  };
+
+  const handleChangeTable = async (toTableId) => {
+    if (!tableToMove) return;
+    console.log(toTableId);
+    const fromTableId = tableToMove.id;
+
+    // Prevent invalid move
+    if (fromTableId === toTableId) return;
+
+    // await handleResponse(
+    //   dispatch(
+    //     changeTable({
+    //       fromTableId,
+    //       toTableId,
+    //     })
+    //   ),
+    //   () => {
+    //     // Optional socket emit
+    //     emitUpdateTable("TABLE_CHANGED", {
+    //       fromTableId,
+    //       toTableId,
+    //     });
+
+    //     // Close modal
+    //     setShowChangeTableModal(false);
+    //     setTableToMove(null);
+
+    //     // Refresh data
+    //     fetchTables();
+    //   }
+    // );
   };
 
   return (
@@ -296,6 +324,10 @@ const AllTablesPage = () => {
                           setShowTableModal(true);
                         }}
                         handleSplitTable={handleSplitTable}
+                        onChangeTable={(t) => {
+                          setTableToMove(t);
+                          setShowChangeTableModal(true);
+                        }}
                       />
                     ))}
                   </div>
@@ -357,6 +389,17 @@ const AllTablesPage = () => {
         table={selectedTable}
         onSubmit={handleTableSubmit}
         loading={isCreatingTable || isUpdatingTable}
+      />
+
+      <ChangeTableModal
+        isOpen={showChangeTableModal}
+        onClose={() => {
+          setShowChangeTableModal(false);
+          setTableToMove(null);
+        }}
+        tableToMove={tableToMove}
+        sections={sections}
+        onConfirm={handleChangeTable}
       />
     </>
   );

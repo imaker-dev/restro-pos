@@ -24,7 +24,7 @@
  */
 
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 
 // ─── Full Palette ──────────────────────────────────────────────────────────────
 const P = {
@@ -455,7 +455,7 @@ function V7S({ title, value, subtitle, icon:Icon, p, trend, onClick, progress })
 // V8 · PREMIUM  — glass-morphism · premium shadows · perfect spacing
 // ═══════════════════════════════════════════════════════════════════════════════
 function PremiumL({ title, value, subtitle, icon:Icon, p, trend, onClick }) {
-  const [isHovered, setIsHovered] = useCallback(false, []);
+const [isHovered, setIsHovered] = useState(false);
   
   return (
     <div 
@@ -520,7 +520,7 @@ function PremiumL({ title, value, subtitle, icon:Icon, p, trend, onClick }) {
 }
 
 function PremiumS({ title, value, subtitle, icon:Icon, p, trend, onClick }) {
-  const [isHovered, setIsHovered] = useCallback(false, []);
+  const [isHovered, setIsHovered] = useState(false, []);
   
   return (
     <div 

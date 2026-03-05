@@ -68,8 +68,7 @@ const RunningTablesPage = () => {
             title={card.title}
             value={card.value}
             color={card.color}
-            variant={"v2"}
-            mode="solid"
+            variant={"v9"}
           />
         ))}
       </div>

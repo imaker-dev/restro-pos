@@ -8,6 +8,7 @@ import { formatNumber } from "../../utils/numberFormatter";
 
 import SmartTable from "../../components/SmartTable";
 import { formatDate } from "../../utils/dateFormatter";
+import Tabs from "../../components/Tabs";
 
 const TaxReportPage = () => {
   const dispatch = useDispatch();
@@ -198,6 +199,19 @@ const TaxReportPage = () => {
     },
   ];
 
+  const tabs = [
+    {
+      id: "daily",
+      label: "Daily Report",
+      badgeCount: daily?.length,
+    },
+    {
+      id: "tax",
+      label: "Tax Components",
+      badgeCount: taxComponents?.length,
+    },
+  ];
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between">
@@ -217,35 +231,18 @@ const TaxReportPage = () => {
             title={card?.title}
             value={card?.value}
             color={card?.color}
-            variant="v3"
-            mode="solid"
+            variant="v9"
           />
         ))}
       </div>
 
-      <div className="flex gap-2 border-b border-slate-200">
-        <button
-          onClick={() => setActiveTab("daily")}
-          className={`px-4 py-2 text-sm font-medium border-b-2 transition ${
-            activeTab === "daily"
-              ? "border-primary-500 text-primary-600"
-              : "border-transparent text-slate-500 hover:text-slate-700"
-          }`}
-        >
-          Daily Report
-        </button>
-
-        <button
-          onClick={() => setActiveTab("tax")}
-          className={`px-4 py-2 text-sm font-medium border-b-2 transition ${
-            activeTab === "tax"
-              ? "border-primary-500 text-primary-600"
-              : "border-transparent text-slate-500 hover:text-slate-700"
-          }`}
-        >
-          Tax Components
-        </button>
-      </div>
+      {/* ── Tab switcher ── */}
+      <Tabs
+        tabs={tabs}
+        active={activeTab}
+        onChange={setActiveTab}
+        variant="v2"
+      />
 
       {activeTab === "daily" && (
         <SmartTable

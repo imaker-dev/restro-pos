@@ -47,7 +47,7 @@ const StaffSalesReportPage = () => {
     },
     {
       title: "Total Guests",
-      value: parseInt(summary?.total_guests),
+      value: formatNumber(summary?.total_guests),
       subtitle: "Customers served",
       icon: ShoppingBag,
       color: "purple",
@@ -167,10 +167,11 @@ const StaffSalesReportPage = () => {
             subtitle={stat?.subtitle}
             icon={stat?.icon}
             color={stat?.color}
-            variant="primary"
+            variant="v9"
           />
         ))}
       </div>
+      
       {summary?.top_performer && (
         <div
           className="bg-amber-50 border border-amber-200 

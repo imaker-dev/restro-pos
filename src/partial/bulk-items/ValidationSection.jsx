@@ -12,55 +12,44 @@ import {
   UtensilsCrossed,
   XCircle,
 } from "lucide-react";
+import StatCard from "../../components/StatCard";
 
 const SUMMARY_ITEMS = [
   {
     key: "total",
     label: "Total Rows",
     icon: Hash,
-    cls: "bg-slate-50 border-slate-200",
-    num: "text-slate-700",
-    ico: "text-slate-400",
+    color: "slate",
   },
   {
     key: "categories",
     label: "Categories",
     icon: Tag,
-    cls: "bg-violet-50 border-violet-200",
-    num: "text-violet-700",
-    ico: "text-violet-400",
+    color: "violet",
   },
   {
     key: "items",
     label: "Items",
     icon: UtensilsCrossed,
-    cls: "bg-blue-50 border-blue-200",
-    num: "text-blue-700",
-    ico: "text-blue-400",
+    color: "blue",
   },
   {
     key: "variants",
     label: "Variants",
     icon: Layers,
-    cls: "bg-cyan-50 border-cyan-200",
-    num: "text-cyan-700",
-    ico: "text-cyan-400",
+    color: "cyan",
   },
   {
     key: "addonGroups",
     label: "Addon Groups",
     icon: PlusCircle,
-    cls: "bg-amber-50 border-amber-200",
-    num: "text-amber-700",
-    ico: "text-amber-400",
+    color: "amber",
   },
   {
     key: "addons",
     label: "Addons",
     icon: Plus,
-    cls: "bg-orange-50 border-orange-200",
-    num: "text-orange-700",
-    ico: "text-orange-400",
+    color: "primary",
   },
 ];
 
@@ -138,25 +127,15 @@ export default function ValidationSection({
           File Summary
         </div>
         <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
-          {SUMMARY_ITEMS.map(({ key, label, icon: Icon, cls, num, ico }) => (
-            <div
+          {SUMMARY_ITEMS.map(({ key, label, icon: Icon, color }) => (
+            <StatCard
               key={key}
-              className={`rounded-xl border p-3.5 text-center ${cls}`}
-            >
-              <Icon
-                size={14}
-                className={`${ico} mx-auto mb-2`}
-                strokeWidth={2}
-              />
-              <div className={`text-2xl font-black ${num}`}>
-                {summary[key] ?? 0}
-              </div>
-              <div
-                className={`text-[10px] font-semibold mt-0.5 ${num} opacity-80`}
-              >
-                {label}
-              </div>
-            </div>
+              title={label}
+              value={summary[key] ?? 0}
+              icon={Icon}
+              color={color}
+              variant="v9"
+            />
           ))}
         </div>
       </div>

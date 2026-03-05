@@ -21,6 +21,8 @@ import UserAvatar from "../../components/UserAvatar";
 import { formatDate } from "../../utils/dateFormatter";
 import StatCard from "../../components/StatCard";
 import { Link } from "react-router-dom";
+import LoadingOverlay from "../../components/LoadingOverlay";
+import NoDataFound from "../../layout/NoDataFound";
 
 // ─── Card Component ────────────────────────────────────────────────────────────
 function Card({
@@ -109,29 +111,13 @@ export default function UserDetailsPage() {
   const createdAt = formatDate(user?.createdAt, "long");
 
   if (isFetchingUserDetails) {
-    return (
-      <div className="space-y-6">
-        <PageHeader
-          title="Staff Details"
-          description="Loading..."
-          showBackButton
-        />
-        <div className="flex items-center justify-center py-12">
-          <div className="w-8 h-8 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin" />
-        </div>
-      </div>
-    );
+    return <LoadingOverlay text="Loading User Details..." />;
   }
 
   if (!user) {
     return (
-      <div className="space-y-6">
-        <PageHeader
-          title="Staff Details"
-          description="User not found"
-          showBackButton
-        />
-      </div>
+      <NoDataFound title="User Not Found"/>
+      
     );
   }
 
@@ -241,7 +227,7 @@ export default function UserDetailsPage() {
             title={stat?.label}
             value={stat?.value}
             color="orange"
-            variant="v5"
+            variant="v9"
           />
         ))}
       </div>

@@ -285,6 +285,14 @@ export function TabsV4({ tabs, active, onChange, color = "blue" }) {
 
 // ─── Palette ──────────────────────────────────────────────────────────────────
 const PALETTE = {
+  primary: {
+  a: "#F97316",
+  b: "#EA580C",
+  bg: "#FFF7ED",
+  border: "#FDBA74",
+  muted: "#FFEDD5",
+  text: "#9A3412",
+},
   blue: {
     a: "#3b82f6",
     b: "#6366f1",
@@ -351,7 +359,7 @@ export default function Tabs({
   active,
   onChange,
   variant = "v1",
-  color = "blue",
+  color = "primary",
 }) {
   const Comp = VARIANTS[variant] || TabsV1;
   return <Comp tabs={tabs} active={active} onChange={onChange} color={color} />;

@@ -1,6 +1,5 @@
 // ---------- TIME AGO ----------
 export const timeAgo = (input) => {
-  console.log(input)
   if (input == null) return "Just now";
 
   const date = new Date(input);

@@ -266,7 +266,7 @@ const OrderDetailsPage = () => {
             title={label}
             value={value}
             color={color}
-            variant="v6"
+            variant="v9"
           />
         ))}
       </div>

@@ -129,7 +129,7 @@ export default function AuthPage() {
 
           <div className="mt-6 lg:mt-8">
             <p className="text-center text-sm text-gray-500">
-              Copyrights © 2025 - iMaker Restro
+              Copyrights © {new Date().getFullYear()} - iMaker Restro
             </p>
           </div>
         </div>

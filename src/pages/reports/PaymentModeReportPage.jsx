@@ -162,6 +162,7 @@ const PaymentModeReportPage = () => {
             subtitle={stat?.subtitle}
             icon={stat?.icon}
             color={stat?.color}
+            variant="v9"
           />
         ))}
       </div>

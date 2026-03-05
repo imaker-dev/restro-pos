@@ -273,27 +273,22 @@ const AllOrdersPage = () => {
           onChange={(newRange) => {
             setDateRange(newRange);
           }}
-          defaultRange=""
+          // defaultRange=""
         />
       </div>
 
-      <AccordionSection
-        defaultOpen={false}
-        icon={ShoppingCart}
-        title={"Order Summary"}
-      >
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {orderCards.map((card, i) => (
-            <StatCard
-              key={i}
-              title={card.title}
-              value={card.value}
-              color={card.color}
-              icon={card.icon}
-            />
-          ))}
-        </div>
-      </AccordionSection>
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
+        {orderCards.map((card, i) => (
+          <StatCard
+            key={i}
+            title={card.title}
+            value={card.value}
+            color={card.color}
+            icon={card.icon}
+            variant="v9"
+          />
+        ))}
+      </div>
 
       <div className="bg-white">
         {/* Header Section */}

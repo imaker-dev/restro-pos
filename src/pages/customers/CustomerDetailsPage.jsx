@@ -236,28 +236,28 @@ const CustomerDetailsPage = () => {
   const orderStats = [
     {
       label: "Total Orders",
-      value: formatNumber(hs?.totalOrders, true),
+      value: formatNumber(hs?.totalOrders),
       sub: "All time",
       icon: ShoppingBag,
       color: "slate",
     },
     {
       label: "Paid Orders",
-      value: formatNumber(hs?.fullyPaidOrders, true),
+      value: formatNumber(hs?.fullyPaidOrders),
       sub: "Fully settled",
       icon: CheckCircle2,
       color: "green",
     },
     {
       label: "Cancelled",
-      value: formatNumber(hs?.cancelledOrders, true),
+      value: formatNumber(hs?.cancelledOrders),
       sub: "Orders voided",
       icon: XCircle,
       color: "red",
     },
     {
       label: "Active Orders",
-      value: formatNumber(hs?.activeOrders, true),
+      value: formatNumber(hs?.activeOrders),
       sub: "Currently open",
       icon: Activity,
       color: "blue",
@@ -412,7 +412,6 @@ const CustomerDetailsPage = () => {
             value={stat.value}
             color={stat.color}
             variant="v9"
-            mode="solid"
           />
         ))}
       </div>

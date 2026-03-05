@@ -6,10 +6,11 @@ import {
   fetchSettingsByCategory,
   updateSetting,
 } from "../../redux/slices/settingSlice";
-import { Loader2, Info, CheckCircle } from "lucide-react";
+import { Info, CheckCircle } from "lucide-react";
 import { EditSettingModal } from "../../partial/setting/EditSettingModal";
 import { SettingConfirmationModal } from "../../partial/setting/SettingConfirmationModal";
 import { handleResponse } from "../../utils/helpers";
+import LoadingOverlay from "../../components/LoadingOverlay";
 
 /* ============================= */
 /*        MAIN PAGE              */
@@ -93,11 +94,7 @@ const SettingDetailsPage = () => {
   };
 
   if (isFetchingSettingsDetails) {
-    return (
-      <div className="flex items-center justify-center py-24">
-        <Loader2 size={32} className="animate-spin text-primary-500" />
-      </div>
-    );
+    return <LoadingOverlay text="loading settings..." />;
   }
 
   return (

@@ -52,6 +52,13 @@ const STATUS_STYLES = {
     dot: "bg-slate-500",
     label: "Unknown",
   },
+
+  billing: {
+    bg: "bg-purple-50",
+    text: "text-purple-700",
+    dot: "bg-purple-500",
+    label: "Billing",
+  },
 };
 
 /**

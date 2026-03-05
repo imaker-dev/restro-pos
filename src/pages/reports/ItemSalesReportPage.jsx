@@ -5,9 +5,6 @@ import { fetchItemSalesReport } from "../../redux/slices/reportSlice";
 import CustomDateRangePicker from "../../components/CustomDateRangePicker";
 import { formatNumber } from "../../utils/numberFormatter";
 import SmartTable from "../../components/SmartTable";
-import { SelectField } from "../../components/fields/SelectField";
-import { SERVICE_TYPE_OPTIONS } from "../../constants/selectOptions";
-import CustomSelect from "../../components/CustomSelect";
 import {
   IndianRupee,
   Package,
@@ -158,6 +155,7 @@ const ItemSalesReportPage = () => {
             subtitle={stat.subtitle}
             icon={stat.icon}
             color={stat.color}
+            variant="v9"
           />
         ))}
       </div>

@@ -143,7 +143,7 @@ const ServiceTypeBreakdownReportPage = () => {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between">
         <PageHeader title="Service Type Breakdown" />
@@ -162,8 +162,7 @@ const ServiceTypeBreakdownReportPage = () => {
             value={card.value}
             icon={card.icon}
             color={card.color}
-            variant="v3"
-            mode="solid"
+            variant="v9"
           />
         ))}
       </div>
