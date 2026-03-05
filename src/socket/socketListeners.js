@@ -33,6 +33,7 @@ import {
   KOT_SERVED,
   ITEM_CANCELLED,
   KOT_CANCELLED,
+  TABLE_UPDATED,
 } from "./socketEvents";
 
 export const registerSocketListeners = (socket, dispatch, getState) => {
@@ -132,4 +133,8 @@ export const registerSocketListeners = (socket, dispatch, getState) => {
         break;
     }
   });
+
+  socket.on(TABLE_UPDATED, (data) => {
+  devLog("TABLE SOCKET:", data);
+  })
 };
