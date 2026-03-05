@@ -13,8 +13,6 @@ import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import DynamicTableShape from "./DynamicTableShape";
 
-
-
 const TableCard = ({
   table,
   mergeMode,
@@ -23,6 +21,7 @@ const TableCard = ({
   isTableSelectableForMerge = () => false,
   onUpdate,
   handleSplitTable,
+  onChangeTable,
 }) => {
   const { tableToSplitId } = useSelector((state) => state.table);
   const isSelected = selectedTables.includes(table.id);
@@ -80,7 +79,7 @@ const TableCard = ({
             <p className="text-xs text-gray-500">{table.name}</p>
           </div>
 
- {!mergeMode && (
+          {!mergeMode && (
             <ActionMenu
               items={[
                 ...(table.status === "merged"
@@ -94,7 +93,18 @@ const TableCard = ({
                     ]
                   : []),
 
-                  
+                ...(["occupied", "running"].includes(table.status) &&
+                table.is_active === 1 &&
+                table.status !== "merged"
+                  ? [
+                      {
+                        label: "Change Table",
+                        icon: History, // You can use a better icon if needed
+                        color: "blue",
+                        onClick: () => onChangeTable?.(table),
+                      },
+                    ]
+                  : []),
 
                 {
                   label: "Edit",
@@ -102,38 +112,10 @@ const TableCard = ({
                   color: "emerald",
                   onClick: () => onUpdate(table),
                 },
-                // {
-                //   label: "History",
-                //   icon: History,
-                //   color: "amber",
-                //   onClick: () =>
-                //     navigate(
-                //       `/floors/sections/tables/history?tableId=${table?.id}`,
-                //     ),
-                // },
-                // {
-                //   label: "Report",
-                //   icon: FileText,
-                //   color: "purple",
-                //   onClick: () =>
-                //     navigate(
-                //       `/floors/sections/tables/report?tableId=${table?.id}`,
-                //     ),
-                // },
-                // {
-                //   label: "KOT",
-                //   icon: ReceiptIndianRupee,
-                //   color: "rose",
-                //   onClick: () =>
-                //     navigate(
-                //       `/floors/sections/tables/kot?tableId=${table?.id}`,
-                //     ),
-                // },
               ]}
               loading={tableToSplitId === table.id}
             />
           )}
-
         </div>
 
         <div className="text-sm text-gray-600 space-y-1">
@@ -146,11 +128,11 @@ const TableCard = ({
           <StatusBadge value={table.is_active === 1} />
           <TableStatusBadge status={table.status} />
 
-{table.is_mergeable === 1 && table.status !== "merged" && (
-  <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded">
-    Mergeable
-  </span>
-)}
+          {table.is_mergeable === 1 && table.status !== "merged" && (
+            <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded">
+              Mergeable
+            </span>
+          )}
         </div>
 
         {table.order_number && (
