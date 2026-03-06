@@ -51,6 +51,7 @@ import SectionSalesPage from "../pages/reports/SectionSalesPage";
 import StationSalesPage from "../pages/reports/StationSalesPage";
 import CancellationReport from "../pages/reports/CancellationReport";
 import RunningTablesPage from "../pages/reports/RunningTablesPage";
+import DayEndSummaryDetailsPage from "../pages/reports/DayEndSummaryDetailsPage";
 
 const routeConfig = [
   // { path: "/", element: Dashboard, roles: [ROLES.SUPER_ADMIN] },
@@ -85,6 +86,7 @@ const routeConfig = [
   { path: "/running-orders", element: RunningOrdersPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
   { path: "/running-tables", element: RunningTablesPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
   { path: "/day-end-summary", element: DayEndSummaryPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
+  { path: "/day-end-summary/details", element: DayEndSummaryDetailsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
   
   { path: "/outlets", element: AllOutletsPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN] },
   { path: "/outlets/details", element: OutletDetails, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN] },

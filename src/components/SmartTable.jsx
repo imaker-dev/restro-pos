@@ -38,24 +38,22 @@ export default function SmartTable({
   currentPage,
   pageSize,
 }) {
-
   const { meData } = useSelector((state) => state.auth);
 
-const visibleActions = React.useMemo(() => {
-  if (!meData) return [];
+  const visibleActions = React.useMemo(() => {
+    if (!meData) return [];
 
-  return actions.filter((action) => {
-    if (!action.roles && !action.permissions) return true;
+    return actions.filter((action) => {
+      if (!action.roles && !action.permissions) return true;
 
-    return hasAccess({
-      userRole: meData.roles?.[0]?.slug,
-      userPermissions: meData.permissions,
-      roles: action.roles,
-      permissions: action.permissions,
+      return hasAccess({
+        userRole: meData.roles?.[0]?.slug,
+        userPermissions: meData.permissions,
+        roles: action.roles,
+        permissions: action.permissions,
+      });
     });
-  });
-}, [actions, meData]);
-
+  }, [actions, meData]);
 
   const columnCount =
     (showSr ? 1 : 0) +
@@ -274,7 +272,7 @@ const visibleActions = React.useMemo(() => {
                 if (isDisabled && typeof disabledRowRenderer === "function") {
                   return (
                     <tr
-                      key={row.id || idx}
+                      key={getRowValue(row) ?? idx}
                       className="border-t border-red-200 bg-red-50"
                     >
                       <td colSpan={columnCount} className="px-4 py-4">
@@ -284,7 +282,7 @@ const visibleActions = React.useMemo(() => {
                   );
                 }
                 return (
-                  <React.Fragment key={row.id || idx}>
+                    <React.Fragment key={getRowValue(row) ?? idx}>
                     <tr
                       onClick={() => {
                         if (expandable && expandOnRowClick) {
@@ -338,10 +336,10 @@ const visibleActions = React.useMemo(() => {
                         </td>
                       ))}
 
-                      {actions?.length > 0 && (
+                      {visibleActions?.length > 0 && (
                         <td className="px-6 py-3 text-right">
                           <div className="flex justify-end gap-2">
-                            {actions.map((action,actionIndex) => {
+                            {visibleActions.map((action, actionIndex) => {
                               /* ================================
      🔹 ACTION MENU (submenu)
   ================================= */

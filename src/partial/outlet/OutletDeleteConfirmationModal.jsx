@@ -14,7 +14,7 @@ const OutletDeleteConfirmationModal = ({
   const requiredCode = outlet?.code || "";
   const [confirmationCode, setConfirmationCode] = useState("");
 
-  const countdown = useCountdown(1, isOpen);
+  const countdown = useCountdown(10, isOpen);
   const progress = ((10 - countdown) / 10) * 100;
 
 const isCodeValid = confirmationCode.trim() === requiredCode.trim();

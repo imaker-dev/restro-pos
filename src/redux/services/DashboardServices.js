@@ -28,4 +28,14 @@ export default false
 
         return Api.get(url);
       },
+      getDailyEndSummaryDetailsApi: (outletId, date) => {
+        let url = `/reports/day-end-summary/detail?outletId=${outletId}`;
+
+        if (date) {
+          url += `&startDate=${date}`;
+          url += `&endDate=${date}`;
+        }
+
+        return Api.get(url);
+      },
     };

@@ -19,7 +19,7 @@ export const useSocket = () => {
     registerSocketListeners(socket, dispatch, store.getState);
 
     const joinRooms = () => {
-      const isStationUser = [ROLES.KITCHEN, ROLES.BARTENDER].includes(
+      const isStationUser = [ROLES.KITCHEN, ROLES.BAR].includes(
         role?.slug,
       );
 

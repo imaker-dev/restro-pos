@@ -8,6 +8,7 @@ import {
   Receipt,
   Sparkles,
   IndianRupee,
+  Eye,
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchDailyEndSummary } from "../../redux/slices/dashboardSlice";
@@ -17,9 +18,11 @@ import PageHeader from "../../layout/PageHeader";
 import { formatDate } from "../../utils/dateFormatter";
 import { formatNumber } from "../../utils/numberFormatter";
 import SmartTable from "../../components/SmartTable";
+import { useNavigate } from "react-router-dom";
 
 const DayEndSummaryPage = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { outletId } = useSelector((state) => state.auth);
   const { dailyEndSummary, isFetchingDailyEndSummary } = useSelector(
     (state) => state.dashboard,
@@ -27,8 +30,6 @@ const DayEndSummaryPage = () => {
   const { grandTotal, days } = dailyEndSummary || {};
 
   const [dateRange, setDateRange] = useState(null);
-
-  console.log(days);
 
   useEffect(() => {
     if (!outletId) return;
@@ -41,7 +42,6 @@ const DayEndSummaryPage = () => {
     if (!b || b === 0) return 0;
     return (a / b).toFixed(fixed);
   };
-
 
   const stats = [
     {
@@ -157,6 +157,14 @@ const DayEndSummaryPage = () => {
     },
   ];
 
+  const rowActions = [
+    {
+      label: "View",
+      icon: Eye,
+      onClick: (row) => navigate(`/day-end-summary/details?date=${row.date}`),
+    },
+  ];
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -194,6 +202,7 @@ const DayEndSummaryPage = () => {
         totalcount={days?.length}
         data={days}
         columns={dailyReportColumns}
+        actions={rowActions}
         loading={isFetchingDailyEndSummary}
       />
     </div>

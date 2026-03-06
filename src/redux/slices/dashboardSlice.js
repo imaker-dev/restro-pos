@@ -10,6 +10,10 @@ export const fetchDailyEndSummary = createAsyncThunk("/fetch/daily-end/summary",
   const res = await DashboardServices.getDailyEndSummaryApi(outletId,dateRange);
   return res.data;
 });
+export const fetchDailyEndSummaryDetails = createAsyncThunk("/fetch/daily-end/summary/details", async ({outletId,date}) => {
+  const res = await DashboardServices.getDailyEndSummaryDetailsApi(outletId,date);
+  return res.data;
+});
 
 
 const dashboardSlice = createSlice({
@@ -21,6 +25,8 @@ const dashboardSlice = createSlice({
     dahbordStats: null,
     isFetchingDailyEndSummary:false,
     dailyEndSummary:null,
+    isFetchingDailyEndSummaryDetails:false,
+    dailyEndSummaryDetails:null,
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -45,6 +51,17 @@ const dashboardSlice = createSlice({
       })
       .addCase(fetchDailyEndSummary.rejected, (state, action) => {
         state.isFetchingDailyEndSummary = false;
+        toast.error(action.error.message);
+      })
+      .addCase(fetchDailyEndSummaryDetails.pending, (state) => {
+        state.isFetchingDailyEndSummaryDetails = true;
+      })
+      .addCase(fetchDailyEndSummaryDetails.fulfilled, (state, action) => {
+        state.isFetchingDailyEndSummaryDetails = false;
+        state.dailyEndSummaryDetails = action.payload.data;
+      })
+      .addCase(fetchDailyEndSummaryDetails.rejected, (state, action) => {
+        state.isFetchingDailyEndSummaryDetails = false;
         toast.error(action.error.message);
       })
   },

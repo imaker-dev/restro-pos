@@ -6,7 +6,7 @@ import {
   Package,
   UtensilsCrossed,
   ShoppingCart,
-  Receipt,
+  ReceiptText,
   BarChart3,
   Settings,
   Shield,
@@ -23,7 +23,13 @@ import {
   Printer,
   Smartphone,
   XCircle,
+  CalendarDays,
+  PieChart,
+  Clock,
+  CalendarCheck,
+  LayoutGrid,
 } from "lucide-react";
+
 import { ROLES } from "../constants";
 
 export const navConfig = [
@@ -56,7 +62,6 @@ export const navConfig = [
         roles: [ROLES.KITCHEN, ROLES.BAR],
       },
 
-      // 🔽 NEW REPORTS MENU
       {
         name: "Reports",
         icon: BarChart3,
@@ -65,37 +70,43 @@ export const navConfig = [
           {
             name: "Daily Sales",
             path: "/daily-sales",
+            icon: CalendarDays,
             roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
           },
           {
             name: "Item Sales",
             path: "/item-sales",
+            icon: Package,
             roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
           },
           {
             name: "Category Sales",
             path: "/category-sales",
+            icon: Layers,
             roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
           },
           {
             name: "Staff Sales",
             path: "/staff-sales",
+            icon: Users,
             roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
           },
           {
             name: "Payments Report",
             path: "/payment-mode",
+            icon: CreditCard,
             roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
           },
           {
             name: "Tax Report",
             path: "/tax-report",
+            icon: Percent,
             roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
           },
           {
             name: "Service Type Breakdown",
-            icon: BarChart3,
             path: "/service-type-breakdown",
+            icon: PieChart,
             roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
           },
           {
@@ -107,7 +118,7 @@ export const navConfig = [
           {
             name: "Section Sales",
             path: "/section-sales",
-            icon: Layers, // better than Users
+            icon: Layers,
             roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
           },
           {
@@ -120,36 +131,38 @@ export const navConfig = [
       },
     ],
   },
+
   {
     title: "Daily Operations",
     roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
     items: [
       {
         name: "Running Orders",
-        icon: ReceiptIndianRupee,
+        icon: ShoppingCart,
         path: "/running-orders",
         roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
       },
       {
         name: "Running Tables",
-        icon: ReceiptIndianRupee,
+        icon: Table,
         path: "/running-tables",
         roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
       },
       {
         name: "Shift Summary",
-        icon: Layers,
+        icon: Clock,
         path: "/shift-history",
         roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
       },
       {
         name: "Day End Summary",
-        icon: ReceiptIndianRupee,
+        icon: CalendarCheck,
         path: "/day-end-summary",
         roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
       },
     ],
   },
+
   {
     title: "Organization",
     roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN],
@@ -166,12 +179,6 @@ export const navConfig = [
         path: "/users",
         roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
       },
-      // {
-      //   name: "Roles & Permissions",
-      //   icon: Shield,
-      //   path: "/roles",
-      //   roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN],
-      // },
     ],
   },
 
@@ -181,13 +188,13 @@ export const navConfig = [
     items: [
       {
         name: "Menu Categories",
-        icon: UtensilsCrossed,
+        icon: Layers,
         path: "/categories",
         roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
       },
       {
         name: "Menu Items",
-        icon: Utensils,
+        icon: UtensilsCrossed,
         path: "/items",
         roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
       },
@@ -203,24 +210,6 @@ export const navConfig = [
         path: "/tax-groups",
         roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN],
       },
-      // {
-      //   name: "Inventory",
-      //   icon: Warehouse,
-      //   path: "/inventory",
-      //   roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER],
-      // },
-      // {
-      //   name: "Suppliers",
-      //   icon: Truck,
-      //   path: "/suppliers",
-      //   roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN],
-      // },
-      // {
-      //   name: "Stock Adjustments",
-      //   icon: Package,
-      //   path: "/stock-adjustments",
-      //   roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN],
-      // },
     ],
   },
 
@@ -234,47 +223,36 @@ export const navConfig = [
         path: "/orders",
         roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
       },
-
       {
         name: "Customers",
         icon: Users,
         path: "/customers",
         roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
       },
-
       {
         name: "Stations",
         icon: Monitor,
         path: "/stations",
         roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
       },
-
       {
         name: "Printers",
         icon: Printer,
         path: "/printers",
         roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
       },
-
       {
         name: "Tables & Floors",
-        icon: Table,
+        icon: LayoutGrid,
         path: "/floors",
         roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
       },
       {
         name: "Order Display",
-        icon: ReceiptIndianRupee,
+        icon: Monitor,
         path: "/order-display",
         roles: [ROLES.KITCHEN, ROLES.BAR],
       },
-
-      // {
-      //   name: "Transactions",
-      //   icon: CreditCard,
-      //   path: "/transactions",
-      //   roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN],
-      // },
     ],
   },
 
@@ -294,16 +272,10 @@ export const navConfig = [
         path: "/versions",
         roles: [ROLES.SUPER_ADMIN],
       },
-      // {
-      //   name: "Audit Logs",
-      //   icon: Shield,
-      //   path: "/audit-logs",
-      //   roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN],
-      // },
       {
         name: "Guide",
-        path: "/guide",
         icon: Info,
+        path: "/guide",
         public: true,
       },
     ],
