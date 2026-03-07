@@ -10,11 +10,21 @@ import { SelectField } from "../../components/fields/SelectField";
 
 const validationSchema = Yup.object({
   name: Yup.string().trim().required("Section name is required").max(50),
-  code: Yup.string().max(20),
+
+  code: Yup.string().required("Code is required").max(20),
+
   sectionType: Yup.string().required("Section type is required"),
-  description: Yup.string().max(255),
-  displayOrder: Yup.number().integer().nullable(),
-  isActive: Yup.boolean(),
+
+  description: Yup.string().required("Description is required").max(255),
+
+  colorCode: Yup.string().required("Color code is required"),
+
+  displayOrder: Yup.number()
+    .typeError("Display order must be a number")
+    .integer("Display order must be an integer")
+    .required("Display order is required"),
+
+  isActive: Yup.boolean().required("Status is required"),
 });
 
 const SectionModal = ({
@@ -85,9 +95,12 @@ const SectionModal = ({
         <InputField
           label="Code"
           name="code"
-          placeholder="Optional"
+          required
+          placeholder="Enter section code"
           value={formik.values.code}
           onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
+          error={formik.touched.code && formik.errors.code}
         />
 
         {/* Section Type */}
@@ -112,22 +125,29 @@ const SectionModal = ({
         <InputField
           label="Description"
           name="description"
+          required
           placeholder="Description"
           value={formik.values.description}
           onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
+          error={formik.touched.description && formik.errors.description}
         />
-        
+
         {/* Floor Section Display Order */}
         <InputField
           label="Display Order"
           name="displayOrder"
+          required
           placeholder="1, 2, 3"
           type="number"
-          tooltip="Determines the order in which sections are displayed within the selected floor. This does not affect other floors."
+          tooltip="Controls the order of sections on this floor."
           helperText="Lower numbers appear first within this floor."
           value={formik.values.displayOrder}
           onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
+          error={formik.touched.displayOrder && formik.errors.displayOrder}
         />
+
         {/* Active */}
         <CheckboxField
           label="Enable Section"

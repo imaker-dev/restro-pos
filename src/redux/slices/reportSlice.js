@@ -68,6 +68,13 @@ export const fetchTaxReport = createAsyncThunk(
     return res.data;
   },
 );
+export const fetchTaxReportDetails = createAsyncThunk(
+  "/fetch/tax/report/details",
+  async ({ outletId, date }) => {
+    const res = await ReportServices.getTaxReportDetailsApi(outletId, date);
+    return res.data;
+  },
+);
 export const fetchServiceTypeBreakdownReport = createAsyncThunk(
   "/fetch/service-type/breakdown/report",
   async ({ outletId, dateRange }) => {
@@ -133,6 +140,9 @@ const reportSlice = createSlice({
 
     taxReport: null,
     isFetchingTaxReport: false,
+
+    isFetchingTaxReportDetails:false,
+    taxReportDetails:null,
 
     isFetchingRunningTable:false,
     runningTables:null,
@@ -229,6 +239,17 @@ const reportSlice = createSlice({
       })
       .addCase(fetchTaxReport.rejected, (state, action) => {
         state.isFetchingTaxReport = false;
+        toast.error(action.error.message);
+      })
+      .addCase(fetchTaxReportDetails.pending, (state) => {
+        state.isFetchingTaxReportDetails = true;
+      })
+      .addCase(fetchTaxReportDetails.fulfilled, (state, action) => {
+        state.isFetchingTaxReportDetails = false;
+        state.taxReportDetails = action.payload.data;
+      })
+      .addCase(fetchTaxReportDetails.rejected, (state, action) => {
+        state.isFetchingTaxReportDetails = false;
         toast.error(action.error.message);
       })
       .addCase(fetchServiceTypeBreakdownReport.pending, (state) => {

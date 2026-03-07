@@ -6,6 +6,7 @@ import CustomDateRangePicker from "../../components/CustomDateRangePicker";
 import { formatNumber } from "../../utils/numberFormatter";
 import SmartTable from "../../components/SmartTable";
 import {
+  Download,
   IndianRupee,
   Package,
   Percent,
@@ -14,15 +15,24 @@ import {
   TrendingUp,
 } from "lucide-react";
 import StatCard from "../../components/StatCard";
+import { useReportDateRange } from "../../hooks/useReportDateRange";
+import { formatFileDate } from "../../utils/dateFormatter";
+import { handleResponse } from "../../utils/helpers";
+import { exportItemSalesReport } from "../../redux/slices/exportReportSlice";
+import { downloadBlob } from "../../utils/blob";
 
 const ItemSalesReportPage = () => {
   const dispatch = useDispatch();
   const { outletId } = useSelector((state) => state.auth);
+  const { isExportingItemSalesReport } = useSelector(
+    (state) => state.exportReport,
+  );
   const { itemSalesReport, isFetchingItemSalesReport } = useSelector(
     (state) => state.report,
   );
   const { items, summary } = itemSalesReport || {};
-  const [dateRange, setDateRange] = useState();
+  // const [dateRange, setDateRange] = useState();
+  const { dateRange, setDateRange } = useReportDateRange();
   const [serviceType, setServiceType] = useState("");
 
   useEffect(() => {
@@ -133,18 +143,50 @@ const ItemSalesReportPage = () => {
     },
   ];
 
+  const handleExportItemSalesReport = async () => {
+    if (!dateRange?.startDate || !dateRange?.endDate) return;
+
+    const fileName = `Item-Sales-Report_${formatFileDate(
+      dateRange.startDate,
+    )}_to_${formatFileDate(dateRange.endDate)}`;
+
+    await handleResponse(
+      dispatch(exportItemSalesReport({ outletId, dateRange })),
+      (res) => {
+        downloadBlob({
+          data: res.payload,
+          fileName,
+        });
+      },
+    );
+  };
+
+  const actions = [
+    {
+      label: "Export",
+      type: "export",
+      icon: Download,
+      onClick: () => handleExportItemSalesReport(),
+      loading: isExportingItemSalesReport,
+      loadingText: "Exporting...",
+    },
+  ];
+
   return (
     <div className="space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-        {/* Header Section */}
-        <PageHeader title={"Item Sales Report"} />
-        <CustomDateRangePicker
-          value={dateRange}
-          onChange={(newRange) => {
-            setDateRange(newRange);
-          }}
-        />
-      </div>
+      {/* Header Section */}
+      <PageHeader
+        title={"Item Sales Report"}
+        rightContent={
+          <CustomDateRangePicker
+            value={dateRange}
+            onChange={(newRange) => {
+              setDateRange(newRange);
+            }}
+          />
+        }
+        actions={actions}
+      />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
         {stats.map((stat, index) => (

@@ -100,6 +100,20 @@ export default false
           `/orders/reports/${outletId}/tax${query ? `?${query}` : ""}`,
         );
       },
+      getTaxReportDetailsApi: (outletId, date) => {
+        const params = new URLSearchParams();
+
+        if (date) {
+          params.append("startDate", date);
+        }
+        if (date) {
+          params.append("endDate", date);
+        }
+        const query = params.toString();
+        return Api.get(
+          `/orders/reports/${outletId}/tax${query ? `?${query}` : ""}`,
+        );
+      },
 
       getServiceTypeBreakdownReportApi: (outletId, dateRange) => {
         const params = new URLSearchParams();

@@ -3,10 +3,14 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchServiceTypeBreakdownReport } from "../../redux/slices/reportSlice";
 import PageHeader from "../../layout/PageHeader";
 import CustomDateRangePicker from "../../components/CustomDateRangePicker";
-import { Utensils, Wine, Layers, BarChart3 } from "lucide-react";
+import { Utensils, Wine, Layers, BarChart3, Download } from "lucide-react";
 import { formatNumber } from "../../utils/numberFormatter";
 import ServiceTypeBreakdownReportSkeleton from "../../partial/report/ServiceTypeBreakdownReportSkeleton";
 import StatCard from "../../components/StatCard";
+import { formatFileDate } from "../../utils/dateFormatter";
+import { handleResponse } from "../../utils/helpers";
+import { downloadBlob } from "../../utils/blob";
+import { exportServiceTypeBreakdownReport } from "../../redux/slices/exportReportSlice";
 
 /* ---------------- Color Mapping (Safe for Tailwind) ---------------- */
 const colorMap = {
@@ -87,11 +91,13 @@ const StatRow = ({ label, value }) => {
   );
 };
 
-
 /* ---------------- MAIN PAGE ---------------- */
 const ServiceTypeBreakdownReportPage = () => {
   const dispatch = useDispatch();
   const { outletId } = useSelector((state) => state.auth);
+  const { isExportingServiceTypeBreakdownReport } = useSelector(
+    (state) => state.exportReport,
+  );
   const { serviceTypeBreakdownReport, isFetchingServiceTypeBreakdownReport } =
     useSelector((state) => state.report);
   const [dateRange, setDateRange] = useState();
@@ -142,16 +148,48 @@ const ServiceTypeBreakdownReportPage = () => {
     return <ServiceTypeBreakdownReportSkeleton />;
   }
 
+  const handleExportServiceTypeBreakdownReport = async () => {
+    if (!dateRange?.startDate || !dateRange?.endDate) return;
+
+    const fileName = `Service-Type-Breakdown-Report_${formatFileDate(
+      dateRange.startDate,
+    )}_to_${formatFileDate(dateRange.endDate)}`;
+
+    await handleResponse(
+      dispatch(exportServiceTypeBreakdownReport({ outletId, dateRange })),
+      (res) => {
+        downloadBlob({
+          data: res.payload,
+          fileName,
+        });
+      },
+    );
+  };
+
+  const actions = [
+    {
+      label: "Export",
+      type: "export",
+      icon: Download,
+      onClick: () => handleExportServiceTypeBreakdownReport(),
+      loading: isExportingServiceTypeBreakdownReport,
+      loadingText: "Exporting...",
+    },
+  ];
+
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-        <PageHeader title="Service Type Breakdown" />
-        <CustomDateRangePicker
-          value={dateRange}
-          onChange={(newRange) => setDateRange(newRange)}
-        />
-      </div>
+      <PageHeader
+        title="Service Type Breakdown"
+        rightContent={
+          <CustomDateRangePicker
+            value={dateRange}
+            onChange={(newRange) => setDateRange(newRange)}
+          />
+        }
+        actions={actions}
+      />
 
       {/* ---------------- SUMMARY SECTION ---------------- */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">

@@ -21,6 +21,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useQueryParams } from "../../hooks/useQueryParams";
 import InfoCard from "../../components/InfoCard";
+import ToggleField from "../../components/fields/ToggleField";
 
 const AddUserPage = () => {
   const dispatch = useDispatch();
@@ -301,6 +302,15 @@ const AddUserPage = () => {
                     loading={fetchingAllFloors}
                   />
                 </div>
+                {/* ACTIVE USER */}
+                <ToggleField
+                  label="Staff Account Active"
+                  description="Inactive staff cannot log in or access the POS."
+                  checked={formik.values.isActive}
+                  onChange={(value) => formik.setFieldValue("isActive", value)}
+                  activeColorClass="bg-emerald-500"
+                  inactiveColorClass="bg-red-500"
+                />
               </AccordionSection>
 
               <InfoCard

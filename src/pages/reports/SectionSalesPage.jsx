@@ -2,19 +2,32 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchSectionSalesReport } from "../../redux/slices/reportSlice";
 import PageHeader from "../../layout/PageHeader";
-import { IndianRupee, LayoutGrid, ShoppingBag, Star } from "lucide-react";
+import {
+  Download,
+  IndianRupee,
+  LayoutGrid,
+  ShoppingBag,
+  Star,
+} from "lucide-react";
 import { formatNumber } from "../../utils/numberFormatter";
 import StatCard from "../../components/StatCard";
 import CustomDateRangePicker from "../../components/CustomDateRangePicker";
 import FloorBlock from "../../partial/report/section-report/FloorBlock";
 import LoadingOverlay from "../../components/LoadingOverlay";
 import NoDataFound from "../../layout/NoDataFound";
+import { formatFileDate } from "../../utils/dateFormatter";
+import { handleResponse } from "../../utils/helpers";
+import { exportSectionSalesReport } from "../../redux/slices/exportReportSlice";
+import { downloadBlob } from "../../utils/blob";
 
 const SectionSalesPage = () => {
   const dispatch = useDispatch();
   const [dateRange, setDateRange] = useState();
 
   const { outletId } = useSelector((state) => state.auth);
+  const { isExportingSectionSalesReport } = useSelector(
+    (state) => state.exportReport,
+  );
   const { sectionSalesReport, isFetchingSectionSalesReport } = useSelector(
     (state) => state.report,
   );
@@ -62,17 +75,51 @@ const SectionSalesPage = () => {
   if (isFetchingSectionSalesReport) {
     return <LoadingOverlay text="Loading Floor Report..." />;
   }
+
+  const handleExportSectionSalesReport = async () => {
+    if (!dateRange?.startDate || !dateRange?.endDate) return;
+
+    const fileName = `Section-Sales-Report_${formatFileDate(
+      dateRange.startDate,
+    )}_to_${formatFileDate(dateRange.endDate)}`;
+
+    await handleResponse(
+      dispatch(exportSectionSalesReport({ outletId, dateRange })),
+      (res) => {
+        downloadBlob({
+          data: res.payload,
+          fileName,
+        });
+      },
+    );
+  };
+
+  const actions = [
+    {
+      label: "Export",
+      type: "export",
+      icon: Download,
+      onClick: () => handleExportSectionSalesReport(),
+      loading: isExportingSectionSalesReport,
+      loadingText: "Exporting...",
+    },
+  ];
+
   return (
     <div className="space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-        <PageHeader title={"Section Sales"} />
-        <CustomDateRangePicker
-          value={dateRange}
-          onChange={(newRange) => {
-            setDateRange(newRange);
-          }}
-        />
-      </div>
+      <PageHeader
+        title={"Section Sales"}
+        rightContent={
+          <CustomDateRangePicker
+            value={dateRange}
+            onChange={(newRange) => {
+              setDateRange(newRange);
+            }}
+          />
+        }
+        actions={actions}
+      />
+
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {kpis?.map((card, i) => (
           <StatCard

@@ -5,17 +5,34 @@ import { fetchCategorySalesReport } from "../../redux/slices/reportSlice";
 import CustomDateRangePicker from "../../components/CustomDateRangePicker";
 import { formatNumber } from "../../utils/numberFormatter";
 import SmartTable from "../../components/SmartTable";
-import { IndianRupee, Layers, Package, Tag, TrendingUp } from "lucide-react";
+import {
+  Download,
+  IndianRupee,
+  Layers,
+  Package,
+  Tag,
+  TrendingUp,
+} from "lucide-react";
 import StatCard from "../../components/StatCard";
+import { useReportDateRange } from "../../hooks/useReportDateRange";
+import { exportCategorySalesReport } from "../../redux/slices/exportReportSlice";
+import { downloadBlob } from "../../utils/blob";
+import { handleResponse } from "../../utils/helpers";
+import { formatFileDate } from "../../utils/dateFormatter";
 
 const CategorySalesReportPage = () => {
   const dispatch = useDispatch();
-  const [dateRange, setDateRange] = useState();
+  // const [dateRange, setDateRange] = useState();
+  const { dateRange, setDateRange } = useReportDateRange();
+
   const { categorySalesReport, isFetchingCategorySalesReport } = useSelector(
     (state) => state.report,
   );
   const { categories, summary } = categorySalesReport || {};
   const { outletId } = useSelector((state) => state.auth);
+  const { isExportingCategorySalesReport } = useSelector(
+    (state) => state.exportReport,
+  );
 
   useEffect(() => {
     if (!outletId || !dateRange?.startDate || !dateRange?.endDate) return;
@@ -135,16 +152,49 @@ const CategorySalesReportPage = () => {
     },
   ];
 
+  const handleExportCategorySalesReport = async () => {
+    if (!dateRange?.startDate || !dateRange?.endDate) return;
+
+    const fileName = `Category-Sales-Report_${formatFileDate(
+      dateRange.startDate,
+    )}_to_${formatFileDate(dateRange.endDate)}`;
+
+    await handleResponse(
+      dispatch(exportCategorySalesReport({ outletId, dateRange })),
+      (res) => {
+        downloadBlob({
+          data: res.payload,
+          fileName,
+        });
+      },
+    );
+  };
+
+  const actions = [
+    {
+      label: "Export",
+      type: "export",
+      icon: Download,
+      onClick: () => handleExportCategorySalesReport(),
+      loading: isExportingCategorySalesReport,
+      loadingText: "Exporting...",
+    },
+  ];
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-        <PageHeader title={"Category Sales Report"} />
-
-        <CustomDateRangePicker
-          value={dateRange}
-          onChange={(newRange) => {
-            setDateRange(newRange);
-          }}
+        <PageHeader
+          title={"Category Sales Report"}
+          rightContent={
+            <CustomDateRangePicker
+              value={dateRange}
+              onChange={(newRange) => {
+                setDateRange(newRange);
+              }}
+            />
+          }
+          actions={actions}
         />
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">

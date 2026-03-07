@@ -5,6 +5,7 @@ import {
   CalendarDays,
   CheckCircle2,
   Clock,
+  Download,
   Eye,
   Hash,
   IndianRupee,
@@ -30,13 +31,21 @@ import { fetchShiftHistoryByid } from "../../redux/slices/shiftSlice";
 import { formatNumber, num } from "../../utils/numberFormatter";
 import StatCard from "../../components/StatCard";
 import { useNavigate } from "react-router-dom";
-import { formatDate, formatDurationBetween } from "../../utils/dateFormatter";
+import {
+  formatDate,
+  formatDurationBetween,
+  formatFileDate,
+} from "../../utils/dateFormatter";
 import MetricPanel from "../../partial/report/daily-sales-report/MetricPanel";
 import PayRow from "../../partial/report/daily-sales-report/PayRow";
 import SmartTable from "../../components/SmartTable";
 import StatusBadge from "../../layout/StatusBadge";
 import Tabs from "../../components/Tabs";
 import OrderBadge from "../../partial/order/OrderBadge";
+import PageHeader from "../../layout/PageHeader";
+import { handleResponse } from "../../utils/helpers";
+import { exportShiftHistoryDetails } from "../../redux/slices/exportReportSlice";
+import { downloadBlob } from "../../utils/blob";
 
 function FieldRow({
   label,
@@ -65,8 +74,10 @@ const ShiftHistoryDetailsPage = () => {
   const navigate = useNavigate();
 
   const { shiftId } = useQueryParams();
-
   const [activeTab, setActiveTab] = useState("transaction");
+  const { isExportingShiftHistoryDetails } = useSelector(
+    (state) => state.exportReport,
+  );
   const { shiftHistoryDetails: shift, isFetchingShiftHistoryDetails } =
     useSelector((state) => state.shift);
 
@@ -468,18 +479,42 @@ const ShiftHistoryDetailsPage = () => {
     },
   ];
 
+  const handleExportShiftSummaryDetailsReport = async () => {
+    if (!shift?.sessionDate) return;
+
+    const fileName = `Shift-Summary-Report_${formatFileDate(
+      shift.sessionDate,
+    )}`;
+
+    await handleResponse(
+      dispatch(exportShiftHistoryDetails(shiftId)),
+      (res) => {
+        downloadBlob({
+          data: res.payload,
+          fileName,
+        });
+      },
+    );
+  };
+
+  const actions = [
+    {
+      label: "Export",
+      type: "export",
+      icon: Download,
+      onClick: () => handleExportShiftSummaryDetailsReport(),
+      loading: isExportingShiftHistoryDetails,
+      loadingText: "Exporting...",
+    },
+  ];
+
   return (
     <div className="space-y-6">
-      <button
-        onClick={() => navigate(-1)}
-        className="flex items-center gap-2 text-[12px] font-semibold text-slate-500 hover:text-slate-800 transition-colors group"
-      >
-        <span className="w-7 h-7 rounded-lg border border-slate-200 bg-white shadow-sm flex items-center justify-center group-hover:border-slate-300 transition-colors">
-          <ArrowLeft size={13} className="text-slate-500" strokeWidth={2.5} />
-        </span>
-        Back to Shift History
-      </button>
-
+      <PageHeader
+        title={"Shift History Details"}
+        actions={actions}
+        showBackButton
+      />
       {/* ── UNIVERSAL SHIFT HERO ── */}
       <div
         className="relative rounded-2xl overflow-hidden shadow-lg"

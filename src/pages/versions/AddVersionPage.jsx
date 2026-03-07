@@ -201,7 +201,7 @@ const AddVersionPage = () => {
                   onChange={(value) =>
                     formik.setFieldValue("force_update", value)
                   }
-                  colorClass="bg-red-600"
+                  activeColorClass="bg-red-600"
                 />
 
                 <ToggleField
@@ -209,7 +209,7 @@ const AddVersionPage = () => {
                   description="This version will become the currently active production release."
                   checked={formik.values.is_active}
                   onChange={(value) => formik.setFieldValue("is_active", value)}
-                  colorClass="bg-emerald-600"
+                  activeColorClass="bg-emerald-600"
                 />
               </div>
             </AccordionSection>

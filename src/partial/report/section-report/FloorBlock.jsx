@@ -27,7 +27,7 @@ export default function FloorBlock({
           <p className="text-[15px] font-black text-white leading-tight">
             {floor.floorName}
           </p>
-          <p className="text-[10px] text-white/60 font-medium mt-0.5">
+          <p className="text-xs text-white/70 font-semibold mt-0.5">
             {sections.length} section{sections.length !== 1 ? "s" : ""}
             {" · "}
             {floor.orderCount} orders · {floor.guestCount} guests

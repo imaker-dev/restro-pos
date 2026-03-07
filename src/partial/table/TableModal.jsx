@@ -9,20 +9,34 @@ import { CheckboxField } from "../../components/fields/CheckboxField";
 import ToggleField from "../../components/fields/ToggleField";
 
 const validationSchema = Yup.object({
-  name: Yup.string().trim().max(50),
+  name: Yup.string().trim().required("Table name is required").max(50),
 
   tableNumber: Yup.string().trim().required("Table number is required").max(20),
 
-  capacity: Yup.number().required("Capacity required").min(1).max(100),
+  capacity: Yup.number()
+    .typeError("Capacity must be a number")
+    .required("Capacity is required")
+    .min(1, "Minimum capacity is 1")
+    .max(100, "Maximum capacity is 100"),
 
-  minCapacity: Yup.number().required("Min capacity required").min(1),
+  minCapacity: Yup.number()
+    .typeError("Min capacity must be a number")
+    .required("Min capacity is required")
+    .min(1, "Minimum is 1")
+    .max(Yup.ref("capacity"), "Min capacity cannot exceed capacity"),
 
-  shape: Yup.string().oneOf(["square", "rectangle", "round", "oval", "custom"]),
+  shape: Yup.string()
+    .required("Shape is required")
+    .oneOf(["square", "rectangle", "round", "oval", "custom"]),
 
-  displayOrder: Yup.number().min(0),
+  displayOrder: Yup.number()
+    .typeError("Display order must be a number")
+    .required("Display order is required")
+    .min(0, "Display order cannot be negative"),
 
-  isMergeable: Yup.boolean(),
-  isActive: Yup.boolean(),
+  isMergeable: Yup.boolean().required(),
+
+  isActive: Yup.boolean().required(),
 });
 
 const TableModal = ({
@@ -100,7 +114,7 @@ const TableModal = ({
           <InputField
             label="Table Name"
             name="name"
-            required={true}
+            required
             placeholder="e.g. Window Table"
             value={formik.values.name}
             onChange={formik.handleChange}
@@ -148,7 +162,9 @@ const TableModal = ({
           <SelectField
             label="Shape"
             name="shape"
+            required
             options={[
+              { value: "", label: "Select Shape" },
               { value: "rectangle", label: "Rectangle" },
               { value: "round", label: "Round" },
               { value: "square", label: "Square" },
@@ -157,6 +173,8 @@ const TableModal = ({
             ]}
             value={formik.values.shape}
             onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            error={formik.touched.shape && formik.errors.shape}
           />
 
           {/* DISPLAY ORDER */}
@@ -164,8 +182,13 @@ const TableModal = ({
             label="Display Order"
             name="displayOrder"
             type="number"
+            required
+            tooltip="Controls the table position in the layout."
+            helperText="Lower number shows first."
             value={formik.values.displayOrder}
             onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            error={formik.touched.displayOrder && formik.errors.displayOrder}
           />
         </div>
 
@@ -176,7 +199,7 @@ const TableModal = ({
             description="Combine with nearby tables."
             checked={formik.values.isMergeable}
             onChange={(value) => formik.setFieldValue("isMergeable", value)}
-            colorClass="bg-indigo-600"
+            activeColorClass="bg-indigo-600"
           />
 
           <CheckboxField

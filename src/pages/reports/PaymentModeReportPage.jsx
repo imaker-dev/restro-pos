@@ -8,6 +8,7 @@ import { formatNumber } from "../../utils/numberFormatter";
 import StatCard from "../../components/StatCard";
 import {
   CreditCard,
+  Download,
   HandCoins,
   IndianRupee,
   ReceiptIndianRupee,
@@ -15,10 +16,17 @@ import {
   TrendingUp,
   Wallet,
 } from "lucide-react";
+import { handleResponse } from "../../utils/helpers";
+import { formatFileDate } from "../../utils/dateFormatter";
+import { exportPaymentModeReport } from "../../redux/slices/exportReportSlice";
+import { downloadBlob } from "../../utils/blob";
 
 const PaymentModeReportPage = () => {
   const dispatch = useDispatch();
   const { outletId } = useSelector((state) => state.auth);
+  const { isExportingPaymentModeReport } = useSelector(
+    (state) => state.exportReport,
+  );
   const { paymentModeReport, isFetchingPaymentModeReport } = useSelector(
     (state) => state.report,
   );
@@ -141,15 +149,49 @@ const PaymentModeReportPage = () => {
     },
   ];
 
+  const handleExportPaymentModeReport = async () => {
+    if (!dateRange?.startDate || !dateRange?.endDate) return;
+
+    const fileName = `Payment-Mode-Report_${formatFileDate(
+      dateRange.startDate,
+    )}_to_${formatFileDate(dateRange.endDate)}`;
+
+    await handleResponse(
+      dispatch(exportPaymentModeReport({ outletId, dateRange })),
+      (res) => {
+        downloadBlob({
+          data: res.payload,
+          fileName,
+        });
+      },
+    );
+  };
+
+  const actions = [
+    {
+      label: "Export",
+      type: "export",
+      icon: Download,
+      onClick: () => handleExportPaymentModeReport(),
+      loading: isExportingPaymentModeReport,
+      loadingText: "Exporting...",
+    },
+  ];
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-        <PageHeader title={"Payment Mode Report"} />
-        <CustomDateRangePicker
-          value={dateRange}
-          onChange={(newRange) => {
-            setDateRange(newRange);
-          }}
+        <PageHeader
+          title={"Payment Mode Report"}
+          rightContent={
+            <CustomDateRangePicker
+              value={dateRange}
+              onChange={(newRange) => {
+                setDateRange(newRange);
+              }}
+            />
+          }
+          actions={actions}
         />
       </div>
 

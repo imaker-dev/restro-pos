@@ -21,6 +21,7 @@ const PageHeader = ({
   onlyBack = false, // ✅ NEW PROP
   actions = [],
   badge = null,
+  rightContent = null,
 }) => {
   const navigate = useNavigate();
 
@@ -34,11 +35,7 @@ const PageHeader = ({
           type="button"
         >
           <span className="w-7 h-7 rounded-lg border border-slate-200 bg-white shadow-sm flex items-center justify-center group-hover:border-slate-300 transition-colors">
-            <ArrowLeft
-              size={13}
-              className="text-slate-500"
-              strokeWidth={2.5}
-            />
+            <ArrowLeft size={13} className="text-slate-500" strokeWidth={2.5} />
           </span>
           {backLabel}
         </button>
@@ -49,10 +46,8 @@ const PageHeader = ({
   return (
     <header className="flex flex-col gap-4 sm:gap-6 w-full">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 lg:gap-4 w-full">
-
         {/* Title Section */}
         <div className="flex items-start sm:items-center space-x-3 sm:space-x-4 flex-1 min-w-0">
-
           {showBackButton && (
             <button
               onClick={() => navigate(-1)}
@@ -82,6 +77,8 @@ const PageHeader = ({
 
         {/* Actions */}
         <div className="flex items-center gap-3 w-full sm:w-auto">
+          {rightContent}
+
           {badge && (
             <div className="flex items-center gap-2 flex-wrap">
               {Array.isArray(badge)

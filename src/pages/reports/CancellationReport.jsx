@@ -7,6 +7,7 @@ import {
   AlertTriangle,
   BarChart2,
   Clock,
+  Download,
   FolderPlus,
   Hash,
   IndianRupee,
@@ -25,10 +26,17 @@ import ItemCancelCard from "../../partial/report/cancellation-report/ItemCancelC
 import LoadingOverlay from "../../components/LoadingOverlay";
 import Tabs from "../../components/Tabs";
 import ReasonCard from "../../partial/report/cancellation-report/ReasonCard";
+import { formatFileDate } from "../../utils/dateFormatter";
+import { handleResponse } from "../../utils/helpers";
+import { exportCancellationReport } from "../../redux/slices/exportReportSlice";
+import { downloadBlob } from "../../utils/blob";
 
 const CancellationReport = () => {
   const dispatch = useDispatch();
   const { outletId } = useSelector((state) => state.auth);
+  const { isExportingCancellationReport } = useSelector(
+    (state) => state.exportReport,
+  );
   const [dateRange, setDateRange] = useState();
   const [activeTab, setActiveTab] = useState("orders"); // "orders" | "items"
 
@@ -65,14 +73,14 @@ const CancellationReport = () => {
     {
       icon: IndianRupee,
       title: "Order Cancel Loss",
-      value: formatNumber(summary?.total_order_cancel_amount,true),
+      value: formatNumber(summary?.total_order_cancel_amount, true),
       subtitle: "Revenue from full orders",
       color: "purple",
     },
     {
       icon: TrendingDown,
       title: "Item Cancel Loss",
-      value: formatNumber(summary?.total_item_cancel_amount,true),
+      value: formatNumber(summary?.total_item_cancel_amount, true),
       subtitle: "Revenue from voided items",
       color: "gray",
     },
@@ -84,7 +92,7 @@ const CancellationReport = () => {
   );
 
   if (isFetchingCancellationReport) {
-    return <LoadingOverlay text="Loading Cancellation Report..."/>;
+    return <LoadingOverlay text="Loading Cancellation Report..." />;
   }
 
   // Your tab definitions
@@ -102,17 +110,50 @@ const CancellationReport = () => {
       count: item_cancellations?.length,
     },
   ];
+
+  const handleExportCancellationReport = async () => {
+    if (!dateRange?.startDate || !dateRange?.endDate) return;
+
+    const fileName = `Cancellation-Report_${formatFileDate(
+      dateRange.startDate,
+    )}_to_${formatFileDate(dateRange.endDate)}`;
+
+    await handleResponse(
+      dispatch(exportCancellationReport({ outletId, dateRange })),
+      (res) => {
+        downloadBlob({
+          data: res.payload,
+          fileName,
+        });
+      },
+    );
+  };
+
+  const actions = [
+    {
+      label: "Export",
+      type: "export",
+      icon: Download,
+      onClick: () => handleExportCancellationReport(),
+      loading: isExportingCancellationReport,
+      loadingText: "Exporting...",
+    },
+  ];
+
   return (
     <div className="space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-        <PageHeader title={"Cancellation Report"} />
-        <CustomDateRangePicker
-          value={dateRange}
-          onChange={(newRange) => {
-            setDateRange(newRange);
-          }}
-        />
-      </div>
+      <PageHeader
+        title={"Cancellation Report"}
+        rightContent={
+          <CustomDateRangePicker
+            value={dateRange}
+            onChange={(newRange) => {
+              setDateRange(newRange);
+            }}
+          />
+        }
+        actions={actions}
+      />
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {kpis?.map((card, i) => (
@@ -174,9 +215,7 @@ const CancellationReport = () => {
 
       {/* ── Order cancellations ── */}
       {activeTab === "orders" && (
-        <div
-          className="space-y-3"
-        >
+        <div className="space-y-3">
           {order_cancellations.length === 0 ? (
             <NoDataFound title="No order cancellations" />
           ) : (
@@ -191,9 +230,7 @@ const CancellationReport = () => {
 
       {/* ── Item cancellations ── */}
       {activeTab === "items" && (
-        <div
-          className="space-y-3"
-        >
+        <div className="space-y-3">
           {item_cancellations.length === 0 ? (
             <NoDataFound title="No item cancellations" />
           ) : (

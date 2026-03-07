@@ -7,15 +7,24 @@ import StatCard from "../../components/StatCard";
 import { formatNumber } from "../../utils/numberFormatter";
 
 import SmartTable from "../../components/SmartTable";
-import { formatDate } from "../../utils/dateFormatter";
+import { formatDate, formatFileDate } from "../../utils/dateFormatter";
 import Tabs from "../../components/Tabs";
+import { Download, Eye } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { handleResponse } from "../../utils/helpers";
+import { exportTaxReport } from "../../redux/slices/exportReportSlice";
+import { downloadBlob } from "../../utils/blob";
 
 const TaxReportPage = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const { outletId } = useSelector((state) => state.auth);
+  const { isExportingTaxReport } = useSelector((state) => state.exportReport);
   const { taxReport, isFetchingTaxReport } = useSelector(
     (state) => state.report,
   );
+
   const { daily, taxComponents, summary } = taxReport || {};
 
   const [dateRange, setDateRange] = useState();
@@ -95,7 +104,7 @@ const TaxReportPage = () => {
     },
   ];
 
-  const dailyColumns = [
+  const taxColumns = [
     {
       key: "report_date",
       label: "Date",
@@ -110,54 +119,94 @@ const TaxReportPage = () => {
       key: "invoice_count",
       label: "Invoices",
       render: (row) => (
-        <span className="text-slate-700 font-medium">{row.invoice_count}</span>
+        <span className="text-slate-700 font-medium">
+          {formatNumber(row.invoice_count)}
+        </span>
       ),
     },
 
     {
-      key: "subtotal",
-      label: "Subtotal",
-      render: (row) => formatNumber(row.subtotal, true),
+      key: "taxable_amount",
+      label: "Taxable",
+      render: (row) => (
+        <span className="text-slate-700">
+          {formatNumber(row.taxable_amount, true)}
+        </span>
+      ),
     },
 
     {
-      key: "discount_amount",
-      label: "Discount",
+      key: "cgst_amount",
+      label: "CGST",
+      render: (row) => (
+        <span className="text-indigo-600">
+          {formatNumber(row.cgst_amount, true)}
+        </span>
+      ),
+    },
+
+    {
+      key: "sgst_amount",
+      label: "SGST",
+      render: (row) => (
+        <span className="text-indigo-600">
+          {formatNumber(row.sgst_amount, true)}
+        </span>
+      ),
+    },
+
+    {
+      key: "igst_amount",
+      label: "IGST",
+      render: (row) => (
+        <span className="text-indigo-600">
+          {formatNumber(row.igst_amount, true)}
+        </span>
+      ),
+    },
+
+    {
+      key: "vat_amount",
+      label: "VAT",
+      render: (row) => (
+        <span className="text-amber-600">
+          {formatNumber(row.vat_amount, true)}
+        </span>
+      ),
+    },
+
+    {
+      key: "cess_amount",
+      label: "CESS",
       render: (row) => (
         <span className="text-rose-600">
-          {formatNumber(row.discount_amount, true)}
+          {formatNumber(row.cess_amount, true)}
         </span>
       ),
     },
 
     {
       key: "total_tax",
-      label: "Tax",
+      label: "Total Tax",
       render: (row) => (
-        <span className="text-amber-600">
+        <span className="font-semibold text-green-700">
           {formatNumber(row.total_tax, true)}
         </span>
       ),
     },
 
     {
-      key: "service_charge",
-      label: "Service Charge",
-      render: (row) => formatNumber(row.service_charge, true),
-    },
-
-    {
       key: "grand_total",
       label: "Grand Total",
       render: (row) => (
-        <span className="font-semibold text-indigo-700">
+        <span className="font-semibold text-slate-900">
           {formatNumber(row.grand_total, true)}
         </span>
       ),
     },
   ];
 
-  const taxColumns = [
+  const taxComponentColumns = [
     {
       key: "name",
       label: "Tax Name",
@@ -212,17 +261,57 @@ const TaxReportPage = () => {
     },
   ];
 
+  const rowActions = [
+    {
+      label: "View",
+      icon: Eye,
+      onClick: (row) => navigate(`/tax-report/details?date=${row.report_date}`),
+    },
+  ];
+
+  const handleExportTaxReport = async () => {
+    if (!dateRange?.startDate || !dateRange?.endDate) return;
+
+    const fileName = `Tax-Report_${formatFileDate(
+      dateRange.startDate,
+    )}_to_${formatFileDate(dateRange.endDate)}`;
+
+    await handleResponse(
+      dispatch(exportTaxReport({ outletId, dateRange })),
+      (res) => {
+        downloadBlob({
+          data: res.payload,
+          fileName,
+        });
+      },
+    );
+  };
+
+  const actions = [
+    {
+      label: "Export",
+      type: "export",
+      icon: Download,
+      onClick: () => handleExportTaxReport(),
+      loading: isExportingTaxReport,
+      loadingText: "Exporting...",
+    },
+  ];
+
   return (
     <div className="space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-        <PageHeader title={"Tax Report"} />
-        <CustomDateRangePicker
-          value={dateRange}
-          onChange={(newRange) => {
-            setDateRange(newRange);
-          }}
-        />
-      </div>
+      <PageHeader
+        title={"Tax Report"}
+        rightContent={
+          <CustomDateRangePicker
+            value={dateRange}
+            onChange={(newRange) => {
+              setDateRange(newRange);
+            }}
+          />
+        }
+        actions={actions}
+      />
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         {taxCards.map((card, i) => (
@@ -249,8 +338,9 @@ const TaxReportPage = () => {
           title={"Daily Tax Report"}
           totalcount={daily?.length}
           data={daily}
-          columns={dailyColumns}
+          columns={taxColumns}
           loading={isFetchingTaxReport}
+          actions={rowActions}
         />
       )}
 
@@ -259,7 +349,7 @@ const TaxReportPage = () => {
           title={"Tax Summary Report"}
           totalcount={taxComponents?.length}
           data={taxComponents}
-          columns={taxColumns}
+          columns={taxComponentColumns}
           loading={isFetchingTaxReport}
         />
       )}

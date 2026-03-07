@@ -9,21 +9,28 @@ import {
   Sparkles,
   IndianRupee,
   Eye,
+  Download,
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchDailyEndSummary } from "../../redux/slices/dashboardSlice";
 import CustomDateRangePicker from "../../components/CustomDateRangePicker";
 import StatCard from "../../components/StatCard";
 import PageHeader from "../../layout/PageHeader";
-import { formatDate } from "../../utils/dateFormatter";
+import { formatDate, formatFileDate } from "../../utils/dateFormatter";
 import { formatNumber } from "../../utils/numberFormatter";
 import SmartTable from "../../components/SmartTable";
 import { useNavigate } from "react-router-dom";
+import { handleResponse } from "../../utils/helpers";
+import { exportDayEndSummary } from "../../redux/slices/exportReportSlice";
+import { downloadBlob } from "../../utils/blob";
 
 const DayEndSummaryPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { outletId } = useSelector((state) => state.auth);
+  const { isExportingDayEndSummary } = useSelector(
+    (state) => state.exportReport,
+  );
   const { dailyEndSummary, isFetchingDailyEndSummary } = useSelector(
     (state) => state.dashboard,
   );
@@ -155,6 +162,7 @@ const DayEndSummaryPage = () => {
         <span className="text-slate-700">{row.totalGuests}</span>
       ),
     },
+    
   ];
 
   const rowActions = [
@@ -165,22 +173,51 @@ const DayEndSummaryPage = () => {
     },
   ];
 
+  const handleExportDayEndSummaryReport = async () => {
+    if (!dateRange?.startDate || !dateRange?.endDate) return;
+
+    const fileName = `Day-End-Summary-Report_${formatFileDate(
+      dateRange.startDate,
+    )}_to_${formatFileDate(dateRange.endDate)}`;
+
+    await handleResponse(
+      dispatch(exportDayEndSummary({ outletId, dateRange })),
+      (res) => {
+        downloadBlob({
+          data: res.payload,
+          fileName,
+        });
+      },
+    );
+  };
+
+  const actions = [
+    {
+      label: "Export",
+      type: "export",
+      icon: Download,
+      onClick: () => handleExportDayEndSummaryReport(),
+      loading: isExportingDayEndSummary,
+      loadingText: "Exporting...",
+    },
+  ];
+
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
         <PageHeader
           title={"Day End Summary"}
           description={`${formatDate(dailyEndSummary?.dateRange?.start, "long")} — 
             ${formatDate(dailyEndSummary?.dateRange?.end, "long")} (${dailyEndSummary?.dayCount} days)`}
-        />
-
-        <CustomDateRangePicker
+            rightContent={        <CustomDateRangePicker
           value={dateRange}
           onChange={setDateRange}
           defaultRange="Last 7 Days"
+        />}
+            actions={actions}
         />
-      </div>
+
+
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">

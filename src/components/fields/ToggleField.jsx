@@ -3,7 +3,8 @@ export default function ToggleField({
   description,
   checked = false,
   onChange,
-  colorClass = "bg-primary-600",
+  activeColorClass = "bg-primary-600",
+  inactiveColorClass = "bg-gray-300",
   className = "",
 }) {
   return (
@@ -24,7 +25,7 @@ export default function ToggleField({
 
       <div
         className={`relative flex-shrink-0 w-11 h-6 rounded-full 
-        transition-colors duration-200 ${checked ? colorClass : "bg-gray-300"}`}
+        transition-colors duration-200 ${checked ? activeColorClass : inactiveColorClass}`}
       >
         <span
           className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-sm 

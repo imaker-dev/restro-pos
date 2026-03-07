@@ -7,6 +7,7 @@ import {
   CheckCircle2,
   ChefHat,
   Clock,
+  Download,
   Package,
   Ticket,
   TrendingUp,
@@ -19,6 +20,10 @@ import MetaPill from "../../components/MetaPill";
 import StationCard from "../../partial/report/station-report/StationCard";
 import NoDataFound from "../../layout/NoDataFound";
 import LoadingOverlay from "../../components/LoadingOverlay";
+import { formatFileDate } from "../../utils/dateFormatter";
+import { exportStationSalesReport } from "../../redux/slices/exportReportSlice";
+import { handleResponse } from "../../utils/helpers";
+import { downloadBlob } from "../../utils/blob";
 
 const StationSalesPage = () => {
   const dispatch = useDispatch();
@@ -26,6 +31,9 @@ const StationSalesPage = () => {
   const [dateRange, setDateRange] = useState();
 
   const { outletId } = useSelector((state) => state.auth);
+  const { isExportingStationSalesReport } = useSelector(
+    (state) => state.exportReport,
+  );
   const { stationSalesReport, isFetchingStationSalesReport } = useSelector(
     (state) => state.report,
   );
@@ -87,17 +95,49 @@ const StationSalesPage = () => {
     return <LoadingOverlay text="Loading Satation Sales Report..." />;
   }
 
+  const handleExportStationSalesReport = async () => {
+    if (!dateRange?.startDate || !dateRange?.endDate) return;
+
+    const fileName = `Station-Sales-Report_${formatFileDate(
+      dateRange.startDate,
+    )}_to_${formatFileDate(dateRange.endDate)}`;
+
+    await handleResponse(
+      dispatch(exportStationSalesReport({ outletId, dateRange })),
+      (res) => {
+        downloadBlob({
+          data: res.payload,
+          fileName,
+        });
+      },
+    );
+  };
+
+  const actions = [
+    {
+      label: "Export",
+      type: "export",
+      icon: Download,
+      onClick: () => handleExportStationSalesReport(),
+      loading: isExportingStationSalesReport,
+      loadingText: "Exporting...",
+    },
+  ];
+
   return (
     <div className="space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-        <PageHeader title={"Station Sales"} />
-        <CustomDateRangePicker
-          value={dateRange}
-          onChange={(newRange) => {
-            setDateRange(newRange);
-          }}
-        />
-      </div>
+      <PageHeader
+        title={"Station Sales"}
+        rightContent={
+          <CustomDateRangePicker
+            value={dateRange}
+            onChange={(newRange) => {
+              setDateRange(newRange);
+            }}
+          />
+        }
+        actions={actions}
+      />
 
       {/* KPI row */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
@@ -134,7 +174,7 @@ const StationSalesPage = () => {
 
       {/* Station cards grid */}
       {stations.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
           {stations.map((station, i) => (
             <StationCard
               key={station.stationId}

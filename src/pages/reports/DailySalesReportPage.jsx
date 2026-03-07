@@ -17,6 +17,7 @@ import {
   CalendarDays,
   Wallet,
   Tag,
+  Download,
 } from "lucide-react";
 import { formatNumber, num } from "../../utils/numberFormatter";
 import StatCard from "../../components/StatCard";
@@ -26,12 +27,19 @@ import MetricPanel from "../../partial/report/daily-sales-report/MetricPanel";
 import OrderTypeBar from "../../partial/report/daily-sales-report/OrderTypeBar";
 import PayRow from "../../partial/report/daily-sales-report/PayRow";
 import NoDataFound from "../../layout/NoDataFound";
+import { handleResponse } from "../../utils/helpers";
+import { exportDailySalesReport } from "../../redux/slices/exportReportSlice";
+import { downloadBlob } from "../../utils/blob";
+import { formatDate, formatFileDate } from "../../utils/dateFormatter";
 
 const DailySalesReportPage = () => {
   const dispatch = useDispatch();
   const { outletId } = useSelector((s) => s.auth);
   const { dailySalesReport, isFetchingDailyReports } = useSelector(
     (s) => s.report,
+  );
+  const { isExportingDailySalesReport } = useSelector(
+    (state) => state.exportReport,
   );
   const [dateRange, setDateRange] = useState();
 
@@ -112,16 +120,46 @@ const DailySalesReportPage = () => {
     return <LoadingOverlay text="Loading sales report.." />;
   }
 
+  const handleExportDailySalesReport = async () => {
+    if (!dateRange?.startDate || !dateRange?.endDate) return;
+
+    const fileName = `Daily-Sales-Report_${formatFileDate(
+      dateRange.startDate,
+    )}_to_${formatFileDate(dateRange.endDate)}`;
+
+    await handleResponse(
+      dispatch(exportDailySalesReport({ outletId, dateRange })),
+      (res) => {
+        downloadBlob({
+          data: res.payload,
+          fileName,
+        });
+      },
+    );
+  };
+
+  const actions = [
+    {
+      label: "Export",
+      type: "export",
+      icon: Download,
+      onClick: () => handleExportDailySalesReport(),
+      loading: isExportingDailySalesReport,
+      loadingText: "Exporting...",
+    },
+  ];
+
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <PageHeader
           title="Daily Sales Report"
           description="Performance metrics broken down day by day"
+          rightContent={
+            <CustomDateRangePicker value={dateRange} onChange={setDateRange} />
+          }
+          actions={actions}
         />
-        <CustomDateRangePicker value={dateRange} onChange={setDateRange} />
-      </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {salesStats.map((stat, i) => (
@@ -243,13 +281,12 @@ const DailySalesReportPage = () => {
         </div>
 
         {daily?.length === 0 ? (
-          <NoDataFound 
-          icon={CalendarDays}
-          title="No daily data"
-          description="No sales found for the selected range"
-          className="bg-white rounded-2xl border border-dashed border-slate-200 py-20"
+          <NoDataFound
+            icon={CalendarDays}
+            title="No daily data"
+            description="No sales found for the selected range"
+            className="bg-white rounded-2xl border border-dashed border-slate-200 py-20"
           />
-          
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {daily?.map((day, i) => (

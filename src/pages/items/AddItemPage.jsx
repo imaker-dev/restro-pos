@@ -14,9 +14,7 @@ import {
   Text,
   Trash2,
 } from "lucide-react";
-import {
-  RadioField,
-} from "../../components/fields/CheckboxField";
+import { RadioField } from "../../components/fields/CheckboxField";
 import { TextareaField } from "../../components/fields/TextareaField";
 import { MultiSelectDropdownField } from "../../components/fields/MultiSelectDropdownField";
 import { useDispatch, useSelector } from "react-redux";
@@ -38,6 +36,7 @@ import { useQueryParams } from "../../hooks/useQueryParams";
 import { FOOD_TYPES } from "../../constants";
 import InfoCard from "../../components/InfoCard";
 import ToggleField from "../../components/fields/ToggleField";
+import LoadingOverlay from "../../components/LoadingOverlay";
 
 const AddItemPage = () => {
   const dispatch = useDispatch();
@@ -51,7 +50,7 @@ const AddItemPage = () => {
   const { allCategories, loading: isFetchingCategory } = useSelector(
     (state) => state.category,
   );
-  const {data} = allCategories || {};
+  const { data } = allCategories || {};
 
   const { allTaxGroup, loading: isFetchingTaxGroup } = useSelector(
     (state) => state.tax,
@@ -73,8 +72,8 @@ const AddItemPage = () => {
   useEffect(() => {
     if (!outletId) return;
 
-    dispatch(fetchAllCategories({outletId}));
-    dispatch(fetchAllFloors(outletId));
+    dispatch(fetchAllCategories({ outletId }));
+    // dispatch(fetchAllFloors(outletId));
     dispatch(fetchAllKitchenStations(outletId));
     dispatch(fetchAllAddonGroups(outletId));
     dispatch(fetchAllTaxGroups(outletId));
@@ -82,14 +81,7 @@ const AddItemPage = () => {
 
   // Loading state
   if (isFetchingItemDetails && itemId) {
-    return (
-      <div className="flex items-center justify-center h-[80dvh]">
-        <div className="text-center">
-          <RefreshCw className="w-12 h-12 text-primary-500 animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">Loading items details...</p>
-        </div>
-      </div>
-    );
+    return <LoadingOverlay text="Loading items details..." />;
   }
 
   const initialValues = {
@@ -407,7 +399,7 @@ const AddItemPage = () => {
                   onChange={(value) =>
                     formik.setFieldValue("hasVariants", value)
                   }
-                  colorClass="bg-indigo-600"
+                  activeColorClass="bg-indigo-600"
                 />
 
                 {/* BASE PRICE – SHOW ONLY WHEN NO VARIANTS */}
@@ -556,7 +548,7 @@ const AddItemPage = () => {
                   description="Turn this on to allow guests to select additional items such as toppings, sides, beverages, or special upgrades."
                   checked={formik.values.hasAddons}
                   onChange={(value) => formik.setFieldValue("hasAddons", value)}
-                  colorClass="bg-emerald-600"
+                  activeColorClass="bg-emerald-600"
                 />
 
                 {/* ADDON GROUPS */}

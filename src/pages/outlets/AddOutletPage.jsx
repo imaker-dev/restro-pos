@@ -388,7 +388,7 @@ const AddOutletPage = () => {
                       formik.setFieldValue("closingTime", "23:59");
                     }
                   }}
-                  colorClass="bg-indigo-600"
+                  activeColorClass="bg-indigo-600"
                 />
 
                 <div className="grid md:grid-cols-3 gap-6 items-end">

@@ -1,274 +1,34 @@
-// import { use, useEffect, useState } from "react";
-// import {
-//   ArrowLeft,
-//   ShoppingCart,
-//   Users,
-//   DollarSign,
-//   Clock,
-//   Phone,
-//   MapPin,
-//   CheckCircle,
-//   AlertCircle,
-//   Utensils,
-//   Wine,
-//   Package,
-//   Percent,
-//   CreditCard,
-//   Banknote,
-//   QrCode,
-//   Wallet,
-//   Eye,
-// } from "lucide-react";
-// import { Link, useNavigate } from "react-router-dom";
-// import { useDispatch, useSelector } from "react-redux";
-// import { useQueryParams } from "../../hooks/useQueryParams";
-// import { fetchDailySalesReportByDate } from "../../redux/slices/reportSlice";
-// import SalesSummary from "../../partial/report/SalesSummary";
-// import Pagination from "../../components/Pagination";
-// import PageHeader from "../../layout/PageHeader";
-// import { formatDate } from "../../utils/dateFormatter";
-// import SmartTable from "../../components/SmartTable";
-// import { formatNumber } from "../../utils/numberFormatter";
-// import DailySalesDetailsPageSkeleton from "../../partial/report/DailySalesDetailsPageSkeleton";
-// import OrderBadge from "../../partial/order/OrderBadge";
-
-// export default function DailySalesReportDetailsPage() {
-//   const dispatch = useDispatch();
-//   const navigate = useNavigate();
-
-//   const { date } = useQueryParams();
-
-//   const { outletId } = useSelector((state) => state.auth);
-
-//   const { dailySalesReportDetails: data, isFetchingDailyReportDetails } =
-//     useSelector((state) => state.report);
-//   const { summary, orders, pagination } = data || {};
-
-//   const [currentPage, setCurrentPage] = useState(1);
-//   const [itemsPerPage, setItemsPerPage] = useState(10);
-
-//   useEffect(() => {
-//     dispatch(
-//       fetchDailySalesReportByDate({
-//         outletId,
-//         date,
-//         page: currentPage,
-//         limit: itemsPerPage,
-//       }),
-//     );
-//   }, [outletId, date, currentPage, itemsPerPage]);
-
-//   useEffect(() => {
-//     setCurrentPage(1);
-//   }, [date]);
-
-//   const columns = [
-//     {
-//       key: "orderNumber",
-//       label: "Order",
-//       render: (row) => {
-//         const isDineIn = row.orderType === "dine_in";
-
-//         return (
-//           <div className="max-w-[220px] space-y-0.5">
-//             {/* Order Number */}
-//             <p className="font-semibold text-sm text-slate-900 tracking-tight">
-//               #{row.orderNumber}
-//             </p>
-
-//             {/* Meta */}
-//             {isDineIn ? (
-//               <div className="flex items-center gap-1.5 text-[11px] text-slate-500">
-//                 <span className="bg-slate-100 text-slate-700 px-1.5 py-[1px] rounded font-medium">
-//                   {row.floorName || "—"}
-//                 </span>
-
-//                 <span className="text-slate-300">•</span>
-
-//                 <span>
-//                   {" "}
-//                   <span className="font-medium text-slate-700">
-//                     {row.tableNumber || "—"}
-//                   </span>
-//                 </span>
-//               </div>
-//             ) : (
-//               <span className="text-[11px] font-medium text-slate-500">
-//                 {row.orderType === "takeaway"
-//                   ? "Takeaway"
-//                   : row.orderType === "delivery"
-//                     ? "Delivery"
-//                     : "Unknown"}
-//               </span>
-//             )}
-//           </div>
-//         );
-//       },
-//     },
-
-//     {
-//       key: "orderType",
-//       label: "Type",
-//       render: (row) => (
-//         <OrderBadge type="type" value={row.orderType} size="sm" />
-//       ),
-//     },
-
-//     {
-//       key: "status",
-//       label: "Status",
-//       render: (row) => (
-//         <OrderBadge type="status" value={row.status} size="sm" />
-//       ),
-//     },
-
-//     {
-//       key: "paymentStatus",
-//       label: "Payment",
-//       render: (row) => (
-//         <OrderBadge type="payment" value={row.paymentStatus} size="sm" />
-//       ),
-//     },
-
-//     {
-//       key: "items",
-//       label: "Items",
-//       sortable: false,
-//       render: (row) => (
-//         <span className="font-semibold text-sm text-slate-800 tabular-nums">
-//           {row.items?.totalCount ?? 0}
-//         </span>
-//       ),
-//     },
-
-//     {
-//       key: "guests",
-//       label: "Guests",
-//       render: (row) => (
-//         <span className="font-medium text-sm text-slate-700 tabular-nums">
-//           {row.guestCount ?? 0}
-//         </span>
-//       ),
-//     },
-
-//     {
-//       key: "captain",
-//       label: "Captain",
-//       render: (row) => (
-//         <span className="text-xs text-slate-600 font-medium">
-//           {row.captainName || "—"}
-//         </span>
-//       ),
-//     },
-
-//     {
-//       key: "amount",
-//       label: "Total",
-//       render: (row) => (
-//         <span className="font-semibold text-sm text-slate-900 tabular-nums">
-//           {formatNumber(row.totalAmount ?? 0, true)}
-//         </span>
-//       ),
-//     },
-
-//     {
-//       key: "createdAt",
-//       label: "Created",
-//       render: (row) => (
-//         <span className="text-xs text-slate-500 whitespace-nowrap">
-//           {formatDate(row.createdAt, "longTime")}
-//         </span>
-//       ),
-//     },
-//   ];
-
-//   const rowActions = [
-//     {
-//       label: "View",
-//       icon: Eye,
-//       color: "slate",
-//       onClick: (row) => navigate(`/orders/details?orderId=${row.orderId}`),
-//     },
-//   ];
-
-//   if (isFetchingDailyReportDetails) {
-//     return <DailySalesDetailsPageSkeleton />;
-//   }
-
-//   return (
-//     <div className="space-y-6">
-//       <PageHeader title={formatDate(date, "long")} showBackButton />
-
-//       <SalesSummary data={summary} />
-
-//       <SmartTable
-//         title="Orders"
-//         totalcount={pagination?.totalCount}
-//         data={orders}
-//         columns={columns}
-//         loading={isFetchingDailyReportDetails}
-//         actions={rowActions}
-//       />
-
-//       <Pagination
-//         totalItems={pagination?.totalCount}
-//         currentPage={currentPage}
-//         pageSize={itemsPerPage}
-//         totalPages={pagination?.totalPages}
-//         onPageChange={(page) => setCurrentPage(page)}
-//         maxPageNumbers={5}
-//         showPageSizeSelector={true}
-//         onPageSizeChange={(size) => {
-//           setCurrentPage(1);
-//           setItemsPerPage(size);
-//         }}
-//       />
-//     </div>
-//   );
-// }
-
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useQueryParams } from "../../hooks/useQueryParams";
 import { fetchDailySalesReportByDate } from "../../redux/slices/reportSlice";
 import {
-  ArrowLeft,
   ShoppingBag,
   IndianRupee,
   TrendingUp,
   CheckCircle2,
-  User,
-  Layers,
-  MapPin,
-  CreditCard,
-  Receipt,
-  ChevronRight,
-  Utensils,
   Tag,
   BarChart2,
   Wallet,
   CalendarDays,
-  Banknote,
-  Smartphone,
-  Package,
-  Clock,
-  Activity,
-  Eye,
+  Download,
 } from "lucide-react";
-import { formatDate } from "../../utils/dateFormatter";
-import { formatNumber } from "../../utils/numberFormatter";
+import { formatDate, formatFileDate } from "../../utils/dateFormatter";
+import { formatNumber, num } from "../../utils/numberFormatter";
 import MetricPanel from "../../partial/report/daily-sales-report/MetricPanel";
 import PayRow from "../../partial/report/daily-sales-report/PayRow";
 import OrderTypeBar from "../../partial/report/daily-sales-report/OrderTypeBar";
 import StatCard from "../../components/StatCard";
 import SmartTable from "../../components/SmartTable";
 import Pagination from "../../components/Pagination";
-import OrderBadge from "../../partial/order/OrderBadge";
 import DailySalesDetailsPageSkeleton from "../../partial/report/DailySalesDetailsPageSkeleton";
+import { getOrderTableConfig } from "../../columns/order.columns";
+import PageHeader from "../../layout/PageHeader";
+import { handleResponse } from "../../utils/helpers";
+import { exportDailySalesReportDetails } from "../../redux/slices/exportReportSlice";
+import { downloadBlob } from "../../utils/blob";
 
-const num = (v) => Number(v || 0);
-const fmt = (v) => formatNumber(v, true);
 
 // ─── MAIN PAGE ────────────────────────────────────────────────────────────────
 const DailySalesReportDetailsPage = () => {
@@ -276,10 +36,15 @@ const DailySalesReportDetailsPage = () => {
   const navigate = useNavigate();
   const { date } = useQueryParams();
   const { outletId } = useSelector((s) => s.auth);
+  const { isExportingDailySalesReportDetails } = useSelector(
+    (s) => s.exportReport,
+  );
   const { dailySalesReportDetails, isFetchingDailyReportDetails } = useSelector(
     (s) => s.report,
   );
   const { summary, orders = [], pagination } = dailySalesReportDetails || {};
+
+  const { columns, actions: rowActions } = getOrderTableConfig(navigate);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -342,152 +107,44 @@ const DailySalesReportDetailsPage = () => {
     },
   ];
 
-  const columns = [
-    {
-      key: "orderNumber",
-      label: "Order",
-      render: (row) => {
-        const isDineIn = row.orderType === "dine_in";
-
-        return (
-          <div className="max-w-[220px] space-y-0.5">
-            {/* Order Number */}
-            <p className="font-semibold text-sm text-slate-900 tracking-tight">
-              #{row.orderNumber}
-            </p>
-
-            {/* Meta */}
-            {isDineIn ? (
-              <div className="flex items-center gap-1.5 text-[11px] text-slate-500">
-                <span className="bg-slate-100 text-slate-700 px-1.5 py-[1px] rounded font-medium">
-                  {row.floorName || "—"}
-                </span>
-
-                <span className="text-slate-300">•</span>
-
-                <span>
-                  {" "}
-                  <span className="font-medium text-slate-700">
-                    {row.tableNumber || "—"}
-                  </span>
-                </span>
-              </div>
-            ) : (
-              <span className="text-[11px] font-medium text-slate-500">
-                {row.orderType === "takeaway"
-                  ? "Takeaway"
-                  : row.orderType === "delivery"
-                    ? "Delivery"
-                    : "Unknown"}
-              </span>
-            )}
-          </div>
-        );
-      },
-    },
-
-    {
-      key: "orderType",
-      label: "Type",
-      render: (row) => (
-        <OrderBadge type="type" value={row.orderType} size="sm" />
-      ),
-    },
-
-    {
-      key: "status",
-      label: "Status",
-      render: (row) => (
-        <OrderBadge type="status" value={row.status} size="sm" />
-      ),
-    },
-
-    {
-      key: "paymentStatus",
-      label: "Payment",
-      render: (row) => (
-        <OrderBadge type="payment" value={row.paymentStatus} size="sm" />
-      ),
-    },
-
-    {
-      key: "items",
-      label: "Items",
-      sortable: false,
-      render: (row) => (
-        <span className="font-semibold text-sm text-slate-800 tabular-nums">
-          {row.items?.totalCount ?? 0}
-        </span>
-      ),
-    },
-
-    {
-      key: "guests",
-      label: "Guests",
-      render: (row) => (
-        <span className="font-medium text-sm text-slate-700 tabular-nums">
-          {row.guestCount ?? 0}
-        </span>
-      ),
-    },
-
-    {
-      key: "captain",
-      label: "Captain",
-      render: (row) => (
-        <span className="text-xs text-slate-600 font-medium">
-          {row.captainName || "—"}
-        </span>
-      ),
-    },
-
-    {
-      key: "amount",
-      label: "Total",
-      render: (row) => (
-        <span className="font-semibold text-sm text-slate-900 tabular-nums">
-          {formatNumber(row.totalAmount ?? 0, true)}
-        </span>
-      ),
-    },
-
-    {
-      key: "createdAt",
-      label: "Created",
-      render: (row) => (
-        <span className="text-xs text-slate-500 whitespace-nowrap">
-          {formatDate(row.createdAt, "longTime")}
-        </span>
-      ),
-    },
-  ];
-
-  const rowActions = [
-    {
-      label: "View",
-      icon: Eye,
-      color: "slate",
-      onClick: (row) => navigate(`/orders/details?orderId=${row.orderId}`),
-    },
-  ];
-
   if (isFetchingDailyReportDetails) {
     return <DailySalesDetailsPageSkeleton />;
   }
 
+  const handleExportDailySalesReportDetails = async () => {
+    if (!date) return;
+
+    const fileName = `Daily-Sales-Report_${formatFileDate(date)}`;
+
+    await handleResponse(
+      dispatch(exportDailySalesReportDetails({ outletId, date })),
+      (res) => {
+        downloadBlob({
+          data: res.payload,
+          fileName,
+        });
+      },
+    );
+  };
+
+  const actions = [
+    {
+      label: "Export",
+      type: "export",
+      icon: Download,
+      onClick: () => handleExportDailySalesReportDetails(),
+      loading: isExportingDailySalesReportDetails,
+      loadingText: "Exporting...",
+    },
+  ];
+
   return (
     <div className="space-y-5">
-      {/* Back */}
-      <button
-        onClick={() => navigate(-1)}
-        className=" flex items-center gap-2 text-[12px] font-semibold text-slate-500 hover:text-slate-800 transition-colors group"
-        style={{ animationDelay: "0ms" }}
-      >
-        <span className="w-7 h-7 rounded-lg border border-slate-200 bg-white shadow-sm flex items-center justify-center group-hover:border-slate-300 transition-colors">
-          <ArrowLeft size={13} className="text-slate-500" strokeWidth={2.5} />
-        </span>
-        Back to Daily Report
-      </button>
+      <PageHeader
+        title={`Daily Sales Report Details - ${formatDate(date, "long")}`}
+        actions={actions}
+        showBackButton
+      />
 
       {/* ── UNIVERSAL HERO ── */}
       <div

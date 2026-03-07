@@ -6,6 +6,7 @@ import CustomDateRangePicker from "../../components/CustomDateRangePicker";
 import SmartTable from "../../components/SmartTable";
 import { formatNumber } from "../../utils/numberFormatter";
 import {
+  Download,
   IndianRupee,
   Percent,
   ShoppingBag,
@@ -13,10 +14,17 @@ import {
   Users,
 } from "lucide-react";
 import StatCard from "../../components/StatCard";
+import { formatFileDate } from "../../utils/dateFormatter";
+import { handleResponse } from "../../utils/helpers";
+import { exportStaffSalesReport } from "../../redux/slices/exportReportSlice";
+import { downloadBlob } from "../../utils/blob";
 
 const StaffSalesReportPage = () => {
   const dispatch = useDispatch();
   const { outletId } = useSelector((state) => state.auth);
+  const { isExportingStaffSalesReport } = useSelector(
+    (state) => state.exportReport,
+  );
   const { staffSalesReport, isFetchingStaffSalesReport } = useSelector(
     (state) => state.report,
   );
@@ -146,17 +154,49 @@ const StaffSalesReportPage = () => {
     },
   ];
 
+  const handleExportStaffSalesReport = async () => {
+    if (!dateRange?.startDate || !dateRange?.endDate) return;
+
+    const fileName = `Staff-Sales-Report_${formatFileDate(
+      dateRange.startDate,
+    )}_to_${formatFileDate(dateRange.endDate)}`;
+
+    await handleResponse(
+      dispatch(exportStaffSalesReport({ outletId, dateRange })),
+      (res) => {
+        downloadBlob({
+          data: res.payload,
+          fileName,
+        });
+      },
+    );
+  };
+
+  const actions = [
+    {
+      label: "Export",
+      type: "export",
+      icon: Download,
+      onClick: () => handleExportStaffSalesReport(),
+      loading: isExportingStaffSalesReport,
+      loadingText: "Exporting...",
+    },
+  ];
+
   return (
     <div className="space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-        <PageHeader title={"Staff Sales Report"} />
-        <CustomDateRangePicker
-          value={dateRange}
-          onChange={(newRange) => {
-            setDateRange(newRange);
-          }}
-        />
-      </div>
+      <PageHeader
+        title={"Staff Sales Report"}
+        rightContent={
+          <CustomDateRangePicker
+            value={dateRange}
+            onChange={(newRange) => {
+              setDateRange(newRange);
+            }}
+          />
+        }
+        actions={actions}
+      />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
         {stats?.map((stat, index) => (
@@ -171,7 +211,7 @@ const StaffSalesReportPage = () => {
           />
         ))}
       </div>
-      
+
       {summary?.top_performer && (
         <div
           className="bg-amber-50 border border-amber-200 

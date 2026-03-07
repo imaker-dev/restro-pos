@@ -214,7 +214,11 @@ import CustomDateRangePicker from "../../components/CustomDateRangePicker";
 import PageHeader from "../../layout/PageHeader";
 import ShiftDateGroup from "../../partial/report/shift-summary/ShiftDateGroup";
 import NoDataFound from "../../layout/NoDataFound";
-import { Layers } from "lucide-react";
+import { Download, Layers } from "lucide-react";
+import { formatFileDate } from "../../utils/dateFormatter";
+import { handleResponse } from "../../utils/helpers";
+import { downloadBlob } from "../../utils/blob";
+import { exportShiftHistory } from "../../redux/slices/exportReportSlice";
 
 const groupByDate = (shifts = []) => {
   if (!Array.isArray(shifts)) return [];
@@ -237,6 +241,9 @@ const ShiftHistoryPage = () => {
   const [dateRange, setDateRange] = useState();
 
   const { outletId } = useSelector((state) => state.auth);
+  const { isExportingShiftHistory } = useSelector(
+    (state) => state.exportReport,
+  );
   const { isFetchingShiftHistory, shiftHistory } = useSelector(
     (state) => state.shift,
   );
@@ -253,20 +260,50 @@ const ShiftHistoryPage = () => {
   if (isFetchingShiftHistory) {
     return <LoadingOverlay text="Loading Shift Summary..." />;
   }
-  console.log(grouped);
+
+  const handleExportShiftSummaryReport = async () => {
+    if (!dateRange?.startDate || !dateRange?.endDate) return;
+
+    const fileName = `Shift-Summary-Report_${formatFileDate(
+      dateRange.startDate,
+    )}_to_${formatFileDate(dateRange.endDate)}`;
+
+    await handleResponse(
+      dispatch(exportShiftHistory({ outletId, dateRange })),
+      (res) => {
+        downloadBlob({
+          data: res.payload,
+          fileName,
+        });
+      },
+    );
+  };
+
+  const actions = [
+    {
+      label: "Export",
+      type: "export",
+      icon: Download,
+      onClick: () => handleExportShiftSummaryReport(),
+      loading: isExportingShiftHistory,
+      loadingText: "Exporting...",
+    },
+  ];
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-        <PageHeader title={"Shift History"} />
-
-        <CustomDateRangePicker
-          value={dateRange}
-          onChange={(newRange) => {
-            setDateRange(newRange);
-          }}
-        />
-      </div>
+      <PageHeader
+        title={"Shift History"}
+        rightContent={
+          <CustomDateRangePicker
+            value={dateRange}
+            onChange={(newRange) => {
+              setDateRange(newRange);
+            }}
+          />
+        }
+        actions={actions}
+      />
       <div className="space-y-8">
         {grouped.length > 0
           ? grouped.map(([dateStr, dayShifts]) => (

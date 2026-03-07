@@ -25,6 +25,7 @@ import settingSlice from './redux/slices/settingSlice';
 import versionSlice from './redux/slices/versionSlice';
 import bulkUploadSlice from './redux/slices/bulkUploadSlice';
 import customerSlice from './redux/slices/customerSlice';
+import exportReportSlice from './redux/slices/exportReportSlice';
 
 const reducer = {
   auth: authSlice,
@@ -53,6 +54,7 @@ const reducer = {
   version:versionSlice,
   bulkUpload:bulkUploadSlice,
   customer:customerSlice,
+  exportReport: exportReportSlice,
 };
 
 const store = configureStore({
