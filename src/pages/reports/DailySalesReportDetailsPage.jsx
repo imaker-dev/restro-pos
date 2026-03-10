@@ -22,12 +22,12 @@ import OrderTypeBar from "../../partial/report/daily-sales-report/OrderTypeBar";
 import StatCard from "../../components/StatCard";
 import SmartTable from "../../components/SmartTable";
 import Pagination from "../../components/Pagination";
-import DailySalesDetailsPageSkeleton from "../../partial/report/DailySalesDetailsPageSkeleton";
 import { getOrderTableConfig } from "../../columns/order.columns";
 import PageHeader from "../../layout/PageHeader";
 import { handleResponse } from "../../utils/helpers";
 import { exportDailySalesReportDetails } from "../../redux/slices/exportReportSlice";
 import { downloadBlob } from "../../utils/blob";
+import DailySalesDetailsPageSkeleton from "../../partial/report/daily-sales-report/DailySalesDetailsPageSkeleton";
 
 
 // ─── MAIN PAGE ────────────────────────────────────────────────────────────────

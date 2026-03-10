@@ -105,10 +105,11 @@ const AllTablesPage = () => {
   const handleSectionSubmit = async ({ id, values, resetForm }) => {
     const action = id ? updateSection({ id, values }) : createSection(values);
 
-    await dispatch(action);
-    dispatch(fetchAllSectionWithTables(floorId));
-    resetForm();
-    resetModals();
+    await handleResponse(dispatch(action), () => {
+      dispatch(fetchAllSectionWithTables(floorId));
+      resetForm();
+      resetModals();
+    });
   };
 
   const handleTableSubmit = async ({ id, values, resetForm }) => {
@@ -118,18 +119,17 @@ const AllTablesPage = () => {
       ? updateTable({ id, values: payload })
       : createTable(payload);
 
-    await dispatch(action);
-    dispatch(fetchAllSectionWithTables(floorId));
-    resetForm();
-    resetModals();
+    await handleResponse(dispatch(action), () => {
+      dispatch(fetchAllSectionWithTables(floorId));
+      resetForm();
+      resetModals();
+    });
   };
 
   const handleMergeTables = async () => {
     if (selectedTables.length < 2) return;
 
     const [primaryTableId, ...otherTableIds] = selectedTables;
-
-    
 
     await handleResponse(
       dispatch(
@@ -148,7 +148,7 @@ const AllTablesPage = () => {
 
   const handleSplitTable = async (id) => {
     await handleResponse(dispatch(splitTable(id)), () => {
-      emitUpdateTable(TABLE_UNMERGED, { tableId: id })
+      emitUpdateTable(TABLE_UNMERGED, { tableId: id });
       fetchTables();
     });
   };

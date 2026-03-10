@@ -176,6 +176,33 @@ export const exportDayEndSummaryDetails = createAsyncThunk(
   },
 );
 
+export const exportOrdersReport = createAsyncThunk(
+  "/export/orders/report",
+  async ({
+    outletId,
+    search,
+    dateRange,
+    orderStatus,
+    orderType,
+    paymentStatus,
+    sortBy,
+    sortOrder,
+  }) => {
+    const res = await ExportServices.exportOrdersReportApi(
+      outletId,
+      dateRange,
+      search,
+      orderStatus,
+      orderType,
+      paymentStatus,
+      sortBy,
+      sortOrder,
+    );
+
+    return res.data;
+  },
+);
+
 /* ───────────── SLICE ───────────── */
 
 const exportReportSlice = createSlice({
@@ -199,6 +226,7 @@ const exportReportSlice = createSlice({
     isExportingShiftHistoryDetails: false,
     isExportingDayEndSummary: false,
     isExportingDayEndSummaryDetails: false,
+    isExportingOrdersReport: false,
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -422,6 +450,18 @@ const exportReportSlice = createSlice({
       })
       .addCase(exportDayEndSummaryDetails.rejected, (state, action) => {
         state.isExportingDayEndSummaryDetails = false;
+        toast.error(action.error.message);
+      })
+
+      .addCase(exportOrdersReport.pending, (state) => {
+        state.isExportingOrdersReport = true;
+      })
+      .addCase(exportOrdersReport.fulfilled, (state) => {
+        state.isExportingOrdersReport = false;
+        toast.success("Orders report exported successfully");
+      })
+      .addCase(exportOrdersReport.rejected, (state, action) => {
+        state.isExportingOrdersReport = false;
         toast.error(action.error.message);
       });
   },

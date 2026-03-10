@@ -3,7 +3,15 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchServiceTypeBreakdownReport } from "../../redux/slices/reportSlice";
 import PageHeader from "../../layout/PageHeader";
 import CustomDateRangePicker from "../../components/CustomDateRangePicker";
-import { Utensils, Wine, Layers, BarChart3, Download } from "lucide-react";
+import {
+  Utensils,
+  Wine,
+  Layers,
+  BarChart3,
+  Download,
+  Tag,
+  ReceiptIndianRupee,
+} from "lucide-react";
 import { formatNumber } from "../../utils/numberFormatter";
 import ServiceTypeBreakdownReportSkeleton from "../../partial/report/ServiceTypeBreakdownReportSkeleton";
 import StatCard from "../../components/StatCard";
@@ -100,6 +108,8 @@ const ServiceTypeBreakdownReportPage = () => {
   );
   const { serviceTypeBreakdownReport, isFetchingServiceTypeBreakdownReport } =
     useSelector((state) => state.report);
+  const { summary, breakdown } = serviceTypeBreakdownReport || {};
+
   const [dateRange, setDateRange] = useState();
 
   useEffect(() => {
@@ -108,39 +118,36 @@ const ServiceTypeBreakdownReportPage = () => {
     dispatch(fetchServiceTypeBreakdownReport({ outletId, dateRange }));
   }, [outletId, dateRange]);
 
-  const summary = serviceTypeBreakdownReport?.summary;
-  const breakdown = serviceTypeBreakdownReport?.breakdown;
-
   const summaryCards = [
     {
-      title: "Total Revenue",
-      value: formatNumber(summary?.total_revenue, true),
+      title: "Gross Revenue",
+      value: formatNumber(summary?.gross_revenue, true),
       icon: BarChart3,
       color: "indigo",
+    },
+    {
+      title: "Net Revenue",
+      value: formatNumber(summary?.net_revenue, true),
+      icon: BarChart3,
+      color: "emerald",
+    },
+    {
+      title: "Discount Given",
+      value: formatNumber(summary?.discount_amount, true),
+      icon: Tag,
+      color: "amber",
+    },
+    {
+      title: "Tax Collected",
+      value: formatNumber(summary?.tax_amount, true),
+      icon: ReceiptIndianRupee,
+      color: "purple",
     },
     {
       title: "Total Quantity",
       value: summary?.total_quantity,
       icon: Layers,
-      color: "emerald",
-    },
-    {
-      title: "Restaurant Revenue",
-      value: formatNumber(summary?.restaurant_revenue, true),
-      icon: Utensils,
       color: "blue",
-    },
-    {
-      title: "Bar Revenue",
-      value: formatNumber(summary?.bar_revenue, true),
-      icon: Wine,
-      color: "purple",
-    },
-    {
-      title: "Shared Revenue",
-      value: formatNumber(summary?.shared_revenue, true),
-      icon: Layers,
-      color: "amber",
     },
   ];
 

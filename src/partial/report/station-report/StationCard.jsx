@@ -9,12 +9,7 @@ import {
 import MetaPill from "../../../components/MetaPill";
 
 // ─── Station card ─────────────────────────────────────────────────────────────
-export default function StationCard({
-  station,
-  rank,
-  maxTickets,
-  isBusiest,
-}) {
+export default function StationCard({ station, rank, maxTickets, isBusiest }) {
   const safeMaxTickets = Number(maxTickets) || 0;
   const ticketCount = Number(station.ticketCount) || 0;
   const itemCount = Number(station.itemCount) || 0;
@@ -34,16 +29,13 @@ export default function StationCard({
   return (
     <div
       className={`relative bg-white rounded-2xl overflow-hidden transition-all duration-300
-  hover:-translate-y-1 hover:shadow-[0_16px_36px_-6px_rgba(0,0,0,0.13)] group
+  hover:-translate-y-1 hover:shadow group
   ${
     isBusiest
-      ? "border border-primary-300 shadow-lg"
-      : "border border-slate-200 shadow-sm"
+      ? "border border-primary-300 "
+      : "border border-slate-200 "
   }`}
     >
-      {/* Top stripe */}
-      <div className="h-[3px] bg-primary-500" />
-
       {/* Ambient glow */}
       <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full pointer-events-none opacity-30 group-hover:opacity-50 transition-opacity duration-300 bg-primary-500/20" />
 
@@ -80,41 +72,15 @@ export default function StationCard({
           )}
         </div>
 
-        {/* Ticket volume bar */}
-        <div className="mb-4">
-          <div className="flex items-center justify-between mb-1.5">
-            <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">
-              Ticket Volume
-            </span>
-            <div className="flex items-center gap-1.5">
-              <span className="text-[18px] font-black tabular-nums leading-none">
-                {station.ticketCount}
-              </span>
-              <span className="text-[10px] font-black text-slate-400">
-                / {maxTickets}
-              </span>
-            </div>
-          </div>
-          <div className="h-2 rounded-full overflow-hidden bg-slate-100">
-            <div
-              className="h-full rounded-full transition-all duration-700 bg-primary-500 shadow-sm"
-              style={{ width: `${ticketShare}%` }}
-            />
-          </div>
-
-          <p className="text-[9px] text-slate-400 font-medium mt-1 text-right">
-            {ticketShare.toFixed(0)}% of busiest
-          </p>
-        </div>
-
         {/* 4-stat grid */}
         <div className="grid grid-cols-2 gap-2 mb-3">
           <MetaPill
             icon={Package}
-            label="Items"
-            value={station.itemCount}
+            label="Tickets"
+            value={ticketCount}
             highlight
           />
+          <MetaPill icon={Package} label="Items" value={station.itemCount} />
           <MetaPill
             icon={CheckCircle2}
             label="Served"
@@ -124,11 +90,6 @@ export default function StationCard({
             icon={XCircle}
             label="Cancelled"
             value={station.cancelledCount}
-          />
-          <MetaPill
-            icon={Clock}
-            label="Avg Prep"
-            value={`${prepTime.toFixed(1)}m`}
           />
         </div>
 
@@ -158,7 +119,7 @@ export default function StationCard({
               }}
             />
           </div>
-          <p className="text-[8px] text-slate-400 font-medium mt-1">
+          <p className="text-[10px] text-slate-400 font-medium mt-1">
             {station.servedCount} served of {station.itemCount} items
           </p>
         </div>

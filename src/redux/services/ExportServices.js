@@ -23,7 +23,8 @@ export default false
 
       exportDailyReportDetailsApi: (outletId, date) => {
         return Api.get(
-          `/orders/reports/${outletId}/daily-sales/detail/export?startDate=${date}&endDate=${date}`,{responseType:"blob"}
+          `/orders/reports/${outletId}/daily-sales/detail/export?startDate=${date}&endDate=${date}`,
+          { responseType: "blob" },
         );
       },
 
@@ -227,5 +228,93 @@ export default false
           `/reports/day-end-summary/detail/export?outletId=${outletId}&startDate=${date}&endDate=${date}`,
           { responseType: "blob" },
         );
+      },
+
+      exportOrdersReportApi: (
+        outletId,
+        page,
+        limit,
+        search,
+        dateRange,
+        orderStatus,
+        orderType,
+        paymentStatus,
+        sortBy,
+        sortOrder,
+      ) => {
+        let url = `/orders/admin/list?page=${page}&limit=${limit}`;
+
+        // Outlet
+        if (outletId) {
+          url += `&outletId=${encodeURIComponent(outletId)}`;
+        }
+
+        // Search
+        if (search) {
+          url += `&search=${encodeURIComponent(search)}`;
+        }
+
+        // Date Range
+        if (dateRange?.startDate && dateRange?.endDate) {
+          url += `&startDate=${dateRange.startDate}&endDate=${dateRange.endDate}`;
+        }
+
+        // Order Status
+        if (orderStatus) {
+          url += `&status=${encodeURIComponent(orderStatus)}`;
+        }
+
+        // Order Type
+        if (orderType) {
+          url += `&orderType=${encodeURIComponent(orderType)}`;
+        }
+
+        // Payment Status
+        if (paymentStatus) {
+          url += `&paymentStatus=${encodeURIComponent(paymentStatus)}`;
+        }
+
+        // Sorting
+        if (sortBy) {
+          url += `&sortBy=${encodeURIComponent(sortBy)}`;
+        }
+
+        if (sortOrder) {
+          url += `&sortOrder=${encodeURIComponent(sortOrder)}`; // asc / desc
+        }
+
+        return Api.get(url);
+      },
+
+      exportOrdersReportApi: (
+        outletId,
+        dateRange,
+        search,
+        orderStatus,
+        orderType,
+        paymentStatus,
+        sortBy,
+        sortOrder,
+      ) => {
+        const params = {};
+
+        if (outletId) params.outletId = outletId;
+        if (search) params.search = search;
+
+        if (dateRange?.startDate && dateRange?.endDate) {
+          params.startDate = dateRange.startDate;
+          params.endDate = dateRange.endDate;
+        }
+
+        if (orderStatus) params.status = orderStatus;
+        if (orderType) params.orderType = orderType;
+        if (paymentStatus) params.paymentStatus = paymentStatus;
+        if (sortBy) params.sortBy = sortBy;
+        if (sortOrder) params.sortOrder = sortOrder;
+
+        return Api.get(`/orders/admin/list/export`, {
+          params,
+          responseType: "blob",
+        });
       },
     };

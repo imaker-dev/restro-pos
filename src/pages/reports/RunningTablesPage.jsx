@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import StatCard from "../../components/StatCard";
 import { useDispatch, useSelector } from "react-redux";
-import { Building2, Layers, Users, Wallet } from "lucide-react";
+import { Building2, Layers, RotateCcw, Users, Wallet } from "lucide-react";
 import { fetchRunningTable } from "../../redux/slices/reportSlice";
 import NoDataFound from "../../layout/NoDataFound";
 import LoadingOverlay from "../../components/LoadingOverlay";
@@ -17,10 +17,12 @@ const RunningTablesPage = () => {
   );
 
   const { floors, summary } = runningTables || {};
-
+  const fetchTables = () => {
+    dispatch(fetchRunningTable(outletId));
+  };
   useEffect(() => {
     if (outletId) {
-      dispatch(fetchRunningTable(outletId));
+      fetchTables();
     }
   }, [outletId, dispatch]);
 
@@ -55,9 +57,20 @@ const RunningTablesPage = () => {
     return <LoadingOverlay text="Loading Running Tables..." />;
   }
 
+  const actions = [
+    {
+      label: "Refresh",
+      type: "refresh",
+      icon: RotateCcw,
+      onClick: fetchTables,
+      loading: isFetchingRunningTable,
+      loadingText: "Refreshing...",
+    },
+  ];
+
   return (
     <div className="space-y-6">
-      <PageHeader title={"Running Tables"} />
+      <PageHeader title={"Running Tables"} actions={actions} />
 
       {/* ── Summary Stats ── */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">

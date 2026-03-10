@@ -11,6 +11,7 @@ const buttonVariants = {
   info: "bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500",
   export:
     "bg-emerald-600 text-white hover:bg-emerald-700 focus:ring-emerald-500",
+  refresh: "border border-gray-200 bg-white hover:bg-gray-50",
 };
 
 const PageHeader = ({

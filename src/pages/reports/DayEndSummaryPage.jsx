@@ -230,6 +230,7 @@ const DayEndSummaryPage = () => {
             icon={stat?.icon}
             color={stat?.color}
             variant="v9"
+            loading={isFetchingDailyEndSummary}
           />
         ))}
       </div>

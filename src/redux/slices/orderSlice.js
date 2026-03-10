@@ -88,7 +88,6 @@ const orderSlice = createSlice({
       })
       .addCase(downloadOrderInvoice.fulfilled, (state, action) => {
         state.isDownloadingInvoice = false;
-        state.orderDetails = action.payload.data;
       })
       .addCase(downloadOrderInvoice.rejected, (state, action) => {
         state.isDownloadingInvoice = false;

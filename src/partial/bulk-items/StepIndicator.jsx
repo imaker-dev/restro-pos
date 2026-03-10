@@ -75,9 +75,9 @@ export default function StepIndicator({
                   ${isReachable ? "cursor-pointer" : "cursor-not-allowed"}
                   ${
                     isDone
-                      ? "bg-emerald-500 text-white shadow-md shadow-emerald-200"
+                      ? "bg-emerald-500 text-white "
                       : isActive
-                        ? "bg-emerald-500 text-white shadow-lg shadow-emerald-200 ring-4 ring-emerald-100"
+                        ? "bg-emerald-500 text-white shadow-lg shadow-emerald-200 "
                         : isReachable
                           ? "bg-white border-2 border-slate-200 text-slate-400 hover:border-emerald-300 hover:text-emerald-500"
                           : "bg-white border-2 border-slate-100 text-slate-300"

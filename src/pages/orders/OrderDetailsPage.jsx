@@ -1,7 +1,10 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useQueryParams } from "../../hooks/useQueryParams";
-import { fetchOrderByIdApi } from "../../redux/slices/orderSlice";
+import {
+  downloadOrderInvoice,
+  fetchOrderByIdApi,
+} from "../../redux/slices/orderSlice";
 import {
   UtensilsCrossed,
   Store,
@@ -16,6 +19,7 @@ import {
   Hash,
   CalendarDays,
   ReceiptIndianRupee,
+  Download,
 } from "lucide-react";
 import PageHeader from "../../layout/PageHeader";
 import OrderBadge from "../../partial/order/OrderBadge";
@@ -25,6 +29,8 @@ import MetricPanel from "../../partial/report/daily-sales-report/MetricPanel";
 import { formatDate } from "../../utils/dateFormatter";
 import NoDataFound from "../../layout/NoDataFound";
 import LoadingOverlay from "../../components/LoadingOverlay";
+import { handleResponse } from "../../utils/helpers";
+import { downloadBlob } from "../../utils/blob";
 
 // ─────────────────────── CONFIG ───────────────────────────────────────────────
 
@@ -84,9 +90,11 @@ const Row = ({ label, value, mono = false, cls = "", href }) => {
 const OrderDetailsPage = () => {
   const dispatch = useDispatch();
   const { orderId } = useQueryParams();
-  const { orderDetails: data, isFetchingOrderDetails } = useSelector(
-    (s) => s.order,
-  );
+  const {
+    orderDetails: data,
+    isFetchingOrderDetails,
+    isDownloadingInvoice,
+  } = useSelector((s) => s.order);
 
   useEffect(() => {
     if (orderId) dispatch(fetchOrderByIdApi(orderId));
@@ -150,9 +158,31 @@ const OrderDetailsPage = () => {
     },
   ].filter(Boolean);
 
+  const handleDownloadInvoice = async () => {
+    const fileName = `${inv.invoiceNumber}`;
+
+    await handleResponse(dispatch(downloadOrderInvoice(orderId)), (res) => {
+      downloadBlob({
+        data: res.payload,
+        fileName,
+      });
+    });
+  };
+
+  const actions = [
+    {
+      label: "Download Inovice",
+      type: "export",
+      icon: Download,
+      onClick: handleDownloadInvoice,
+      loading: isDownloadingInvoice,
+      loadingText: "Downloading...",
+    },
+  ];
+
   return (
     <div className="space-y-5">
-      <PageHeader onlyBack backLabel="Back to Orders" />
+      <PageHeader title={"Order Details"} actions={actions} showBackButton />
 
       {/* ── ORDER HERO SECTION ── */}
       <div

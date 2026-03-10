@@ -46,6 +46,7 @@ import PageHeader from "../../layout/PageHeader";
 import { handleResponse } from "../../utils/helpers";
 import { exportShiftHistoryDetails } from "../../redux/slices/exportReportSlice";
 import { downloadBlob } from "../../utils/blob";
+import ShiftHistoryDetailsPageSkeleton from "../../partial/report/shift-summary/ShiftHistoryDetailsPageSkeleton";
 
 function FieldRow({
   label,
@@ -99,10 +100,6 @@ const ShiftHistoryDetailsPage = () => {
       dispatch(fetchShiftHistoryByid(shiftId));
     }
   }, [shiftId]);
-
-  if (isFetchingShiftHistoryDetails) {
-    return <LoadingOverlay text="Getching shift history..." />;
-  }
 
   const variance = Number(shift?.cashVariance || 0);
 
@@ -507,6 +504,10 @@ const ShiftHistoryDetailsPage = () => {
       loadingText: "Exporting...",
     },
   ];
+
+  if (isFetchingShiftHistoryDetails) {
+    return <ShiftHistoryDetailsPageSkeleton />;
+  }
 
   return (
     <div className="space-y-6">

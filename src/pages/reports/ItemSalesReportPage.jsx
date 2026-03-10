@@ -10,6 +10,7 @@ import {
   IndianRupee,
   Package,
   Percent,
+  RotateCcw,
   ShoppingCart,
   Star,
   TrendingUp,
@@ -35,10 +36,14 @@ const ItemSalesReportPage = () => {
   const { dateRange, setDateRange } = useReportDateRange();
   const [serviceType, setServiceType] = useState("");
 
-  useEffect(() => {
+  const fetchReport = () => {
     if (!outletId || !dateRange?.startDate || !dateRange?.endDate) return;
 
     dispatch(fetchItemSalesReport({ outletId, dateRange }));
+  };
+
+  useEffect(() => {
+    fetchReport();
   }, [outletId, dateRange]);
 
   const columns = [
@@ -170,6 +175,14 @@ const ItemSalesReportPage = () => {
       loading: isExportingItemSalesReport,
       loadingText: "Exporting...",
     },
+    {
+      label: "Refresh",
+      type: "refresh",
+      icon: RotateCcw,
+      onClick: fetchReport,
+      loading: isFetchingItemSalesReport,
+      loadingText: "Refreshing...",
+    },
   ];
 
   return (
@@ -198,6 +211,7 @@ const ItemSalesReportPage = () => {
             icon={stat.icon}
             color={stat.color}
             variant="v9"
+            loading={isFetchingItemSalesReport}
           />
         ))}
       </div>

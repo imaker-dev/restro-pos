@@ -321,6 +321,7 @@ const TaxReportPage = () => {
             value={card?.value}
             color={card?.color}
             variant="v9"
+            loading={isFetchingTaxReport}
           />
         ))}
       </div>

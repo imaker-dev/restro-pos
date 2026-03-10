@@ -18,6 +18,7 @@ import {
   Wallet,
   Tag,
   Download,
+  RotateCcw,
 } from "lucide-react";
 import { formatNumber, num } from "../../utils/numberFormatter";
 import StatCard from "../../components/StatCard";
@@ -31,6 +32,7 @@ import { handleResponse } from "../../utils/helpers";
 import { exportDailySalesReport } from "../../redux/slices/exportReportSlice";
 import { downloadBlob } from "../../utils/blob";
 import { formatDate, formatFileDate } from "../../utils/dateFormatter";
+import DailySalesReportSkeleton from "../../partial/report/daily-sales-report/DailySalesReportSkeleton";
 
 const DailySalesReportPage = () => {
   const dispatch = useDispatch();
@@ -43,9 +45,14 @@ const DailySalesReportPage = () => {
   );
   const [dateRange, setDateRange] = useState();
 
+const fetchReport = () => {
+  if (!outletId || !dateRange?.startDate || !dateRange?.endDate) return;
+
+  dispatch(fetchDailySalesReport({ outletId, dateRange }));
+};
+
   useEffect(() => {
-    if (!dateRange?.startDate || !dateRange?.endDate) return;
-    dispatch(fetchDailySalesReport({ outletId, dateRange }));
+    fetchReport();
   }, [dateRange, outletId]);
 
   const report = dailySalesReport?.data || dailySalesReport || {};
@@ -95,7 +102,7 @@ const DailySalesReportPage = () => {
     },
     {
       label: "Total Guests",
-      value: formatNumber(summary?.total_orders),
+      value: formatNumber(summary?.total_guests),
       sub: "Covers served",
       icon: Users,
       color: "purple",
@@ -117,7 +124,7 @@ const DailySalesReportPage = () => {
   ];
 
   if (isFetchingDailyReports) {
-    return <LoadingOverlay text="Loading sales report.." />;
+    return <DailySalesReportSkeleton />
   }
 
   const handleExportDailySalesReport = async () => {
@@ -147,19 +154,27 @@ const DailySalesReportPage = () => {
       loading: isExportingDailySalesReport,
       loadingText: "Exporting...",
     },
+    {
+      label: "Refresh",
+      type: "refresh",
+      icon: RotateCcw,
+      onClick: fetchReport,
+      loading: isFetchingDailyReports,
+      loadingText: "Refreshing...",
+    },
   ];
 
   return (
     <div className="space-y-6">
       {/* Header */}
-        <PageHeader
-          title="Daily Sales Report"
-          description="Performance metrics broken down day by day"
-          rightContent={
-            <CustomDateRangePicker value={dateRange} onChange={setDateRange} />
-          }
-          actions={actions}
-        />
+      <PageHeader
+        title="Daily Sales Report"
+        description="Performance metrics broken down day by day"
+        rightContent={
+          <CustomDateRangePicker value={dateRange} onChange={setDateRange} />
+        }
+        actions={actions}
+      />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {salesStats.map((stat, i) => (

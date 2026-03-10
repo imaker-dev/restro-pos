@@ -208,6 +208,7 @@ const StaffSalesReportPage = () => {
             icon={stat?.icon}
             color={stat?.color}
             variant="v9"
+            loading={isFetchingStaffSalesReport}
           />
         ))}
       </div>

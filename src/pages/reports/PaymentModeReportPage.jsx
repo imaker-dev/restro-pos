@@ -205,6 +205,7 @@ const PaymentModeReportPage = () => {
             icon={stat?.icon}
             color={stat?.color}
             variant="v9"
+            loading={isFetchingPaymentModeReport}
           />
         ))}
       </div>

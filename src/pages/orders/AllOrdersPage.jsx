@@ -5,8 +5,10 @@ import { fetchAllOrders } from "../../redux/slices/orderSlice";
 import SmartTable from "../../components/SmartTable";
 import {
   CheckCircle,
+  Download,
   IndianRupee,
   Package,
+  RotateCcw,
   ShoppingBag,
   TrendingUp,
   Truck,
@@ -25,6 +27,10 @@ import {
   PAYMENT_STATUS_OPTIONS,
 } from "../../constants/selectOptions";
 import { getOrderTableConfig } from "../../columns/order.columns";
+import { formatFileDate } from "../../utils/dateFormatter";
+import { handleResponse } from "../../utils/helpers";
+import { exportOrdersReport } from "../../redux/slices/exportReportSlice";
+import { downloadBlob } from "../../utils/blob";
 
 const AllOrdersPage = () => {
   const dispatch = useDispatch();
@@ -41,10 +47,13 @@ const AllOrdersPage = () => {
   const [sortBy, setSortBy] = useState("created_at");
   const [sortOrder, setSortOrder] = useState("desc");
 
+  const { isExportingOrdersReport } = useSelector(
+    (state) => state.exportReport,
+  );
   const { allOrdersData, loading } = useSelector((state) => state.order);
   const { orders, pagination, summary } = allOrdersData || {};
 
-  const { columns, actions } = getOrderTableConfig(navigate);
+  const { columns, actions: rowActions } = getOrderTableConfig(navigate);
 
   const fetchOrders = () => {
     dispatch(
@@ -146,16 +155,69 @@ const AllOrdersPage = () => {
     },
   ];
 
+  const handleExportOrdersReport = async () => {
+    if (!dateRange?.startDate || !dateRange?.endDate) return;
+
+    const fileName = `Orders-Report_${formatFileDate(
+      dateRange.startDate,
+    )}_to_${formatFileDate(dateRange.endDate)}`;
+
+    await handleResponse(
+      dispatch(
+        exportOrdersReport({
+          outletId,
+          search: searchTerm,
+          dateRange,
+          orderStatus,
+          orderType,
+          paymentStatus,
+          sortBy,
+          sortOrder,
+        }),
+      ),
+      (res) => {
+        downloadBlob({
+          data: res.payload,
+          fileName,
+        });
+      },
+    );
+  };
+
+  const actions = [
+    {
+      label: "Export",
+      type: "export",
+      icon: Download,
+      onClick: handleExportOrdersReport,
+      loading: isExportingOrdersReport,
+      loadingText: "Exporting...",
+    },
+    {
+      label: "Refresh",
+      type: "refresh",
+      icon: RotateCcw,
+      onClick: fetchOrders,
+      loading: loading,
+      loadingText: "Refreshing...",
+    },
+  ];
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-        <PageHeader title={"All Orders"} />
-        <CustomDateRangePicker
-          value={dateRange}
-          onChange={(newRange) => {
-            setDateRange(newRange);
-          }}
-          // defaultRange=""
+        <PageHeader
+          title={"All Orders"}
+          actions={actions}
+          rightContent={
+            <CustomDateRangePicker
+              value={dateRange}
+              onChange={(newRange) => {
+                setDateRange(newRange);
+              }}
+              // defaultRange=""
+            />
+          }
         />
       </div>
 
@@ -236,7 +298,7 @@ const AllOrdersPage = () => {
           totalcount={orders?.length}
           data={orders}
           columns={columns}
-          actions={actions}
+          actions={rowActions}
           loading={loading}
           sortField={sortBy}
           sortDirection={sortOrder}

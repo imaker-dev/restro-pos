@@ -15,6 +15,7 @@ import {
   Hash,
   ArrowUpRight,
   Phone,
+  RotateCcw,
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -31,8 +32,6 @@ import { Link } from "react-router-dom";
 import LoadingOverlay from "../../components/LoadingOverlay";
 import RunningorderCard from "../../partial/report/running-order/RunningorderCard";
 
-
-
 /* ══════════════════════════════════════════════════════════
    MAIN SCREEN
 ══════════════════════════════════════════════════════════ */
@@ -43,9 +42,12 @@ export default function RunningOrdersPage() {
     (state) => state.report,
   );
 
+  const fetchOrders = () => {
+    dispatch(fetchRunningOrder(outletId));
+  };
   useEffect(() => {
     if (outletId) {
-      dispatch(fetchRunningOrder(outletId));
+      fetchOrders();
     }
   }, [outletId, dispatch]);
 
@@ -53,10 +55,20 @@ export default function RunningOrdersPage() {
     return <LoadingOverlay text="Loading Running Orders..." />;
   }
 
+  const actions = [
+    {
+      label: "Refresh",
+      type: "refresh",
+      icon: RotateCcw,
+      onClick: fetchOrders,
+      loading: isFetchingRunningOrder,
+      loadingText: "Refreshing...",
+    },
+  ];
   return (
     <div className="space-y-6">
       {/* Header */}
-      <PageHeader title={"Running Orders"} />
+      <PageHeader title={"Running Orders"} actions={actions} />
 
       {runningOrders?.length === 0 ? (
         <NoDataFound

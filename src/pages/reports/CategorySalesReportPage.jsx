@@ -207,6 +207,7 @@ const CategorySalesReportPage = () => {
             icon={stat?.icon}
             color={stat?.color}
             variant="v9"
+            loading={isFetchingCategorySalesReport}
           />
         ))}
       </div>
