@@ -25,4 +25,10 @@ export default false
           data: { confirmationCode },
         });
       },
+      getOutletPrintLogoApi:(id) => {
+        return Api.get(`/outlets/${id}/print-logo`)
+      },
+      updateOutletPrintLogoApi:(id,values) => {
+        return Api.put(`/outlets/${id}/print-logo`,values)
+      }
     };

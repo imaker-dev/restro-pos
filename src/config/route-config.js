@@ -53,6 +53,7 @@ import CancellationReport from "../pages/reports/CancellationReport";
 import RunningTablesPage from "../pages/reports/RunningTablesPage";
 import DayEndSummaryDetailsPage from "../pages/reports/DayEndSummaryDetailsPage";
 import TaxReportDetailsPage from "../pages/reports/TaxReportDetailsPage";
+import OutletLogoPage from "../pages/outlets/OutletLogoPage";
 
 const routeConfig = [
   // { path: "/", element: Dashboard, roles: [ROLES.SUPER_ADMIN] },
@@ -91,6 +92,7 @@ const routeConfig = [
   { path: "/day-end-summary/details", element: DayEndSummaryDetailsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
   
   { path: "/outlets", element: AllOutletsPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN] },
+  { path: "//outlet-logo", element: OutletLogoPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN] },
   { path: "/outlets/details", element: OutletDetails, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN] },
   { path: "/outlets/add", element: AddOutletPage, roles: [ROLES.SUPER_ADMIN] },
   { path: "/outlets/delete", element: OutletDeletePage, roles: [ROLES.SUPER_ADMIN] },

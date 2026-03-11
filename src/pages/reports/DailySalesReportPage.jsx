@@ -45,11 +45,11 @@ const DailySalesReportPage = () => {
   );
   const [dateRange, setDateRange] = useState();
 
-const fetchReport = () => {
-  if (!outletId || !dateRange?.startDate || !dateRange?.endDate) return;
+  const fetchReport = () => {
+    if (!outletId || !dateRange?.startDate || !dateRange?.endDate) return;
 
-  dispatch(fetchDailySalesReport({ outletId, dateRange }));
-};
+    dispatch(fetchDailySalesReport({ outletId, dateRange }));
+  };
 
   useEffect(() => {
     fetchReport();
@@ -60,7 +60,7 @@ const fetchReport = () => {
 
   const totalColl = num(summary?.total_collection);
 
-  const salesStats = [
+  const stats = [
     {
       label: "Gross Sales",
       value: formatNumber(summary?.gross_sales, true),
@@ -90,9 +90,6 @@ const fetchReport = () => {
       icon: BarChart2,
       color: "blue",
     },
-  ];
-
-  const orderStats = [
     {
       label: "Total Orders",
       value: formatNumber(summary?.total_orders),
@@ -124,7 +121,7 @@ const fetchReport = () => {
   ];
 
   if (isFetchingDailyReports) {
-    return <DailySalesReportSkeleton />
+    return <DailySalesReportSkeleton />;
   }
 
   const handleExportDailySalesReport = async () => {
@@ -176,30 +173,16 @@ const fetchReport = () => {
         actions={actions}
       />
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        {salesStats.map((stat, i) => (
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
+        {stats.map((stat, i) => (
           <StatCard
             key={i}
             icon={stat.icon}
             title={stat.label}
             value={stat.value}
-            subtitle={stat.sub}
+            // subtitle={stat.sub}
             color={stat.color}
             mode={stat.dark ? "solid" : ""}
-            variant="v9"
-          />
-        ))}
-      </div>
-
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        {orderStats.map((stat, i) => (
-          <StatCard
-            key={i}
-            icon={stat.icon}
-            title={stat.label}
-            value={stat.value}
-            subtitle={stat.sub}
-            color={stat.color}
             variant="v9"
           />
         ))}

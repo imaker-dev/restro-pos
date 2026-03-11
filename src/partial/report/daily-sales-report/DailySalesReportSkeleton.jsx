@@ -20,19 +20,13 @@ export default function DailySalesReportSkeleton() {
         </div>
       </div>
 
-      {/* Sales Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        {Array.from({ length: 4 }).map((_, i) => (
+      {/* Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
+        {Array.from({ length: 8 }).map((_, i) => (
           <StatSkeleton key={i} />
         ))}
       </div>
 
-      {/* Order Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <StatSkeleton key={i} />
-        ))}
-      </div>
 
       {/* Metric Panels */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

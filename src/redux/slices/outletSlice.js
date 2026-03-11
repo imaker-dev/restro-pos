@@ -41,6 +41,20 @@ export const hardDeleteOutlet = createAsyncThunk(
     return res.data;
   },
 );
+export const fetchOutletPrintLogo = createAsyncThunk(
+  "/fetch/outlet/print-logo",
+  async (outletId) => {
+    const res = await OutletServices.getOutletPrintLogoApi(outletId);
+    return res.data;
+  },
+);
+export const updateOutletPrintLogo = createAsyncThunk(
+  "/update/outlet/print-logo",
+  async ({outletId,values}) => {
+    const res = await OutletServices.updateOutletPrintLogoApi(outletId,values);
+    return res.data;
+  },
+);
 
 const outletSlice = createSlice({
   name: "outlet",
@@ -54,6 +68,9 @@ const outletSlice = createSlice({
     isOpeningDeletePreview: false,
     outletPreview: null,
     isDeletingOutlet: false,
+    isFetchingOutletPrintLogo:false,
+    outletPrintLogo:null,
+    isUpdatingOutletPrintLogo:false,
   },
   reducers: {
     resetOutletPreview: (state) => {
@@ -127,7 +144,29 @@ const outletSlice = createSlice({
       .addCase(hardDeleteOutlet.rejected, (state, action) => {
         state.isDeletingOutlet = false;
         toast.error(action.error.message);
-      });
+      })
+      .addCase(fetchOutletPrintLogo.pending, (state) => {
+        state.isFetchingOutletPrintLogo = true;
+      })
+      .addCase(fetchOutletPrintLogo.fulfilled, (state, action) => {
+        state.isFetchingOutletPrintLogo = false;
+        state.outletPrintLogo = action.payload.data;
+      })
+      .addCase(fetchOutletPrintLogo.rejected, (state, action) => {
+        state.isFetchingOutletPrintLogo = false;
+        toast.error(action.error.message);
+      })
+      .addCase(updateOutletPrintLogo.pending, (state) => {
+        state.isUpdatingOutletPrintLogo = true;
+      })
+      .addCase(updateOutletPrintLogo.fulfilled, (state, action) => {
+        state.isUpdatingOutletPrintLogo = false;
+        toast.success(action.payload.message);
+      })
+      .addCase(updateOutletPrintLogo.rejected, (state, action) => {
+        state.isUpdatingOutletPrintLogo = false;
+        toast.error(action.error.message);
+      })
   },
 });
 

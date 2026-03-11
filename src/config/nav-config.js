@@ -28,6 +28,7 @@ import {
   Clock,
   CalendarCheck,
   LayoutGrid,
+  Image,
 } from "lucide-react";
 
 import { ROLES } from "../constants";
@@ -173,6 +174,12 @@ export const navConfig = [
         path: "/outlets",
         roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN],
       },
+      {
+      name: "Outlet Logo",
+      path: "/outlet-logo",
+      icon:Image,
+      roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN],
+    },
       {
         name: "Users & Staff",
         icon: Users,

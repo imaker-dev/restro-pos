@@ -5,7 +5,7 @@ import Cropper from "react-easy-crop";
 import Api from "../redux/api.js";
 import ModalBasic from "./ModalBasic.jsx";
 import { getFullFileUrl } from "../utils/fileUrl.js";
-
+import { formatFileSize } from "../utils/formatFileSize.js";
 
 const DragDropUploader = ({
   value = [],
@@ -254,7 +254,7 @@ const DragDropUploader = ({
         const firstRejection = rejectedFiles[0];
         if (firstRejection.errors[0].code === "file-too-large") {
           setError(
-            `File is too large. Maximum size is ${maxSize / (1024 * 1024)}MB`,
+            `File is too large. Maximum size is ${formatFileSize(maxSize)}`,
           );
         } else if (firstRejection.errors[0].code === "file-invalid-type") {
           setError(`File type not supported. Accepted types: ${accept}`);
@@ -282,11 +282,17 @@ const DragDropUploader = ({
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     multiple,
-    accept: accept === "*/*" ? undefined : { [accept]: [] },
+    // accept: accept === "*/*" ? undefined : { [accept]: [] },
+    accept:
+      accept === "*/*"
+        ? undefined
+        : accept.split(",").reduce((acc, type) => {
+            acc[type.trim()] = [];
+            return acc;
+          }, {}),
     maxSize,
     maxFiles: multiple ? maxFiles : 1,
   });
-
 
   // Crop an existing file from the preview
   const cropExistingFile = (file, index) => {
@@ -351,14 +357,14 @@ const DragDropUploader = ({
 
           <div className="mt-4 flex gap-3 justify-end">
             <button
-            type="button"
+              type="button"
               onClick={cancelCrop}
               className="btn border border-gray-300 text-gray-700 hover:bg-gray-50 "
             >
               Cancel
             </button>
             <button
-            type="button"
+              type="button"
               onClick={applyCrop}
               className="btn bg-primary-500 text-white hover:bg-primary-600 "
             >
@@ -408,7 +414,7 @@ const DragDropUploader = ({
             </p>
             <p className={`${config.info} text-gray-400 mt-2`}>
               {accept.includes("image") ? "Images only" : "All files"} • Max{" "}
-              {maxSize / (1024 * 1024)}MB •{" "}
+              {formatFileSize(maxSize)} •{" "}
               {multiple ? `Up to ${maxFiles} files` : "Single file"}
               {enableCrop && accept.includes("image") && " • Crop available"}
             </p>
@@ -444,9 +450,11 @@ const DragDropUploader = ({
               ? /\.(jpg|jpeg|png|gif|webp)$/i.test(file)
               : file.type?.startsWith("image/");
 
-
-
-            const fileUrl = getFullFileUrl(file);
+            // const fileUrl = getFullFileUrl(file);
+            const fileUrl =
+              typeof file === "string"
+                ? getFullFileUrl(file)
+                : URL.createObjectURL(file);
             const fileName = isString ? "Uploaded File" : file.name;
 
             // Only show crop button for local File objects (not strings)

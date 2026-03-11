@@ -34,7 +34,7 @@ export default function Page() {
     dispatch(fetchAllDahboardStats({ outletId, dateRange }));
 }, [dateRange,outletId]);
 
-  const { dahbordStats } = useSelector((state) => state.dashboard);
+  const { dahbordStats,isfetchingDashboardStats } = useSelector((state) => state.dashboard);
 
   const { sales, activeTables, pendingKots, paymentBreakdown } =
     dahbordStats || {};
@@ -114,6 +114,7 @@ export default function Page() {
             color={stat.color}
             variant="v1"
             mode="solid"
+            loading={isfetchingDashboardStats}
           />
         ))}
       </div>
