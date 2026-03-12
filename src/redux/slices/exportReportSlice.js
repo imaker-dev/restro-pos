@@ -202,6 +202,17 @@ export const exportOrdersReport = createAsyncThunk(
     return res.data;
   },
 );
+export const exportDueReport = createAsyncThunk(
+  "/export/due/report",
+  async ({
+    outletId,
+    dateRange,
+    searchTerm
+  }) => {
+    const res = await ExportServices.exportDueReportApi(outletId, dateRange,searchTerm);
+    return res.data;
+  },
+);
 
 /* ───────────── SLICE ───────────── */
 
@@ -227,6 +238,7 @@ const exportReportSlice = createSlice({
     isExportingDayEndSummary: false,
     isExportingDayEndSummaryDetails: false,
     isExportingOrdersReport: false,
+    isExportingDueReport:false,
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -463,7 +475,18 @@ const exportReportSlice = createSlice({
       .addCase(exportOrdersReport.rejected, (state, action) => {
         state.isExportingOrdersReport = false;
         toast.error(action.error.message);
-      });
+      })
+      .addCase(exportDueReport.pending, (state) => {
+        state.isExportingDueReport = true;
+      })
+      .addCase(exportDueReport.fulfilled, (state) => {
+        state.isExportingDueReport = false;
+        toast.success("Due report exported successfully");
+      })
+      .addCase(exportDueReport.rejected, (state, action) => {
+        state.isExportingDueReport = false;
+        toast.error(action.error.message);
+      })
   },
 });
 

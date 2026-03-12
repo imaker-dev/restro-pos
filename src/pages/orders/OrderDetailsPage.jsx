@@ -659,7 +659,7 @@ const OrderDetailsPage = () => {
             {num(data.balanceDue) > 0 && (
               <div className="text-right">
                 <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-1">
-                  Balance
+                  Due
                 </p>
                 <p className="text-base font-bold text-red-400 tabular-nums">
                   {formatNumber(data.balanceDue, true)}

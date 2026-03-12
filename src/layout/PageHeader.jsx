@@ -128,10 +128,11 @@ const PageHeader = ({
                   <button
                     key={index}
                     type="button"
+                    title={isDisabled ? action.disabledTitle || "Action unavailable" : ""}
                     onClick={action.onClick}
                     disabled={isDisabled}
                     className={`btn lg:btn-lg ${variantClass} flex items-center ${
-                      isDisabled ? "opacity-70 cursor-not-allowed" : ""
+                      isDisabled ? "opacity-70 !cursor-not-allowed" : ""
                     }`}
                   >
                     {content}

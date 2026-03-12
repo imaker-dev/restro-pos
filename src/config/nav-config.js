@@ -29,6 +29,7 @@ import {
   CalendarCheck,
   LayoutGrid,
   Image,
+  BadgeIndianRupee,
 } from "lucide-react";
 
 import { ROLES } from "../constants";
@@ -120,6 +121,12 @@ export const navConfig = [
             name: "Section Sales",
             path: "/section-sales",
             icon: Layers,
+            roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
+          },
+          {
+            name: "Due Report",
+            path: "/due-report",
+            icon: BadgeIndianRupee,
             roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
           },
           {

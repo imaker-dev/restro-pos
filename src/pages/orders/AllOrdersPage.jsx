@@ -230,6 +230,7 @@ const AllOrdersPage = () => {
             color={card.color}
             icon={card.icon}
             variant="v9"
+            loading={loading}
           />
         ))}
       </div>

@@ -36,16 +36,22 @@ export const getOrderTableConfig = (navigate) => {
 
     {
       key: "table",
-      label: "Table",
+      label: "Table / Location",
       sortable: true,
       render: (row) => {
+        if (row.orderType !== "dine_in") {
+          return (
+            <div className="text-xs text-slate-500 italic">{row.orderType}</div>
+          );
+        }
+
         const table = row.tableNumber || row.tableName || "—";
         const location = [row.floorName, row.sectionName]
           .filter(Boolean)
           .join(" / ");
 
         return (
-          <div className="leading-tight max-w-[130px]">
+          <div className="leading-tight max-w-[150px]">
             <div className="text-slate-700 font-medium">{table}</div>
 
             <div
@@ -57,6 +63,23 @@ export const getOrderTableConfig = (navigate) => {
           </div>
         );
       },
+    },
+
+    {
+      key: "customer",
+      label: "Customer",
+      sortable: false,
+      render: (row) => (
+        <div className="leading-tight max-w-[160px]">
+          <div className="text-slate-700 font-medium">
+            {row.customerName || "Walk-in"}
+          </div>
+
+          <div className="text-xs text-slate-500">
+            {row.customerPhone || "—"}
+          </div>
+        </div>
+      ),
     },
 
     {
@@ -72,7 +95,6 @@ export const getOrderTableConfig = (navigate) => {
       sortable: true,
       render: (row) => <OrderBadge type="payment" value={row.paymentStatus} />,
     },
-
     {
       key: "amount",
       label: "Amount",
@@ -80,12 +102,18 @@ export const getOrderTableConfig = (navigate) => {
       render: (row) => (
         <div className="leading-tight max-w-[140px]">
           <div className="text-slate-700 font-semibold">
-            {formatNumber(row.totalAmount, true)}
+            {formatNumber(row.totalAmount || 0, true)}
           </div>
 
           <div className="text-xs text-green-600 font-medium">
-            Paid {formatNumber(row.paidAmount, true)}
+            Paid {formatNumber(row.paidAmount || 0, true)}
           </div>
+
+          {row.totalAmount > row.paidAmount && (
+            <div className="text-xs text-orange-600">
+              Due {formatNumber(row.totalAmount - row.paidAmount, true)}
+            </div>
+          )}
         </div>
       ),
     },

@@ -54,6 +54,7 @@ import RunningTablesPage from "../pages/reports/RunningTablesPage";
 import DayEndSummaryDetailsPage from "../pages/reports/DayEndSummaryDetailsPage";
 import TaxReportDetailsPage from "../pages/reports/TaxReportDetailsPage";
 import OutletLogoPage from "../pages/outlets/OutletLogoPage";
+import DueReportPage from "../pages/reports/DueReportPage";
 
 const routeConfig = [
   // { path: "/", element: Dashboard, roles: [ROLES.SUPER_ADMIN] },
@@ -84,6 +85,7 @@ const routeConfig = [
   { path: "/service-type-breakdown", element: ServiceTypeBreakdownReportPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
   { path: "/shift-history", element: ShiftHistoryPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
   { path: "/shift-history/details", element: ShiftHistoryDetailsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
+  { path: "/due-report", element: DueReportPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
   { path: "/cancellation-report", element: CancellationReport, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
   
   { path: "/running-orders", element: RunningOrdersPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },

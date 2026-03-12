@@ -117,6 +117,13 @@ export const fetchCancellationReport = createAsyncThunk(
     return res.data;
   },
 );
+export const fetchDueReport = createAsyncThunk(
+  "/fetch/due/report",
+  async ({outletId,dateRange,page,limit,search}) => {
+    const res = await ReportServices.getDueReportApi(outletId,dateRange,page,limit,search);
+    return res.data;
+  },
+);
 
 const reportSlice = createSlice({
   name: "report",
@@ -159,7 +166,8 @@ const reportSlice = createSlice({
     isFetchingCancellationReport:false,
     cancellationReport:null,
 
-
+    isFetchingDueReport:false,
+    dueReport:null,
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -316,6 +324,17 @@ const reportSlice = createSlice({
       })
       .addCase(fetchCancellationReport.rejected, (state, action) => {
         state.isFetchingCancellationReport = false;
+        toast.error(action.error.message);
+      })
+      .addCase(fetchDueReport.pending, (state) => {
+        state.isFetchingDueReport = true;
+      })
+      .addCase(fetchDueReport.fulfilled, (state, action) => {
+        state.isFetchingDueReport = false;
+        state.dueReport = action.payload;
+      })
+      .addCase(fetchDueReport.rejected, (state, action) => {
+        state.isFetchingDueReport = false;
         toast.error(action.error.message);
       })
   },
