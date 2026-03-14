@@ -19,6 +19,14 @@ import {
   Tag,
   Download,
   RotateCcw,
+  ReceiptIndianRupee,
+  CheckCircle,
+  AlertCircle,
+  Utensils,
+  Package,
+  Truck,
+  FileMinus,
+  Gift,
 } from "lucide-react";
 import { formatNumber, num } from "../../utils/numberFormatter";
 import StatCard from "../../components/StatCard";
@@ -61,10 +69,11 @@ const DailySalesReportPage = () => {
   const totalColl = num(summary?.total_collection);
 
   const stats = [
+    // Sales Overview
     {
       label: "Gross Sales",
       value: formatNumber(summary?.gross_sales, true),
-      sub: "Before discounts",
+      sub: "Before discounts & tax",
       icon: IndianRupee,
       color: "slate",
       dark: true,
@@ -77,44 +86,103 @@ const DailySalesReportPage = () => {
       color: "green",
     },
     {
-      label: "Total Discount",
+      label: "Discount Given",
       value: formatNumber(summary?.discount_amount, true),
-      sub: "Savings given",
+      sub: "Total discounts",
       icon: Tag,
       color: "orange",
     },
     {
-      label: "Total Tax",
+      label: "Tax Collected",
       value: formatNumber(summary?.tax_amount, true),
-      sub: "Tax collected",
+      sub: "GST / tax amount",
       icon: BarChart2,
       color: "blue",
     },
+    // {
+    //   label: "Service Charge",
+    //   value: formatNumber(summary?.service_charge, true),
+    //   sub: "Additional charges",
+    //   icon: ReceiptIndianRupee,
+    //   color: "purple",
+    // },
+
+    // Payments
+    {
+      label: "Total Collection",
+      value: formatNumber(summary?.total_collection, true),
+      sub: "Total received",
+      icon: Wallet,
+      color: "green",
+    },
+    {
+      label: "Paid Amount",
+      value: formatNumber(summary?.paid_amount, true),
+      sub: "Payments completed",
+      icon: CheckCircle,
+      color: "green",
+    },
+    {
+      label: "Due Amount",
+      value: formatNumber(summary?.due_amount, true),
+      sub: "Pending payments",
+      icon: AlertCircle,
+      color: "red",
+    },
+
+    // Orders
     {
       label: "Total Orders",
       value: formatNumber(summary?.total_orders),
-      sub: formatNumber(summary?.cancelled_orders) + " cancelled",
+      sub: `${formatNumber(summary?.cancelled_orders)} cancelled`,
       icon: ShoppingBag,
       color: "slate",
     },
+
+    // Non Chargeable
+    {
+      label: "NC Orders",
+      value: formatNumber(summary?.nc_orders),
+      sub: "Non chargeable orders",
+      icon: FileMinus,
+      color: "orange",
+    },
+    {
+      label: "NC Amount",
+      value: formatNumber(summary?.nc_amount, true),
+      sub: "Complimentary value",
+      icon: Gift,
+      color: "orange",
+    },
+
+    // Guests
     {
       label: "Total Guests",
       value: formatNumber(summary?.total_guests),
-      sub: "Covers served",
+      sub: "Customers served",
       icon: Users,
       color: "purple",
     },
+
+    // Performance
     {
-      label: "Avg Order",
+      label: "Avg Order Value",
       value: formatNumber(summary?.average_order_value, true),
-      sub: "Per order value",
+      sub: "Per order",
       icon: TrendingUp,
       color: "green",
     },
     {
-      label: "Avg Daily",
+      label: "Avg Guest Spend",
+      value: formatNumber(summary?.average_guest_spend, true),
+      sub: "Per customer",
+      icon: Users,
+      color: "blue",
+    },
+    {
+      label: "Avg Daily Sales",
       value: formatNumber(summary?.average_daily_sales, true),
-      sub: "Over " + formatNumber(summary?.total_days) + " days",
+      sub: `Over ${formatNumber(summary?.total_days)} days`,
       icon: CalendarDays,
       color: "blue",
     },
@@ -173,7 +241,7 @@ const DailySalesReportPage = () => {
         actions={actions}
       />
 
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
         {stats.map((stat, i) => (
           <StatCard
             key={i}
@@ -200,33 +268,42 @@ const DailySalesReportPage = () => {
             </span>
           }
         >
-          <PayRow
-            type="cash"
-            amount={summary?.cash_collection}
-            total={totalColl}
-          />
-          <PayRow
-            type="card"
-            amount={summary?.card_collection}
-            total={totalColl}
-          />
-          <PayRow
-            type="upi"
-            amount={summary?.upi_collection}
-            total={totalColl}
-          />
-          <PayRow
-            type="wallet"
-            amount={summary?.wallet_collection}
-            total={totalColl}
-          />
-          <PayRow
-            type="credit"
-            amount={summary?.credit_collection}
-            total={totalColl}
-          />
+          {totalColl ? (
+            <>
+              <PayRow
+                type="cash"
+                amount={summary?.cash_collection}
+                total={totalColl}
+              />
+              <PayRow
+                type="card"
+                amount={summary?.card_collection}
+                total={totalColl}
+              />
+              <PayRow
+                type="upi"
+                amount={summary?.upi_collection}
+                total={totalColl}
+              />
+              <PayRow
+                type="wallet"
+                amount={summary?.wallet_collection}
+                total={totalColl}
+              />
+              <PayRow
+                type="credit"
+                amount={summary?.credit_collection}
+                total={totalColl}
+              />
+            </>
+          ) : (
+            <div className="text-sm text-slate-400 text-center py-6">
+              No collection data found
+            </div>
+          )}
         </MetricPanel>
 
+        {/* Orders by Type */}
         <MetricPanel
           icon={ShoppingBag}
           title="Orders by Type"
@@ -236,29 +313,37 @@ const DailySalesReportPage = () => {
             </span>
           }
         >
-          <OrderTypeBar
-            type="dine_in"
-            value={summary?.dine_in_orders}
-            total={summary?.total_orders}
-          />
+          {summary?.total_orders ? (
+            <>
+              <OrderTypeBar
+                type="dine_in"
+                value={summary?.dine_in_orders}
+                total={summary?.total_orders}
+              />
 
-          <OrderTypeBar
-            type="takeaway"
-            value={summary?.takeaway_orders}
-            total={summary?.total_orders}
-          />
+              <OrderTypeBar
+                type="takeaway"
+                value={summary?.takeaway_orders}
+                total={summary?.total_orders}
+              />
 
-          <OrderTypeBar
-            type="delivery"
-            value={summary?.delivery_orders}
-            total={summary?.total_orders}
-          />
+              <OrderTypeBar
+                type="delivery"
+                value={summary?.delivery_orders}
+                total={summary?.total_orders}
+              />
 
-          <OrderTypeBar
-            type="cancelled"
-            value={summary?.cancelled_orders}
-            total={summary?.total_orders}
-          />
+              <OrderTypeBar
+                type="cancelled"
+                value={summary?.cancelled_orders}
+                total={summary?.total_orders}
+              />
+            </>
+          ) : (
+            <div className="text-sm text-slate-400 text-center py-6">
+              No order data found
+            </div>
+          )}
         </MetricPanel>
       </div>
 

@@ -11,6 +11,7 @@ import {
   Download,
   Tag,
   ReceiptIndianRupee,
+  RotateCcw,
 } from "lucide-react";
 import { formatNumber } from "../../utils/numberFormatter";
 import ServiceTypeBreakdownReportSkeleton from "../../partial/report/ServiceTypeBreakdownReportSkeleton";
@@ -112,10 +113,13 @@ const ServiceTypeBreakdownReportPage = () => {
 
   const [dateRange, setDateRange] = useState();
 
+  const fetchReport = () => {
+    dispatch(fetchServiceTypeBreakdownReport({ outletId, dateRange }));
+  };
+
   useEffect(() => {
     if (!outletId || !dateRange?.startDate || !dateRange?.endDate) return;
-
-    dispatch(fetchServiceTypeBreakdownReport({ outletId, dateRange }));
+    fetchReport();
   }, [outletId, dateRange]);
 
   const summaryCards = [
@@ -181,6 +185,14 @@ const ServiceTypeBreakdownReportPage = () => {
       onClick: () => handleExportServiceTypeBreakdownReport(),
       loading: isExportingServiceTypeBreakdownReport,
       loadingText: "Exporting...",
+    },
+    {
+      label: "Refresh",
+      type: "refresh",
+      icon: RotateCcw,
+      onClick: fetchReport,
+      loading: isFetchingServiceTypeBreakdownReport,
+      loadingText: "Refreshing...",
     },
   ];
 

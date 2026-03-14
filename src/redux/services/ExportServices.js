@@ -317,7 +317,7 @@ export default false
           responseType: "blob",
         });
       },
-      
+
       exportDueReportApi: (outletId, dateRange, searchTerm) => {
         const params = new URLSearchParams();
 
@@ -337,6 +337,25 @@ export default false
 
         return Api.get(
           `/orders/reports/${outletId}/due/export${query ? `?${query}` : ""}`,
+          { responseType: "blob" },
+        );
+      },
+
+      exportNcReportApi: (outletId, dateRange) => {
+        const params = new URLSearchParams();
+
+        if (dateRange?.startDate) {
+          params.append("startDate", dateRange.startDate);
+        }
+
+        if (dateRange?.endDate) {
+          params.append("endDate", dateRange.endDate);
+        }
+
+        const query = params.toString();
+
+        return Api.get(
+          `/orders/reports/${outletId}/nc/export${query ? `?${query}` : ""}`,
           { responseType: "blob" },
         );
       },

@@ -10,6 +10,7 @@ import {
   IndianRupee,
   Layers,
   Package,
+  RotateCcw,
   Tag,
   TrendingUp,
 } from "lucide-react";
@@ -34,49 +35,73 @@ const CategorySalesReportPage = () => {
     (state) => state.exportReport,
   );
 
+  const fetchReport = () => {
+    dispatch(fetchCategorySalesReport({ outletId, dateRange }));
+  };
+
   useEffect(() => {
     if (!outletId || !dateRange?.startDate || !dateRange?.endDate) return;
-
-    dispatch(fetchCategorySalesReport({ outletId, dateRange }));
+    fetchReport();
   }, [outletId, dateRange]);
 
-  const stats = [
-    {
-      title: "Gross Revenue",
-      value: formatNumber(summary?.gross_revenue, true),
-      subtitle: "Before discounts",
-      icon: IndianRupee,
-      color: "green",
-    },
-    {
-      title: "Net Revenue",
-      value: formatNumber(summary?.net_revenue, true),
-      subtitle: "Final collected",
-      icon: TrendingUp,
-      color: "blue",
-    },
-    {
-      title: "Total Categories",
-      value: summary?.total_categories,
-      subtitle: "Active categories",
-      icon: Layers,
-      color: "purple",
-    },
-    {
-      title: "Total Quantity",
-      value: summary?.total_quantity,
-      subtitle: "Units sold",
-      icon: Package,
-      color: "amber",
-    },
-    {
-      title: "Discount",
-      value: formatNumber(summary?.discount_amount, true),
-      subtitle: "Total discount",
-      icon: Tag,
-      color: "rose",
-    },
-  ];
+const stats = [
+  {
+    title: "Gross Revenue",
+    value: formatNumber(summary?.gross_revenue, true),
+    subtitle: "Before discounts",
+    icon: IndianRupee,
+    color: "green",
+  },
+  {
+    title: "Net Revenue",
+    value: formatNumber(summary?.net_revenue, true),
+    subtitle: "After discounts",
+    icon: TrendingUp,
+    color: "blue",
+  },
+  {
+    title: "Paid Amount",
+    value: formatNumber(summary?.paid_amount, true),
+    subtitle: "Amount received",
+    icon: IndianRupee,
+    color: "emerald",
+  },
+  {
+    title: "Due Amount",
+    value: formatNumber(summary?.due_amount, true),
+    subtitle: "Pending payments",
+    icon: IndianRupee,
+    color: "red",
+  },
+  {
+    title: "NC Amount",
+    value: formatNumber(summary?.nc_amount, true),
+    subtitle: "Non-chargeable items",
+    icon: Tag,
+    color: "gray",
+  },
+  {
+    title: "Total Categories",
+    value: summary?.total_categories,
+    subtitle: "Active categories",
+    icon: Layers,
+    color: "purple",
+  },
+  {
+    title: "Total Quantity",
+    value: summary?.total_quantity,
+    subtitle: "Units sold",
+    icon: Package,
+    color: "amber",
+  },
+  {
+    title: "Discount",
+    value: formatNumber(summary?.discount_amount, true),
+    subtitle: "Total discount given",
+    icon: Tag,
+    color: "rose",
+  },
+];
 
   const columns = [
     {
@@ -179,6 +204,14 @@ const CategorySalesReportPage = () => {
       loading: isExportingCategorySalesReport,
       loadingText: "Exporting...",
     },
+    {
+      label: "Refresh",
+      type: "refresh",
+      icon: RotateCcw,
+      onClick: fetchReport,
+      loading: isFetchingCategorySalesReport,
+      loadingText: "Refreshing...",
+    },
   ];
 
   return (
@@ -197,7 +230,7 @@ const CategorySalesReportPage = () => {
           actions={actions}
         />
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
         {stats?.map((stat, index) => (
           <StatCard
             key={index}

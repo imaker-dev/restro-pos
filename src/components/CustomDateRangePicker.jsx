@@ -5,16 +5,8 @@ import "react-date-range/dist/theme/default.css";
 import "../css/additional-styles/date-range-picker.css"; // Additional custom styles
 import { Calendar, X } from "lucide-react";
 import { formatDate } from "../utils/dateFormatter";
+import { DEFAULT_DATE_RANGE, PREDEFINED_RANGES } from "../constants";
 
-const PREDEFINED_RANGES = [
-  "Today",
-  "Yesterday",
-  "Last 7 Days",
-  "Last 30 Days",
-  "This Month",
-  "Last Month",
-  "Custom Range",
-];
 
 // ---------- Helpers ----------
 const startOfDay = (d) => new Date(new Date(d).setHours(0, 0, 0, 0));
@@ -61,7 +53,7 @@ export default function CustomDateRangePicker({
   value,
   // placeholder = "Select date range",
   placeholder = "Select date range to filter",
-  defaultRange = "Last 7 Days", // New prop for prefilled range
+  defaultRange = DEFAULT_DATE_RANGE, // New prop for prefilled range
   className = "",
 }) {
   const containerRef = useRef(null);

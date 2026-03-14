@@ -4,67 +4,52 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { Loader2 } from "lucide-react";
 import { InputField } from "../../components/fields/InputField";
-import { CheckboxField } from "../../components/fields/CheckboxField";
-import DragDropUploader from "../../components/DragDropUploader";
-import { SelectField } from "../../components/fields/SelectField";
-import { SERVICE_TYPES } from "../../constants";
 import InfoCard from "../../components/InfoCard";
 import ToggleField from "../../components/fields/ToggleField";
 
 const validationSchema = Yup.object({
   name: Yup.string()
     .trim()
-    .required("Category name is required")
+    .required("Reason name is required")
     .min(2, "Too short")
     .max(50, "Too long"),
 
-  description: Yup.string().trim().max(200, "Too long"),
+  description: Yup.string()
+    .trim()
+    .required("Description is required")
+    .min(5, "Too short")
+    .max(200, "Description too long"),
 
-  serviceType: Yup.string()
-    .oneOf(Object.values(SERVICE_TYPES))
-    .required("Service type is required"),
-  imageUrl: Yup.mixed().nullable(),
   isActive: Yup.boolean(),
 });
 
-const CategoryModal = ({
+const AddNcReasonModal = ({
   isOpen,
   onClose,
   onSubmit,
-  category,
-  outletId,
+  reason,
   loading = false,
 }) => {
-  const isEditMode = !!category;
+  const isEditMode = !!reason;
 
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
-      outletId: category?.outlet_id || outletId || "",
-      name: category?.name || "",
-      description: category?.description || "",
-      serviceType: category?.service_type || SERVICE_TYPES.BOTH,
-      imageUrl: category?.image_url || "",
-      isActive: category ? Boolean(category.is_active) : true,
+      name: reason?.name || "",
+      description: reason?.description || "",
+      isActive: reason ? Boolean(reason.isActive) : true,
     },
     validationSchema,
     onSubmit: async (values, { resetForm }) => {
-      const payload = {
-        ...values,
-        imageUrl: Array.isArray(values.imageUrl)
-          ? values.imageUrl[0]
-          : values.imageUrl,
-      };
-
       if (isEditMode) {
         await onSubmit({
-          id: category.id,
-          values: payload,
+          id: reason.id,
+          values,
           resetForm,
         });
       } else {
         await onSubmit({
-          values: payload,
+          values,
           resetForm,
         });
       }
@@ -73,8 +58,8 @@ const CategoryModal = ({
 
   return (
     <ModalBasic
-      id="category-modal"
-      title={isEditMode ? "Update Category" : "Add Category"}
+      id="nc-reason-modal"
+      title={isEditMode ? "Update NC Reason" : "Add NC Reason"}
       isOpen={isOpen}
       onClose={onClose}
     >
@@ -83,12 +68,12 @@ const CategoryModal = ({
         autoComplete="off"
         className="p-4 space-y-4"
       >
-        {/* Category Name */}
+        {/* Reason Name */}
         <InputField
-          label="Category Name"
+          label="Reason Name"
           name="name"
           required
-          placeholder="Enter category name"
+          placeholder="Example: VIP Guest"
           value={formik.values.name}
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
@@ -100,7 +85,8 @@ const CategoryModal = ({
         <InputField
           label="Description"
           name="description"
-          placeholder="Enter description"
+          required
+          placeholder="Example: Complimentary for VIP guests"
           value={formik.values.description}
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
@@ -108,52 +94,22 @@ const CategoryModal = ({
           autoComplete="off"
         />
 
-        <SelectField
-          label="Service Type"
-          name="serviceType"
-          required
-          value={formik.values.serviceType}
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-          error={formik.touched.serviceType && formik.errors.serviceType}
-          options={[
-            { label: "Restaurant", value: SERVICE_TYPES.RESTAURANT },
-            { label: "Bar", value: SERVICE_TYPES.BAR },
-            { label: "Both", value: SERVICE_TYPES.BOTH },
-          ]}
-        />
-
-        {/* Image Upload */}
-        {/* <DragDropUploader
-          value={formik.values.imageUrl}
-          onChange={(files) => formik.setFieldValue("imageUrl", files)}
-          multiple={false}
-          accept="image/*"
-          maxFiles={1}
-          enableCrop={true}
-          aspectRatio={1}
-          uploadToServer={true}
-          size="sm"
-        /> */}
-
-        {/* Category Status */}
+        {/* Active Toggle */}
         <ToggleField
-          label="Enable Category"
-          description="Disabled categories will not appear in the menu for ordering."
+          label="Enable Reason"
+          description="Disable to hide this reason from POS when applying No Charge."
           checked={formik.values.isActive}
           onChange={(value) => formik.setFieldValue("isActive", value)}
-          activeColorClass="bg-emerald-600"
-          inactiveColorClass="bg-red-600"
         />
 
         <InfoCard
           size="sm"
           type="info"
-          title="Category Scope"
+          title="No Charge Reason"
           description={
             isEditMode
-              ? "Updating this category will modify its name, service type, or visibility within the selected outlet only."
-              : "This category will be created under the selected outlet and will organize menu items within that outlet."
+              ? "Updating this reason will change how it appears when applying No Charge to an order."
+              : "This reason will appear when staff applies a No Charge to an order."
           }
         />
 
@@ -174,6 +130,7 @@ const CategoryModal = ({
             className="btn bg-primary-500 text-white hover:bg-primary-600 disabled:opacity-50 flex items-center gap-2"
           >
             {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+
             {loading
               ? isEditMode
                 ? "Updating..."
@@ -188,4 +145,4 @@ const CategoryModal = ({
   );
 };
 
-export default CategoryModal;
+export default AddNcReasonModal;

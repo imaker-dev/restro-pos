@@ -18,6 +18,7 @@ import {
   BadgeCheck,
   Hash,
   Activity,
+  Wallet,
 } from "lucide-react";
 import { formatDate } from "../../utils/dateFormatter";
 import { formatNumber, num } from "../../utils/numberFormatter";
@@ -26,6 +27,9 @@ import LoadingOverlay from "../../components/LoadingOverlay";
 import SmartTable from "../../components/SmartTable";
 import { getOrderTableConfig } from "../../columns/order.columns";
 import { useNavigate } from "react-router-dom";
+import MetricPanel from "../../partial/report/daily-sales-report/MetricPanel";
+import OrderTypeBar from "../../partial/report/daily-sales-report/OrderTypeBar";
+import PaymentStatusBar from "../../partial/report/daily-sales-report/PaymentStatusBar";
 
 // ─── Card ──────────────────────────────────────────────────
 function Card({ children, className = "", noPad = false }) {
@@ -83,7 +87,6 @@ function InfoRow({ icon: Icon, label, value, last = false, mono = false }) {
   );
 }
 
-
 // ─── MAIN PAGE ─────────────────────────────────────────────
 const CustomerDetailsPage = () => {
   const dispatch = useDispatch();
@@ -101,12 +104,16 @@ const CustomerDetailsPage = () => {
   const {
     customer,
     historyStats: hs,
-    historyBreakdown: hb,
+    historyBreakdown,
     orderHistory = [],
   } = customerDetails || {};
 
-  const { columns, actions } = getOrderTableConfig(navigate);
+  const { byOrderType, byPaymentStatus } = historyBreakdown || {};
 
+  console.log(byOrderType);
+  console.log(byPaymentStatus);
+
+  const { columns, actions } = getOrderTableConfig(navigate);
 
   const orderStats = [
     {
@@ -277,6 +284,62 @@ const CustomerDetailsPage = () => {
             variant="v9"
           />
         ))}
+      </div>
+
+      {/* ── Order & Payment Breakdown ── */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Order Types */}
+        <MetricPanel
+          icon={ShoppingBag}
+          title="Orders by Type"
+          right={
+            <span className="text-[13px] font-black text-slate-900 tabular-nums">
+              {num(hs?.totalOrders)} total
+            </span>
+          }
+        >
+          {byOrderType?.length ? (
+            byOrderType.map((item) => (
+              <OrderTypeBar
+                key={item.orderType}
+                type={item.orderType}
+                value={item.count}
+                total={hs?.totalOrders}
+              />
+            ))
+          ) : (
+            <div className="text-sm text-slate-400 text-center py-6">
+              No order type data
+            </div>
+          )}
+        </MetricPanel>
+
+        {/* Payment Status */}
+        <MetricPanel
+          icon={Wallet}
+          title="Payment Status"
+          right={
+            <span className="text-[13px] font-black text-slate-900 tabular-nums">
+              {formatNumber(hs?.totalSpent, true)}
+            </span>
+          }
+        >
+          {byPaymentStatus?.length ? (
+            byPaymentStatus.map((item) => (
+              <PaymentStatusBar
+                key={item.paymentStatus}
+                status={item.paymentStatus}
+                amount={item.amount}
+                count={item.count}
+                total={hs?.totalSpent}
+              />
+            ))
+          ) : (
+            <div className="text-sm text-slate-400 text-center py-6">
+              No payment data
+            </div>
+          )}
+        </MetricPanel>
       </div>
 
       {/* ══ MAIN GRID ═════════════════════════════════ */}

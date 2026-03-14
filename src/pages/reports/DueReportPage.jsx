@@ -34,7 +34,6 @@ import SearchBar from "../../components/SearchBar";
 import { CustomerDueCard } from "../../partial/report/due-report/CustomerDueCard";
 import CustomerDueCardSkeleton from "../../partial/report/due-report/CustomerDueCardSkeleton";
 
-
 /* ═══════════════════════════════════════════════════════════════════════════
    MAIN PAGE
 ═══════════════════════════════════════════════════════════════════════════ */
@@ -65,7 +64,8 @@ const DueReportPage = () => {
   };
 
   useEffect(() => {
-    if (!outletId) return;
+    if (!outletId || !dateRange?.startDate || !dateRange?.endDate) return;
+
     fetchDue();
   }, [outletId, dateRange, currentPage, itemsPerPage, searchTerm]);
 
@@ -124,7 +124,7 @@ const DueReportPage = () => {
     )}_to_${formatFileDate(dateRange.endDate)}`;
 
     await handleResponse(
-      dispatch(exportDueReport({ outletId, dateRange,searchTerm })),
+      dispatch(exportDueReport({ outletId, dateRange, searchTerm })),
       (res) => {
         downloadBlob({
           data: res.payload,

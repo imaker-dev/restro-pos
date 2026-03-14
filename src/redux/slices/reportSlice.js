@@ -124,6 +124,13 @@ export const fetchDueReport = createAsyncThunk(
     return res.data;
   },
 );
+export const fetchNcReport = createAsyncThunk(
+  "/fetch/nc/report",
+  async ({outletId,dateRange,page,limit,search}) => {
+    const res = await ReportServices.getNcReportApi(outletId,dateRange,page,limit,search);
+    return res.data;
+  },
+);
 
 const reportSlice = createSlice({
   name: "report",
@@ -168,6 +175,9 @@ const reportSlice = createSlice({
 
     isFetchingDueReport:false,
     dueReport:null,
+
+    isFetchingNcReport:false,
+    ncReport:null,
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -335,6 +345,17 @@ const reportSlice = createSlice({
       })
       .addCase(fetchDueReport.rejected, (state, action) => {
         state.isFetchingDueReport = false;
+        toast.error(action.error.message);
+      })
+      .addCase(fetchNcReport.pending, (state) => {
+        state.isFetchingNcReport = true;
+      })
+      .addCase(fetchNcReport.fulfilled, (state, action) => {
+        state.isFetchingNcReport = false;
+        state.ncReport = action.payload.data;
+      })
+      .addCase(fetchNcReport.rejected, (state, action) => {
+        state.isFetchingNcReport = false;
         toast.error(action.error.message);
       })
   },

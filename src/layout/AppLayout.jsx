@@ -33,8 +33,7 @@ function AppLayout({ children }) {
     header: true,
   };
 
-  const currentLayout =
-    layoutRules[location.pathname] || defaultLayout;
+  const currentLayout = layoutRules[location.pathname] || defaultLayout;
 
   let showSidebar = currentLayout.sidebar;
   let showHeader = currentLayout.header;
@@ -97,10 +96,7 @@ function AppLayout({ children }) {
       <div className="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
         {/* -------- HEADER -------- */}
         {showHeader && (
-          <Header
-            sidebarOpen={sidebarOpen}
-            setSidebarOpen={setSidebarOpen}
-          />
+          <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
         )}
 
         {/* -------- MAIN -------- */}

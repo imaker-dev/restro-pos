@@ -12,7 +12,7 @@ import {
   splitTable,
   updateTable,
 } from "../../redux/slices/tableSlice";
-import { Loader2, Plus } from "lucide-react";
+import { Loader2, Plus, RotateCcw } from "lucide-react";
 import PageHeader from "../../layout/PageHeader";
 import SectionModal from "../../partial/section/SectionModal";
 import TableModal from "../../partial/table/TableModal";
@@ -185,9 +185,29 @@ const AllTablesPage = () => {
     // );
   };
 
+  const actions = [
+    {
+      label: "Add Section",
+      type: "primary",
+      icon: Plus,
+      onClick: () => {
+        setSelectedSection(null);
+        setShowSectionModal(true);
+      },
+    },
+    {
+      label: "Refresh",
+      type: "refresh",
+      icon: RotateCcw,
+      onClick: fetchTables,
+      loading: loading,
+      loadingText: "Refreshing...",
+    },
+  ];
+
   return (
     <>
-      <div className="space-y-12">
+      <div className="space-y-8">
         <PageHeader
           title={
             <span className="text-3xl font-extrabold tracking-tight text-slate-900">
@@ -195,17 +215,7 @@ const AllTablesPage = () => {
             </span>
           }
           showBackButton
-          actions={[
-            {
-              label: "Add Section",
-              type: "primary",
-              icon: Plus,
-              onClick: () => {
-                setSelectedSection(null);
-                setShowSectionModal(true);
-              },
-            },
-          ]}
+          actions={actions}
         />
 
         {loading ? (

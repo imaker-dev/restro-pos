@@ -18,6 +18,20 @@ export const FOOD_TYPES = {
   EGG: "egg",
 };
 
+export const DATE_RANGES = {
+  TODAY: "Today",
+  YESTERDAY: "Yesterday",
+  LAST_7_DAYS: "Last 7 Days",
+  LAST_30_DAYS: "Last 30 Days",
+  THIS_MONTH: "This Month",
+  LAST_MONTH: "Last Month",
+  CUSTOM: "Custom Range",
+};
+
+export const PREDEFINED_RANGES = Object.values(DATE_RANGES);
+
+export const DEFAULT_DATE_RANGE = DATE_RANGES.LAST_7_DAYS;
+
 
 export const SECTION_TYPES = {
   DINE_IN: "dine_in",
@@ -43,4 +57,33 @@ export const STATION_TYPES = {
   DESSERT: "dessert",
   MOCKTAIL: "mocktail",
   OTHER: "other",
+};
+
+
+
+// Order statuses
+export const ORDER_STATUSES = {
+  PENDING: "pending",
+  CONFIRMED: "confirmed",
+  SENT_TO_KITCHEN: "sent_to_kitchen",
+  READY: "ready",
+  SERVED: "served",
+  BILLED: "billed",
+  COMPLETED: "completed",
+  CANCELLED: "cancelled",
+};
+
+// Order types
+export const ORDER_TYPES = {
+  DINE_IN: "dine_in",
+  TAKEAWAY: "takeaway",
+  DELIVERY: "delivery",
+};
+
+// Payment statuses
+export const PAYMENT_STATUSES = {
+  COMPLETED: "completed",
+  PENDING: "pending",
+  PARTIAL: "partial",
+  UNPAID: "unpaid",
 };

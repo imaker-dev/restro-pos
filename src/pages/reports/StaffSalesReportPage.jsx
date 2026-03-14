@@ -6,12 +6,16 @@ import CustomDateRangePicker from "../../components/CustomDateRangePicker";
 import SmartTable from "../../components/SmartTable";
 import { formatNumber } from "../../utils/numberFormatter";
 import {
+  Ban,
   Download,
+  Gift,
   IndianRupee,
   Percent,
+  RotateCcw,
   ShoppingBag,
   UserCheck,
   Users,
+  XCircle,
 } from "lucide-react";
 import StatCard from "../../components/StatCard";
 import { formatFileDate } from "../../utils/dateFormatter";
@@ -32,10 +36,12 @@ const StaffSalesReportPage = () => {
 
   const [dateRange, setDateRange] = useState();
 
+  const fetchReport = () => {
+    dispatch(fetchStaffSalesReport({ outletId, dateRange }));
+  };
   useEffect(() => {
     if (!outletId || !dateRange?.startDate || !dateRange?.endDate) return;
-
-    dispatch(fetchStaffSalesReport({ outletId, dateRange }));
+    fetchReport();
   }, [outletId, dateRange]);
 
   const stats = [
@@ -45,6 +51,20 @@ const StaffSalesReportPage = () => {
       subtitle: `${summary?.total_orders} orders`,
       icon: IndianRupee,
       color: "green",
+    },
+    {
+      title: "Paid Amount",
+      value: formatNumber(summary?.paid_amount, true),
+      subtitle: "Payments received",
+      icon: IndianRupee,
+      color: "emerald",
+    },
+    {
+      title: "Due Amount",
+      value: formatNumber(summary?.due_amount, true),
+      subtitle: "Pending payments",
+      icon: IndianRupee,
+      color: "red",
     },
     {
       title: "Total Staff",
@@ -68,11 +88,32 @@ const StaffSalesReportPage = () => {
       color: "amber",
     },
     {
-      title: "Discounts & Cancels",
+      title: "Discounts",
       value: formatNumber(summary?.total_discounts, true),
-      subtitle: `${summary?.cancelled_orders} cancelled`,
+      subtitle: "Total discount given",
       icon: Percent,
       color: "rose",
+    },
+    {
+      title: "Cancelled Orders",
+      value: summary?.cancelled_orders,
+      subtitle: `₹${formatNumber(summary?.cancelled_amount)}`,
+      icon: XCircle,
+      color: "red",
+    },
+    {
+      title: "NC Orders",
+      value: summary?.nc_orders,
+      subtitle: `₹${formatNumber(summary?.nc_amount)}`,
+      icon: Ban,
+      color: "gray",
+    },
+    {
+      title: "Tips Collected",
+      value: formatNumber(summary?.total_tips, true),
+      subtitle: "Customer tips",
+      icon: Gift,
+      color: "yellow",
     },
   ];
 
@@ -180,6 +221,14 @@ const StaffSalesReportPage = () => {
       onClick: () => handleExportStaffSalesReport(),
       loading: isExportingStaffSalesReport,
       loadingText: "Exporting...",
+    },
+    {
+      label: "Refresh",
+      type: "refresh",
+      icon: RotateCcw,
+      onClick: fetchReport,
+      loading: isFetchingStaffSalesReport,
+      loadingText: "Refreshing...",
     },
   ];
 

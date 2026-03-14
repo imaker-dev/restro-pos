@@ -10,6 +10,12 @@ import {
   IndianRupee,
   Eye,
   Download,
+  RotateCcw,
+  AlertCircle,
+  Ban,
+  Wallet,
+  Percent,
+  TrendingUp,
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchDailyEndSummary } from "../../redux/slices/dashboardSlice";
@@ -38,11 +44,13 @@ const DayEndSummaryPage = () => {
 
   const [dateRange, setDateRange] = useState(null);
 
+  const fetchReport = () => {
+    dispatch(fetchDailyEndSummary({ outletId, dateRange }));
+  };
+
   useEffect(() => {
-    if (!outletId) return;
-    if (dateRange) {
-      dispatch(fetchDailyEndSummary({ outletId, dateRange }));
-    }
+    if (!outletId || !dateRange?.startDate || !dateRange?.endDate) return;
+    fetchReport();
   }, [dateRange, outletId, dispatch]);
 
   const safeDivide = (a, b, fixed = 0) => {
@@ -53,34 +61,86 @@ const DayEndSummaryPage = () => {
   const stats = [
     {
       title: "Total Revenue",
-      value: `₹${grandTotal?.totalSales?.toLocaleString() || 0}`,
-      subtitle: `₹${safeDivide(
-        grandTotal?.totalSales,
-        dailyEndSummary?.dayCount,
+      value: formatNumber(grandTotal?.totalSales, true),
+      subtitle: `${formatNumber(
+        safeDivide(grandTotal?.totalSales, dailyEndSummary?.dayCount),
+        true,
       )} / day`,
       icon: IndianRupee,
       color: "green",
     },
     {
+      title: "Gross Sales",
+      value: formatNumber(grandTotal?.grossSales, true),
+      subtitle: "Before discounts & tax",
+      icon: TrendingUp,
+      color: "emerald",
+    },
+
+    {
       title: "Total Orders",
-      value: grandTotal?.totalOrders || 0,
-      subtitle: `${grandTotal?.completedOrders || 0} completed`,
+      value: formatNumber(grandTotal?.totalOrders),
+      subtitle: `${formatNumber(
+        grandTotal?.completedOrders,
+      )} completed • ${formatNumber(grandTotal?.cancelledOrders)} cancelled`,
       icon: ShoppingBag,
       color: "blue",
     },
     {
       title: "Guests Served",
-      value: grandTotal?.totalGuests || 0,
+      value: formatNumber(grandTotal?.totalGuests),
       subtitle: "Customer Footfall",
       icon: Users,
       color: "purple",
     },
+
     {
       title: "Avg Order Value",
-      value: `₹${safeDivide(grandTotal?.totalSales, grandTotal?.totalOrders)}`,
-      subtitle: "Per Transaction",
+      value: formatNumber(
+        safeDivide(grandTotal?.totalSales, grandTotal?.totalOrders),
+        true,
+      ),
+      subtitle: "Per transaction",
       icon: Receipt,
       color: "amber",
+    },
+
+    {
+      title: "Discount Given",
+      value: formatNumber(grandTotal?.totalDiscount, true),
+      subtitle: "Total discounts",
+      icon: Percent,
+      color: "rose",
+    },
+    {
+      title: "Tax Collected",
+      value: formatNumber(grandTotal?.totalTax, true),
+      subtitle: "Total tax amount",
+      icon: Percent,
+      color: "indigo",
+    },
+
+    {
+      title: "Total Collection",
+      value: formatNumber(grandTotal?.totalCollection, true),
+      subtitle: "Payments received",
+      icon: Wallet,
+      color: "green",
+    },
+    {
+      title: "Due Amount",
+      value: formatNumber(grandTotal?.dueAmount, true),
+      subtitle: "Pending payments",
+      icon: AlertCircle,
+      color: "red",
+    },
+
+    {
+      title: "NC Orders",
+      value: formatNumber(grandTotal?.ncOrders),
+      subtitle: formatNumber(grandTotal?.ncAmount, true),
+      icon: Ban,
+      color: "gray",
     },
   ];
 
@@ -162,7 +222,6 @@ const DayEndSummaryPage = () => {
         <span className="text-slate-700">{row.totalGuests}</span>
       ),
     },
-    
   ];
 
   const rowActions = [
@@ -200,27 +259,35 @@ const DayEndSummaryPage = () => {
       loading: isExportingDayEndSummary,
       loadingText: "Exporting...",
     },
+    {
+      label: "Refresh",
+      type: "refresh",
+      icon: RotateCcw,
+      onClick: fetchReport,
+      loading: isFetchingDailyEndSummary,
+      loadingText: "Refreshing...",
+    },
   ];
 
   return (
     <div className="space-y-6">
       {/* Header */}
-        <PageHeader
-          title={"Day End Summary"}
-          description={`${formatDate(dailyEndSummary?.dateRange?.start, "long")} — 
+      <PageHeader
+        title={"Day End Summary"}
+        description={`${formatDate(dailyEndSummary?.dateRange?.start, "long")} — 
             ${formatDate(dailyEndSummary?.dateRange?.end, "long")} (${dailyEndSummary?.dayCount} days)`}
-            rightContent={        <CustomDateRangePicker
-          value={dateRange}
-          onChange={setDateRange}
-          defaultRange="Last 7 Days"
-        />}
-            actions={actions}
-        />
-
-
+        rightContent={
+          <CustomDateRangePicker
+            value={dateRange}
+            onChange={setDateRange}
+            defaultRange="Last 7 Days"
+          />
+        }
+        actions={actions}
+      />
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
         {stats?.map((stat, index) => (
           <StatCard
             key={index}

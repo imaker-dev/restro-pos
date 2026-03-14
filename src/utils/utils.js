@@ -7,17 +7,15 @@ export function cn(...inputs) {
 
 
 export function formatText(input, fallback = "N/A") {
-  if (!input || typeof input !== "string" || input.trim() === "") {
-    return fallback;
-  }
+  if (typeof input !== "string") return fallback;
 
-  let formatted = input.replace(/[_\-]+/g, " ");
-  formatted = formatted.replace(/([a-z])([A-Z])/g, "$1 $2");
-  formatted = formatted
+  const cleaned = input.trim();
+  if (!cleaned) return fallback;
+
+  return cleaned
+    .replace(/[_\-]+/g, " ")
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .replace(/\s+/g, " ")
     .toLowerCase()
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
-
-  return formatted || fallback;
+    .replace(/\b\w/g, (c) => c.toUpperCase());
 }

@@ -5,7 +5,16 @@ export default false
       message: "You are Offline. Please turn on the internet",
     }
   : {
-      getAllItemsApi: (outletId, search, page, limit,categoryId) => {
+      getAllItemsApi: (
+        outletId,
+        search,
+        page,
+        limit,
+        categoryId,
+        itemType,
+        serviceType,
+        includeInactive,
+      ) => {
         let url = `/menu/items/outlet/${outletId}?page=${page}&limit=${limit}`;
 
         if (search) {
@@ -13,6 +22,16 @@ export default false
         }
         if (categoryId) {
           url += `&categoryId=${categoryId}`;
+        }
+        if (itemType) {
+          url += `&itemType=${itemType}`;
+        }
+        if (serviceType) {
+          url += `&serviceType=${serviceType}`;
+        }
+
+        if (includeInactive !== undefined && includeInactive !== "") {
+          url += `&includeInactive=${includeInactive}`;
         }
 
         return Api.get(url);

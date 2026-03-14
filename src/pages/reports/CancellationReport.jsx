@@ -12,6 +12,7 @@ import {
   Hash,
   IndianRupee,
   Package,
+  RotateCcw,
   TrendingDown,
   User,
   UserCog,
@@ -50,9 +51,13 @@ const CancellationReport = () => {
     summary = {},
   } = cancellationReport || {};
 
+  const fetchReport = () => {
+    dispatch(fetchCancellationReport({ outletId, dateRange }));
+  };
+
   useEffect(() => {
     if (!dateRange?.startDate || !dateRange?.endDate) return;
-    dispatch(fetchCancellationReport({ outletId, dateRange }));
+    fetchReport();
   }, [outletId, dateRange]);
 
   const kpis = [
@@ -137,6 +142,14 @@ const CancellationReport = () => {
       onClick: () => handleExportCancellationReport(),
       loading: isExportingCancellationReport,
       loadingText: "Exporting...",
+    },
+    {
+      label: "Refresh",
+      type: "refresh",
+      icon: RotateCcw,
+      onClick: fetchReport,
+      loading: isFetchingCancellationReport,
+      loadingText: "Refreshing...",
     },
   ];
 

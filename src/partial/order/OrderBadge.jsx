@@ -77,12 +77,12 @@ const CONFIG = {
       dot: "bg-amber-500",
       label: "Pending",
     },
-    partial: {
-      bg: "bg-orange-50",
-      text: "text-orange-700",
-      dot: "bg-orange-500",
-      label: "Partial",
-    },
+  partial: {
+    bg: "bg-blue-50",      // changed
+    text: "text-blue-700",
+    dot: "bg-blue-500",
+    label: "Partial",
+  },
 
     unpaid: {
       // ✅ NEW

@@ -4,30 +4,54 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchAllItems } from "../../redux/slices/itemSlice";
 import { useQueryParams } from "../../hooks/useQueryParams";
 import SmartTable from "../../components/SmartTable";
-import { Edit2, Eye, Plus } from "lucide-react";
+import { Edit2, Eye, Plus, RotateCcw } from "lucide-react";
 import LightboxMedia from "../../components/LightboxMedia";
 import FoodTypeIcon from "../../partial/common/FoodTypeIcon";
 import { useNavigate } from "react-router-dom";
 import StatusBadge from "../../layout/StatusBadge";
 import SearchBar from "../../components/SearchBar";
 import Pagination from "../../components/Pagination";
+import SidebarFilter from "../../components/SidebarFilter";
+
+import { fetchAllCategories } from "../../redux/slices/categorySlice";
+import { SERVICE_TYPES } from "../../constants";
+import { formatText } from "../../utils/utils";
+import { FOOD_TYPE_OPTIONS } from "../../constants/selectOptions";
 
 const AllItemsPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const { outletId } = useSelector((state) => state.auth);
-  const { categoryId } = useQueryParams();
+  const { categoryId: urlCategoryId } = useQueryParams();
+
+  // const [filters, setFilters] = useState({});
+  const [filters, setFilters] = useState(() => ({
+    categoryId: urlCategoryId || "",
+  }));
+
+  useEffect(() => {
+    if (urlCategoryId) {
+      setFilters((prev) => ({
+        ...prev,
+        categoryId: urlCategoryId,
+      }));
+    }
+  }, [urlCategoryId]);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
   const { allItems, loading } = useSelector((state) => state.item);
-
   const { data, pagination } = allItems || {};
+  const { allCategories } = useSelector((state) => state.category);
+  const { data: categoryData } = allCategories || {};
 
   const fetchItems = () => {
+    const { itemType, serviceType, categoryId, includeInactive } =
+      filters || {};
+
     dispatch(
       fetchAllItems({
         outletId,
@@ -35,17 +59,26 @@ const AllItemsPage = () => {
         page: currentPage,
         limit: itemsPerPage,
         categoryId,
+        itemType,
+        serviceType,
+        includeInactive,
       }),
     );
   };
 
   useEffect(() => {
     fetchItems();
-  }, [categoryId, outletId, searchTerm, currentPage, itemsPerPage]);
+  }, [urlCategoryId, outletId, searchTerm, currentPage, itemsPerPage, filters]);
+
+  useEffect(() => {
+    if (!allCategories) {
+      dispatch(fetchAllCategories({ outletId }));
+    }
+  }, [outletId]);
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, categoryId]);
+  }, [searchTerm, urlCategoryId]);
 
   const columns = [
     {
@@ -77,14 +110,14 @@ const AllItemsPage = () => {
             </div>
 
             <span className="text-[11px] text-slate-400 mt-1">
-              SKU: {row.sku}
+              SKU: {row.sku} • {row.has_variants ? "Variants" : "Single"}
             </span>
           </div>
         </div>
       ),
     },
 
-    !categoryId && {
+    {
       key: "category_name",
       label: "Category",
       sortable: true,
@@ -113,7 +146,7 @@ const AllItemsPage = () => {
 
     {
       key: "meta",
-      label: "Details",
+      label: "Station",
       sortable: false,
       render: (row) => (
         <div className="flex flex-col text-sm gap-1">
@@ -127,11 +160,6 @@ const AllItemsPage = () => {
           ) : (
             <span className="text-xs text-slate-400">No kitchen assigned</span>
           )}
-
-          {/* Variants */}
-          <span className="text-xs text-slate-500">
-            Variants: {row.has_variants ? "Yes" : "No"}
-          </span>
         </div>
       ),
     },
@@ -144,20 +172,12 @@ const AllItemsPage = () => {
       render: (row) => (
         <div className="flex flex-col gap-1">
           <div className="w-fit">
-            <StatusBadge
-              value={Number(row.is_available)}
-              trueText="In Stock"
-              falseText="Out of Stock"
-            />
+            <StatusBadge value={Number(row.is_active)} />
           </div>
-
-          {!row.is_active && (
-            <span className="text-xs text-red-500 font-medium">Inactive</span>
-          )}
         </div>
       ),
     },
-  ].filter(Boolean);
+  ];
 
   const rowActions = [
     {
@@ -186,6 +206,58 @@ const AllItemsPage = () => {
       icon: Plus,
       onClick: () => navigate(`/items/bulk-add`),
     },
+    {
+      label: "Refresh",
+      type: "refresh",
+      icon: RotateCcw,
+      onClick: fetchItems,
+      loading: loading,
+      loadingText: "Refreshing...",
+    },
+  ];
+
+  const categoryOptions =
+    categoryData?.map((cat) => ({
+      id: String(cat.id),
+      label: cat.name,
+      value: String(cat.id), // ✅ FIX
+    })) || [];
+
+  const SERVICE_TYPE_OPTIONS = Object.values(SERVICE_TYPES).map((status) => ({
+    value: status,
+    label: formatText(status),
+  }));
+
+  const menuFilterGroups = [
+    {
+      id: "categoryId",
+      title: "Category",
+      type: "radio",
+      options: categoryOptions,
+    },
+    {
+      id: "itemType",
+      title: "Item Type",
+      type: "radio",
+      options: FOOD_TYPE_OPTIONS,
+    },
+
+    {
+      id: "serviceType",
+      title: "Service Type",
+      type: "radio",
+      options: SERVICE_TYPE_OPTIONS,
+    },
+    {
+      id: "includeInactive",
+      title: "Item Status",
+      type: "radio",
+      options: [
+        // { id: "all", label: "All Items", value: "" },
+        { id: "active", label: "Active Only", value: "false" },
+        { id: "inactive", label: "Include Inactive", value: "true" },
+      ],
+    },
   ];
 
   return (
@@ -202,6 +274,11 @@ const AllItemsPage = () => {
                 <SearchBar
                   placeholder="Search items..."
                   onSearch={(value) => setSearchTerm(value)}
+                />
+                <SidebarFilter
+                  filterGroups={menuFilterGroups}
+                  filters={filters}
+                  onApplyFilters={setFilters}
                 />
               </div>
             </div>

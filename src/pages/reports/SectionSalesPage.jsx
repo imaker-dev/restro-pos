@@ -6,6 +6,7 @@ import {
   Download,
   IndianRupee,
   LayoutGrid,
+  RotateCcw,
   ShoppingBag,
   Star,
 } from "lucide-react";
@@ -33,10 +34,13 @@ const SectionSalesPage = () => {
   );
   const { summary, floors } = sectionSalesReport || {};
 
+  const fetchReport = () => {
+    dispatch(fetchSectionSalesReport({ outletId, dateRange }));
+  };
+
   useEffect(() => {
     if (!dateRange?.startDate || !dateRange?.endDate) return;
-
-    dispatch(fetchSectionSalesReport({ outletId, dateRange }));
+    fetchReport();
   }, [outletId, dateRange]);
 
   const totalSales = summary?.total_sales;
@@ -102,6 +106,14 @@ const SectionSalesPage = () => {
       onClick: () => handleExportSectionSalesReport(),
       loading: isExportingSectionSalesReport,
       loadingText: "Exporting...",
+    },
+    {
+      label: "Refresh",
+      type: "refresh",
+      icon: RotateCcw,
+      onClick: fetchReport,
+      loading: isFetchingSectionSalesReport,
+      loadingText: "Refreshing...",
     },
   ];
 

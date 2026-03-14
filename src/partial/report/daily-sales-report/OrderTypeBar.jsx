@@ -1,5 +1,5 @@
 import React from "react";
-import { Utensils, ShoppingBag, Truck, XCircle } from "lucide-react";
+import { Utensils, ShoppingBag, Truck, XCircle, Hash } from "lucide-react";
 import { num } from "../../../utils/numberFormatter";
 
 const ORDER_META = {
@@ -23,15 +23,21 @@ const ORDER_META = {
     color: "#f43f5e",
     label: "Cancelled",
   },
+  other: {
+    icon: Hash,
+    color: "#64748b",
+    label: "Other",
+  },
 };
 
 function OrderTypeBar({ type, value, total }) {
-  if (num(value) === 0) return null;
+  const safeValue = num(value);
+  const safeTotal = num(total);
 
-  const meta = ORDER_META[type];
-  if (!meta) return null;
+  if (safeValue === 0) return null;
 
-  const pct = num(total) > 0 ? (num(value) / num(total)) * 100 : 0;
+  const meta = ORDER_META[type] || ORDER_META.other;
+  const pct = safeTotal > 0 ? (safeValue / safeTotal) * 100 : 0;
   const Icon = meta.icon;
 
   return (
@@ -48,7 +54,7 @@ function OrderTypeBar({ type, value, total }) {
       </div>
 
       {/* Label */}
-      <span className="text-[11px] font-bold text-slate-600 w-16 flex-shrink-0">
+      <span className="text-[11px] font-bold text-slate-600 w-16 flex-shrink-0 capitalize">
         {meta.label}
       </span>
 
@@ -62,7 +68,7 @@ function OrderTypeBar({ type, value, total }) {
 
       {/* Count */}
       <span className="text-[11px] font-black text-slate-700 tabular-nums w-8 text-right">
-        {num(value)}
+        {safeValue}
       </span>
 
       {/* Percent */}

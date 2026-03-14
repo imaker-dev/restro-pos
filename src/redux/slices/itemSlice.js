@@ -2,37 +2,66 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import toast from "react-hot-toast";
 import ItemServies from "../services/ItemServies";
 
-
-export const fetchAllItems = createAsyncThunk("/fetch/all/items", async ({outletId,search,page,limit,categoryId}) => {
-  const res = await ItemServies.getAllItemsApi(outletId,search,page,limit,categoryId);
-  return res.data;
-});
-export const fetchAllItemsByCategory = createAsyncThunk("/fetch/items/category", async (id) => {
-  const res = await ItemServies.getAllItemsByCategoryApi(id);
-  return res.data;
-});
-export const fetchItemsById = createAsyncThunk("/fetch/item/:id", async (id) => {
-  const res = await ItemServies.getItemByIdApi(id);
-  return res.data;
-});
+export const fetchAllItems = createAsyncThunk(
+  "/fetch/all/items",
+  async ({
+    outletId,
+    search,
+    page,
+    limit,
+    categoryId,
+    itemType,
+    serviceType,
+    includeInactive
+  }) => {
+    const res = await ItemServies.getAllItemsApi(
+      outletId,
+      search,
+      page,
+      limit,
+      categoryId,
+      itemType,
+      serviceType,
+      includeInactive
+    );
+    return res.data;
+  },
+);
+export const fetchAllItemsByCategory = createAsyncThunk(
+  "/fetch/items/category",
+  async (id) => {
+    const res = await ItemServies.getAllItemsByCategoryApi(id);
+    return res.data;
+  },
+);
+export const fetchItemsById = createAsyncThunk(
+  "/fetch/item/:id",
+  async (id) => {
+    const res = await ItemServies.getItemByIdApi(id);
+    return res.data;
+  },
+);
 export const createItem = createAsyncThunk("/create/item", async (values) => {
   const res = await ItemServies.createItemApi(values);
   return res.data;
 });
-export const updateItem = createAsyncThunk("/update/item", async ({id,values}) => {
-  const res = await ItemServies.updateItemApi(id,values);
-  return res.data;
-});
+export const updateItem = createAsyncThunk(
+  "/update/item",
+  async ({ id, values }) => {
+    const res = await ItemServies.updateItemApi(id, values);
+    return res.data;
+  },
+);
 
 const itemSlice = createSlice({
   name: "item",
   initialState: {
     loading: false,
     allItems: null,
-    isCreatingItem:false,
-    isUpdatingItem:false,
-    isFetchingItemDetails:false,
-    itemDetails:null,
+    isCreatingItem: false,
+    isUpdatingItem: false,
+    isFetchingItemDetails: false,
+    itemDetails: null,
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -75,7 +104,7 @@ const itemSlice = createSlice({
       })
       .addCase(createItem.fulfilled, (state, action) => {
         state.isCreatingItem = false;
-       toast.success(action.payload.message);
+        toast.success(action.payload.message);
       })
       .addCase(createItem.rejected, (state, action) => {
         state.isCreatingItem = false;
@@ -86,12 +115,12 @@ const itemSlice = createSlice({
       })
       .addCase(updateItem.fulfilled, (state, action) => {
         state.isUpdatingItem = false;
-       toast.success(action.payload.message);
+        toast.success(action.payload.message);
       })
       .addCase(updateItem.rejected, (state, action) => {
         state.isUpdatingItem = false;
         toast.error(action.error.message);
-      })
+      });
   },
 });
 

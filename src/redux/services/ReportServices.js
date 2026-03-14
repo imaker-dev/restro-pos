@@ -180,4 +180,17 @@ export default false
 
         return Api.get(`/orders/reports/${outletId}/due${query}`);
       },
+      getNcReportApi: (outletId, dateRange = {}, page, limit, search) => {
+        let query = `?page=${page}&limit=${limit}`;
+
+        if (dateRange?.startDate && dateRange?.endDate) {
+          query += `&startDate=${dateRange.startDate}&endDate=${dateRange.endDate}`;
+        }
+
+        if (search) {
+          query += `&search=${encodeURIComponent(search)}`;
+        }
+
+        return Api.get(`/orders/reports/${outletId}/nc${query}`);
+      },
     };

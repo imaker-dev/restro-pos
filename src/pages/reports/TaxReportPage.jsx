@@ -9,7 +9,7 @@ import { formatNumber } from "../../utils/numberFormatter";
 import SmartTable from "../../components/SmartTable";
 import { formatDate, formatFileDate } from "../../utils/dateFormatter";
 import Tabs from "../../components/Tabs";
-import { Download, Eye } from "lucide-react";
+import { Download, Eye, RotateCcw } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { handleResponse } from "../../utils/helpers";
 import { exportTaxReport } from "../../redux/slices/exportReportSlice";
@@ -30,10 +30,13 @@ const TaxReportPage = () => {
   const [dateRange, setDateRange] = useState();
   const [activeTab, setActiveTab] = useState("daily");
 
+  const fetchReport = () => {
+    dispatch(fetchTaxReport({ outletId, dateRange }));
+  };
+
   useEffect(() => {
     if (!outletId || !dateRange?.startDate || !dateRange?.endDate) return;
-
-    dispatch(fetchTaxReport({ outletId, dateRange }));
+    fetchReport();
   }, [outletId, dateRange]);
 
   const taxCards = [
@@ -48,7 +51,7 @@ const TaxReportPage = () => {
       color: "red",
     },
     {
-      title: "Taxable",
+      title: "Taxable Amount",
       value: formatNumber(summary?.total_taxable, true),
       color: "indigo",
     },
@@ -98,9 +101,27 @@ const TaxReportPage = () => {
     },
 
     {
-      title: "Invoices",
-      value: formatNumber(summary?.total_invoices),
+      title: "Total Invoices",
+      value: summary?.total_invoices,
       color: "slate",
+    },
+
+    {
+      title: "NC Orders",
+      value: summary?.nc_orders,
+      color: "gray",
+    },
+
+    {
+      title: "NC Amount",
+      value: formatNumber(summary?.nc_amount, true),
+      color: "gray",
+    },
+
+    {
+      title: "Due Amount",
+      value: formatNumber(summary?.due_amount, true),
+      color: "rose",
     },
   ];
 
@@ -296,6 +317,14 @@ const TaxReportPage = () => {
       loading: isExportingTaxReport,
       loadingText: "Exporting...",
     },
+    {
+      label: "Refresh",
+      type: "refresh",
+      icon: RotateCcw,
+      onClick: fetchReport,
+      loading: isFetchingTaxReport,
+      loadingText: "Refreshing...",
+    },
   ];
 
   return (
@@ -313,7 +342,7 @@ const TaxReportPage = () => {
         actions={actions}
       />
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 xl:grid-cols-8 gap-4">
         {taxCards.map((card, i) => (
           <StatCard
             key={i}

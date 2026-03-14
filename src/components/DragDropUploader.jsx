@@ -20,6 +20,8 @@ const DragDropUploader = ({
   enableCrop = false, // New prop: enable cropping feature
   aspectRatio = 1, // New prop: crop aspect ratio
 }) => {
+  const files = Array.isArray(value) ? value : value ? [value] : [];
+
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [croppingFile, setCroppingFile] = useState(null);
@@ -212,7 +214,7 @@ const DragDropUploader = ({
       }
     }
 
-    let updatedFiles = multiple ? [...value] : [];
+    let updatedFiles = multiple ? [...files] : [];
 
     if (uploadToServer) {
       setLoading(true);
@@ -226,7 +228,7 @@ const DragDropUploader = ({
         const uploadedPaths = uploadedFiles.map((file) => file.path);
 
         updatedFiles = multiple
-          ? [...value, ...uploadedPaths].slice(0, maxFiles)
+          ? [...files, ...uploadedPaths].slice(0, maxFiles)
           : [uploadedPaths[0]];
       } catch (err) {
         setError(err.message || "Failed to upload files.");
@@ -236,7 +238,7 @@ const DragDropUploader = ({
       }
     } else {
       updatedFiles = multiple
-        ? [...value, ...fileArray].slice(0, maxFiles)
+        ? [...files, ...fileArray].slice(0, maxFiles)
         : [fileArray[0]];
     }
 
@@ -244,7 +246,7 @@ const DragDropUploader = ({
   };
 
   const removeFile = (index) => {
-    const updatedFiles = value.filter((_, i) => i !== index);
+    const updatedFiles = files.filter((_, i) => i !== index);
     onChange(updatedFiles);
   };
 
@@ -276,7 +278,7 @@ const DragDropUploader = ({
         }
       }
     },
-    [value, multiple, maxFiles, uploadToServer, enableCrop],
+    [files, multiple, maxFiles, uploadToServer, enableCrop],
   );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -437,9 +439,9 @@ const DragDropUploader = ({
       )}
 
       {/* File Previews */}
-      {value.length > 0 && (
+      {files.length > 0 && (
         <div className="mt-4 flex flex-wrap gap-3">
-          {value.map((file, index) => {
+          {files.map((file, index) => {
             const isString = typeof file === "string";
             const isVideo = isString
               ? file.includes(".mp4") ||

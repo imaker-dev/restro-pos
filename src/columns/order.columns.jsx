@@ -5,149 +5,165 @@ import { formatNumber } from "../utils/numberFormatter";
 import OrderBadge from "../partial/order/OrderBadge";
 
 export const getOrderTableConfig = (navigate) => {
-  const columns = [
-    {
-      key: "orderNumber",
-      label: "Order",
-      sortable: true,
-      sortKey: "created_at",
-      render: (row) => (
-        <div className="leading-tight max-w-[140px]">
-          <div
-            className="text-slate-700 font-semibold truncate"
-            title={row.orderNumber}
-          >
-            {row.orderNumber}
+const columns = [
+  {
+    key: "orderNumber",
+    label: "Order",
+    sortable: true,
+    sortKey: "created_at",
+    render: (row) => {
+      const hasPartialNC = !row.isNC && row.ncAmount > 0;
+
+      return (
+        <div className="max-w-[180px] leading-tight">
+          <div className="flex items-center gap-1.5">
+            <span className="font-semibold text-slate-800 truncate">
+              {row.orderNumber}
+            </span>
+
+            {row.isNC && (
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-purple-100 text-purple-700">
+                NC
+              </span>
+            )}
+
+            {hasPartialNC && (
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-violet-100 text-violet-700">
+                NC Items
+              </span>
+            )}
           </div>
 
-          <div className="text-xs text-slate-500">
+          <div className="text-xs text-slate-500 truncate">
+            {row.invoiceNumber && (
+              <span className="text-indigo-600">{row.invoiceNumber}</span>
+            )}
+            {row.invoiceNumber && " · "}
             {formatDate(row.createdAt, "longTime")}
           </div>
         </div>
-      ),
+      );
     },
+  },
 
-    {
-      key: "orderType",
-      label: "Type",
-      sortable: true,
-      render: (row) => <OrderBadge type="type" value={row.orderType} />,
-    },
+  {
+    key: "orderType",
+    label: "Type",
+    sortable: true,
+    render: (row) => <OrderBadge type="type" value={row.orderType} />,
+  },
 
-    {
-      key: "table",
-      label: "Table / Location",
-      sortable: true,
-      render: (row) => {
-        if (row.orderType !== "dine_in") {
-          return (
-            <div className="text-xs text-slate-500 italic">{row.orderType}</div>
-          );
-        }
-
-        const table = row.tableNumber || row.tableName || "—";
-        const location = [row.floorName, row.sectionName]
-          .filter(Boolean)
-          .join(" / ");
-
+  {
+    key: "table",
+    label: "Table / Location",
+    sortable: true,
+    render: (row) => {
+      if (row.orderType !== "dine_in") {
         return (
-          <div className="leading-tight max-w-[150px]">
-            <div className="text-slate-700 font-medium">{table}</div>
-
-            <div
-              className="text-xs text-slate-500 truncate"
-              title={location || "—"}
-            >
-              {location || "—"}
-            </div>
-          </div>
+          <span className="text-xs text-slate-500 italic capitalize">
+            {row.orderType}
+          </span>
         );
-      },
-    },
+      }
 
-    {
-      key: "customer",
-      label: "Customer",
-      sortable: false,
-      render: (row) => (
-        <div className="leading-tight max-w-[160px]">
-          <div className="text-slate-700 font-medium">
-            {row.customerName || "Walk-in"}
-          </div>
+      const table = row.tableNumber || "—";
+      const location = [row.floorName, row.sectionName]
+        .filter(Boolean)
+        .join(" / ");
 
-          <div className="text-xs text-slate-500">
-            {row.customerPhone || "—"}
-          </div>
+      return (
+        <div className="leading-tight max-w-[150px]">
+          <div className="font-medium text-slate-800">{table}</div>
+          <div className="text-xs text-slate-500 truncate">{location || "—"}</div>
         </div>
-      ),
+      );
     },
+  },
 
-    {
-      key: "status",
-      label: "Order Status",
-      sortable: true,
-      render: (row) => <OrderBadge type="status" value={row.status} />,
-    },
+  {
+    key: "customer",
+    label: "Customer",
+    render: (row) => (
+      <div className="leading-tight max-w-[160px]">
+        <div className="font-medium text-slate-800">
+          {row.customerName || "Walk-in"}
+        </div>
+        <div className="text-xs text-slate-500">
+          {row.customerPhone || "—"}
+        </div>
+      </div>
+    ),
+  },
 
-    {
-      key: "paymentStatus",
-      label: "Payment",
-      sortable: true,
-      render: (row) => <OrderBadge type="payment" value={row.paymentStatus} />,
-    },
-    {
-      key: "amount",
-      label: "Amount",
-      sortable: true,
-      render: (row) => (
+  {
+    key: "status",
+    label: "Status",
+    sortable: true,
+    render: (row) => <OrderBadge type="status" value={row.status} />,
+  },
+
+  {
+    key: "paymentStatus",
+    label: "Payment",
+    sortable: true,
+    render: (row) => (
+      <OrderBadge type="payment" value={row.paymentStatus} />
+    ),
+  },
+
+  {
+    key: "amount",
+    label: "Amount",
+    sortable: true,
+    render: (row) => {
+      const due =
+        row.dueAmount ??
+        (row.totalAmount || 0) - (row.paidAmount || 0);
+
+      return (
         <div className="leading-tight max-w-[140px]">
-          <div className="text-slate-700 font-semibold">
+          <div className="font-semibold text-slate-900">
             {formatNumber(row.totalAmount || 0, true)}
           </div>
 
-          <div className="text-xs text-green-600 font-medium">
+          <div className="text-xs text-slate-500">
             Paid {formatNumber(row.paidAmount || 0, true)}
-          </div>
-
-          {row.totalAmount > row.paidAmount && (
-            <div className="text-xs text-orange-600">
-              Due {formatNumber(row.totalAmount - row.paidAmount, true)}
-            </div>
-          )}
-        </div>
-      ),
-    },
-
-    {
-      key: "meta",
-      label: "Info",
-      sortable: false,
-      render: (row) => (
-        <div className="leading-tight max-w-[120px]">
-          {row.itemCount ? (
-            <div className="text-slate-700 text-sm">
-              {row.itemCount} {row.itemCount === 1 ? "item" : "items"}
-            </div>
-          ) : null}
-
-          <div
-            className="text-xs text-slate-500 truncate"
-            title={row.captainName}
-          >
-            {row.captainName || "—"}
+            {due > 0 && (
+              <span className="text-orange-600">
+                {" · "}Due {formatNumber(due, true)}
+              </span>
+            )}
           </div>
         </div>
-      ),
+      );
     },
-  ];
+  },
 
-  const actions = [
-    {
-      label: "View",
-      icon: Eye,
-      onClick: (row) => navigate(`/orders/details?orderId=${row.id}`),
-    },
-  ];
+  {
+    key: "meta",
+    label: "Info",
+    render: (row) => (
+      <div className="leading-tight max-w-[140px]">
+        <div className="text-sm text-slate-700">
+          {row.itemCount || 0} items · {row.kotCount || 0} KOT
+        </div>
+
+        <div className="text-xs text-slate-500 truncate">
+          {row.captainName || "—"}
+        </div>
+      </div>
+    ),
+  },
+];
+
+const actions = [
+  {
+    label: "View",
+    icon: Eye,
+    onClick: (row) =>
+      navigate(`/orders/details?orderId=${row.id ?? row.orderId}`),
+  },
+];
 
   return { columns, actions };
 };

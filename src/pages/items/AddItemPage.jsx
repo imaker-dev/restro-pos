@@ -37,6 +37,7 @@ import { FOOD_TYPES } from "../../constants";
 import InfoCard from "../../components/InfoCard";
 import ToggleField from "../../components/fields/ToggleField";
 import LoadingOverlay from "../../components/LoadingOverlay";
+import { FOOD_TYPE_OPTIONS } from "../../constants/selectOptions";
 
 const AddItemPage = () => {
   const dispatch = useDispatch();
@@ -95,6 +96,7 @@ const AddItemPage = () => {
     hasVariants: false,
     hasAddons: false,
     allowSpecialNotes: true,
+    isActive: true,
     minQuantity: 1,
     maxQuantity: 10,
     kitchenStationId: "",
@@ -122,6 +124,8 @@ const AddItemPage = () => {
       hasVariants: Boolean(itemDetails.has_variants),
       hasAddons: Boolean(itemDetails.has_addons),
       allowSpecialNotes: Boolean(itemDetails.allow_special_notes),
+
+      isActive: itemDetails?.is_active ?? true, // ✅ ADD
 
       minQuantity: itemDetails.min_quantity || 1,
       maxQuantity: itemDetails.max_quantity || 10,
@@ -205,6 +209,7 @@ const AddItemPage = () => {
       hasVariants: Boolean(values.hasVariants),
       hasAddons: Boolean(values.hasAddons),
       allowSpecialNotes: Boolean(values.allowSpecialNotes),
+      isActive: Boolean(values.isActive),
 
       minQuantity: Number(values.minQuantity),
       maxQuantity: Number(values.maxQuantity),
@@ -339,11 +344,7 @@ const AddItemPage = () => {
                   <SelectField
                     label="Item Type"
                     name="itemType"
-                    options={[
-                      { value: FOOD_TYPES.VEG, label: "Veg 🟢" },
-                      { value: FOOD_TYPES.NON_VEG, label: "Non-Veg 🔴" },
-                      { value: FOOD_TYPES.EGG, label: "Egg 🟡" },
-                    ]}
+                    options={FOOD_TYPE_OPTIONS}
                     value={formik.values.itemType}
                     onChange={formik.handleChange}
                   />
@@ -369,6 +370,15 @@ const AddItemPage = () => {
                   value={formik.values.description}
                   onChange={formik.handleChange}
                   rows={3}
+                />
+
+                <ToggleField
+                  label="Enable Item"
+                  description="Disable this to hide the item from POS ordering without deleting it."
+                  checked={formik.values.isActive}
+                  onChange={(value) => formik.setFieldValue("isActive", value)}
+                  activeColorClass="bg-emerald-600"
+                  inactiveColorClass="bg-red-600"
                 />
               </div>
             </AccordionSection>

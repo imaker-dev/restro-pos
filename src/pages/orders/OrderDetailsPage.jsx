@@ -20,6 +20,9 @@ import {
   CalendarDays,
   ReceiptIndianRupee,
   Download,
+  ShieldOff,
+  AlertTriangle,
+  CheckCircle2,
 } from "lucide-react";
 import PageHeader from "../../layout/PageHeader";
 import OrderBadge from "../../partial/order/OrderBadge";
@@ -60,7 +63,6 @@ const PAY_METHOD = {
 
 // ─────────────────────── ATOMS ────────────────────────────────────────────────
 
-// Single info row — skips render if value is falsy
 const Row = ({ label, value, mono = false, cls = "", href }) => {
   if (value === null || value === undefined || value === "") return null;
   const valEl = href ? (
@@ -84,6 +86,88 @@ const Row = ({ label, value, mono = false, cls = "", href }) => {
     </div>
   );
 };
+
+// ─────────────────────── NC BANNER ────────────────────────────────────────────
+
+/* Full-order NC — shown when data.isNC is true */
+function OrderNCBanner({ data }) {
+  if (!data?.isNC) return null;
+
+  const isFullNC = num(data.totalAmount) === 0;
+  const ncItems = (data.items || []).filter((i) => i.isNC);
+  const chargedItems = (data.items || []).filter((i) => !i.isNC);
+
+  return (
+    <div className="rounded-2xl overflow-hidden border border-amber-200 bg-amber-50">
+      {/* Header */}
+      <div className="flex items-center gap-3 px-5 py-4 border-b border-amber-200/60">
+        <div className="w-9 h-9 rounded-xl bg-amber-500 flex items-center justify-center flex-shrink-0">
+          <ShieldOff size={16} className="text-white" strokeWidth={2.5} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-extrabold text-amber-900 leading-none">
+            {isFullNC ? "Full No-Charge Order" : "Partial No-Charge Order"}
+          </p>
+          <p className="text-xs text-amber-600 font-medium mt-0.5">
+            {isFullNC
+              ? "This entire order has been marked as no-charge — the customer was not billed."
+              : `${ncItems.length} of ${data.items?.length} item${ncItems.length !== 1 ? "s" : ""} marked no-charge · remaining items billed normally.`}
+          </p>
+        </div>
+        <div className="text-right flex-shrink-0">
+          <p className="text-xl font-extrabold text-amber-700 tabular-nums">
+            {formatNumber(data.ncAmount, true)}
+          </p>
+          <p className="text-[10px] font-bold text-amber-500 uppercase tracking-wide">
+            NC Amount
+          </p>
+        </div>
+      </div>
+
+      {/* Detail row */}
+      <div className="px-5 py-3.5 flex flex-wrap items-center gap-x-6 gap-y-2">
+        {data.ncReason && (
+          <div className="flex items-center gap-1.5">
+            <Tag size={12} className="text-amber-500" strokeWidth={2} />
+            <span className="text-xs font-bold text-amber-800">Reason: </span>
+            <span className="text-xs font-semibold text-amber-700">
+              {data.ncReason}
+            </span>
+          </div>
+        )}
+        {isFullNC && (
+          <div className="flex items-center gap-1.5">
+            <CheckCircle2
+              size={12}
+              className="text-amber-500"
+              strokeWidth={2}
+            />
+            <span className="text-xs font-semibold text-amber-700">
+              Grand total waived — ₹0 billed to customer
+            </span>
+          </div>
+        )}
+        {!isFullNC && chargedItems.length > 0 && (
+          <div className="flex items-center gap-1.5">
+            <AlertTriangle
+              size={12}
+              className="text-amber-500"
+              strokeWidth={2}
+            />
+            <span className="text-xs font-semibold text-amber-700">
+              {chargedItems.length} item{chargedItems.length !== 1 ? "s" : ""}{" "}
+              still charged:{" "}
+              {formatNumber(
+                chargedItems.reduce((s, i) => s + num(i.totalPrice), 0),
+                true,
+              )}
+            </span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
 // ─────────────────────── MAIN ─────────────────────────────────────────────────
 
@@ -113,7 +197,6 @@ const OrderDetailsPage = () => {
 
   // ── derived ──
   const inv = data.invoice || {};
-
   const isDineIn = data?.orderType === "dine_in";
   const items = data?.items || [];
   const discounts = data?.discounts || [];
@@ -122,7 +205,6 @@ const OrderDetailsPage = () => {
     (t) => num(t.taxAmount) > 0,
   );
 
-  // price breakup line items — only show non-zero rows
   const breakupLines = [
     { label: "Subtotal", value: num(data.subtotal), cls: "text-slate-700" },
     num(data.discountAmount) > 0 && {
@@ -145,9 +227,8 @@ const OrderDetailsPage = () => {
       label: "Delivery Charge",
       value: num(data.deliveryCharge),
     },
-    // tax rows inline
     ...taxRows.map((t) => ({
-      label: `${t.name} (${t.rate}% )`,
+      label: `${t.name} (${t.rate}%)`,
       value: num(t.taxAmount),
       cls: "text-sky-700",
     })),
@@ -159,19 +240,14 @@ const OrderDetailsPage = () => {
   ].filter(Boolean);
 
   const handleDownloadInvoice = async () => {
-    const fileName = `${inv.invoiceNumber}`;
-
     await handleResponse(dispatch(downloadOrderInvoice(orderId)), (res) => {
-      downloadBlob({
-        data: res.payload,
-        fileName,
-      });
+      downloadBlob({ data: res.payload, fileName: `${inv.invoiceNumber}` });
     });
   };
 
   const actions = [
     {
-      label: "Download Inovice",
+      label: "Download Invoice",
       type: "export",
       icon: Download,
       onClick: handleDownloadInvoice,
@@ -182,9 +258,9 @@ const OrderDetailsPage = () => {
 
   return (
     <div className="space-y-5">
-      <PageHeader title={"Order Details"} actions={actions} showBackButton />
+      <PageHeader title="Order Details" actions={actions} showBackButton />
 
-      {/* ── ORDER HERO SECTION ── */}
+      {/* ── ORDER HERO ── */}
       <div
         className="relative rounded-2xl overflow-hidden shadow-lg"
         style={{
@@ -192,7 +268,6 @@ const OrderDetailsPage = () => {
             "linear-gradient(135deg, var(--color-primary-600), var(--color-primary-700))",
         }}
       >
-        {/* Highlight line */}
         <div
           className="absolute top-0 left-0 right-0 h-[1px]"
           style={{
@@ -200,26 +275,18 @@ const OrderDetailsPage = () => {
               "linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)",
           }}
         />
-
-        {/* Soft radial glow */}
         <div className="absolute -top-16 -right-16 w-56 h-56 rounded-full bg-white/10 pointer-events-none" />
 
         <div className="relative z-10 px-6 py-5 text-white">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-            {/* LEFT SIDE */}
             <div className="space-y-3 min-w-0">
-              {/* Date */}
               <p className="flex items-center gap-1.5 text-xs text-white/70 font-medium">
                 <CalendarDays size={12} />
                 {formatDate(data?.createdAt, "longTime")}
               </p>
-
-              {/* Order Number */}
               <h1 className="text-[28px] sm:text-[32px] font-extrabold tracking-tight leading-none truncate">
                 {data?.orderNumber}
               </h1>
-
-              {/* Badges */}
               <div className="flex flex-wrap gap-2">
                 <OrderBadge type="status" value={data?.status} size="sm" />
                 <OrderBadge type="type" value={data?.orderType} size="sm" />
@@ -228,9 +295,14 @@ const OrderDetailsPage = () => {
                   value={data?.paymentStatus}
                   size="sm"
                 />
+                {/* NC indicator in hero */}
+                {data?.isNC && (
+                  <span className="inline-flex items-center gap-1.5 bg-amber-400/20 border border-amber-300/40 text-amber-200 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide">
+                    <ShieldOff size={10} strokeWidth={2.5} />
+                    No Charge
+                  </span>
+                )}
               </div>
-
-              {/* Extra Meta */}
               <div className="flex flex-wrap gap-x-5 gap-y-1 text-xs text-white/70">
                 {data?.guestCount != null && (
                   <span className="flex items-center gap-1">
@@ -239,7 +311,6 @@ const OrderDetailsPage = () => {
                     {data?.guestCount === 1 ? "Guest" : "Guests"}
                   </span>
                 )}
-
                 {data?.createdBy?.name && (
                   <span className="flex items-center gap-1">
                     <Hash size={11} />
@@ -249,23 +320,29 @@ const OrderDetailsPage = () => {
               </div>
             </div>
 
-            {/* RIGHT SIDE - Total */}
             <div className="flex-shrink-0 lg:text-right">
               <p className="text-[10px] font-semibold text-white/70 uppercase tracking-wider">
                 Grand Total
               </p>
-
               <p className="text-[36px] font-bold tabular-nums leading-none">
                 {formatNumber(data?.totalAmount, true)}
               </p>
-
               <p className="text-[11px] text-white/70 mt-1">
                 Paid: {formatNumber(data?.paidAmount, true)}
               </p>
+              {/* NC amount sub-line in hero */}
+              {data?.isNC && num(data.ncAmount) > 0 && (
+                <p className="text-[11px] text-amber-300 mt-0.5 font-semibold">
+                  NC: {formatNumber(data.ncAmount, true)} waived
+                </p>
+              )}
             </div>
           </div>
         </div>
       </div>
+
+      {/* ── NC BANNER (shown when order has NC) ── */}
+      <OrderNCBanner data={data} />
 
       {/* ── STAT TILES ── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -301,12 +378,11 @@ const OrderDetailsPage = () => {
         ))}
       </div>
 
-      {/* ── TABLE & SEATING — dine_in only ── */}
+      {/* ── TABLE & SEATING ── */}
       {isDineIn && (
         <MetricPanel
           icon={Table2}
           title="Table & Seating"
-          // desc=""
           right={
             <span className="text-xs font-bold text-orange-700 bg-orange-50 border border-orange-200 px-2.5 py-1 rounded-full">
               {data?.tableName}
@@ -346,12 +422,20 @@ const OrderDetailsPage = () => {
       <MetricPanel
         icon={UtensilsCrossed}
         title="Ordered Items"
-        // desc=""
         noPad
         right={
-          <span className="text-xs font-semibold text-slate-500 bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-full">
-            {items?.length} {items?.length === 1 ? "item" : "items"}
-          </span>
+          <div className="flex items-center gap-2">
+            {/* show NC item count badge if any items are NC */}
+            {items.some((i) => i.isNC) && (
+              <span className="text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full flex items-center gap-1">
+                <ShieldOff size={10} strokeWidth={2.5} />
+                {items.filter((i) => i.isNC).length} NC
+              </span>
+            )}
+            <span className="text-xs font-semibold text-slate-500 bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-full">
+              {items?.length} {items?.length === 1 ? "item" : "items"}
+            </span>
+          </div>
         }
       >
         {items?.length === 0 ? (
@@ -363,7 +447,7 @@ const OrderDetailsPage = () => {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[600px]">
+            <table className="w-full min-w-[640px]">
               <thead>
                 <tr className="border-b border-slate-200 bg-slate-50/60">
                   {[
@@ -386,63 +470,110 @@ const OrderDetailsPage = () => {
                 </tr>
               </thead>
               <tbody>
-                {items?.map((item, idx) => (
-                  <tr
-                    key={item?.id}
-                    className="border-b border-slate-50 last:border-0 hover:bg-slate-50/60 transition-colors"
-                  >
-                    <td className="pl-5 pr-2 py-3.5 text-xs text-slate-300 tabular-nums">
-                      {idx + 1}
-                    </td>
-                    <td className="px-3 py-3.5">
-                      <div className="flex items-start gap-2">
-                        {/* FSSAI dot-in-square */}
-                        <div
-                          className={`mt-0.5 w-3.5 h-3.5 rounded-sm border-2 flex items-center justify-center shrink-0
-                            ${item?.itemType === "veg" ? "border-emerald-600" : "border-red-600"}`}
-                        >
+                {items?.map((item, idx) => {
+                  const isItemNC = item.isNC && num(item.ncAmount) > 0;
+                  return (
+                    <tr
+                      key={item?.id}
+                      className={`border-b border-slate-50 last:border-0 transition-colors
+                        ${isItemNC ? "bg-amber-50/40 hover:bg-amber-50/70" : "hover:bg-slate-50/60"}`}
+                    >
+                      <td className="pl-5 pr-2 py-3.5 text-xs text-slate-300 tabular-nums">
+                        {idx + 1}
+                      </td>
+
+                      <td className="px-3 py-3.5">
+                        <div className="flex items-start gap-2">
+                          {/* FSSAI dot */}
                           <div
-                            className={`w-1.5 h-1.5 rounded-full ${item?.itemType === "veg" ? "bg-emerald-600" : "bg-red-600"}`}
-                          />
-                        </div>
-                        <div>
-                          <p className="text-[13px] font-semibold text-slate-800 leading-tight">
-                            {item?.itemName}
-                          </p>
-                          {item?.variantName && (
-                            <span className="inline-block mt-0.5 text-[10px] font-medium text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">
-                              {item?.variantName}
-                            </span>
-                          )}
-                          {item?.specialInstructions && (
-                            <p className="mt-0.5 text-[10px] italic text-amber-600">
-                              "{item?.specialInstructions}"
+                            className={`mt-0.5 w-3.5 h-3.5 rounded-sm border-2 flex items-center justify-center shrink-0
+                            ${item?.itemType === "veg" ? "border-emerald-600" : "border-red-600"}`}
+                          >
+                            <div
+                              className={`w-1.5 h-1.5 rounded-full ${item?.itemType === "veg" ? "bg-emerald-600" : "bg-red-600"}`}
+                            />
+                          </div>
+                          <div>
+                            <p className="text-[13px] font-semibold text-slate-800 leading-tight">
+                              {item?.itemName}
                             </p>
-                          )}
+                            {item?.variantName && (
+                              <span className="inline-block mt-0.5 text-[10px] font-medium text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">
+                                {item?.variantName}
+                              </span>
+                            )}
+                            {item?.specialInstructions && (
+                              <p className="mt-0.5 text-[10px] italic text-amber-600">
+                                "{item?.specialInstructions}"
+                              </p>
+                            )}
+                            {/* ── Item-level NC indicator ── */}
+                            {isItemNC && (
+                              <div className="mt-1.5 flex items-center gap-1.5 bg-amber-100 border border-amber-200 rounded-md px-2 py-1 w-fit">
+                                <ShieldOff
+                                  size={10}
+                                  className="text-amber-600"
+                                  strokeWidth={2.5}
+                                />
+                                <span className="text-[10px] font-bold text-amber-700 uppercase tracking-wide">
+                                  No Charge
+                                </span>
+                                {item.ncReason && (
+                                  <>
+                                    <span className="text-amber-400 text-[10px]">
+                                      ·
+                                    </span>
+                                    <span className="text-[10px] font-semibold text-amber-600">
+                                      {item.ncReason}
+                                    </span>
+                                  </>
+                                )}
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    </td>
-                    <td className="px-3 py-3.5">
-                      <span className="text-xs text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md font-medium whitespace-nowrap">
-                        {item?.categoryName || "—"}
-                      </span>
-                    </td>
-                    <td className="px-3 py-3.5">
-                      <span className="text-xs font-semibold text-orange-700 bg-orange-50 border border-orange-100 px-2 py-0.5 rounded-md whitespace-nowrap">
-                        {item?.stationName || "—"}
-                      </span>
-                    </td>
-                    <td className="px-3 py-3.5 text-right text-sm font-bold text-slate-800 tabular-nums">
-                      {parseFloat(item?.quantity || 0).toFixed(0)}
-                    </td>
-                    <td className="px-3 py-3.5 text-right text-sm text-slate-500 tabular-nums">
-                      {formatNumber(item?.unitPrice, true)}
-                    </td>
-                    <td className="pl-3 pr-5 py-3.5 text-right text-[13px] font-bold text-slate-900 tabular-nums">
-                      {formatNumber(item?.totalPrice, true)}
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+
+                      <td className="px-3 py-3.5">
+                        <span className="text-xs text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md font-medium whitespace-nowrap">
+                          {item?.categoryName || "—"}
+                        </span>
+                      </td>
+
+                      <td className="px-3 py-3.5">
+                        <span className="text-xs font-semibold text-orange-700 bg-orange-50 border border-orange-100 px-2 py-0.5 rounded-md whitespace-nowrap">
+                          {item?.stationName || "—"}
+                        </span>
+                      </td>
+
+                      <td className="px-3 py-3.5 text-right text-sm font-bold text-slate-800 tabular-nums">
+                        {parseFloat(item?.quantity || 0).toFixed(0)}
+                      </td>
+
+                      <td className="px-3 py-3.5 text-right text-sm text-slate-500 tabular-nums">
+                        {formatNumber(item?.unitPrice, true)}
+                      </td>
+
+                      {/* Total cell — strikethrough + ₹0 for NC items */}
+                      <td className="pl-3 pr-5 py-3.5 text-right">
+                        {isItemNC ? (
+                          <div>
+                            <p className="text-[11px] text-slate-400 line-through tabular-nums">
+                              {formatNumber(item?.totalPrice, true)}
+                            </p>
+                            <p className="text-[13px] font-bold text-amber-600 tabular-nums">
+                              ₹0
+                            </p>
+                          </div>
+                        ) : (
+                          <span className="text-[13px] font-bold text-slate-900 tabular-nums">
+                            {formatNumber(item?.totalPrice, true)}
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
               <tfoot>
                 <tr className="bg-slate-50 border-t-2 border-slate-200">
@@ -462,19 +593,45 @@ const OrderDetailsPage = () => {
                     {formatNumber(data?.subtotal, true)}
                   </td>
                 </tr>
+                {/* NC savings row — shown only when NC items exist */}
+                {items.some((i) => i.isNC) && (
+                  <tr className="bg-amber-50 border-t border-amber-100">
+                    <td
+                      colSpan={6}
+                      className="pl-5 py-2.5 text-xs font-bold text-amber-700"
+                    >
+                      <div className="flex items-center gap-1.5">
+                        <ShieldOff
+                          size={11}
+                          strokeWidth={2.5}
+                          className="text-amber-500"
+                        />
+                        No-charge savings
+                      </div>
+                    </td>
+                    <td className="pl-3 pr-5 py-2.5 text-right text-[13px] font-extrabold text-amber-600 tabular-nums">
+                      −{" "}
+                      {formatNumber(
+                        items
+                          .filter((i) => i.isNC)
+                          .reduce((s, i) => s + num(i.ncAmount), 0),
+                        true,
+                      )}
+                    </td>
+                  </tr>
+                )}
               </tfoot>
             </table>
           </div>
         )}
       </MetricPanel>
 
-      {/* ── PAYMENT + DISCOUNTS (2 col) ── */}
+      {/* ── PAYMENT + DISCOUNTS ── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         {/* Payment */}
         <MetricPanel
           icon={CreditCard}
           title="Payment"
-          // desc=""
           right={
             data?.payments?.[0]?.paymentMode === "split" ? (
               <span className="text-[10px] font-bold uppercase tracking-wide text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
@@ -532,6 +689,18 @@ const OrderDetailsPage = () => {
                 </span>
               </div>
             )}
+            {/* NC waived row */}
+            {data?.isNC && num(data.ncAmount) > 0 && (
+              <div className="flex justify-between items-center">
+                <span className="text-xs text-amber-600 font-semibold flex items-center gap-1">
+                  <ShieldOff size={11} strokeWidth={2} />
+                  NC Waived
+                </span>
+                <span className="text-sm font-bold text-amber-600 tabular-nums">
+                  − {formatNumber(data.ncAmount, true)}
+                </span>
+              </div>
+            )}
             {num(data?.balanceDue) === 0 && (
               <div className="flex items-center gap-1.5">
                 <BadgeCheck size={13} className="text-emerald-500" />
@@ -544,11 +713,7 @@ const OrderDetailsPage = () => {
         </MetricPanel>
 
         {/* Discounts */}
-        <MetricPanel
-          icon={Tag}
-          title="Discounts"
-          // desc=""
-        >
+        <MetricPanel icon={Tag} title="Discounts">
           {discounts?.length === 0 ? (
             <NoDataFound icon={Tag} title="No discounts applied" />
           ) : (
@@ -606,13 +771,7 @@ const OrderDetailsPage = () => {
       </div>
 
       {/* ── PRICE BREAKUP ── */}
-      <MetricPanel
-        icon={ReceiptIndianRupee}
-        title="Price Breakup"
-        noPad
-        // desc=""
-      >
-        {/* Line items */}
+      <MetricPanel icon={ReceiptIndianRupee} title="Price Breakup" noPad>
         <div className="px-5 py-4 space-y-0 divide-y divide-slate-50">
           {breakupLines?.map(
             ({ label, value, cls = "text-slate-700", prefix }) => (
@@ -632,6 +791,22 @@ const OrderDetailsPage = () => {
                 </span>
               </div>
             ),
+          )}
+          {/* NC savings line in breakup */}
+          {data?.isNC && num(data.ncAmount) > 0 && (
+            <div className="flex justify-between items-baseline gap-6 py-2.5">
+              <span className="text-xs text-amber-600 font-semibold flex items-center gap-1.5">
+                <ShieldOff
+                  size={11}
+                  strokeWidth={2}
+                  className="text-amber-500"
+                />
+                No Charge Waived
+              </span>
+              <span className="text-xs font-semibold tabular-nums text-amber-600">
+                − {formatNumber(data.ncAmount, true)}
+              </span>
+            </div>
           )}
         </div>
 
@@ -656,6 +831,16 @@ const OrderDetailsPage = () => {
                 {formatNumber(data.paidAmount, true)}
               </p>
             </div>
+            {num(data.ncAmount) > 0 && (
+              <div className="text-right">
+                <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-1">
+                  NC Waived
+                </p>
+                <p className="text-base font-bold text-amber-400 tabular-nums">
+                  − {formatNumber(data.ncAmount, true)}
+                </p>
+              </div>
+            )}
             {num(data.balanceDue) > 0 && (
               <div className="text-right">
                 <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-1">
@@ -680,11 +865,7 @@ const OrderDetailsPage = () => {
 
       {/* ── OUTLET + CUSTOMER ── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-        <MetricPanel
-          icon={Store}
-          title="Outlet"
-          // desc=""
-        >
+        <MetricPanel icon={Store} title="Outlet">
           <Row
             label="Name"
             value={data?.outletName}
@@ -700,11 +881,7 @@ const OrderDetailsPage = () => {
           <Row label="FSSAI" value={data?.outletFssai} mono />
         </MetricPanel>
 
-        <MetricPanel
-          icon={User}
-          title="Customer"
-          // desc=""
-        >
+        <MetricPanel icon={User} title="Customer">
           {data?.customerName ? (
             <>
               <Row

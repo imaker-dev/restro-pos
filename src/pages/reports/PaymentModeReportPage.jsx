@@ -7,11 +7,14 @@ import SmartTable from "../../components/SmartTable";
 import { formatNumber } from "../../utils/numberFormatter";
 import StatCard from "../../components/StatCard";
 import {
+  AlertCircle,
+  Ban,
   CreditCard,
   Download,
   HandCoins,
   IndianRupee,
   ReceiptIndianRupee,
+  RotateCcw,
   ShoppingCart,
   TrendingUp,
   Wallet,
@@ -34,10 +37,13 @@ const PaymentModeReportPage = () => {
 
   const [dateRange, setDateRange] = useState();
 
+  const fetchReport = () => {
+    dispatch(fetchPaymentModeReport({ outletId, dateRange }));
+  };
   useEffect(() => {
     if (!outletId || !dateRange?.startDate || !dateRange?.endDate) return;
 
-    dispatch(fetchPaymentModeReport({ outletId, dateRange }));
+    fetchReport();
   }, [outletId, dateRange]);
 
   const stats = [
@@ -75,6 +81,20 @@ const PaymentModeReportPage = () => {
       subtitle: "Additional earnings",
       icon: ReceiptIndianRupee,
       color: "rose",
+    },
+    {
+      title: "Due Amount",
+      value: formatNumber(summary?.due_amount, true),
+      subtitle: "Pending payments",
+      icon: AlertCircle,
+      color: "red",
+    },
+    {
+      title: "NC Orders",
+      value: summary?.nc_orders,
+      subtitle: `₹${formatNumber(summary?.nc_amount)}`,
+      icon: Ban,
+      color: "gray",
     },
   ];
 
@@ -176,6 +196,14 @@ const PaymentModeReportPage = () => {
       loading: isExportingPaymentModeReport,
       loadingText: "Exporting...",
     },
+    {
+      label: "Refresh",
+      type: "refresh",
+      icon: RotateCcw,
+      onClick: fetchReport,
+      loading: isFetchingPaymentModeReport,
+      loadingText: "Refreshing...",
+    },
   ];
 
   return (
@@ -195,7 +223,7 @@ const PaymentModeReportPage = () => {
         />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-7 gap-5">
         {stats?.map((stat, index) => (
           <StatCard
             key={index}

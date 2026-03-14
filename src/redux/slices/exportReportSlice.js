@@ -202,14 +202,23 @@ export const exportOrdersReport = createAsyncThunk(
     return res.data;
   },
 );
+
 export const exportDueReport = createAsyncThunk(
   "/export/due/report",
-  async ({
-    outletId,
-    dateRange,
-    searchTerm
-  }) => {
-    const res = await ExportServices.exportDueReportApi(outletId, dateRange,searchTerm);
+  async ({ outletId, dateRange, searchTerm }) => {
+    const res = await ExportServices.exportDueReportApi(
+      outletId,
+      dateRange,
+      searchTerm,
+    );
+    return res.data;
+  },
+);
+
+export const exportNcReport = createAsyncThunk(
+  "/export/nc/report",
+  async ({ outletId, dateRange }) => {
+    const res = await ExportServices.exportNcReportApi(outletId, dateRange);
     return res.data;
   },
 );
@@ -238,7 +247,8 @@ const exportReportSlice = createSlice({
     isExportingDayEndSummary: false,
     isExportingDayEndSummaryDetails: false,
     isExportingOrdersReport: false,
-    isExportingDueReport:false,
+    isExportingDueReport: false,
+    isExportingNcReport:false,
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -476,6 +486,8 @@ const exportReportSlice = createSlice({
         state.isExportingOrdersReport = false;
         toast.error(action.error.message);
       })
+
+
       .addCase(exportDueReport.pending, (state) => {
         state.isExportingDueReport = true;
       })
@@ -485,6 +497,19 @@ const exportReportSlice = createSlice({
       })
       .addCase(exportDueReport.rejected, (state, action) => {
         state.isExportingDueReport = false;
+        toast.error(action.error.message);
+      })
+
+
+      .addCase(exportNcReport.pending, (state) => {
+        state.isExportingNcReport = true;
+      })
+      .addCase(exportNcReport.fulfilled, (state) => {
+        state.isExportingNcReport = false;
+        toast.success("NC report exported successfully");
+      })
+      .addCase(exportNcReport.rejected, (state, action) => {
+        state.isExportingNcReport = false;
         toast.error(action.error.message);
       })
   },

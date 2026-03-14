@@ -130,6 +130,12 @@ export const navConfig = [
             roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
           },
           {
+            name: "NC (No Charge) Report",
+            path: "/nc-report",
+            icon: ReceiptIndianRupee,
+            roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
+          },
+          {
             name: "Cancellation Report",
             path: "/cancellation-report",
             icon: XCircle,
@@ -182,11 +188,11 @@ export const navConfig = [
         roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN],
       },
       {
-      name: "Outlet Logo",
-      path: "/outlet-logo",
-      icon:Image,
-      roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN],
-    },
+        name: "Outlet Logo",
+        path: "/outlet-logo",
+        icon: Image,
+        roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN],
+      },
       {
         name: "Users & Staff",
         icon: Users,
@@ -222,6 +228,12 @@ export const navConfig = [
         name: "Tax Groups",
         icon: Percent,
         path: "/tax-groups",
+        roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN],
+      },
+      {
+        name: "NC (No Charge) Reasons",
+        icon: XCircle,
+        path: "/nc-reasons",
         roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN],
       },
     ],

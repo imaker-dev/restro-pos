@@ -110,43 +110,78 @@ const ItemSalesReportPage = () => {
     },
   ];
 
-  const stats = [
-    {
-      title: "Gross Revenue",
-      value: `${formatNumber(summary?.gross_revenue, true)}`,
-      subtitle: "Before tax & discount",
-      icon: IndianRupee,
-      color: "green",
-    },
-    {
-      title: "Net Revenue",
-      value: `${formatNumber(summary?.net_revenue, true)}`,
-      subtitle: "Final collected amount",
-      icon: TrendingUp,
-      color: "blue",
-    },
-    {
-      title: "Tax Collected",
-      value: `${formatNumber(summary?.tax_amount, true)}`,
-      subtitle: "Total tax amount",
-      icon: Percent,
-      color: "purple",
-    },
-    {
-      title: "Total Items",
-      value: summary?.total_items,
-      subtitle: `${summary?.total_quantity} qty sold`,
-      icon: Package,
-      color: "amber",
-    },
-    {
-      title: "Avg Item Revenue",
-      value: `${formatNumber(summary?.average_item_revenue, true)}`,
-      subtitle: "Per item average",
-      icon: ShoppingCart,
-      color: "indigo",
-    },
-  ];
+const stats = [
+  {
+    title: "Gross Revenue",
+    value: formatNumber(summary?.gross_revenue, true),
+    subtitle: "Before tax & discount",
+    icon: IndianRupee,
+    color: "green",
+  },
+  {
+    title: "Net Revenue",
+    value: formatNumber(summary?.net_revenue, true),
+    subtitle: "After tax & discount",
+    icon: TrendingUp,
+    color: "blue",
+  },
+  {
+    title: "Paid Amount",
+    value: formatNumber(summary?.paid_amount, true),
+    subtitle: "Amount received",
+    icon: IndianRupee,
+    color: "emerald",
+  },
+  {
+    title: "Due Amount",
+    value: formatNumber(summary?.due_amount, true),
+    subtitle: "Pending payments",
+    icon: IndianRupee,
+    color: "red",
+  },
+  {
+    title: "Tax Collected",
+    value: formatNumber(summary?.tax_amount, true),
+    subtitle: "Total tax amount",
+    icon: Percent,
+    color: "purple",
+  },
+  {
+    title: "Discount Given",
+    value: formatNumber(summary?.discount_amount, true),
+    subtitle: "Total discounts",
+    icon: Percent,
+    color: "pink",
+  },
+  {
+    title: "Total Items",
+    value: summary?.total_items,
+    subtitle: `${summary?.total_quantity} qty sold`,
+    icon: Package,
+    color: "amber",
+  },
+  {
+    title: "Cancelled Qty",
+    value: summary?.cancelled_quantity,
+    subtitle: "Items cancelled",
+    icon: Package,
+    color: "red",
+  },
+  {
+    title: "Non-Chargeable Qty",
+    value: summary?.nc_quantity,
+    subtitle: "Complimentary / NC",
+    icon: Package,
+    color: "gray",
+  },
+  {
+    title: "Avg Item Revenue",
+    value: formatNumber(summary?.average_item_revenue, true),
+    subtitle: "Per item average",
+    icon: ShoppingCart,
+    color: "indigo",
+  },
+];
 
   const handleExportItemSalesReport = async () => {
     if (!dateRange?.startDate || !dateRange?.endDate) return;

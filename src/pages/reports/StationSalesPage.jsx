@@ -9,6 +9,7 @@ import {
   Clock,
   Download,
   Package,
+  RotateCcw,
   Ticket,
   TrendingUp,
   XCircle,
@@ -39,10 +40,13 @@ const StationSalesPage = () => {
   );
   const { summary = {}, stations = [] } = stationSalesReport || {};
 
+  const fetchReport = () => {
+    dispatch(fetchStationSalesReport({ outletId, dateRange }));
+  };
+  
   useEffect(() => {
     if (!dateRange?.startDate || !dateRange?.endDate) return;
-
-    dispatch(fetchStationSalesReport({ outletId, dateRange }));
+    fetchReport();
   }, [outletId, dateRange]);
 
   const maxTickets = Math.max(...stations?.map((s) => s.ticketCount), 1);
@@ -121,6 +125,14 @@ const StationSalesPage = () => {
       onClick: () => handleExportStationSalesReport(),
       loading: isExportingStationSalesReport,
       loadingText: "Exporting...",
+    },
+    {
+      label: "Refresh",
+      type: "refresh",
+      icon: RotateCcw,
+      onClick: fetchReport,
+      loading: isFetchingStationSalesReport,
+      loadingText: "Refreshing...",
     },
   ];
 

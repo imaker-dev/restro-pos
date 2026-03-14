@@ -6,7 +6,6 @@ import { Loader2 } from "lucide-react";
 import { InputField } from "../../components/fields/InputField";
 import { CheckboxField } from "../../components/fields/CheckboxField";
 import { SelectField } from "../../components/fields/SelectField";
-import { STATION_TYPE_OPTIONS } from "../../constants/selectOptions";
 
 /* ===============================
    Validation Schema
@@ -121,18 +120,6 @@ const StationModal = ({
           onBlur={formik.handleBlur}
           error={formik.touched.code && formik.errors.code}
         />
-
-        {/* Station Type */}
-        {/* <SelectField
-          label="Station Type"
-          name="stationType"
-          required
-          options={STATION_TYPE_OPTIONS}
-          value={formik.values.stationType}
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-          error={formik.touched.stationType && formik.errors.stationType}
-        /> */}
 
         {/* Description */}
         <InputField

@@ -10,7 +10,7 @@ import {
 import SmartTable from "../../components/SmartTable";
 import StatusBadge from "../../layout/StatusBadge";
 import { formatDate } from "../../utils/dateFormatter";
-import { Edit2, Plus, Printer, Wifi, WifiOff } from "lucide-react";
+import { Edit2, Plus, Printer, RotateCcw, Wifi, WifiOff } from "lucide-react";
 import PrinterModal from "../../partial/printers/PrinterModal";
 import { handleResponse } from "../../utils/helpers";
 import { fetchAllStations } from "../../redux/slices/stationSlice";
@@ -37,6 +37,7 @@ const AllPrintersPage = () => {
   const fetchPrinters = () => {
     dispatch(fetchAllPrinters(outletId));
   };
+
   useEffect(() => {
     if (outletId) {
       fetchPrinters();
@@ -165,6 +166,14 @@ const AllPrintersPage = () => {
       icon: Plus,
       onClick: () => setShowPrinterModal(true),
     },
+    {
+      label: "Refresh",
+      type: "refresh",
+      icon: RotateCcw,
+      onClick: fetchPrinters,
+      loading: loading,
+      loadingText: "Refreshing...",
+    },
   ];
 
   const clearPrinterStates = () => {
@@ -173,7 +182,6 @@ const AllPrintersPage = () => {
   };
 
   const handleAddPrinter = async ({ id, values, resetForm }) => {
-    console.log(values);
     const action = id
       ? updatePrinter({ id, values, resetForm })
       : createPrinter(values);
@@ -242,6 +250,7 @@ const AllPrintersPage = () => {
               icon={stat?.icon}
               color={stat?.color}
               variant="v9"
+              loading={loading}
             />
           ))}
         </div>

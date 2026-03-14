@@ -55,6 +55,8 @@ import DayEndSummaryDetailsPage from "../pages/reports/DayEndSummaryDetailsPage"
 import TaxReportDetailsPage from "../pages/reports/TaxReportDetailsPage";
 import OutletLogoPage from "../pages/outlets/OutletLogoPage";
 import DueReportPage from "../pages/reports/DueReportPage";
+import NcReportPage from "../pages/reports/NcReportPage";
+import AllNcReasonsPage from "../pages/nc/AllNcReasonsPage";
 
 const routeConfig = [
   // { path: "/", element: Dashboard, roles: [ROLES.SUPER_ADMIN] },
@@ -86,8 +88,12 @@ const routeConfig = [
   { path: "/shift-history", element: ShiftHistoryPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
   { path: "/shift-history/details", element: ShiftHistoryDetailsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
   { path: "/due-report", element: DueReportPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
+  { path: "/nc-report", element: NcReportPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
   { path: "/cancellation-report", element: CancellationReport, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
   
+  { path: "/nc-reasons", element: AllNcReasonsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
+
+
   { path: "/running-orders", element: RunningOrdersPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
   { path: "/running-tables", element: RunningTablesPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
   { path: "/day-end-summary", element: DayEndSummaryPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
