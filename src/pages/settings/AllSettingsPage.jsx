@@ -312,7 +312,6 @@ import PageHeader from "../../layout/PageHeader";
 const AllSettingsPage = () => {
   const dispatch = useDispatch();
   const { allSettings, loading } = useSelector((state) => state.setting);
-  console.log(allSettings);
 
   const navigate = useNavigate();
 

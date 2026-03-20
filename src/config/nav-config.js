@@ -30,6 +30,8 @@ import {
   LayoutGrid,
   Image,
   BadgeIndianRupee,
+  ClipboardList,
+  FlaskConical,
 } from "lucide-react";
 
 import { ROLES } from "../constants";
@@ -145,6 +147,100 @@ export const navConfig = [
       },
     ],
   },
+  {
+  title: "Inventory",
+  roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
+  items: [
+    // ─────────── DASHBOARD ───────────
+    {
+      name: "Stock Overview",
+      icon: Warehouse,
+      path: "/inventory",
+      roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
+    },
+
+    // ─────────── OPERATIONS ───────────
+    {
+      name: "Operations",
+      icon: BarChart3,
+      roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
+      children: [
+        {
+          name: "Stock Movements",
+          icon: BarChart3,
+          path: "/inventory-movements",
+          roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
+        },
+        {
+          name: "Purchase Orders",
+          icon: ReceiptText,
+          path: "/purchase-orders",
+          roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
+        },
+        {
+          name: "Vendors",
+          icon: Truck,
+          path: "/inventory-vendors",
+          roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
+        },
+      ],
+    },
+
+    // ─────────── PRODUCTION / RECIPES ───────────
+    {
+      name: "Production",
+      icon: ClipboardList,
+      roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
+      children: [
+        {
+          name: "Recipes",
+          icon: ClipboardList,
+          path: "/recipes",
+          roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
+        },
+        {
+          name: "Prep Recipes",
+          icon: FlaskConical,
+          path: "/prep-recipes",
+          roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
+        },
+      ],
+    },
+
+    // ─────────── MASTER DATA / SETUP ───────────
+    {
+      name: "Setup",
+      icon: Layers,
+      roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN],
+      children: [
+        {
+          name: "Items",
+          icon: Package,
+          path: "/inventory-items",
+          roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
+        },
+        {
+          name: "Ingredients",
+          icon: Package,
+          path: "/ingredients",
+          roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
+        },
+        {
+          name: "Categories",
+          icon: Layers,
+          path: "/inventory-categories",
+          roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
+        },
+        {
+          name: "Units",
+          icon: Layers,
+          path: "/inventory/units",
+          roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN],
+        },
+      ],
+    },
+  ],
+},
 
   {
     title: "Daily Operations",

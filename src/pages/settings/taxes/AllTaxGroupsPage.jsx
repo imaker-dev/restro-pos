@@ -197,7 +197,6 @@ const columns = [
       clearTaxStates();
       resetForm();
     });
-    console.log(id, values);
   };
 
   return (

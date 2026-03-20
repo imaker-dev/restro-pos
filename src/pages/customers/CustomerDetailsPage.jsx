@@ -110,9 +110,6 @@ const CustomerDetailsPage = () => {
 
   const { byOrderType, byPaymentStatus } = historyBreakdown || {};
 
-  console.log(byOrderType);
-  console.log(byPaymentStatus);
-
   const { columns, actions } = getOrderTableConfig(navigate);
 
   const orderStats = [

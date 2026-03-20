@@ -57,6 +57,28 @@ import OutletLogoPage from "../pages/outlets/OutletLogoPage";
 import DueReportPage from "../pages/reports/DueReportPage";
 import NcReportPage from "../pages/reports/NcReportPage";
 import AllNcReasonsPage from "../pages/nc/AllNcReasonsPage";
+import AllUnitsPage from "../pages/inventory/AllUnitsPage";
+import AllVendorsPage from "../pages/inventory/AllVendorsPage";
+import AddVendorPage from "../pages/inventory/AddVendorPage";
+import InventoryCategoryPage from "../pages/inventory/InventoryCategoryPage";
+import InventoryItemPage from "../pages/inventory/InventoryItemPage";
+import AddInventoryItemPage from "../pages/inventory/AddInventoryItemPage";
+import AllPurchaseOrdersPage from "../pages/inventory/AllPurchaseOrdersPage";
+import AddPurchaseOrdersPage from "../pages/inventory/AddPurchaseOrdersPage";
+import PurchaseOrderDetailsPage from "../pages/inventory/PurchaseOrderDetailsPage";
+import IngredientsPage from "../pages/receipe/IngredientsPage";
+import AddIngredientPage from "../pages/receipe/AddIngredientPage";
+import AllRecipePage from "../pages/receipe/AllRecipePage";
+import AddRecipePage from "../pages/receipe/AddRecipePage";
+import RecipeDetailsPage from "../pages/receipe/RecipeDetailsPage";
+import InventoryItemDetailsPage from "../pages/inventory/InventoryItemDetailsPage";
+import InventoryMovementsPage from "../pages/inventory/InventoryMovementsPage";
+import AllProductionRecipePage from "../pages/receipe/AllProductionRecipePage";
+import AddProductionRecipePage from "../pages/receipe/AddProductionRecipePage";
+import ProductionRecipeDetailsPage from "../pages/receipe/ProductionRecipeDetailsPage";
+import VendorDetailsPage from "../pages/inventory/VendorDetailsPage";
+import InventoryItemBatches from "../pages/inventory/InventoryItemBatches";
+import inventorySummaryPage from "../pages/inventory/inventorySummaryPage";
 
 const routeConfig = [
   // { path: "/", element: Dashboard, roles: [ROLES.SUPER_ADMIN] },
@@ -92,6 +114,35 @@ const routeConfig = [
   { path: "/cancellation-report", element: CancellationReport, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
   
   { path: "/nc-reasons", element: AllNcReasonsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
+
+
+
+  { path: "/inventory", element: inventorySummaryPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
+  { path: "/inventory/units", element: AllUnitsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
+  { path: "/inventory-vendors", element: AllVendorsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
+  { path: "/inventory-vendors/add", element: AddVendorPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
+  { path: "/inventory-vendors/details", element: VendorDetailsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
+  { path: "/inventory-categories", element: InventoryCategoryPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
+
+  { path: "/inventory-items", element: InventoryItemPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
+  { path: "/inventory-items/add", element: AddInventoryItemPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
+  { path: "/inventory-items/details", element: InventoryItemDetailsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
+  { path: "/inventory-items/batches", element: InventoryItemBatches, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
+  { path: "/inventory-movements", element: InventoryMovementsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
+
+  { path: "/purchase-orders", element: AllPurchaseOrdersPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
+  { path: "/purchase-orders/details", element: PurchaseOrderDetailsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
+  { path: "/purchase-orders/add", element: AddPurchaseOrdersPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
+
+
+  { path: "/ingredients", element: IngredientsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
+  { path: "/ingredients/add", element: AddIngredientPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
+  { path: "/recipes", element: AllRecipePage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
+  { path: "/recipes/add", element: AddRecipePage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
+  { path: "/recipes/details", element: RecipeDetailsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
+  { path: "/prep-recipes", element: AllProductionRecipePage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
+  { path: "/prep-recipes/add", element: AddProductionRecipePage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
+  { path: "/prep-recipes/details", element: ProductionRecipeDetailsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
 
 
   { path: "/running-orders", element: RunningOrdersPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },

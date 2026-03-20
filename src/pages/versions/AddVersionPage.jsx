@@ -126,7 +126,6 @@ const AddVersionPage = () => {
       force_update: Boolean(values.force_update),
       is_active: Boolean(values.is_active),
     };
-    console.log(payload);
 
     const action = versionId
       ? updateVersion({ id: versionId, values: payload })

@@ -17,16 +17,22 @@ import socketSlice from "../src/redux/slices/socketSlice";
 import uiSlice from "./redux/slices/uiSlice";
 import reportSlice from "./redux/slices/reportSlice";
 import dashboardSlice from "./redux/slices/dashboardSlice";
-import orderSlice from './redux/slices/orderSlice';
-import shiftSlice from './redux/slices/shiftSlice';
-import stationSlice from './redux/slices/stationSlice';
-import printerSlice from './redux/slices/printerSlice';
-import settingSlice from './redux/slices/settingSlice';
-import versionSlice from './redux/slices/versionSlice';
-import bulkUploadSlice from './redux/slices/bulkUploadSlice';
-import customerSlice from './redux/slices/customerSlice';
-import exportReportSlice from './redux/slices/exportReportSlice';
-import ncSlice from './redux/slices/ncSlice';
+import orderSlice from "./redux/slices/orderSlice";
+import shiftSlice from "./redux/slices/shiftSlice";
+import stationSlice from "./redux/slices/stationSlice";
+import printerSlice from "./redux/slices/printerSlice";
+import settingSlice from "./redux/slices/settingSlice";
+import versionSlice from "./redux/slices/versionSlice";
+import bulkUploadSlice from "./redux/slices/bulkUploadSlice";
+import customerSlice from "./redux/slices/customerSlice";
+import exportReportSlice from "./redux/slices/exportReportSlice";
+import ncSlice from "./redux/slices/ncSlice";
+import unitSlice from "./redux/slices/unitSlice";
+import vendorSlice from "./redux/slices/vendorSlice";
+import inventorySlice from "./redux/slices/inventorySlice";
+import ingredientSlice from "./redux/slices/ingredientSlice";
+import recipeSlice from "./redux/slices/recipeSlice";
+import itemBatchSlice from "./redux/slices/itemBatchSlice";
 
 const reducer = {
   auth: authSlice,
@@ -47,16 +53,22 @@ const reducer = {
   ui: uiSlice,
   report: reportSlice,
   dashboard: dashboardSlice,
-  order:orderSlice,
-  shift:shiftSlice,
-  station:stationSlice,
-  printer:printerSlice,
-  setting:settingSlice,
-  version:versionSlice,
-  bulkUpload:bulkUploadSlice,
-  customer:customerSlice,
+  order: orderSlice,
+  shift: shiftSlice,
+  station: stationSlice,
+  printer: printerSlice,
+  setting: settingSlice,
+  version: versionSlice,
+  bulkUpload: bulkUploadSlice,
+  customer: customerSlice,
   exportReport: exportReportSlice,
-  nc:ncSlice,
+  nc: ncSlice,
+  unit: unitSlice,
+  vendor: vendorSlice,
+  inventory: inventorySlice,
+  ingredient: ingredientSlice,
+  recipe: recipeSlice,
+  itemBatch:itemBatchSlice,
 };
 
 const store = configureStore({

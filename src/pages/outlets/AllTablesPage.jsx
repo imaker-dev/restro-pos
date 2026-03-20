@@ -155,7 +155,6 @@ const AllTablesPage = () => {
 
   const handleChangeTable = async (toTableId) => {
     if (!tableToMove) return;
-    console.log(toTableId);
     const fromTableId = tableToMove.id;
 
     // Prevent invalid move

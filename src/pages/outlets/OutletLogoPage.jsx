@@ -66,8 +66,6 @@ const handleSubmit = async () => {
     return <LoadingOverlay />;
   }
 
-  console.log(logo)
-
   return (
     <div className="space-y-6">
       <PageHeader title="Receipt Logo" />
