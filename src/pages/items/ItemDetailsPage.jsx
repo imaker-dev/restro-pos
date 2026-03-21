@@ -1,536 +1,476 @@
 import React, { useEffect } from "react";
-import {
-  Package,
-  Clock,
-  Flame,
-  AlertTriangle,
-  Star,
-  TrendingUp,
-  Sparkles,
-  Edit,
-  CheckCircle2,
-  XCircle,
-  ShoppingBag,
-  ChefHat,
-  MapPin,
-  IndianRupee,
-} from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useQueryParams } from "../../hooks/useQueryParams";
 import { fetchItemsById } from "../../redux/slices/itemSlice";
+import {
+  Tag,
+  ChefHat,
+  Hash,
+  Layers,
+  Package,
+  Plus,
+  FlaskConical,
+  IndianRupee,
+  CheckCircle2,
+  Utensils,
+  ShieldCheck,
+  ArrowUpRight,
+  Pencil,
+  Star,
+  Zap,
+} from "lucide-react";
+import { formatDate } from "../../utils/dateFormatter";
+import { formatNumber, num } from "../../utils/numberFormatter";
+import MetricPanel from "../../partial/report/daily-sales-report/MetricPanel";
+import FoodTypeIcon from "../../partial/common/FoodTypeIcon";
 import PageHeader from "../../layout/PageHeader";
+import StatusBadge from "../../layout/StatusBadge";
 import LoadingOverlay from "../../components/LoadingOverlay";
 
-// ─── Badge Component ───────────────────────────────────────────────────────────
-function Badge({ icon: Icon, label, color = "gray" }) {
-  const colors = {
-    green: "bg-emerald-50 text-emerald-700 border-emerald-200",
-    yellow: "bg-amber-50 text-amber-700 border-amber-200",
-    red: "bg-red-50 text-red-700 border-red-200",
-    blue: "bg-blue-50 text-blue-700 border-blue-200",
-    purple: "bg-purple-50 text-purple-700 border-purple-200",
-    gray: "bg-gray-50 text-gray-600 border-gray-200",
-  };
+const fmt = (v) => formatNumber(v, true);
 
+function InfoRow({ label, value, last = false, mono = false, children }) {
+  if (!children && !value && value !== 0) return null;
   return (
-    <span
-      className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium border ${colors[color]}`}
+    <div
+      className={`flex items-center justify-between gap-4 py-2.5 ${!last ? "border-b border-slate-100" : ""}`}
     >
-      {Icon && <Icon size={11} strokeWidth={2.5} />}
-      {label}
-    </span>
-  );
-}
-
-// ─── Section Header ────────────────────────────────────────────────────────────
-function SectionHeader({ icon: Icon, title, badge }) {
-  return (
-    <div className="flex items-center gap-2 mb-4">
-      <div className="w-7 h-7 rounded-lg bg-primary-50 flex items-center justify-center">
-        <Icon size={14} className="text-primary-600" strokeWidth={2} />
-      </div>
-      <h3 className="text-sm font-semibold text-gray-900">{title}</h3>
-      {badge && (
-        <span className="px-2 py-0.5 rounded-md text-xs font-medium bg-gray-100 text-gray-600">
-          {badge}
+      <span className="text-[11.5px] text-slate-500 font-medium flex-shrink-0">
+        {label}
+      </span>
+      {children ?? (
+        <span
+          className={`text-[12px] font-bold text-slate-800 text-right truncate ${mono ? "font-mono" : ""}`}
+        >
+          {value}
         </span>
       )}
     </div>
   );
 }
 
-// ─── Info Row ──────────────────────────────────────────────────────────────────
-function InfoRow({ label, value, mono = false }) {
-  return (
-    <div className="flex items-center justify-between py-2">
-      <span className="text-xs text-gray-600">{label}</span>
-      <span
-        className={`text-sm font-semibold text-gray-900 ${mono ? "font-mono text-xs" : ""}`}
-      >
-        {value || "—"}
-      </span>
-    </div>
-  );
-}
-
-// ─── Main Component ────────────────────────────────────────────────────────────
+// ─── MAIN PAGE ─────────────────────────────────────────────────────────────────
 const ItemDetailsPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { itemId } = useQueryParams();
   const { itemDetails: item, isFetchingItemDetails } = useSelector(
-    (state) => state.item,
+    (s) => s.item,
   );
 
   useEffect(() => {
-    if (itemId) {
-      dispatch(fetchItemsById(itemId));
-    }
+    if (itemId) dispatch(fetchItemsById(itemId));
   }, [itemId]);
 
-  // 1. LOADING STATE
-  if (isFetchingItemDetails) {
-    return <LoadingOverlay show text="Loading item..." />;
-  }
-
-  if (!item) {
-    return (
-      <div className="flex items-center justify-center py-12 text-gray-500">
-        <p>Item not found</p>
-      </div>
-    );
-  }
-
-  const defaultVariant =
-    item?.variants?.find((v) => v?.is_default) || item?.variants?.[0];
-
-  // Determine item type badge
-  const itemTypeConfig = {
-    veg: { label: "Veg", color: "green", icon: null },
-    non_veg: { label: "Non-Veg", color: "red", icon: null },
-    vegan: { label: "Vegan", color: "green", icon: null },
-    egg: { label: "Egg", color: "yellow", icon: null },
-  };
-
-  const itemType = itemTypeConfig[item?.item_type] || itemTypeConfig.veg;
-
-  const actions = [
-    {
-      label: "Edit",
-      type: "primary",
-      icon: Edit,
-      onClick: () => navigate(`/items/add?itemId=${itemId}`),
-    },
-  ];
+  if (isFetchingItemDetails) return <LoadingOverlay />;
 
   return (
-    <>
-      <div className="space-y-6">
-        <PageHeader
-          title={"Item Details"}
-          description={""}
-          showBackButton
-          actions={actions}
-        />
+    <div className="space-y-5">
+      <PageHeader onlyBack backLabel="Back to Menu" />
 
-        {/* Main Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-          {/* LEFT: Image + Primary Info */}
-          <div className="lg:col-span-4 xl:col-span-3 space-y-4 lg:sticky lg:top-20 self-start h-fit">
-            {/* Image */}
-            <div className="bg-white rounded-xl border border-gray-200 p-4">
-              <div className="aspect-square rounded-lg overflow-hidden bg-gray-100 mb-3">
-                {item?.image_url ? (
-                  <img
-                    src={item?.image_url}
-                    alt={item?.name}
-                    className="w-full h-full object-cover"
+      {/* ══ HERO ══════════════════════════════════════════════ */}
+      <div
+        className="bg-white rounded-2xl border border-slate-200 overflow-hidden"
+        style={{ boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}
+      >
+        <div className="p-6">
+          <div className="flex flex-col sm:flex-row sm:items-start gap-6">
+            {/* Left: icon + identity */}
+
+            <div className="min-w-0 flex-1">
+              {/* Name row */}
+              <div className="flex flex-wrap items-center gap-2.5 mb-2">
+                <FoodTypeIcon type={item.item_type} size="lg" />
+                <h1 className="text-[22px] font-black text-slate-900 leading-none">
+                  {item.name}
+                </h1>
+                <StatusBadge value={item.is_active} />
+
+                {/* {item.is_recommended && (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-black bg-amber-50 text-amber-700 border border-amber-200">
+                        <Star size={8} fill="currentColor" strokeWidth={0} />
+                        Recommended
+                      </span>
+                    )}
+                    {item.is_bestseller && (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-black bg-amber-50 text-amber-700 border border-amber-200">
+                        <Zap size={8} fill="currentColor" strokeWidth={0} />
+                        Bestseller
+                      </span>
+                    )}
+                    {item.is_new && (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-black bg-blue-50 text-blue-700 border border-blue-200">
+                        New
+                      </span>
+                    )} */}
+              </div>
+
+              {/* Meta chips */}
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+                <span className="flex items-center gap-1.5 text-[12px] text-slate-500 font-medium">
+                  <Tag size={11} className="text-slate-400" strokeWidth={2} />
+                  {item.category_name}
+                </span>
+                <span className="text-slate-300">·</span>
+                <span className="flex items-center gap-1.5 text-[12px] text-slate-500 font-medium">
+                  <Hash size={11} className="text-slate-400" strokeWidth={2} />
+                  {item.sku}
+                </span>
+                <span className="text-slate-300">·</span>
+                <span className="flex items-center gap-1.5 text-[12px] text-slate-500 font-medium">
+                  <ChefHat
+                    size={11}
+                    className="text-slate-400"
+                    strokeWidth={2}
                   />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <Package size={48} className="text-gray-300" />
-                  </div>
-                )}
-              </div>
-
-              {/* Price & Tax */}
-              <div className="grid grid-cols-2 gap-2">
-                <div className="p-2 rounded-lg bg-primary-50 text-center">
-                  <p className="text-xs text-primary-700 mb-0.5">Base Price</p>
-                  <p className="text-lg font-bold text-primary-900">
-                    ₹{item?.base_price}
-                  </p>
-                </div>
-                <div className="p-2 rounded-lg bg-emerald-50 text-center">
-                  <p className="text-xs text-emerald-700 mb-0.5">Tax Rate</p>
-                  <p className="text-lg font-bold text-emerald-900">
-                    {item?.tax_rate}%
-                  </p>
-                </div>
+                  {item.kitchen_station_name}
+                </span>
+                <span className="text-slate-300">·</span>
+                <span className="flex items-center gap-1.5 text-[12px] text-slate-500 font-medium capitalize">
+                  <Layers
+                    size={11}
+                    className="text-slate-400"
+                    strokeWidth={2}
+                  />
+                  {item.service_type?.replace("_", " ")}
+                </span>
               </div>
             </div>
 
-            {/* Basic Info Card */}
-            <div className="bg-white rounded-xl border border-gray-200 p-4">
-              <SectionHeader icon={Package} title="Basic Info" />
-              <div className="space-y-0 divide-y divide-gray-100">
-                <InfoRow label="SKU" value={item?.sku} mono />
-                <InfoRow label="Category" value={item?.category_name} />
-                <InfoRow label="Tax Group" value={item?.tax_group_name} />
-                <InfoRow
-                  label="Prep Time"
-                  value={`${item?.preparation_time_mins} min`}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* CENTER & RIGHT: Details */}
-          <div className="lg:col-span-8 xl:col-span-9 space-y-4">
-            {/* Title & Badges */}
-            <div className="bg-white rounded-xl border border-gray-200 p-5">
-              <h2 className="text-xl font-bold text-gray-900 mb-3">
-                {item?.name}
-              </h2>
-
-              {/* Badges Row */}
-              <div className="flex flex-wrap gap-2 mb-4">
-                <Badge label={itemType?.label} color={itemType?.color} />
-                {item?.is_available ? (
-                  <Badge icon={CheckCircle2} label="Available" color="green" />
-                ) : (
-                  <Badge icon={XCircle} label="Unavailable" color="red" />
-                )}
-                {item?.is_active && <Badge label="Active" color="blue" />}
-                {item?.is_bestseller && (
-                  <Badge icon={TrendingUp} label="Bestseller" color="yellow" />
-                )}
-                {item?.is_recommended && (
-                  <Badge icon={Star} label="Recommended" color="purple" />
-                )}
-                {item?.is_new && (
-                  <Badge icon={Sparkles} label="New" color="blue" />
-                )}
-              </div>
-
-              {/* Description */}
-              <p className="text-sm text-gray-700 leading-relaxed">
-                {item?.description}
+            {/* Right: price block */}
+            <div className="flex-shrink-0 sm:text-right">
+              <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.15em] mb-1">
+                {item.has_variants ? "Starting from" : "Base Price"}
               </p>
-
-              {/* Quick Info Pills */}
-              <div className="flex flex-wrap gap-3 mt-4 pt-4 border-t border-gray-100">
-                <div className="flex items-center gap-1.5 text-xs text-gray-600">
-                  <Clock size={13} className="text-gray-400" />
-                  <span className="font-medium">
-                    {item?.preparation_time_mins} min prep
-                  </span>
-                </div>
-
-                {item?.spice_level > 0 && (
-                  <div className="flex items-center gap-1.5 text-xs text-gray-600">
-                    <Flame size={13} className="text-orange-500" />
-                    <span className="font-medium">
-                      Spice {item?.spice_level}/5
-                    </span>
-                  </div>
-                )}
-
-                {item?.calories && (
-                  <div className="flex items-center gap-1.5 text-xs text-gray-600">
-                    <Flame size={13} className="text-amber-500" />
-                    <span className="font-medium">{item?.calories} kcal</span>
-                  </div>
-                )}
-
-                {item?.allergens && (
-                  <div className="flex items-center gap-1.5 text-xs text-gray-600">
-                    <AlertTriangle size={13} className="text-amber-500" />
-                    <span className="font-medium">{item?.allergens}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Two Column Grid */}
-            <div className="grid grid-cols-1  gap-4">
-              {/* Variants */}
-              <div className="bg-white rounded-xl border border-gray-200 p-4">
-                <SectionHeader
-                  icon={ShoppingBag}
-                  title="Variants"
-                  badge={item?.variants?.length}
-                />
-
-                {item?.variants?.length > 0 ? (
-                  <div className="space-y-2 max-h-[400px] overflow-y-auto pr-1">
-                    {item?.variants?.map((variant) => (
-                      <div
-                        key={variant?.id}
-                        className={`p-3 rounded-lg border transition-colors ${
-                          variant?.is_default
-                            ? "border-primary-200 bg-primary-50"
-                            : "border-gray-200 hover:border-gray-300"
-                        }`}
-                      >
-                        <div className="flex items-start justify-between mb-2">
-                          <p className="text-sm font-semibold text-gray-900 flex-1">
-                            {variant?.name}
-                          </p>
-                          {variant?.is_default && (
-                            <span className="px-1.5 py-0.5 rounded text-xs font-bold bg-primary-100 text-primary-700">
-                              DEFAULT
-                            </span>
-                          )}
-                        </div>
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="text-gray-600">Price</span>
-                          <span className="font-bold text-gray-900">
-                            ₹{variant?.price}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-sm text-gray-500 text-center py-6">
-                    No variants
-                  </p>
-                )}
-              </div>
-
-              {/* Addon Groups */}
-              {item?.has_addons && item?.addonGroups?.length > 0 && (
-                <div className="bg-white rounded-xl border border-gray-200 p-4">
-                  <SectionHeader
-                    icon={ShoppingBag}
-                    title="Addon Groups"
-                    badge={item?.addonGroups?.length}
-                  />
-
-                  <div className="space-y-4">
-                    {item?.addonGroups?.map((group) => (
-                      <div
-                        key={group?.id}
-                        className="border border-gray-200 rounded-lg p-4"
-                      >
-                        {/* Group Header */}
-                        <div className="flex items-center justify-between mb-3">
-                          <div>
-                            <p className="text-sm font-semibold text-gray-900">
-                              {group?.name}
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              {group?.selection_type === "single"
-                                ? "Single Selection"
-                                : "Multiple Selection"}{" "}
-                              • Min {group?.min_selection} • Max{" "}
-                              {group?.max_selection}
-                            </p>
-                          </div>
-
-                          {group?.is_required && (
-                            <span className="px-2 py-0.5 text-xs rounded bg-red-50 text-red-600 border border-red-200">
-                              Required
-                            </span>
-                          )}
-                        </div>
-
-                        {/* Addons List */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
-                          {group?.addons?.map((addon) => (
-                            <div
-                              key={addon?.id}
-                              className="p-2.5 rounded-lg border border-gray-200 bg-white hover:border-primary-200 transition-colors"
-                            >
-                              <div className="flex items-center justify-between">
-                                <p className="text-sm font-medium text-gray-900 truncate">
-                                  {addon?.name}
-                                </p>
-
-                                <p className="text-xs font-semibold text-primary-600 ml-3">
-                                  {Number(addon?.price) > 0
-                                    ? `₹${addon?.price}`
-                                    : "Free"}
-                                </p>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+              {item.has_variants ? (
+                <p className="text-[28px] font-black text-slate-900 tabular-nums leading-none">
+                  {fmt(Math.min(...item.variants.map((v) => num(v.price))))}
+                </p>
+              ) : (
+                <p className="text-[28px] font-black text-slate-900 tabular-nums leading-none">
+                  {num(item.base_price) > 0 ? fmt(item.base_price) : "—"}
+                </p>
               )}
-
-              {/* Kitchen Stations */}
-              <div className="bg-white rounded-xl border border-gray-200 p-4">
-                <SectionHeader
-                  icon={ChefHat}
-                  title="Kitchen Stations"
-                  badge={item?.kitchenStations?.length}
-                />
-
-                {item?.kitchen_station_name ? (
-                  <div className="p-3 rounded-lg border border-gray-200 hover:border-primary-200 transition-colors">
-                    <div className="flex items-center justify-between mb-1">
-                      <p className="text-sm font-semibold text-gray-900">
-                        {item?.kitchen_station_name}
-                      </p>
-                    </div>
-
-                    <p className="text-xs text-gray-500">
-                      Code: {item?.kitchen_station_code}
-                    </p>
-                  </div>
-                ) : (
-                  <p className="text-sm text-gray-500 text-center py-6">
-                    No station assigned
-                  </p>
-                )}
-              </div>
-            </div>
-
-            {/* Visibility Section */}
-            {item?.visibility?.floors?.length > 0 && (
-              <div className="bg-white rounded-xl border border-gray-200 p-4">
-                <SectionHeader
-                  icon={MapPin}
-                  title="Floor Visibility"
-                  badge={item?.visibility?.floors.length}
-                />
-
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2">
-                  {item?.visibility?.floors.map((floor) => (
-                    <div
-                      key={floor?.id}
-                      className={`p-2.5 rounded-lg border text-center transition-colors ${
-                        floor?.is_available
-                          ? "border-emerald-200 bg-emerald-50"
-                          : "border-gray-200 bg-gray-50"
-                      }`}
-                    >
-                      <p className="text-xs font-semibold text-gray-900 truncate mb-0.5">
-                        {floor?.name}
-                      </p>
-                      {floor?.price_override ? (
-                        <p className="text-xs font-bold text-primary-600">
-                          ₹{floor?.price_override}
-                        </p>
-                      ) : (
-                        <p className="text-xs text-gray-500">Base price</p>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Pricing Details */}
-            <div className="bg-white rounded-xl border border-gray-200 p-4">
-              <SectionHeader icon={IndianRupee} title="Pricing & Tax Details" />
-
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div>
-                  <p className="text-xs text-gray-500 mb-1">Base Price</p>
-                  <p className="text-lg font-bold text-gray-900">
-                    ₹{item?.base_price}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500 mb-1">Cost Price</p>
-                  <p className="text-lg font-bold text-gray-900">
-                    ₹{item?.cost_price}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500 mb-1">Tax Rate</p>
-                  <p className="text-lg font-bold text-gray-900">
-                    {item?.tax_rate}%
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500 mb-1">Tax Inclusive</p>
-                  <p className="text-lg font-bold text-gray-900">
-                    {item?.tax_inclusive ? "Yes" : "No"}
-                  </p>
-                </div>
-              </div>
-
-              {defaultVariant && (
-                <div className="mt-4 pt-4 border-t border-gray-100">
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
-                    Default Variant
-                  </p>
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm font-semibold text-gray-900">
-                      {defaultVariant?.name}
-                    </p>
-                    <p className="text-xl font-bold text-primary-600">
-                      ₹{defaultVariant?.price}
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Configuration */}
-            <div className="bg-white rounded-xl border border-gray-200 p-4">
-              <SectionHeader icon={Package} title="Configuration" />
-
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                {[
-                  { label: "Customizable", value: item?.is_customizable },
-                  { label: "Special Notes", value: item?.allow_special_notes },
-                  { label: "Has Variants", value: item?.has_variants },
-                  { label: "Has Add-ons", value: item?.has_addons },
-                ].map((config, idx) => (
-                  <div
-                    key={idx}
-                    className={`p-2.5 rounded-lg border text-center ${
-                      config?.value
-                        ? "border-emerald-200 bg-emerald-50"
-                        : "border-gray-200 bg-gray-50"
-                    }`}
-                  >
-                    <div className="flex items-center justify-center gap-1 mb-1">
-                      {config?.value ? (
-                        <CheckCircle2 size={12} className="text-emerald-600" />
-                      ) : (
-                        <XCircle size={12} className="text-gray-400" />
-                      )}
-                    </div>
-                    <p className="text-xs font-medium text-gray-700">
-                      {config?.label}
-                    </p>
-                  </div>
-                ))}
-
-                <div className="p-2.5 rounded-lg border border-gray-200 bg-gray-50 text-center">
-                  <p className="text-xs text-gray-500 mb-0.5">Min Qty</p>
-                  <p className="text-sm font-bold text-gray-900">
-                    {item?.min_quantity}
-                  </p>
-                </div>
-                <div className="p-2.5 rounded-lg border border-gray-200 bg-gray-50 text-center">
-                  <p className="text-xs text-gray-500 mb-0.5">Max Qty</p>
-                  <p className="text-sm font-bold text-gray-900">
-                    {item?.max_quantity}
-                  </p>
-                </div>
-                <div className="p-2.5 rounded-lg border border-gray-200 bg-gray-50 text-center">
-                  <p className="text-xs text-gray-500 mb-0.5">Step</p>
-                  <p className="text-sm font-bold text-gray-900">
-                    {item?.step_quantity}
-                  </p>
-                </div>
-              </div>
+              <p className="text-[11px] text-slate-400 font-medium mt-1.5">
+                {item.tax_group_name} · {item.tax_rate}%{" "}
+                {item.tax_inclusive ? "(incl.)" : ""}
+              </p>
             </div>
           </div>
         </div>
       </div>
-    </>
+
+      {/* ══ MAIN GRID ═════════════════════════════════════════ */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {/* ── LEFT (2 cols) ── */}
+        <div className="lg:col-span-2 space-y-4">
+          {/* Item Details */}
+          <MetricPanel icon={Utensils} title="Item Details">
+            <InfoRow label="Name" value={item.name} />
+            <InfoRow label="Short Name" value={item.short_name} />
+            <InfoRow label="SKU" value={item.sku} mono />
+            <InfoRow label="Category" value={item.category_name} />
+            <InfoRow
+              label="Type"
+              value={item.item_type === "veg" ? "Vegetarian" : "Non-Vegetarian"}
+            />
+            <InfoRow
+              label="Service Type"
+              value={item.service_type?.replace(/_/g, " ")}
+            />
+            <InfoRow
+              label="Kitchen Station"
+              value={`${item.kitchen_station_name} (${item.kitchen_station_code})`}
+            />
+            <InfoRow
+              label="Tax"
+              value={`${item.tax_group_name} · ${item.tax_rate}%${item.tax_inclusive ? " incl." : ""}`}
+            />
+            <InfoRow label="Display Order" value={item.display_order} last />
+          </MetricPanel>
+
+          {/* Pricing */}
+          <MetricPanel icon={IndianRupee} title={"Pricing"}>
+            <InfoRow
+              label="Base Price"
+              value={num(item.base_price) > 0 ? fmt(item.base_price) : "—"}
+            />
+            <InfoRow
+              label="Cost Price"
+              value={num(item.cost_price) > 0 ? fmt(item.cost_price) : "—"}
+            />
+            <InfoRow label="Min Qty" value={item.min_quantity} />
+            <InfoRow label="Max Qty" value={item.max_quantity ?? "No limit"} />
+            <InfoRow label="Step Qty" value={item.step_quantity} last />
+          </MetricPanel>
+
+          {/* Variants — shown inline if exists */}
+          {item.variants?.length > 0 && (
+            <MetricPanel
+              icon={Layers}
+              title="Variants"
+              desc={`${item.variants.length} size / portion options`}
+              noPad
+            >
+              <div className="divide-y divide-slate-100">
+                {item.variants.map((v) => (
+                  <div
+                    key={v.id}
+                    className="flex items-center gap-4 px-5 py-3.5 hover:bg-slate-50/60 transition-colors"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <p className="text-[13px] font-bold text-slate-800">
+                          {v.name}
+                        </p>
+                      </div>
+                      <p className="text-[10px] text-slate-400 font-mono">
+                        {v.sku}
+                      </p>
+                    </div>
+                    <div className="hidden sm:block text-center flex-shrink-0">
+                      <p className="text-[10px] text-slate-400 font-medium">
+                        Multiplier
+                      </p>
+                      <p className="text-[12px] font-bold text-slate-600">
+                        {v.inventory_multiplier}×
+                      </p>
+                    </div>
+                    {v.tax_group_name && (
+                      <div className="hidden md:block text-center flex-shrink-0">
+                        <p className="text-[10px] text-slate-400 font-medium">
+                          Tax
+                        </p>
+                        <p className="text-[12px] font-bold text-slate-600">
+                          {v.tax_group_name}
+                        </p>
+                      </div>
+                    )}
+                    <div className="text-right flex-shrink-0 w-20">
+                      <p className="text-[16px] font-black text-slate-900 tabular-nums">
+                        {fmt(v.price)}
+                      </p>
+                      {num(v.cost_price) > 0 && (
+                        <p className="text-[10px] text-slate-400 mt-0.5">
+                          Cost: {fmt(v.cost_price)}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </MetricPanel>
+          )}
+
+          {/* Add-ons — shown inline if exists */}
+          {item?.addonGroups?.length > 0 && (
+            <div className="space-y-3">
+              {item?.addonGroups.map((group) => (
+                <MetricPanel
+                  icon={Plus}
+                  title={group.name}
+                  desc={`${group.selection_type === "single" ? "Single" : "Multiple"} selection · ${group.addons?.length} options`}
+                  right={
+                    group.is_required ? (
+                      <span className="text-[10px] font-bold text-rose-600 bg-rose-50 px-2.5 py-1 rounded-full border border-rose-200">
+                        Required
+                      </span>
+                    ) : (
+                      <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full border border-slate-200">
+                        Optional
+                      </span>
+                    )
+                  }
+                  noPad
+                >
+                  <div className="divide-y divide-slate-100">
+                    {group.addons?.map((addon) => (
+                      <div
+                        key={addon.id}
+                        className="flex items-center gap-3 px-5 py-3 hover:bg-slate-50/60 transition-colors"
+                      >
+                        <FoodTypeIcon type={addon.item_type} size="sm" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[12.5px] font-bold text-slate-800">
+                            {addon.name}
+                          </p>
+                        </div>
+                        <p
+                          className={`text-[13px] font-bold tabular-nums flex-shrink-0 ${num(addon.price) > 0 ? "text-slate-800" : "text-slate-400"}`}
+                        >
+                          {num(addon.price) > 0
+                            ? `+${fmt(addon.price)}`
+                            : "Free"}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </MetricPanel>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* ── RIGHT SIDEBAR ── */}
+        <div className="space-y-4">
+          {/* Recipes */}
+          {item.recipes?.length > 0 && (
+            <MetricPanel
+              icon={FlaskConical}
+              title={`Recipe${item.recipes.length > 1 ? "s" : ""}`}
+              desc={`${item.recipes.length} linked recipe${item.recipes.length > 1 ? "s" : ""}`}
+              noPad
+            >
+              <div className="divide-y divide-slate-100">
+                {item.recipes.map((recipe) => (
+                  <button
+                    key={recipe.id}
+                    onClick={() =>
+                      navigate(`/recipes/details?recipeId=${recipe.id}`)
+                    }
+                    className="group w-full text-left flex items-center gap-4 px-5 py-3.5 hover:bg-slate-50 transition-colors duration-100"
+                  >
+                    {/* Icon */}
+                    <div className="w-9 h-9 rounded-xl bg-primary-50 border border-primary-200 flex items-center justify-center flex-shrink-0">
+                      <FlaskConical
+                        size={15}
+                        className="text-primary-500"
+                        strokeWidth={2}
+                      />
+                    </div>
+
+                    {/* Name + meta */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <p className="text-[13px] font-bold text-slate-800 truncate">
+                          {recipe.name}
+                        </p>
+                        {recipe.isCurrent && (
+                          <span className="inline-flex items-center gap-1 text-[9px] font-black text-primary-600 bg-primary-50 px-1.5 py-0.5 rounded-full border border-primary-200 flex-shrink-0">
+                            <span className="w-1 h-1 rounded-full bg-primary-500" />
+                            Current
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {recipe.portionSize && (
+                          <span className="flex items-center gap-1 text-[10px] text-slate-400 font-medium">
+                            <Package size={9} strokeWidth={2} />
+                            {recipe.portionSize}
+                          </span>
+                        )}
+                        {recipe.portionSize &&
+                          recipe.ingredients?.length > 0 && (
+                            <span className="text-slate-300 text-[10px]">
+                              ·
+                            </span>
+                          )}
+                        {recipe.ingredients?.length > 0 && (
+                          <span className="flex items-center gap-1 text-[10px] text-slate-400 font-medium">
+                            <FlaskConical size={9} strokeWidth={2} />
+                            {recipe.ingredients.length} ingredients
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Cost */}
+                    <div className="text-right flex-shrink-0">
+                      <p className="text-[15px] font-black text-slate-900 tabular-nums">
+                        {fmt(recipe.totalCostPerPortion)}
+                      </p>
+                      <p className="text-[9px] text-slate-400 font-medium mt-0.5">
+                        per portion
+                      </p>
+                    </div>
+
+                    {/* Arrow */}
+                    <ArrowUpRight
+                      size={14}
+                      className="text-slate-300 group-hover:text-primary-500 transition-colors flex-shrink-0"
+                      strokeWidth={2}
+                    />
+                  </button>
+                ))}
+              </div>
+            </MetricPanel>
+          )}
+
+          {/* Status & Flags */}
+          <MetricPanel icon={ShieldCheck} title="Status & Flags" noPad>
+            <div className="px-5 py-3 space-y-1.5">
+              {[
+                { label: "Active", val: item.is_active },
+                { label: "Available", val: item.is_available },
+                { label: "Recommended", val: item.is_recommended },
+                { label: "Bestseller", val: item.is_bestseller },
+                { label: "New", val: item.is_new },
+                { label: "Customizable", val: item.is_customizable },
+                { label: "Special Notes", val: item.allow_special_notes },
+                { label: "Has Variants", val: item.has_variants },
+                { label: "Has Add-ons", val: item.has_addons },
+              ].map(({ label, val }) => (
+                <div
+                  key={label}
+                  className="flex items-center justify-between py-1"
+                >
+                  <span className="text-[12px] text-slate-500 font-medium">
+                    {label}
+                  </span>
+                  <span
+                    className={`flex items-center gap-1 text-[11px] font-bold ${val ? "text-emerald-600" : "text-slate-300"}`}
+                  >
+                    {val ? (
+                      <>
+                        <CheckCircle2 size={12} strokeWidth={2.5} />
+                        Yes
+                      </>
+                    ) : (
+                      <span className="text-[11px] font-medium text-slate-400">
+                        No
+                      </span>
+                    )}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </MetricPanel>
+
+          {/* Meta */}
+          <MetricPanel icon={Hash} title="Meta" noPad>
+            <div className="px-5 py-1 pb-3">
+              <InfoRow label="ID" value={`#${item.id}`} mono />
+              <InfoRow label="Slug" value={item.slug} mono />
+              <InfoRow
+                label="Spice Level"
+                value={item.spice_level > 0 ? `${item.spice_level}/5` : "None"}
+              />
+              <InfoRow label="Calories" value={item.calories ?? "—"} />
+              <InfoRow label="Allergens" value={item.allergens ?? "—"} />
+              <InfoRow
+                label="Created"
+                value={formatDate(item.created_at, "long")}
+              />
+              <InfoRow
+                label="Updated"
+                value={formatDate(item.updated_at, "long")}
+                last
+              />
+            </div>
+          </MetricPanel>
+
+          {/* Edit button */}
+          <button
+            onClick={() => navigate(`/items/add?itemId=${item.id}`)}
+            className="btn w-full flex items-center justify-center rounded-lg gap-2 py-2.5 text-[12px] bg-primary-500 text-white transition-all hover:bg-primary-600 hover:shadow-md hover:-translate-y-px"
+          >
+            <Pencil size={13} strokeWidth={2} />
+            Edit Item
+          </button>
+        </div>
+      </div>
+    </div>
   );
 };
 

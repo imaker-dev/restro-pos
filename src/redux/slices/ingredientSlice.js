@@ -5,8 +5,8 @@ import IngredientServices from "../services/IngredientServices";
 // Fetch all ingredients
 export const fetchAllIngredients = createAsyncThunk(
   "/fetch/ingredients",
-  async (outletId) => {
-    const res = await IngredientServices.getAllIngredientsApi(outletId);
+  async ({outletId,page,limit,search}) => {
+    const res = await IngredientServices.getAllIngredientsApi(outletId,page,limit,search);
     return res.data;
   },
 );

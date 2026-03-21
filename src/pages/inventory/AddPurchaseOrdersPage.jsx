@@ -34,7 +34,7 @@ const AddPurchaseOrderPage = () => {
     if (!outletId) return;
     dispatch(fetchVendors(outletId));
     dispatch(fetchAllUnits(outletId));
-    dispatch(fetchAllInventoryItems(outletId));
+    dispatch(fetchAllInventoryItems({outletId}));
   }, [outletId]);
 
   /* ---------------- HELPERS ---------------- */

@@ -133,11 +133,14 @@ export default function InventoryBadge({
 }) {
   let item;
 
-  if (type === "category") {
-    // dynamic color for category
-    const [bg, text, dot] = getDynamicCategoryColor(value || "unknown");
-    item = { bg, text, dot, label: value || "Unknown" };
-  } else {
+if (type === "category") {
+  item = {
+    bg: "bg-indigo-50",
+    text: "text-indigo-700",
+    dot: "bg-indigo-500",
+    label: value || "Unknown",
+  };
+} else {
     // fixed color from config
     const group = INVENTORY_CONFIG[type] || {};
     item = group[value?.toLowerCase()] || {

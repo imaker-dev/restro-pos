@@ -23,6 +23,7 @@ import SearchBar from "../../components/SearchBar";
 import InventoryItemWastageoverlay from "../../partial/inventory/inventory/InventoryItemWastageoverlay";
 import { handleResponse } from "../../utils/helpers";
 import InventoryItemCardSkeleton from "../../partial/inventory/inventory/InventoryItemCardSkeleton";
+import Pagination from "../../components/Pagination";
 
 /* ═══════════════════════════════════════════════════════════════════════════
    MAIN PAGE
@@ -44,13 +45,26 @@ const InventoryItemPage = () => {
   const [showWastage, setShowWastage] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(9);
+
+  const [searchQuery, setSearchQuery] = useState("");
+
   const fetchInventory = () => {
-    dispatch(fetchAllInventoryItems(outletId));
+    dispatch(
+      fetchAllInventoryItems({
+        outletId,
+        page: currentPage,
+        limit: itemsPerPage,
+        search: searchQuery,
+      }),
+    );
   };
+
   useEffect(() => {
     if (!outletId) return;
     fetchInventory();
-  }, [outletId]);
+  }, [outletId, currentPage, itemsPerPage, searchQuery]);
 
   /* ── derived stats ── */
   const lowStockItems = items.filter(
@@ -150,7 +164,10 @@ const InventoryItemPage = () => {
           </div>
         )}
 
-        <SearchBar placeholder="Search by name, SKU, category…" />
+        <SearchBar
+          placeholder="Search by name, SKU, category…"
+          onSearch={(value) => setSearchQuery(value)}
+        />
 
         {/* ── Alerts strip ── */}
         {(lowStockItems > 0 || outOfStock > 0) && (
@@ -217,6 +234,20 @@ const InventoryItemPage = () => {
             className="bg-white"
           />
         )}
+
+        <Pagination
+          totalItems={pagination?.total}
+          currentPage={currentPage}
+          pageSize={itemsPerPage}
+          totalPages={pagination?.totalPages}
+          onPageChange={(page) => setCurrentPage(page)}
+          maxPageNumbers={5}
+          showPageSizeSelector={true}
+          onPageSizeChange={(size) => {
+            setCurrentPage(1);
+            setItemsPerPage(size);
+          }}
+        />
       </div>
 
       <StockAdjustOverlay

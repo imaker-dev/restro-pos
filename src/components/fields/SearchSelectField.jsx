@@ -28,9 +28,7 @@ export function SearchSelectField({
       return;
     }
 
-    const found = options.find(
-      (o) => String(o.value) === String(value)
-    );
+    const found = options.find((o) => String(o.value) === String(value));
 
     if (found) {
       setSelectedOption(found);
@@ -43,10 +41,10 @@ export function SearchSelectField({
   const filtered = onSearch
     ? options
     : query
-    ? options.filter((o) =>
-        o.label.toLowerCase().includes(query.toLowerCase())
-      )
-    : options;
+      ? options.filter((o) =>
+          o.label.toLowerCase().includes(query.toLowerCase()),
+        )
+      : options;
 
   // ✅ close on outside click
   useEffect(() => {
@@ -85,16 +83,19 @@ export function SearchSelectField({
           onBlur={onBlur}
           disabled={disabled}
           className={`
-            w-full flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl border bg-white text-sm
-            transition-all duration-150
-            ${error ? "border-red-400" : ""}
-            ${
-              open
-                ? "border-primary-400 ring-2 ring-primary-100"
-                : "border-slate-200 hover:border-slate-300"
-            }
-            ${disabled ? "bg-slate-100 cursor-not-allowed" : ""}
-          `}
+  w-full flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl border text-sm
+  transition-all duration-150
+
+  ${error ? "border-red-400" : ""}
+
+  ${
+    disabled
+      ? "bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed opacity-70"
+      : open
+        ? "bg-white border-primary-400 ring-2 ring-primary-100"
+        : "bg-white border-slate-200 hover:border-slate-300"
+  }
+`}
         >
           <span
             className={`truncate ${
@@ -158,8 +159,7 @@ export function SearchSelectField({
                 </div>
               ) : (
                 filtered.map((item) => {
-                  const isSelected =
-                    String(value) === String(item.value);
+                  const isSelected = String(value) === String(item.value);
 
                   return (
                     <div
@@ -181,10 +181,7 @@ export function SearchSelectField({
                       <span className="truncate">{item.label}</span>
 
                       {isSelected && (
-                        <CheckCircle2
-                          size={15}
-                          className="text-primary-600"
-                        />
+                        <CheckCircle2 size={15} className="text-primary-600" />
                       )}
                     </div>
                   );

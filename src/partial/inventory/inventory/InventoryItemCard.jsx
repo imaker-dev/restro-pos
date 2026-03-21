@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { formatDate } from "../../../utils/dateFormatter";
 import { useDispatch } from "react-redux";
+import InventoryBadge from "./InventoryBadge";
 // import { adjustStock } from "../../../redux/slices/inventorySlice"; // ← wire up
 
 /* ─── Animated stock bar ──────────────────────────────────────────────────── */
@@ -78,24 +79,6 @@ function StockBadge({ item }) {
   );
 }
 
-/* ─── Category pill colors ────────────────────────────────────────────────── */
-const CAT_COLORS = [
-  "bg-violet-50 text-violet-700 ring-violet-200",
-  "bg-sky-50 text-sky-700 ring-sky-200",
-  "bg-teal-50 text-teal-700 ring-teal-200",
-  "bg-rose-50 text-rose-700 ring-rose-200",
-  "bg-orange-50 text-orange-700 ring-orange-200",
-  "bg-indigo-50 text-indigo-700 ring-indigo-200",
-];
-
-const catColorMap = {};
-let catIdx = 0;
-function getCatColor(name) {
-  if (!catColorMap[name])
-    catColorMap[name] = CAT_COLORS[catIdx++ % CAT_COLORS.length];
-  return catColorMap[name];
-}
-
 /* ══════════════════════════════════════════════════════════════════════════
    INVENTORY ITEM CARD
 ══════════════════════════════════════════════════════════════════════════ */
@@ -106,7 +89,6 @@ export default function InventoryItemCard({ item, onAdjust, onWastage }) {
     item.maximumStock > 0
       ? Math.round((item.currentStock / item.maximumStock) * 100)
       : 0;
-  const catColor = getCatColor(item.categoryName);
 
   return (
     <>
@@ -141,11 +123,11 @@ export default function InventoryItemCard({ item, onAdjust, onWastage }) {
                   {item.name}
                 </p>
                 <div className="flex flex-wrap items-center gap-1.5 mt-0.5">
-                  <span
-                    className={`inline-flex items-center text-[10px] font-bold px-2 py-0.5 rounded-full ring-1 ${catColor}`}
-                  >
-                    {item.categoryName}
-                  </span>
+                  <InventoryBadge
+                    type="category"
+                    value={item.categoryName}
+                    size="sm"
+                  />
                   <span className="text-[10px] font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">
                     {item.sku}
                   </span>

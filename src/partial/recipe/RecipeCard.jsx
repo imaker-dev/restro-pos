@@ -13,23 +13,31 @@ import { formatNumber } from "../../utils/numberFormatter";
 import { Link } from "react-router-dom";
 import { formatDate } from "../../utils/dateFormatter";
 import { useEffect, useState } from "react";
+import { TrendingUp, TrendingDown } from "lucide-react";
+import Tooltip from "../../components/Tooltip";
 
 /* ─── Profit badge ────────────────────────────────────────────────────────── */
 function ProfitBadge({ profit }) {
   const isProfit = profit >= 0;
+
+  const label = isProfit ? "Profitable" : "Loss";
+
   return (
-    <span
-      className={`inline-flex items-center gap-1.5 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide ring-1 ${
-        isProfit
-          ? "bg-emerald-50 text-emerald-700 ring-emerald-200"
-          : "bg-red-50 text-red-700 ring-red-200"
-      }`}
-    >
+    <Tooltip content={label}>
       <span
-        className={`w-1 h-1 rounded-full ${isProfit ? "bg-emerald-500" : "bg-red-500"} flex-shrink-0`}
-      />
-      {isProfit ? "Profitable" : "Loss"}
-    </span>
+        className={`inline-flex items-center justify-center w-6 h-6 rounded-full ring-1 ${
+          isProfit
+            ? "bg-emerald-50 text-emerald-600 ring-emerald-200"
+            : "bg-red-50 text-red-600 ring-red-200"
+        }`}
+      >
+        {isProfit ? (
+          <TrendingUp className="w-3.5 h-3.5" />
+        ) : (
+          <TrendingDown className="w-3.5 h-3.5" />
+        )}
+      </span>
+    </Tooltip>
   );
 }
 
@@ -79,12 +87,21 @@ export function RecipeCard({ recipe }) {
               <ChefHat size={16} className="text-white" strokeWidth={1.8} />
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-extrabold text-slate-900 leading-snug truncate flex items-center gap-1">
+              <div className="text-sm font-extrabold text-slate-900 leading-snug truncate flex items-center gap-1">
                 <FoodTypeIcon type={recipe.itemType} />
                 {recipe.name}
-              </p>
-              <p className="text-[11px] text-slate-500 font-semibold truncate mt-0.5">
+              </div>
+              {/* <p className="text-[11px] text-slate-500 font-semibold truncate mt-0.5">
                 {recipe.menuItemName}
+              </p> */}
+              <p className="text-[11px] text-slate-500 font-semibold truncate mt-0.5">
+                <Link
+                  to={`/items/details?itemId=${recipe.menuItemId}`}
+                  onClick={(e) => e.stopPropagation()}
+                  className="hover:text-primary-600 hover:underline transition-all duration-150"
+                >
+                  {recipe.menuItemName}
+                </Link>
               </p>
             </div>
           </div>

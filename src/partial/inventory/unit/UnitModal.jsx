@@ -26,12 +26,40 @@ const validationSchema = Yup.object({
     .typeError("Must be a number")
     .positive("Must be positive")
     .required("Conversion factor is required"),
-
-  isBaseUnit: Yup.boolean(),
 });
 
-const UnitModal = ({ isOpen, onClose, onSubmit, unit, loading = false }) => {
+const UnitModal = ({
+  isOpen,
+  onClose,
+  onSubmit,
+  unit,
+  loading = false,
+  units = [],
+}) => {
   const isEditMode = !!unit;
+
+  const getBaseUnit = (type) => {
+    return units.find((u) => u.unitType === type && u.isBaseUnit);
+  };
+  const getConversionHint = () => {
+    const { unitType, conversionFactor, name } = formik.values;
+
+    if (!unitType) return "Select a unit type to see conversion guidance";
+
+    const baseUnit = getBaseUnit(unitType);
+
+    if (!baseUnit) {
+      return "⚠️ No base unit found for this type";
+    }
+
+    if (!conversionFactor) {
+      return `Base unit: ${baseUnit.name} (${baseUnit.abbreviation})`;
+    }
+
+    const value = Number(conversionFactor);
+
+    return `1 ${name || "unit"} = ${value} ${baseUnit.abbreviation}`;
+  };
 
   const formik = useFormik({
     enableReinitialize: true,
@@ -41,7 +69,6 @@ const UnitModal = ({ isOpen, onClose, onSubmit, unit, loading = false }) => {
       abbreviation: unit?.abbreviation || "",
       unitType: unit?.unitType || "",
       conversionFactor: unit?.conversionFactor || "",
-      isBaseUnit: unit ? Boolean(unit.isBaseUnit) : false,
     },
 
     validationSchema,
@@ -125,21 +152,11 @@ const UnitModal = ({ isOpen, onClose, onSubmit, unit, loading = false }) => {
             formik.touched.conversionFactor && formik.errors.conversionFactor
           }
         />
-
-        <ToggleField
-          label="Base Unit"
-          description="Base unit is the smallest measurement used for conversions."
-          checked={formik.values.isBaseUnit}
-          onChange={(value) => formik.setFieldValue("isBaseUnit", value)}
-          activeColorClass="bg-emerald-600"
-          inactiveColorClass="bg-red-600"
-        />
-
         <InfoCard
           size="sm"
           type="info"
           title="Unit Conversion"
-          description="Conversion factor defines how this unit converts to the base unit. Example: 1 Quintal = 100000 grams."
+          description={getConversionHint()}
         />
 
         <div className="flex justify-end gap-3 pt-4">

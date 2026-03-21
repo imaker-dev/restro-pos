@@ -6,7 +6,7 @@ import {
   fetchAllInventoryCategories,
   updateInventoryCategory,
 } from "../../redux/slices/inventorySlice";
-import { Plus } from "lucide-react";
+import { Edit2, Plus } from "lucide-react";
 import InventoryCategoryModal from "../../partial/inventory/inventory/InventoryCategoryModal";
 import { handleResponse } from "../../utils/helpers";
 import StatusBadge from "../../layout/StatusBadge";
@@ -23,9 +23,10 @@ const InventoryCategoryPage = () => {
     isUpdatingCategory,
   } = useSelector((state) => state.inventory);
 
-  const {categories,pagination} = allCategories || {}
+  const { categories, pagination } = allCategories || {};
 
   const [showCategoryModal, setShowCategoryModal] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState(null);
 
   const fetchCategory = () => {
     dispatch(fetchAllInventoryCategories(outletId));
@@ -104,6 +105,18 @@ const InventoryCategoryPage = () => {
     },
   ];
 
+  const rowActions = [
+    {
+      label: "Update",
+      icon: Edit2,
+      color: "blue",
+      onClick: (row) => {
+        setShowCategoryModal(true);
+        setSelectedCategory(row);
+      },
+    },
+  ];
+
   return (
     <>
       <div className="space-y-6">
@@ -114,7 +127,7 @@ const InventoryCategoryPage = () => {
           totalcount={categories?.length}
           data={categories}
           columns={columns}
-          //   actions={rowActions}
+          actions={rowActions}
           loading={isFetchingCategories}
         />
       </div>
@@ -122,6 +135,7 @@ const InventoryCategoryPage = () => {
       <InventoryCategoryModal
         isOpen={showCategoryModal}
         onClose={resetCategoryStates}
+        category={selectedCategory}
         onConfirm={handleAddCategory}
         loading={isCreatingCategory || isUpdatingCategory}
       />

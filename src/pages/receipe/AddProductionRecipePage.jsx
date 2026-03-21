@@ -1,161 +1,39 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Formik, Form, FieldArray } from "formik";
 import * as Yup from "yup";
 import PageHeader from "../../layout/PageHeader";
-import AccordionSection from "../../components/AccordionSection";
-import LoadingOverlay from "../../components/LoadingOverlay";
 import { InputField } from "../../components/fields/InputField";
 import { SelectField } from "../../components/fields/SelectField";
 import { TextareaField } from "../../components/fields/TextareaField";
-import { SearchSelectField } from "../../components/fields/SearchSelectField";
-
+import AccordionSection from "../../components/AccordionSection";
 import {
   BookOpen,
+  ChefHat,
+  Clock,
   FlaskConical,
   Plus,
-  Trash2,
-  AlertCircle,
   Loader2,
 } from "lucide-react";
-
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { useQueryParams } from "../../hooks/useQueryParams";
 import { handleResponse } from "../../utils/helpers";
-
-// import {
-//   createProductionRecipe,
-//   updateProductionRecipe,
-//   fetchProductionRecipeById,
-// } from "../../redux/slices/productionSlice";
-
+import { SearchSelectField } from "../../components/fields/SearchSelectField";
 import { fetchAllInventoryItems } from "../../redux/slices/inventorySlice";
 import { fetchAllUnits } from "../../redux/slices/unitSlice";
-
-/* ─── Ingredient Row (SAME DESIGN AS YOUR RECIPE PAGE) ───────────────────── */
-function IngredientRow({
-  index,
-  values,
-  items,
-  units,
-  formik,
-  remove,
-  canRemove,
-}) {
-  return (
-    <div className="bg-white border border-slate-100 rounded-2xl hover:border-slate-200 transition">
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 py-2.5 bg-slate-50 border-b">
-        <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-lg bg-slate-200 flex items-center justify-center">
-            <span className="text-[10px] font-bold text-slate-600">
-              {index + 1}
-            </span>
-          </div>
-          <span className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">
-            Ingredient {index + 1}
-          </span>
-        </div>
-
-        {canRemove && (
-          <button
-            type="button"
-            onClick={() => remove(index)}
-            className="w-7 h-7 rounded-lg hover:bg-red-50 hover:text-red-500 text-slate-400 flex items-center justify-center"
-          >
-            <Trash2 size={13} />
-          </button>
-        )}
-      </div>
-
-      {/* Body */}
-      <div className="p-4 space-y-5">
-        <SearchSelectField
-          label="Item"
-          value={values.inventoryItemId}
-          onChange={(v) =>
-            formik.setFieldValue(
-              `ingredients.${index}.inventoryItemId`,
-              v
-            )
-          }
-          onBlur={() =>
-            formik.setFieldTouched(
-              `ingredients.${index}.inventoryItemId`,
-              true
-            )
-          }
-          options={(items || []).map((i) => ({
-            value: i.id,
-            label: i.name,
-          }))}
-          error={
-            formik.touched.ingredients?.[index]?.inventoryItemId &&
-            formik.errors.ingredients?.[index]?.inventoryItemId
-          }
-        />
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <InputField
-            label="Quantity"
-            name={`ingredients.${index}.quantity`}
-            type="number"
-            placeholder="0.00"
-            required
-            value={values.quantity}
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-            error={
-              formik.touched.ingredients?.[index]?.quantity &&
-              formik.errors.ingredients?.[index]?.quantity
-            }
-          />
-
-          <SelectField
-            label="Unit"
-            name={`ingredients.${index}.unitId`}
-            required
-            options={units?.map((u) => ({
-              value: u.id,
-              label: u.abbreviation ?? u.name,
-            }))}
-            value={values.unitId}
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-            error={
-              formik.touched.ingredients?.[index]?.unitId &&
-              formik.errors.ingredients?.[index]?.unitId
-            }
-          />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ═══════════════════════════════════════════════════════════════════════════ */
+import {
+  createProductionRecipe,
+  fetchProductionRecipeById,
+  updateProductionRecipe,
+} from "../../redux/slices/recipeSlice";
+import { IngredientRow } from "../../partial/recipe/production-receipe/IngredientRow";
+import { fetchAllIngredients } from "../../redux/slices/ingredientSlice";
+import { useQueryParams } from "../../hooks/useQueryParams";
+import LoadingOverlay from "../../components/LoadingOverlay";
 
 const AddProductionRecipePage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { recipeId } = useQueryParams();
-
-  const { outletId } = useSelector((s) => s.auth);
-  // const { productionRecipeDetails, isFetching } = useSelector(
-  //   (s) => s.production
-  // );
-
-  const { allInventoryItems } = useSelector((s) => s.inventory);
-  const { items } = allInventoryItems || {};
-
-  const { allUnits } = useSelector((s) => s.unit);
-  const { units } = allUnits || {};
-
-  useEffect(() => {
-    if (!outletId) return;
-    dispatch(fetchAllInventoryItems(outletId));
-    dispatch(fetchAllUnits(outletId));
-  }, [outletId]);
 
   useEffect(() => {
     if (recipeId) {
@@ -163,131 +41,210 @@ const AddProductionRecipePage = () => {
     }
   }, [recipeId]);
 
+  const [searchItemQuery, setSearchItemQuery] = useState("");
+  const [searchIngredientQuery, setSearchIngredientQuery] = useState("");
+
+  const { outletId } = useSelector((s) => s.auth);
+  const { allItemsData } = useSelector((s) => s.inventory);
+  const { items } = allItemsData || {};
+  const { allIngredients } = useSelector((state) => state.ingredient);
+  const { ingredients } = allIngredients || {};
+  const { allUnits } = useSelector((s) => s.unit);
+  const { units } = allUnits || {};
+
+  const {
+    isCreatingProductionRecipe,
+    isFetchingProductionRecipeDetails,
+    productionRecipeDetails,
+    isUpdatingProductionRecipe,
+  } = useSelector((s) => s.recipe);
+
+  console.log(productionRecipeDetails);
+  useEffect(() => {
+    if (!outletId) return;
+    dispatch(fetchAllInventoryItems({ outletId, search: searchItemQuery }));
+  }, [outletId, searchItemQuery]);
+
+  useEffect(() => {
+    if (!outletId) return;
+    dispatch(fetchAllIngredients({ outletId, search: searchIngredientQuery }));
+  }, [outletId, searchIngredientQuery]);
+
+  useEffect(() => {
+    if (!outletId) return;
+    dispatch(fetchAllUnits(outletId));
+  }, [outletId]);
+
+  /* Initial Values */
   const getInitialValues = () => {
-    if (!recipeId || !productionRecipeDetails) {
+    if (recipeId && productionRecipeDetails) {
       return {
-        name: "",
-        outputInventoryItemId: "",
-        outputQuantity: "",
-        outputUnitId: "",
-        preparationTimeMins: "",
-        description: "",
-        ingredients: [
-          {
-            inventoryItemId: "",
-            quantity: "",
-            unitId: "",
-          },
-        ],
+        outputInventoryItemId:
+          productionRecipeDetails.outputInventoryItemId || "",
+        name: productionRecipeDetails.name || "",
+        description: productionRecipeDetails.description || "",
+        preparationTimeMins: productionRecipeDetails.preparationTimeMins || "",
+        instructions: productionRecipeDetails.instructions || "",
+        outputQuantity: productionRecipeDetails.outputQuantity || "",
+        outputUnitId: productionRecipeDetails.outputUnitId || "",
+
+        ingredients:
+          productionRecipeDetails.ingredients?.length > 0
+            ? productionRecipeDetails.ingredients.map((i) => ({
+                inventoryItemId: i.inventoryItemId || "",
+                quantity: i.quantity || "",
+                unitId: i.unitId || "",
+                wastagePercentage: i.wastagePercentage || 0,
+                notes: i.notes || "",
+              }))
+            : [
+                {
+                  inventoryItemId: "",
+                  quantity: "",
+                  unitId: "",
+                  wastagePercentage: 0,
+                  notes: "",
+                },
+              ],
       };
     }
 
+    // CREATE MODE
     return {
-      name: productionRecipeDetails.name || "",
-      outputInventoryItemId:
-        productionRecipeDetails.outputInventoryItemId || "",
-      outputQuantity: productionRecipeDetails.outputQuantity || "",
-      outputUnitId: productionRecipeDetails.outputUnitId || "",
-      preparationTimeMins:
-        productionRecipeDetails.preparationTimeMins || "",
-      description: productionRecipeDetails.description || "",
-      ingredients:
-        productionRecipeDetails.ingredients?.map((i) => ({
-          inventoryItemId: i.inventoryItemId,
-          quantity: i.quantity,
-          unitId: i.unitId,
-        })) || [],
+      outputInventoryItemId: "",
+      name: "",
+      description: "",
+      preparationTimeMins: "",
+      instructions: "",
+      outputQuantity: "",
+      outputUnitId: "",
+      ingredients: [
+        {
+          inventoryItemId: "",
+          quantity: "",
+          unitId: "",
+          wastagePercentage: 0,
+          notes: "",
+        },
+      ],
     };
   };
 
+  /* Validation */
   const validationSchema = Yup.object({
-    name: Yup.string().required("Required"),
-    outputInventoryItemId: Yup.number().required("Required"),
-    outputQuantity: Yup.number().required("Required"),
-    outputUnitId: Yup.number().required("Required"),
+    outputInventoryItemId: Yup.number().required("Output item is required"),
+    name: Yup.string().required("Recipe name is required"),
+    preparationTimeMins: Yup.number()
+      .typeError("Enter valid number")
+      .required("Prep time required"),
+    outputQuantity: Yup.number()
+      .typeError("Enter valid number")
+      .required("Output quantity required")
+      .min(0.01),
+    outputUnitId: Yup.number().required("Output unit required"),
+
     ingredients: Yup.array()
       .of(
         Yup.object({
-          inventoryItemId: Yup.number().required("Required"),
-          quantity: Yup.number().required("Required"),
-          unitId: Yup.number().required("Required"),
-        })
+          inventoryItemId: Yup.number().required("Ingredient required"),
+          quantity: Yup.number()
+            .typeError("Enter valid number")
+            .required("Quantity required")
+            .min(0.01),
+          unitId: Yup.number().required("Unit required"),
+        }),
       )
       .min(1, "Add at least one ingredient"),
   });
 
+  /* Submit */
   const handleSubmit = async (values) => {
     const payload = {
-      name: values.name.trim(),
+      name: values.name,
+      description: values.description,
       outputInventoryItemId: Number(values.outputInventoryItemId),
       outputQuantity: Number(values.outputQuantity),
       outputUnitId: Number(values.outputUnitId),
-      preparationTimeMins: values.preparationTimeMins
-        ? Number(values.preparationTimeMins)
-        : null,
-      description: values.description || null,
+      preparationTimeMins: Number(values.preparationTimeMins),
+      instructions: values.instructions,
       ingredients: values.ingredients.map((i) => ({
         inventoryItemId: Number(i.inventoryItemId),
         quantity: Number(i.quantity),
         unitId: Number(i.unitId),
+        wastagePercentage: Number(i.wastagePercentage) || 0,
+        notes: i.notes,
       })),
     };
 
     const action = recipeId
       ? updateProductionRecipe({ id: recipeId, values: payload })
       : createProductionRecipe({ outletId, values: payload });
-
-    await handleResponse(dispatch(action), () =>
-      navigate("/production-recipes")
-    );
+    await handleResponse(dispatch(action), () => {
+      navigate(-1);
+    });
   };
 
-  if (recipeId && isFetching) return <LoadingOverlay />;
+  if (recipeId && isFetchingProductionRecipeDetails)
+    return <LoadingOverlay text="loading recipe details..." />;
 
   return (
     <div className="space-y-6">
       <PageHeader
         title={
-          recipeId
-            ? "Edit Production Recipe"
-            : "Create Production Recipe"
+          recipeId ? "Update Pre Prepared Recipe" : "Create Pre Prepared Recipe"
         }
         showBackButton
       />
-
       <Formik
         initialValues={getInitialValues()}
+        enableReinitialize
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
-        enableReinitialize
       >
         {(formik) => (
           <Form className="space-y-5">
-            {/* INFO */}
-            <AccordionSection title="Production Info" icon={BookOpen}>
+            {/* Recipe Info */}
+            <AccordionSection title="Recipe Info" icon={BookOpen}>
               <div className="space-y-5">
                 <InputField
                   label="Recipe Name"
                   name="name"
-                  required
+                  placeholder="e.g. Tomato Base Gravy"
                   value={formik.values.name}
                   onChange={formik.handleChange}
+                  error={formik.touched.name && formik.errors.name}
                 />
 
-                <div className="grid md:grid-cols-2 gap-4">
-                  <SearchSelectField
-                    label="Output Item"
-                    value={formik.values.outputInventoryItemId}
-                    onChange={(v) =>
-                      formik.setFieldValue(
-                        "outputInventoryItemId",
-                        v
-                      )
+                <SearchSelectField
+                  label="Output Item"
+                  placeholder="Select output (e.g. Tomato Gravy)"
+                  value={formik.values.outputInventoryItemId}
+                  onChange={(v) =>
+                    formik.setFieldValue("outputInventoryItemId", v)
+                  }
+                  options={(items || []).map((i) => ({
+                    value: i.id,
+                    label: i.name,
+                  }))}
+                  error={
+                    formik.touched.outputInventoryItemId &&
+                    formik.errors.outputInventoryItemId
+                  }
+                  onSearch={(value) => setSearchItemQuery(value)}
+                />
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <InputField
+                    label="Output Quantity"
+                    name="outputQuantity"
+                    type="number"
+                    placeholder="e.g. 5"
+                    value={formik.values.outputQuantity}
+                    onChange={formik.handleChange}
+                    error={
+                      formik.touched.outputQuantity &&
+                      formik.errors.outputQuantity
                     }
-                    options={items?.map((i) => ({
-                      value: i.id,
-                      label: i.name,
-                    }))}
                   />
 
                   <SelectField
@@ -295,56 +252,62 @@ const AddProductionRecipePage = () => {
                     name="outputUnitId"
                     options={units?.map((u) => ({
                       value: u.id,
-                      label: u.name,
+                      label: u.abbreviation,
                     }))}
                     value={formik.values.outputUnitId}
                     onChange={formik.handleChange}
+                    error={
+                      formik.touched.outputUnitId && formik.errors.outputUnitId
+                    }
+                  />
+
+                  <InputField
+                    label="Preparation Time (mins)"
+                    name="preparationTimeMins"
+                    type="number"
+                    placeholder="e.g. 45"
+                    value={formik.values.preparationTimeMins}
+                    onChange={formik.handleChange}
+                    icon={Clock}
+                    error={
+                      formik.touched.preparationTimeMins &&
+                      formik.errors.preparationTimeMins
+                    }
                   />
                 </div>
-
-                <InputField
-                  label="Output Quantity"
-                  name="outputQuantity"
-                  type="number"
-                  value={formik.values.outputQuantity}
-                  onChange={formik.handleChange}
-                />
 
                 <TextareaField
                   label="Description"
                   name="description"
+                  placeholder="Short description"
                   value={formik.values.description}
                   onChange={formik.handleChange}
                 />
               </div>
             </AccordionSection>
 
-            {/* INGREDIENTS */}
+            {/* Ingredients */}
             <AccordionSection title="Ingredients" icon={FlaskConical}>
               <FieldArray name="ingredients">
                 {({ push, remove }) => (
                   <div className="space-y-3">
-                    {typeof formik.errors.ingredients === "string" && (
-                      <div className="text-red-500 text-sm">
-                        {formik.errors.ingredients}
-                      </div>
-                    )}
-
                     {formik.values.ingredients.map((ing, i) => (
                       <IngredientRow
                         key={i}
                         index={i}
                         values={ing}
-                        items={items}
+                        ingredients={ingredients}
                         units={units}
                         formik={formik}
                         remove={remove}
-                        canRemove={
-                          formik.values.ingredients.length > 1
+                        onIngredientSearch={(value) =>
+                          setSearchIngredientQuery(value)
                         }
+                        canRemove={formik.values.ingredients.length > 1}
                       />
                     ))}
 
+                    {/* Add ingredient button */}
                     <button
                       type="button"
                       onClick={() =>
@@ -352,21 +315,62 @@ const AddProductionRecipePage = () => {
                           inventoryItemId: "",
                           quantity: "",
                           unitId: "",
+                          wastagePercentage: 0,
+                          notes: "",
                         })
                       }
-                      className="w-full border-2 border-dashed py-3 rounded-xl flex justify-center gap-2"
+                      className="w-full border-2 border-dashed border-slate-200 hover:border-primary-400 rounded-2xl py-3.5 flex items-center justify-center gap-2.5 hover:bg-primary-50/30 transition-all duration-200 group"
                     >
-                      <Plus size={16} /> Add Ingredient
+                      <div className="w-7 h-7 rounded-full bg-slate-100 group-hover:bg-primary-100 flex items-center justify-center transition-colors">
+                        <Plus
+                          size={14}
+                          className="text-slate-500 group-hover:text-primary-600"
+                          strokeWidth={2.5}
+                        />
+                      </div>
+                      <span className="text-sm font-semibold text-slate-500 group-hover:text-primary-600 transition-colors">
+                        Add Ingredient
+                      </span>
                     </button>
                   </div>
                 )}
               </FieldArray>
             </AccordionSection>
 
-            {/* SUBMIT */}
-            <div className="flex justify-end">
-              <button className="btn bg-primary-500 text-white">
-                Save Recipe
+            {/* Instructions */}
+            <AccordionSection title="Preparation Instructions" icon={ChefHat}>
+              <TextareaField
+                name="instructions"
+                placeholder="Step-by-step instructions..."
+                value={formik.values.instructions}
+                onChange={formik.handleChange}
+                rows={10}
+              />
+            </AccordionSection>
+
+            {/* Submit */}
+            <div className="flex justify-between">
+              <button type="button" onClick={() => navigate(-1)}>
+                Cancel
+              </button>
+
+              <button
+                type="submit"
+                disabled={
+                  isCreatingProductionRecipe || isUpdatingProductionRecipe
+                }
+                className="btn bg-primary-500 text-white flex items-center gap-2"
+              >
+                {isCreatingProductionRecipe || isUpdatingProductionRecipe ? (
+                  <>
+                    <Loader2 className="animate-spin" size={16} />
+                    {recipeId ? "Updating..." : "Saving..."}
+                  </>
+                ) : recipeId ? (
+                  "Update Recipe"
+                ) : (
+                  "Save Recipe"
+                )}
               </button>
             </div>
           </Form>

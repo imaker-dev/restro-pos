@@ -183,6 +183,12 @@ export const navConfig = [
           path: "/inventory-vendors",
           roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
         },
+        {
+         name: "Inventory Wastage",
+          icon: Truck,
+          path: "/inventory-wastage",
+          roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
+        },
       ],
     },
 

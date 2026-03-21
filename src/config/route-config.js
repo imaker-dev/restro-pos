@@ -79,6 +79,7 @@ import ProductionRecipeDetailsPage from "../pages/receipe/ProductionRecipeDetail
 import VendorDetailsPage from "../pages/inventory/VendorDetailsPage";
 import InventoryItemBatches from "../pages/inventory/InventoryItemBatches";
 import inventorySummaryPage from "../pages/inventory/inventorySummaryPage";
+import InventoryWastagePage from "../pages/inventory/InventoryWastagePage";
 
 const routeConfig = [
   // { path: "/", element: Dashboard, roles: [ROLES.SUPER_ADMIN] },
@@ -129,6 +130,7 @@ const routeConfig = [
   { path: "/inventory-items/details", element: InventoryItemDetailsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
   { path: "/inventory-items/batches", element: InventoryItemBatches, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
   { path: "/inventory-movements", element: InventoryMovementsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
+  { path: "/inventory-wastage", element: InventoryWastagePage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
 
   { path: "/purchase-orders", element: AllPurchaseOrdersPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
   { path: "/purchase-orders/details", element: PurchaseOrderDetailsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },

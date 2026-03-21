@@ -4,6 +4,7 @@ import { ChevronDown } from "lucide-react";
 const AccordionSection = ({
   title,
   icon: Icon, // icon passed as component
+  index,
   children,
   defaultOpen = true,
   className = "",
@@ -37,6 +38,12 @@ const AccordionSection = ({
         className="flex items-center justify-between px-6 py-4 cursor-pointer border-b border-slate-300 hover:bg-gray-50 transition-colors duration-200 select-none"
       >
         <div className="flex items-center gap-2 font-medium text-gray-700">
+          {/* 👇 Index badge */}
+          {typeof index === "number" && (
+            <div className="w-7 h-7 flex items-center justify-center rounded-md bg-primary-100 text-primary-700 text-xs font-semibold">
+              {index + 1}
+            </div>
+          )}
           {Icon && <Icon className="w-5 h-5 text-orange-500" />}
           <span>{title}</span>
         </div>

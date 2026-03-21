@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import PageHeader from "../../layout/PageHeader";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -8,7 +8,6 @@ import {
   User,
   Phone,
   Mail,
-  MapPin,
   Building2,
   CreditCard,
   Hash,
@@ -17,24 +16,38 @@ import {
   IndianRupee,
   TrendingUp,
   CheckCircle2,
-  ArrowLeft,
+  AlertTriangle,
   Landmark,
   FileText,
   Clock,
-  BadgeCheck,
   Package,
+  ChevronRight,
+  Banknote,
+  Smartphone,
+  ArrowLeft,
 } from "lucide-react";
 import { formatDate } from "../../utils/dateFormatter";
-import { formatNumber } from "../../utils/numberFormatter";
+import { formatNumber, num } from "../../utils/numberFormatter";
+import InventoryBadge from "../../partial/inventory/inventory/InventoryBadge";
+import MetricPanel from "../../partial/report/daily-sales-report/MetricPanel";
+import StatCard from "../../components/StatCard";
+import Tabs from "../../components/Tabs";
+import LoadingOverlay from "../../components/LoadingOverlay";
+import NoDataFound from "../../layout/NoDataFound";
 
-const fmt = (v) => formatNumber(v, true);
-const num = (v) => Number(v || 0);
+const PAY_METHOD = {
+  cash: { icon: Banknote, label: "Cash" },
+  upi: { icon: Smartphone, label: "UPI" },
+  card: { icon: CreditCard, label: "Card" },
+  bank: { icon: Landmark, label: "Bank" },
+  cheque: { icon: FileText, label: "Cheque" },
+};
 
-// Skeleton
+// ─── Skeleton ─────────────────────────────────────────────────────────────────
 function Skeleton() {
   return (
     <div className="animate-pulse space-y-5">
-      <div className="h-[180px] rounded-2xl bg-slate-200" />
+      <div className="h-[160px] rounded-2xl bg-slate-200" />
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {[...Array(4)].map((_, i) => (
           <div key={i} className="h-[88px] rounded-2xl bg-slate-100" />
@@ -42,101 +55,19 @@ function Skeleton() {
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="lg:col-span-2 space-y-4">
-          <div className="h-[240px] rounded-2xl bg-slate-100" />
           <div className="h-[200px] rounded-2xl bg-slate-100" />
+          <div className="h-[280px] rounded-2xl bg-slate-100" />
         </div>
         <div className="space-y-4">
+          <div className="h-[180px] rounded-2xl bg-slate-100" />
           <div className="h-[200px] rounded-2xl bg-slate-100" />
-          <div className="h-[160px] rounded-2xl bg-slate-100" />
         </div>
       </div>
     </div>
   );
 }
 
-// StatTile
-function StatTile({ icon: Icon, label, value, sub, dark = false }) {
-  const bg = dark
-    ? "bg-slate-900 border-slate-800"
-    : "bg-white border-slate-200";
-  const sh = dark
-    ? "0 4px 16px rgba(15,23,42,0.22)"
-    : "0 1px 3px rgba(0,0,0,0.06)";
-  return (
-    <div
-      className={`relative rounded-2xl p-4 overflow-hidden border ${bg}`}
-      style={{ boxShadow: sh }}
-    >
-      <div
-        className={`absolute -top-4 -right-4 w-14 h-14 rounded-full pointer-events-none ${dark ? "bg-white/5" : "bg-slate-50"}`}
-      />
-      <div className="relative z-10">
-        <div className="flex items-start justify-between gap-1 mb-3">
-          <p
-            className={`text-[9px] font-black uppercase tracking-[0.13em] ${dark ? "text-white/40" : "text-slate-400"}`}
-          >
-            {label}
-          </p>
-          <div
-            className={`w-6 h-6 rounded-lg flex items-center justify-center ${dark ? "bg-white/10" : "bg-slate-100"}`}
-          >
-            <Icon
-              size={12}
-              className={dark ? "text-white/60" : "text-slate-500"}
-              strokeWidth={2}
-            />
-          </div>
-        </div>
-        <p
-          className={`text-[21px] font-black tabular-nums leading-none ${dark ? "text-white" : "text-slate-900"}`}
-        >
-          {value}
-        </p>
-        {sub && (
-          <p
-            className={`text-[9.5px] font-medium mt-1.5 ${dark ? "text-white/35" : "text-slate-400"}`}
-          >
-            {sub}
-          </p>
-        )}
-      </div>
-    </div>
-  );
-}
-
-// Panel
-function Panel({ children, className = "" }) {
-  return (
-    <div
-      className={`bg-white rounded-2xl border border-slate-200 overflow-hidden ${className}`}
-      style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}
-    >
-      {children}
-    </div>
-  );
-}
-
-function PanelHead({ icon: Icon, title, subtitle }) {
-  return (
-    <div className="flex items-center gap-3 px-5 py-4 border-b border-slate-100">
-      <div className="w-7 h-7 rounded-lg bg-slate-900 flex items-center justify-center flex-shrink-0">
-        <Icon size={13} className="text-white" strokeWidth={2} />
-      </div>
-      <div>
-        <p className="text-[12.5px] font-black text-slate-800 leading-none">
-          {title}
-        </p>
-        {subtitle && (
-          <p className="text-[10px] text-slate-400 font-medium mt-0.5">
-            {subtitle}
-          </p>
-        )}
-      </div>
-    </div>
-  );
-}
-
-// InfoRow
+// ─── Info row ─────────────────────────────────────────────────────────────────
 function InfoRow({ icon: Icon, label, value, mono = false, last = false }) {
   if (!value && value !== 0) return null;
   return (
@@ -146,7 +77,7 @@ function InfoRow({ icon: Icon, label, value, mono = false, last = false }) {
       <div className="w-6 h-6 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
         <Icon size={11} className="text-slate-500" strokeWidth={2} />
       </div>
-      <span className="text-[11.5px] text-slate-500 font-medium flex-1">
+      <span className="text-[12px] text-slate-500 font-medium flex-1">
         {label}
       </span>
       <span
@@ -158,12 +89,100 @@ function InfoRow({ icon: Icon, label, value, mono = false, last = false }) {
   );
 }
 
-// Main
+// ─── Purchase row ─────────────────────────────────────────────────────────────
+function PurchaseRow({ p, navigate, last }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className={!last ? "border-b border-slate-100" : ""}>
+      <div
+        className="flex items-center gap-3 px-5 py-3.5 hover:bg-slate-50 transition-colors duration-100 cursor-pointer"
+        onClick={() => setOpen((o) => !o)}
+      >
+        {/* Date + number */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap mb-0.5">
+            <p className="text-[13px] font-bold text-slate-800">
+              {p.purchaseNumber}
+            </p>
+            <InventoryBadge type="payment" value={p.paymentStatus} size="sm" />
+          </div>
+          <div className="flex items-center gap-1.5 text-[11px] text-slate-400">
+            <span>{formatDate(p.purchaseDate, "long")}</span>
+            <span>·</span>
+            <span className="font-mono">{p.invoiceNumber}</span>
+            <span>·</span>
+            <span>
+              {p.itemCount} item{p.itemCount !== 1 ? "s" : ""}
+            </span>
+          </div>
+        </div>
+        {/* Paid / Due */}
+        <div className="text-right flex-shrink-0">
+          <p className="text-[14px] font-black text-slate-900 tabular-nums">
+            {formatNumber(p.totalAmount, true)}
+          </p>
+          {num(p.dueAmount) > 0 && (
+            <p className="text-[10px] font-bold text-rose-600 tabular-nums mt-0.5">
+              {formatNumber(p.dueAmount, true)} due
+            </p>
+          )}
+          {num(p.dueAmount) === 0 && (
+            <p className="text-[10px] font-bold text-emerald-600 mt-0.5">
+              Paid
+            </p>
+          )}
+        </div>
+        <ChevronRight
+          size={14}
+          className={`text-slate-300 flex-shrink-0 transition-transform duration-200 ${open ? "rotate-90" : ""}`}
+          strokeWidth={2}
+        />
+      </div>
+
+      {/* Expanded items */}
+      {open && (
+        <div className="px-5 pb-3 bg-slate-50">
+          <div className="rounded-xl border border-slate-200 overflow-hidden">
+            {p.items.map((item, i) => (
+              <div
+                key={item.id}
+                className={`flex items-center gap-3 px-3.5 py-2.5 ${i < p.items.length - 1 ? "border-b border-slate-100" : ""} bg-white`}
+              >
+                <div className="flex-1 min-w-0">
+                  <p className="text-[12px] font-bold text-slate-800">
+                    {item.itemName}
+                  </p>
+                  <p className="text-[10px] text-slate-400 font-mono mt-0.5">
+                    {item.itemSku}
+                  </p>
+                </div>
+                <div className="text-right text-[11px] text-slate-500">
+                  {item.quantity} {item.unitAbbreviation} ×{" "}
+                  {formatNumber(item.pricePerUnit, true)}
+                </div>
+                <div className="text-right flex-shrink-0 w-16">
+                  <p className="text-[12px] font-bold text-slate-800 tabular-nums">
+                    {formatNumber(item.totalCost, true)}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── MAIN PAGE ────────────────────────────────────────────────────────────────
 const VendorDetailsPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const [activeTab, setActiveTab] = useState("overview");
+
   const { vendorId } = useQueryParams();
-  const { isFetchingVendorDetails, vendorDetails: vendor } = useSelector(
+  const { isFetchingVendorDetails, vendorDetails } = useSelector(
     (s) => s.vendor,
   );
 
@@ -171,460 +190,603 @@ const VendorDetailsPage = () => {
     if (vendorId) dispatch(fetchVendorById(vendorId));
   }, [vendorId]);
 
-  const initial = (vendor?.name || "V").charAt(0).toUpperCase();
-  const hasGst = !!vendor?.gstNumber;
-  const hasPan = !!vendor?.panNumber;
-  const hasBank = vendor?.bankName || vendor?.bankAccount;
-  const hasAddr = vendor?.address || vendor?.city || vendor?.state;
+  const {
+    vendor,
+    financialSummary: fs,
+    purchases,
+    itemsSupplied = [],
+    paymentHistory = [],
+    outstandingPurchases = [],
+  } = vendorDetails || {};
+  const purchaseList = purchases?.data || [];
+
+  const stats = [
+    {
+      icon: IndianRupee,
+      label: "Total Purchased",
+      value: formatNumber(fs?.totalPurchaseAmount, true),
+      sub: "Lifetime spend",
+      color: "slate",
+      dark: true,
+    },
+    {
+      icon: ShoppingCart,
+      label: "Total Orders",
+      value: num(fs?.totalPurchases),
+      sub: "Purchase orders",
+      color: "blue",
+    },
+    {
+      icon: AlertTriangle,
+      label: "Outstanding Due",
+      value: formatNumber(fs?.totalDueAmount, true),
+      sub: `${num(fs?.paymentBreakdown?.unpaid)} unpaid`,
+      color: "red",
+      dark: true,
+    },
+    {
+      icon: TrendingUp,
+      label: "Avg Order Value",
+      value: formatNumber(fs?.avgPurchaseValue, true),
+      sub: "Per purchase average",
+      color: "green",
+    },
+  ];
+
+  const TABS = [
+    {
+      id: "overview",
+      label: "Overview",
+    },
+    {
+      id: "purchases",
+      label: "Purchases",
+      count: purchaseList?.length || 0,
+    },
+    {
+      id: "items",
+      label: "Items Supplied",
+      count: itemsSupplied?.length || 0,
+    },
+    {
+      id: "payments",
+      label: "Payments",
+      count: paymentHistory?.length || 0,
+    },
+  ];
+
+  if (isFetchingVendorDetails) return <LoadingOverlay />;
 
   return (
-    <>
-      <style>{`
-        @keyframes vdUp { from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);} }
-        .vdu { animation: vdUp 0.4s ease both; }
-      `}</style>
+    <div className="space-y-5 pb-10">
+      <PageHeader title="Vendor Details" showBackButton />
 
-      <div className="space-y-5 pb-10">
-        {/* Header */}
+      {isFetchingVendorDetails && <Skeleton />}
+
+      {/* HERO */}
+      <div
+        className="relative rounded-3xl overflow-hidden shadow-lg"
+        style={{
+          background:
+            "linear-gradient(135deg, var(--color-primary-600), var(--color-primary-700))",
+        }}
+      >
+        {/* highlight line */}
         <div
-          className="vdu flex flex-col md:flex-row md:items-center md:justify-between gap-4"
-          style={{ animationDelay: "0ms" }}
-        >
-          <PageHeader title="Vendor Details" showBackButton />
-        </div>
+          className="absolute top-0 left-0 right-0 h-[1px]"
+          style={{
+            background:
+              "linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)",
+          }}
+        />
 
-        {isFetchingVendorDetails && <Skeleton />}
+        {/* glow */}
+        <div className="absolute -top-20 -right-20 w-72 h-72 rounded-full bg-white/10 pointer-events-none" />
 
-        {vendor && !isFetchingVendorDetails && (
-          <>
-            {/* ── HERO ── */}
-            <div
-              className="vdu relative rounded-2xl overflow-hidden"
-              style={{
-                animationDelay: "40ms",
-                background:
-                  "linear-gradient(160deg,#0f172a 0%,#1e293b 55%,#1e3a5f 100%)",
-                boxShadow: "0 8px 32px rgba(0,0,0,0.22)",
-              }}
-            >
-              <div
-                className="absolute top-0 left-0 right-0 h-[1px]"
-                style={{
-                  background:
-                    "linear-gradient(90deg,transparent,rgba(148,163,184,0.2),transparent)",
-                }}
-              />
-              <div
-                className="absolute -top-16 -right-16 w-56 h-56 rounded-full pointer-events-none opacity-20"
-                style={{
-                  background:
-                    "radial-gradient(circle,rgba(99,102,241,0.6),transparent 70%)",
-                }}
-              />
+        <div className="relative z-10 px-6 py-5 text-white">
+          {/* ── Top Row ── */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+            {/* Left Section */}
+            <div className="flex items-center gap-4 flex-1 min-w-0">
+              {/* Avatar */}
+              <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-white/15 border border-white/20 backdrop-blur text-[20px] font-black select-none">
+                {(vendor?.name || "V").charAt(0).toUpperCase()}
+              </div>
 
-              <div className="relative z-10 p-6">
-                <div className="flex flex-col sm:flex-row sm:items-center gap-5">
-                  {/* Avatar + identity */}
-                  <div className="flex items-center gap-4 flex-1 min-w-0">
-                    <div
-                      className="w-16 h-16 rounded-2xl flex items-center justify-center flex-shrink-0 text-[26px] font-black text-white select-none"
-                      style={{
-                        background: "linear-gradient(145deg,#6366f1,#4f46e5)",
-                        boxShadow: "0 4px 16px rgba(99,102,241,0.45)",
-                      }}
-                    >
-                      {initial}
-                    </div>
-                    <div className="min-w-0">
-                      <div className="flex flex-wrap items-center gap-2 mb-1.5">
-                        <h1 className="text-[22px] font-black text-white leading-none">
-                          {vendor.name}
-                        </h1>
-                        {vendor.isActive ? (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-black bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                            ACTIVE
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-black bg-white/8 text-white/50 border border-white/15">
-                            <span className="w-1.5 h-1.5 rounded-full bg-white/40" />
-                            INACTIVE
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex flex-wrap items-center gap-3">
-                        {vendor.contactPerson && (
-                          <span className="flex items-center gap-1.5 text-[11px] text-white/45 font-medium">
-                            <User
-                              size={10}
-                              strokeWidth={2}
-                              className="text-white/30"
-                            />
-                            {vendor.contactPerson}
-                          </span>
-                        )}
-                        {vendor.phone && (
-                          <span className="flex items-center gap-1.5 text-[11px] text-white/45 font-medium">
-                            <Phone
-                              size={10}
-                              strokeWidth={2}
-                              className="text-white/30"
-                            />
-                            {vendor.phone}
-                          </span>
-                        )}
-                        {vendor.email && (
-                          <span className="flex items-center gap-1.5 text-[11px] text-white/45 font-medium">
-                            <Mail
-                              size={10}
-                              strokeWidth={2}
-                              className="text-white/30"
-                            />
-                            {vendor.email}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
+              <div className="min-w-0">
+                <h1 className="text-[20px] font-bold leading-tight truncate">
+                  {vendor?.name}
+                </h1>
 
-                  {/* Total purchase */}
-                  <div className="flex-shrink-0 sm:text-right">
-                    <p className="text-[9px] font-black text-white/30 uppercase tracking-[0.15em] mb-1">
-                      Total Purchases
-                    </p>
-                    <p className="text-[36px] font-black text-white tabular-nums leading-none">
-                      {fmt(vendor.totalPurchaseAmount)}
-                    </p>
-                    <p className="text-[10px] text-white/30 font-medium mt-1.5">
-                      {num(vendor.purchaseCount)} purchase
-                      {num(vendor.purchaseCount) !== 1 ? "s" : ""} made
-                    </p>
-                  </div>
+                <div className="flex flex-wrap items-center gap-3 mt-1 text-[11px] text-white/75">
+                  {vendor?.contactPerson && (
+                    <span className="flex items-center gap-1">
+                      <User size={11} className="text-white/50" />
+                      {vendor.contactPerson}
+                    </span>
+                  )}
+
+                  {vendor?.phone && (
+                    <span className="flex items-center gap-1">
+                      <Phone size={11} className="text-white/50" />
+                      {vendor.phone}
+                    </span>
+                  )}
+
+                  {vendor?.email && (
+                    <span className="flex items-center gap-1">
+                      <Mail size={11} className="text-white/50" />
+                      {vendor.email}
+                    </span>
+                  )}
                 </div>
+              </div>
+            </div>
 
-                {/* 3-col strip */}
-                <div className="grid grid-cols-3 gap-2 mt-5">
-                  {[
-                    {
-                      icon: ShoppingCart,
-                      label: "Purchase Count",
-                      value: num(vendor.purchaseCount),
-                      sub: "Total orders",
-                    },
-                    {
-                      icon: Calendar,
-                      label: "Last Purchase",
-                      value: vendor.lastPurchaseDate
-                        ? formatDate(vendor.lastPurchaseDate, "long")
-                        : "—",
-                      sub: "Most recent order",
-                    },
-                    {
-                      icon: Clock,
-                      label: "Vendor Since",
-                      value: vendor.createdAt
-                        ? formatDate(vendor.createdAt, "long")
-                        : "—",
-                      sub: "Account created",
-                    },
-                  ].map(({ icon: Icon, label, value, sub }) => (
+            {/* Right Section */}
+            <div className="sm:text-right flex-shrink-0">
+              <p className="text-[9px] font-semibold text-white/70 uppercase tracking-wide">
+                Total Purchases
+              </p>
+
+              <p className="text-[30px] sm:text-[34px] font-extrabold tabular-nums leading-none">
+                {formatNumber(fs?.totalPurchaseAmount, true)}
+              </p>
+
+              <p className="text-[11px] text-white/70 mt-1">
+                {num(fs?.totalPurchases)} orders · avg{" "}
+                {formatNumber(fs?.avgPurchaseValue, true)}
+              </p>
+            </div>
+          </div>
+
+          {/* ── Metric Strip ── */}
+          <div className="grid grid-cols-3 gap-3 mt-5">
+            {[
+              {
+                label: "Total Paid",
+                value: formatNumber(fs?.totalPaidAmount, true),
+              },
+              {
+                label: "Total Due",
+                value: formatNumber(fs?.totalDueAmount, true),
+              },
+              {
+                label: "Last Purchase",
+                value: fs?.lastPurchaseDate
+                  ? formatDate(fs.lastPurchaseDate, "long")
+                  : "—",
+              },
+            ].map(({ label, value }) => (
+              <div
+                key={label}
+                className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-white/10 border border-white/20 backdrop-blur-sm"
+              >
+                <div className="min-w-0">
+                  <p className="text-[9px] font-semibold text-white/70 uppercase tracking-wide mb-2">
+                    {label}
+                  </p>
+
+                  <p className="text-[14px] font-bold tabular-nums leading-none truncate">
+                    {value}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ── 4 KPI TILES ─────────────────────────────────────── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        {stats?.map((stat, index) => (
+          <StatCard
+            key={index}
+            icon={stat.icon}
+            title={stat.label}
+            value={stat.value}
+            subtitle={stat.sub}
+            color={stat.color}
+            variant="v9"
+            mode={stat.dark ? "solid" : "light"}
+          />
+        ))}
+      </div>
+
+      {/* ── Tab switcher ── */}
+      <Tabs
+        tabs={TABS}
+        active={activeTab}
+        onChange={setActiveTab}
+        variant="v2"
+      />
+
+      {/* ── OVERVIEW ── */}
+      {activeTab === "overview" && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div className="lg:col-span-2">
+            <MetricPanel icon={User} title="Vendor Info" noPad>
+              <div className="px-5 py-1 pb-3">
+                <InfoRow
+                  icon={User}
+                  label="Contact"
+                  value={vendor?.contactPerson}
+                />
+                <InfoRow
+                  icon={Phone}
+                  label="Phone"
+                  value={vendor?.phone}
+                  mono
+                />
+                <InfoRow
+                  icon={Phone}
+                  label="Alt. Phone"
+                  value={vendor?.alternatePhone}
+                  mono
+                />
+                <InfoRow icon={Mail} label="Email" value={vendor?.email} />
+                <InfoRow
+                  icon={Hash}
+                  label="Vendor ID"
+                  value={`#${vendor?.id}`}
+                  mono
+                />
+                <InfoRow
+                  icon={Calendar}
+                  label="Since"
+                  value={
+                    vendor?.createdAt
+                      ? formatDate(vendor?.createdAt, "long")
+                      : "—"
+                  }
+                  last
+                />
+              </div>
+            </MetricPanel>
+          </div>
+
+          <div className="space-y-4">
+            <MetricPanel icon={CreditCard} title="Payment Summary" noPad>
+              <div className="px-5 py-3">
+                {[
+                  {
+                    label: "Fully Paid",
+                    v: num(fs?.paymentBreakdown?.fullyPaid),
+                    color: "#10b981",
+                  },
+                  {
+                    label: "Partial",
+                    v: num(fs?.paymentBreakdown?.partialPaid),
+                    color: "#f59e0b",
+                  },
+                  {
+                    label: "Unpaid",
+                    v: num(fs?.paymentBreakdown?.unpaid),
+                    color: "#f43f5e",
+                  },
+                ].map(({ label, v, color }) => {
+                  const total = num(fs?.totalPurchases) || 1;
+                  const pct = (v / total) * 100;
+                  return (
                     <div
                       key={label}
-                      className="flex items-start gap-3 rounded-xl px-4 py-3"
-                      style={{
-                        background: "rgba(255,255,255,0.055)",
-                        border: "1px solid rgba(255,255,255,0.08)",
-                      }}
+                      className="flex items-center gap-3 py-2 border-b border-slate-100 last:border-0"
                     >
-                      <Icon
-                        size={13}
-                        className="text-white/30 mt-0.5 flex-shrink-0"
-                        strokeWidth={2}
+                      <div
+                        className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                        style={{ background: color }}
                       />
-                      <div className="min-w-0">
-                        <p className="text-[8px] font-black text-white/30 uppercase tracking-[0.13em]">
-                          {label}
-                        </p>
-                        <p className="text-[12px] font-black text-white/80 leading-tight truncate tabular-nums">
-                          {value}
-                        </p>
-                        <p className="text-[9px] text-white/25 font-medium truncate">
-                          {sub}
-                        </p>
+                      <span className="text-[12px] font-medium text-slate-600 flex-1">
+                        {label}
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <div className="w-16 h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                          <div
+                            className="h-full rounded-full"
+                            style={{ width: `${pct}%`, background: color }}
+                          />
+                        </div>
+                        <span className="text-[12px] font-bold text-slate-800 tabular-nums w-4">
+                          {v}
+                        </span>
                       </div>
                     </div>
-                  ))}
+                  );
+                })}
+              </div>
+              <div className="flex items-center justify-between gap-3 px-5 py-3 bg-slate-50 border-t border-slate-100">
+                <span className="text-[11px] font-medium text-slate-500">
+                  Credit Days
+                </span>
+                <span className="text-[12px] font-bold text-slate-800">
+                  {num(vendor?.creditDays) > 0
+                    ? `${vendor?.creditDays} days`
+                    : "Immediate"}
+                </span>
+              </div>
+            </MetricPanel>
+
+            {vendor?.notes && (
+              <MetricPanel icon={FileText} title="Notes" noPad>
+                <div className="px-5 py-4">
+                  <p className="text-[12px] text-slate-600 leading-relaxed">
+                    {vendor?.notes}
+                  </p>
                 </div>
-              </div>
-            </div>
+              </MetricPanel>
+            )}
+          </div>
+        </div>
+      )}
 
-            {/* ── 4 STAT TILES ── */}
-            <div
-              className="vdu grid grid-cols-2 lg:grid-cols-4 gap-3"
-              style={{ animationDelay: "80ms" }}
+      {/* ── PURCHASES ── */}
+      {activeTab === "purchases" && (
+        <div className="space-y-4">
+          {outstandingPurchases?.length > 0 && (
+            <MetricPanel
+              icon={AlertTriangle}
+              title="Outstanding Dues"
+              desc={`${outstandingPurchases?.length} unpaid · ${formatNumber(
+                outstandingPurchases?.reduce(
+                  (s, p) => s + num(p?.dueAmount),
+                  0,
+                ),
+                true,
+              )} total`}
+              right={
+                <span className="text-[11px] font-bold text-rose-600 bg-rose-50 px-2.5 py-1 rounded-full border border-rose-200">
+                  Needs Attention
+                </span>
+              }
+              noPad
             >
-              <StatTile
-                dark
-                icon={IndianRupee}
-                label="Total Purchased"
-                value={fmt(vendor.totalPurchaseAmount)}
-                sub="Lifetime value"
-              />
-              <StatTile
-                icon={ShoppingCart}
-                label="Total Orders"
-                value={num(vendor.purchaseCount)}
-                sub="Purchase orders made"
-              />
-              <StatTile
-                icon={TrendingUp}
-                label="Avg Order Value"
-                value={
-                  num(vendor.purchaseCount) > 0
-                    ? fmt(
-                        num(vendor.totalPurchaseAmount) /
-                          num(vendor.purchaseCount),
-                      )
-                    : "—"
-                }
-                sub="Per order average"
-              />
-              <StatTile
-                icon={Clock}
-                label="Credit Days"
-                value={num(vendor.creditDays) || "None"}
-                sub="Payment terms"
-              />
-            </div>
-
-            {/* ── MAIN GRID ── */}
-            <div
-              className="vdu grid grid-cols-1 lg:grid-cols-3 gap-4"
-              style={{ animationDelay: "120ms" }}
-            >
-              {/* LEFT (2 cols) */}
-              <div className="lg:col-span-2 space-y-4">
-                {/* Contact & Profile */}
-                <Panel>
-                  <PanelHead
-                    icon={User}
-                    title="Vendor Profile"
-                    subtitle="Contact and account details"
-                  />
-                  <div className="px-5 py-1 pb-3">
-                    <InfoRow
-                      icon={Building2}
-                      label="Company Name"
-                      value={vendor.name}
-                    />
-                    <InfoRow
-                      icon={User}
-                      label="Contact Person"
-                      value={vendor.contactPerson}
-                    />
-                    <InfoRow
-                      icon={Phone}
-                      label="Phone"
-                      value={vendor.phone}
-                      mono
-                    />
-                    <InfoRow
-                      icon={Phone}
-                      label="Alternate Phone"
-                      value={vendor.alternatePhone}
-                      mono
-                    />
-                    <InfoRow icon={Mail} label="Email" value={vendor.email} />
-                    <InfoRow
-                      icon={Hash}
-                      label="Vendor ID"
-                      value={`#${vendor.id}`}
-                      mono
-                      last
-                    />
-                  </div>
-                </Panel>
-
-                {/* Address */}
-                {hasAddr && (
-                  <Panel>
-                    <PanelHead
-                      icon={MapPin}
-                      title="Address"
-                      subtitle="Location details"
-                    />
-                    <div className="px-5 py-1 pb-3">
-                      <InfoRow
-                        icon={MapPin}
-                        label="Address"
-                        value={vendor.address}
-                      />
-                      <InfoRow icon={MapPin} label="City" value={vendor.city} />
-                      <InfoRow
-                        icon={MapPin}
-                        label="State"
-                        value={vendor.state}
-                      />
-                      <InfoRow
-                        icon={Hash}
-                        label="Pincode"
-                        value={vendor.pincode}
-                        mono
-                        last
-                      />
+              <div className="divide-y divide-slate-100">
+                {outstandingPurchases?.map((p) => (
+                  <div
+                    key={p?.id}
+                    className="flex items-center gap-3 px-5 py-3.5 hover:bg-slate-50 transition-colors"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[13px] font-bold text-slate-800">
+                        {p?.purchaseNumber}
+                      </p>
+                      <div className="flex items-center gap-1.5 text-[11px] text-slate-400 mt-0.5">
+                        <span className="font-mono">{p?.invoiceNumber}</span>
+                        <span>·</span>
+                        <span>{formatDate(p?.purchaseDate, "long")}</span>
+                      </div>
                     </div>
-                  </Panel>
-                )}
-
-                {/* Purchase Orders placeholder */}
-                <Panel>
-                  <PanelHead
-                    icon={Package}
-                    title="Purchase Orders"
-                    subtitle="Orders received from this vendor"
-                  />
-                  <div className="flex flex-col items-center justify-center py-14 px-5">
-                    <div className="w-14 h-14 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center mb-3">
-                      <Package
-                        size={22}
-                        className="text-slate-300"
-                        strokeWidth={1.5}
-                      />
-                    </div>
-                    <p className="text-[13px] font-bold text-slate-400">
-                      No purchase orders yet
-                    </p>
-                    <p className="text-[11px] text-slate-300 font-medium mt-1">
-                      Purchase history will appear here
-                    </p>
-                  </div>
-                </Panel>
-              </div>
-
-              {/* RIGHT sidebar */}
-              <div className="space-y-4">
-                {/* Tax info */}
-                {(hasGst || hasPan) && (
-                  <Panel>
-                    <PanelHead
-                      icon={BadgeCheck}
-                      title="Tax Details"
-                      subtitle="GST and PAN information"
-                    />
-                    <div className="px-5 py-1 pb-3">
-                      <InfoRow
-                        icon={Hash}
-                        label="GST Number"
-                        value={vendor.gstNumber}
-                        mono
-                      />
-                      <InfoRow
-                        icon={FileText}
-                        label="PAN Number"
-                        value={vendor.panNumber}
-                        mono
-                        last
-                      />
-                    </div>
-                  </Panel>
-                )}
-
-                {/* Bank details */}
-                {hasBank && (
-                  <Panel>
-                    <PanelHead
-                      icon={Landmark}
-                      title="Bank Details"
-                      subtitle="Payment information"
-                    />
-                    <div className="px-5 py-1 pb-3">
-                      <InfoRow
-                        icon={Landmark}
-                        label="Bank Name"
-                        value={vendor.bankName}
-                      />
-                      <InfoRow
-                        icon={CreditCard}
-                        label="Account No"
-                        value={vendor.bankAccount}
-                        mono
-                      />
-                      <InfoRow
-                        icon={Hash}
-                        label="IFSC Code"
-                        value={vendor.bankIfsc}
-                        mono
-                        last
-                      />
-                    </div>
-                  </Panel>
-                )}
-
-                {/* Payment terms */}
-                <Panel>
-                  <PanelHead icon={CreditCard} title="Payment Terms" />
-                  <div className="px-5 py-1 pb-3">
-                    <InfoRow
-                      icon={Clock}
-                      label="Credit Days"
-                      value={
-                        num(vendor.creditDays) > 0
-                          ? `${vendor.creditDays} days`
-                          : "Immediate"
-                      }
-                    />
-                    <InfoRow
-                      icon={FileText}
-                      label="Payment Terms"
-                      value={vendor.paymentTerms || "—"}
-                      last
-                    />
-                  </div>
-                </Panel>
-
-                {/* Notes */}
-                {vendor.notes && (
-                  <Panel>
-                    <PanelHead icon={FileText} title="Notes" />
-                    <div className="px-5 py-4">
-                      <p className="text-[12px] text-slate-600 leading-relaxed">
-                        {vendor.notes}
+                    <div className="text-right flex-shrink-0">
+                      <p className="text-[14px] font-black text-rose-600 tabular-nums">
+                        {formatNumber(p?.dueAmount, true)}
+                      </p>
+                      <p className="text-[10px] text-slate-400 mt-0.5">
+                        of {formatNumber(p?.totalAmount, true)}
                       </p>
                     </div>
-                  </Panel>
-                )}
-
-                {/* Account metadata */}
-                <Panel>
-                  <PanelHead icon={Clock} title="Account Info" />
-                  <div className="px-5 py-1 pb-3">
-                    <InfoRow
-                      icon={Calendar}
-                      label="Created"
-                      value={
-                        vendor.createdAt
-                          ? formatDate(vendor.createdAt, "long")
-                          : "—"
-                      }
-                    />
-                    <InfoRow
-                      icon={Calendar}
-                      label="Updated"
-                      value={
-                        vendor.updatedAt
-                          ? formatDate(vendor.updatedAt, "long")
-                          : "—"
-                      }
-                      last
-                    />
                   </div>
-                </Panel>
+                ))}
               </div>
+            </MetricPanel>
+          )}
+
+          <MetricPanel
+            icon={ShoppingCart}
+            title="Purchase History"
+            desc={`${purchaseList?.length} orders`}
+            noPad
+          >
+            <div>
+              {purchaseList?.length > 0 ? (
+                purchaseList.map((p, i) => (
+                  <PurchaseRow
+                    key={p.id}
+                    p={p}
+                    navigate={navigate}
+                    last={i === purchaseList.length - 1}
+                  />
+                ))
+              ) : (
+                <NoDataFound
+                  icon={ShoppingCart}
+                  title="No purchases yet"
+                  size="sm"
+                />
+              )}
             </div>
-          </>
-        )}
-      </div>
-    </>
+          </MetricPanel>
+        </div>
+      )}
+
+      {/* ── ITEMS SUPPLIED ── */}
+      {activeTab === "items" && (
+        <MetricPanel
+          icon={Package}
+          title="Items Supplied"
+          desc={`${itemsSupplied.length} unique items`}
+          noPad
+        >
+          <div className="divide-y divide-slate-100">
+            {itemsSupplied?.length > 0 ? (
+              itemsSupplied.map((item) => {
+                const maxSpend = Math.max(
+                  ...itemsSupplied.map((s) => num(s.totalSpent)),
+                  1,
+                );
+
+                const pct = (num(item.totalSpent) / maxSpend) * 100;
+
+                return (
+                  <div
+                    key={item.inventoryItemId}
+                    className="flex items-center gap-3 px-5 py-3.5"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[13px] font-bold text-slate-800">
+                        {item.itemName}
+                      </p>
+
+                      <div className="flex items-center gap-1.5 mt-1">
+                        <div className="flex-1 h-1 rounded-full bg-slate-100 overflow-hidden">
+                          <div
+                            className="h-full rounded-full bg-primary-500 transition-all duration-700"
+                            style={{ width: `${pct}%` }}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-1.5 text-[10px] text-slate-400 mt-1">
+                        <span>
+                          {item.purchaseCount} order
+                          {item.purchaseCount !== 1 ? "s" : ""}
+                        </span>
+                        <span>·</span>
+                        <span>
+                          {num(item.totalQuantityPurchased)} {item.baseUnit}{" "}
+                          total
+                        </span>
+                        <span>·</span>
+                        <span>{item.categoryName}</span>
+                      </div>
+                    </div>
+
+                    <div className="text-right flex-shrink-0">
+                      <p className="text-[14px] font-black text-slate-900 tabular-nums">
+                        {formatNumber(item.totalSpent, true)}
+                      </p>
+                      <p className="text-[10px] text-slate-400 mt-0.5">
+                        avg {formatNumber(item.avgPricePerUnit)}/{item.baseUnit}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              <NoDataFound
+                icon={Package}
+                title="No items supplied yet"
+                size="sm"
+              />
+            )}
+          </div>
+        </MetricPanel>
+      )}
+
+      {/* ── PAYMENTS ── */}
+      {activeTab === "payments" && (
+        <div className="space-y-4">
+          <MetricPanel
+            icon={Landmark}
+            title="Payment History"
+            desc={`${paymentHistory?.length} transactions`}
+            noPad
+          >
+            <div className="divide-y divide-slate-100">
+              {paymentHistory?.length > 0 ? (
+                paymentHistory.map((pay) => {
+                  const m = PAY_METHOD[pay?.paymentMethod] || {
+                    icon: IndianRupee,
+                    label: pay?.paymentMethod,
+                  };
+
+                  const Icon = m.icon;
+
+                  return (
+                    <div
+                      key={pay?.id}
+                      className="flex items-center gap-3 px-5 py-3 hover:bg-slate-50 transition-colors"
+                    >
+                      <div className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
+                        <Icon
+                          size={12}
+                          className="text-slate-600"
+                          strokeWidth={2}
+                        />
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[12px] font-bold text-slate-800">
+                          {pay?.purchaseNumber}
+                        </p>
+
+                        <p className="text-[10px] text-slate-400 mt-0.5">
+                          {formatDate(pay?.paymentDate, "long")} · {m.label}
+                          {pay?.paymentReference &&
+                            ` · ${pay?.paymentReference}`}
+                        </p>
+
+                        {pay?.notes && (
+                          <p className="text-[10px] text-slate-400 mt-0.5 italic truncate">
+                            {pay?.notes}
+                          </p>
+                        )}
+                      </div>
+
+                      <p className="text-[13px] font-black text-emerald-600 tabular-nums flex-shrink-0">
+                        +{formatNumber(pay?.amount, true)}
+                      </p>
+                    </div>
+                  );
+                })
+              ) : (
+                <NoDataFound
+                  icon={Landmark}
+                  title="No payment history"
+                  size="sm"
+                />
+              )}
+            </div>
+          </MetricPanel>
+
+          {(vendor?.gstNumber || vendor?.panNumber || vendor?.bankName) && (
+            <MetricPanel icon={FileText} title="Financial Details" noPad>
+              <div className="px-5 py-1 pb-3">
+                {vendor?.gstNumber && (
+                  <InfoRow
+                    icon={Hash}
+                    label="GST"
+                    value={vendor?.gstNumber}
+                    mono
+                  />
+                )}
+                {vendor?.panNumber && (
+                  <InfoRow
+                    icon={Hash}
+                    label="PAN"
+                    value={vendor?.panNumber}
+                    mono
+                  />
+                )}
+                {vendor?.bankName && (
+                  <InfoRow
+                    icon={Landmark}
+                    label="Bank"
+                    value={vendor?.bankName}
+                  />
+                )}
+                {vendor?.bankAccount && (
+                  <InfoRow
+                    icon={CreditCard}
+                    label="Account"
+                    value={vendor?.bankAccount}
+                    mono
+                  />
+                )}
+                {vendor?.bankIfsc && (
+                  <InfoRow
+                    icon={Hash}
+                    label="IFSC"
+                    value={vendor?.bankIfsc}
+                    mono
+                    last
+                  />
+                )}
+              </div>
+            </MetricPanel>
+          )}
+        </div>
+      )}
+    </div>
   );
 };
 

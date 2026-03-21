@@ -1,10 +1,9 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Formik, Form, FieldArray } from "formik";
 import * as Yup from "yup";
 import PageHeader from "../../layout/PageHeader";
 import AccordionSection from "../../components/AccordionSection";
 import { InputField } from "../../components/fields/InputField";
-import { SelectField } from "../../components/fields/SelectField";
 import { TextareaField } from "../../components/fields/TextareaField";
 import { Info, Loader2, Plus, Trash2 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
@@ -18,6 +17,8 @@ import { handleResponse } from "../../utils/helpers";
 import { useNavigate } from "react-router-dom";
 import InfoCard from "../../components/InfoCard";
 import { useQueryParams } from "../../hooks/useQueryParams";
+import LoadingOverlay from "../../components/LoadingOverlay";
+import { SearchSelectField } from "../../components/fields/SearchSelectField";
 
 const AddIngredientPage = () => {
   const dispatch = useDispatch();
@@ -25,6 +26,7 @@ const AddIngredientPage = () => {
 
   const { ingredientId } = useQueryParams();
   const isEditMode = Boolean(ingredientId);
+  const [itemSearchQuery, setItemSearchQuery] = useState("");
 
   const { outletId } = useSelector((state) => state.auth);
   const { allItemsData, isFetchingItems } = useSelector(
@@ -41,9 +43,9 @@ const AddIngredientPage = () => {
 
   useEffect(() => {
     if (outletId) {
-      dispatch(fetchAllInventoryItems(outletId));
+      dispatch(fetchAllInventoryItems({ outletId, search: itemSearchQuery }));
     }
-  }, [outletId, dispatch]);
+  }, [outletId, dispatch, itemSearchQuery]);
 
   useEffect(() => {
     if (ingredientId) {
@@ -132,7 +134,7 @@ const AddIngredientPage = () => {
   };
 
   if (isEditMode && isFetchingIngredientDetails) {
-    return <div>Loading...</div>;
+    return <LoadingOverlay />;
   }
 
   return (
@@ -150,159 +152,139 @@ const AddIngredientPage = () => {
       >
         {(formik) => (
           <Form className="space-y-6">
-            <AccordionSection title="Ingredients" icon={Info}>
-              <FieldArray name="items">
-                {({ push, remove }) => (
-                  <div className="space-y-6">
-                    {formik.values.items.map((item, index) => (
-                      <div
-                        key={index}
-                        className="rounded-xl border border-gray-200 bg-white overflow-hidden"
-                      >
-                        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200 bg-gray-50">
-                          <div className="flex items-center gap-3">
-                            <div className="w-7 h-7 flex items-center justify-center rounded-md bg-primary-100 text-primary-700 text-xs font-semibold">
-                              {index + 1}
-                            </div>
-                            <h4 className="text-sm font-semibold text-gray-800">
-                              Ingredient Details
-                            </h4>
-                          </div>
+            <FieldArray name="items">
+              {({ push, remove }) => (
+                <div className="space-y-6">
+                  {formik.values.items.map((item, index) => (
+                    <AccordionSection title="Ingredient Details" index={index}>
+                      <div className="space-y-5">
+                        <SearchSelectField
+                          label="Inventory Item"
+                          name={`items.${index}.inventoryItemId`}
+                          required
+                          loading={isFetchingItems}
+                          options={items?.map((i) => ({
+                            value: i.id,
+                            label: i.name,
+                          }))}
+                          value={item.inventoryItemId}
+                          onChange={(value) => {
+                            formik.setFieldValue(
+                              `items.${index}.inventoryItemId`,
+                              value,
+                            );
 
-                          {!isEditMode && formik.values.items.length > 1 && (
-                            <button
-                              type="button"
-                              onClick={() => remove(index)}
-                              className="p-1.5 rounded-md hover:bg-red-50 text-gray-400 hover:text-red-500"
-                            >
-                              <Trash2 size={16} />
-                            </button>
-                          )}
-                        </div>
+                            const selected = items.find(
+                              (i) => i.id === Number(value),
+                            );
 
-                        <div className="p-5 space-y-5">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <SelectField
-                              label="Inventory Item"
-                              name={`items.${index}.inventoryItemId`}
-                              required
-                              loading={isFetchingItems}
-                              options={items?.map((i) => ({
-                                value: i.id,
-                                label: i.name,
-                              }))}
-                              value={item.inventoryItemId}
-                              onChange={(e) => {
-                                const value = e.target.value;
-                                formik.setFieldValue(
-                                  `items.${index}.inventoryItemId`,
-                                  value,
-                                );
-
-                                const selected = items.find(
-                                  (i) => i.id === Number(value),
-                                );
-
-                                if (selected) {
-                                  formik.setFieldValue(
-                                    `items.${index}.name`,
-                                    selected.name,
-                                  );
-                                }
-                              }}
-                              onBlur={formik.handleBlur}
-                              error={getFieldError(
-                                formik,
-                                `items.${index}.inventoryItemId`,
-                              )}
-                              placeholder="Select inventory item"
-                              disabled={isEditMode}
-                            />
-
-                            <InputField
-                              label="Ingredient Name"
-                              name={`items.${index}.name`}
-                              placeholder="Auto-filled or custom name"
-                              value={item.name}
-                              onChange={formik.handleChange}
-                              onBlur={formik.handleBlur}
-                              error={getFieldError(
-                                formik,
+                            if (selected) {
+                              formik.setFieldValue(
                                 `items.${index}.name`,
-                              )}
-                            />
-                          </div>
+                                selected.name,
+                              );
+                            }
+                          }}
+                          onBlur={formik.handleBlur}
+                          error={getFieldError(
+                            formik,
+                            `items.${index}.inventoryItemId`,
+                          )}
+                          placeholder="Search inventory item..."
+                          disabled={isEditMode}
+                          onSearch={(q) => setItemSearchQuery(q)}
+                        />
 
-                          <div className="grid grid-cols-2 gap-4">
-                            <InputField
-                              label="Yield (%)"
-                              name={`items.${index}.yieldPercentage`}
-                              type="number"
-                              placeholder="e.g. 80"
-                              helperText="After prep usable quantity"
-                              value={item.yieldPercentage}
-                              onChange={formik.handleChange}
-                              onBlur={formik.handleBlur}
-                              error={getFieldError(
-                                formik,
-                                `items.${index}.yieldPercentage`,
-                              )}
-                            />
-
-                            <InputField
-                              label="Wastage (%)"
-                              name={`items.${index}.wastagePercentage`}
-                              type="number"
-                              placeholder="Optional"
-                              helperText="Loss during cooking"
-                              value={item.wastagePercentage}
-                              onChange={formik.handleChange}
-                              onBlur={formik.handleBlur}
-                            />
-                          </div>
-
-                          <TextareaField
-                            label="Preparation Notes"
-                            name={`items.${index}.preparationNotes`}
-                            placeholder="Wash, peel, chop..."
-                            rows={2}
-                            value={item.preparationNotes}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <InputField
+                            label="Ingredient Name"
+                            name={`items.${index}.name`}
+                            placeholder="Auto-filled or custom name"
+                            value={item.name}
                             onChange={formik.handleChange}
+                            onBlur={formik.handleBlur}
+                            error={getFieldError(formik, `items.${index}.name`)}
+                            helperText="Created from inventory item"
+                          />
+                          
+                          <InputField
+                            label="Yield (%)"
+                            name={`items.${index}.yieldPercentage`}
+                            type="number"
+                            placeholder="e.g. 80"
+                            helperText="After prep usable quantity"
+                            value={item.yieldPercentage}
+                            onChange={formik.handleChange}
+                            onBlur={formik.handleBlur}
+                            error={getFieldError(
+                              formik,
+                              `items.${index}.yieldPercentage`,
+                            )}
                           />
 
-                          <TextareaField
-                            label="Description"
-                            name={`items.${index}.description`}
-                            placeholder="Optional description..."
-                            rows={2}
-                            value={item.description}
+                          <InputField
+                            label="Wastage (%)"
+                            name={`items.${index}.wastagePercentage`}
+                            type="number"
+                            placeholder="Optional"
+                            helperText="Loss during cooking"
+                            value={item.wastagePercentage}
                             onChange={formik.handleChange}
+                            onBlur={formik.handleBlur}
                           />
                         </div>
-                      </div>
-                    ))}
 
-                    {!isEditMode && (
-                      <button
-                        type="button"
-                        onClick={() =>
-                          push({
-                            inventoryItemId: "",
-                            name: "",
-                            yieldPercentage: "",
-                            wastagePercentage: "",
-                          })
-                        }
-                        className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border-2 border-dashed border-gray-300 hover:border-primary-400 hover:bg-primary-50 text-gray-600 hover:text-primary-600 transition"
-                      >
-                        <Plus size={16} />
-                        Add Another Ingredient
-                      </button>
-                    )}
-                  </div>
-                )}
-              </FieldArray>
-            </AccordionSection>
+                        <TextareaField
+                          label="Preparation Notes"
+                          name={`items.${index}.preparationNotes`}
+                          placeholder="Wash, peel, chop..."
+                          rows={2}
+                          value={item.preparationNotes}
+                          onChange={formik.handleChange}
+                        />
+
+                        <TextareaField
+                          label="Description"
+                          name={`items.${index}.description`}
+                          placeholder="Optional description..."
+                          rows={2}
+                          value={item.description}
+                          onChange={formik.handleChange}
+                        />
+
+                        {!isEditMode && formik.values.items.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => remove(index)}
+                            className="p-1.5 rounded-md hover:bg-red-50 text-gray-400 hover:text-red-500"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        )}
+                      </div>
+                    </AccordionSection>
+                  ))}
+
+                  {!isEditMode && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        push({
+                          inventoryItemId: "",
+                          name: "",
+                          yieldPercentage: "",
+                          wastagePercentage: "",
+                        })
+                      }
+                      className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border-2 border-dashed border-gray-300 hover:border-primary-400 hover:bg-primary-50 text-gray-600 hover:text-primary-600 transition"
+                    >
+                      <Plus size={16} />
+                      Add Another Ingredient
+                    </button>
+                  )}
+                </div>
+              )}
+            </FieldArray>
 
             <InfoCard
               type="info"
@@ -314,25 +296,25 @@ const AddIngredientPage = () => {
               Effective Qty = Recipe Qty × (1 + wastage%) × (100 / yield)`}
             />
 
-           <div className="flex justify-end">
-  <button
-    type="submit"
-    disabled={isCreatingIngredient || isUpdatingIngredient}
-    className="btn bg-primary-500 hover:bg-primary-600 text-white font-medium flex items-center gap-2"
-  >
-    {(isCreatingIngredient || isUpdatingIngredient) && (
-      <Loader2 className="w-4 h-4 animate-spin" />
-    )}
+            <div className="flex justify-end">
+              <button
+                type="submit"
+                disabled={isCreatingIngredient || isUpdatingIngredient}
+                className="btn bg-primary-500 hover:bg-primary-600 text-white font-medium flex items-center gap-2"
+              >
+                {(isCreatingIngredient || isUpdatingIngredient) && (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                )}
 
-    {isEditMode
-      ? isUpdatingIngredient
-        ? "Updating..."
-        : "Update Ingredient"
-      : isCreatingIngredient
-        ? "Creating..."
-        : "Create Ingredients"}
-  </button>
-</div>
+                {isEditMode
+                  ? isUpdatingIngredient
+                    ? "Updating..."
+                    : "Update Ingredient"
+                  : isCreatingIngredient
+                    ? "Creating..."
+                    : "Create Ingredients"}
+              </button>
+            </div>
           </Form>
         )}
       </Formik>

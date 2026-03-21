@@ -44,8 +44,8 @@ export const updateInventoryCategory = createAsyncThunk(
 // Fetch all inventory items
 export const fetchAllInventoryItems = createAsyncThunk(
   "/fetch/inventory/items",
-  async (outletId) => {
-    const res = await InventoryServices.getAllInventoryItemApi(outletId);
+  async ({outletId,page,limit,search}) => {
+    const res = await InventoryServices.getAllInventoryItemApi(outletId,page,limit,search);
     return res.data;
   },
 );
@@ -165,6 +165,15 @@ export const createWastage = createAsyncThunk(
   },
 );
 
+// wastage logs
+export const fetchWastageLogs = createAsyncThunk(
+  "/fetch/wastage/logs",
+  async ({ outletId,search,page,limit,dateRange }) => {
+    const res = await InventoryServices.getAllWastageLogsApi({outletId,search,page,limit,dateRange});
+    return res.data;
+  },
+);
+
 const inventorySlice = createSlice({
   name: "inventory",
   initialState: {
@@ -201,6 +210,9 @@ const inventorySlice = createSlice({
     //  in initialState
     isCreatingAdjustment: false,
     isCreatingWastage: false,
+
+    isFetchingWastageLogs:false,
+    allWastageLogs:null,
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -412,7 +424,20 @@ const inventorySlice = createSlice({
       .addCase(createWastage.rejected, (state, action) => {
         state.isCreatingWastage = false;
         toast.error(action.error.message);
-      });
+      })
+
+      // fetch wastage logs
+      .addCase(fetchWastageLogs.pending, (state) => {
+        state.isFetchingWastageLogs = true;
+      })
+      .addCase(fetchWastageLogs.fulfilled, (state, action) => {
+        state.isFetchingWastageLogs = false;
+        state.allWastageLogs = action.payload.data;
+      })
+      .addCase(fetchWastageLogs.rejected, (state, action) => {
+        state.isFetchingWastageLogs = false;
+        toast.error(action.error.message);
+      })
   },
 });
 

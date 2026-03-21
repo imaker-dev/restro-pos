@@ -5,8 +5,8 @@ import RecipeServices from "../services/RecipeServices";
 // Fetch all recipes
 export const fetchAllRecipes = createAsyncThunk(
   "/fetch/recipes",
-  async (outletId) => {
-    const res = await RecipeServices.getAllRecipesApi(outletId);
+  async ({outletId,page,limit,search}) => {
+    const res = await RecipeServices.getAllRecipesApi(outletId,page,limit,search);
     return res.data;
   },
 );
@@ -40,7 +40,7 @@ export const updateRecipe = createAsyncThunk(
 // Fetch all production recipes
 export const fetchAllProductionRecipes = createAsyncThunk(
   "/fetch/production-recipes",
-  async (outletId) => {
+  async ({outletId}) => {
     const res = await RecipeServices.getAllProductionRecipesApi(outletId);
     return res.data;
   },
@@ -76,6 +76,15 @@ export const updateProductionRecipe = createAsyncThunk(
   },
 );
 
+// produce production recipe
+export const produceProductionRecipe = createAsyncThunk(
+  "/produce/production-recipe",
+  async ({ outletId, values }) => {
+    const res = await RecipeServices.produceProductionRecipeApi(outletId, values);
+    return res.data;
+  },
+);
+
 const recipeSlice = createSlice({
   name: "recipe",
   initialState: {
@@ -94,6 +103,8 @@ const recipeSlice = createSlice({
 
     allProductionRecipes: [],
     productionRecipeDetails: null,
+
+    isProducingRecipe:false,
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -201,7 +212,20 @@ const recipeSlice = createSlice({
       .addCase(updateProductionRecipe.rejected, (state, action) => {
         state.isUpdatingProductionRecipe = false;
         toast.error(action.error.message);
-      });
+      })
+
+      // produce production recipe
+      .addCase(produceProductionRecipe.pending, (state) => {
+        state.isProducingRecipe = true;
+      })
+      .addCase(produceProductionRecipe.fulfilled, (state, action) => {
+        state.isProducingRecipe = false;
+        toast.success(action.payload.message);
+      })
+      .addCase(produceProductionRecipe.rejected, (state, action) => {
+        state.isProducingRecipe = false;
+        toast.error(action.error.message);
+      })
   },
 });
 

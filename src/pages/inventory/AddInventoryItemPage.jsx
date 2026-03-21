@@ -21,6 +21,7 @@ import {
 } from "../../redux/slices/inventorySlice";
 
 import { fetchAllUnits } from "../../redux/slices/unitSlice";
+import LoadingOverlay from "../../components/LoadingOverlay";
 
 const AddInventoryItemPage = () => {
   const dispatch = useDispatch();
@@ -29,15 +30,14 @@ const AddInventoryItemPage = () => {
 
   const { outletId } = useSelector((state) => state.auth);
 
-  const { inventoryItemDetails } = useSelector((state) => state.inventory);
-  const { allCategories } = useSelector((state) => state.inventory);
+  const { inventoryItemDetails, isFetchingItemDetails, allCategories } =
+    useSelector((state) => state.inventory);
   const { categories } = allCategories || {};
   const { allUnits } = useSelector((state) => state.unit);
   const { units } = allUnits || {};
 
   useEffect(() => {
     if (!outletId) return;
-
     dispatch(fetchAllInventoryCategories(outletId));
     dispatch(fetchAllUnits(outletId));
   }, [dispatch, outletId]);
@@ -67,7 +67,7 @@ const AddInventoryItemPage = () => {
       name: inventoryItemDetails.name || "",
       // sku: inventoryItemDetails.sku || "",
       categoryId: inventoryItemDetails.categoryId || "",
-      baseUnitId: inventoryItemDetails.unitId  || "",
+      baseUnitId: inventoryItemDetails.unitId || "",
       minimumStock: inventoryItemDetails.minimumStock || "",
       maximumStock: inventoryItemDetails.maximumStock || "",
       description: inventoryItemDetails.description || "",
@@ -88,7 +88,8 @@ const AddInventoryItemPage = () => {
 
     maximumStock: Yup.number()
       .typeError("Must be number")
-      .required("Maximum stock required"),
+      .required("Maximum stock required")
+      .min(Yup.ref("minimumStock"), "Must be greater than minimum stock"),
 
     shelfLifeDays: Yup.number().when("isPerishable", {
       is: true,
@@ -119,6 +120,8 @@ const AddInventoryItemPage = () => {
       navigate("/inventory-items");
     });
   };
+
+  if (itemId && isFetchingItemDetails) return <LoadingOverlay text="" />;
 
   return (
     <div className="space-y-6">

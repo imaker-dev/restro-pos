@@ -1,22 +1,33 @@
 import React, { useEffect, useState } from "react";
 import PageHeader from "../../layout/PageHeader";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchAllUnits } from "../../redux/slices/unitSlice";
+import {
+  createUnit,
+  fetchAllUnits,
+  updateUnit,
+} from "../../redux/slices/unitSlice";
 import SmartTable from "../../components/SmartTable";
 import { Plus } from "lucide-react";
 import UnitModal from "../../partial/inventory/unit/UnitModal";
+import { handleResponse } from "../../utils/helpers";
 
 const AllUnitsPage = () => {
   const dispatch = useDispatch();
   const { outletId } = useSelector((state) => state.auth);
-  const { isFetchingUnits, allUnits } = useSelector((state) => state.unit);
+  const { isFetchingUnits, allUnits, isCreatingUnit, isUpdatingUnit } =
+    useSelector((state) => state.unit);
   const { units, pagination } = allUnits || {};
 
   const [showUnitModal, setShowUnitModal] = useState(false);
+  const [selectedUnit, setSelectedUnit] = useState(false);
 
-  useEffect(() => {
+  const fetchUnits = () => {
     if (!outletId) return;
     dispatch(fetchAllUnits(outletId));
+  };
+    
+  useEffect(() => {
+    fetchUnits();
   }, [outletId]);
 
   const columns = [
@@ -59,22 +70,22 @@ const AllUnitsPage = () => {
       ),
     },
 
-    {
-      key: "isBaseUnit",
-      label: "Base Unit",
-      sortValue: (row) => Number(row.isBaseUnit),
-      render: (row) => (
-        <span
-          className={`px-2 py-0.5 text-xs rounded-full font-medium ${
-            row.isBaseUnit
-              ? "bg-emerald-100 text-emerald-700"
-              : "bg-slate-100 text-slate-500"
-          }`}
-        >
-          {row.isBaseUnit ? "Base" : "Derived"}
-        </span>
-      ),
-    },
+    // {
+    //   key: "isBaseUnit",
+    //   label: "Base Unit",
+    //   sortValue: (row) => Number(row.isBaseUnit),
+    //   render: (row) => (
+    //     <span
+    //       className={`px-2 py-0.5 text-xs rounded-full font-medium ${
+    //         row.isBaseUnit
+    //           ? "bg-emerald-100 text-emerald-700"
+    //           : "bg-slate-100 text-slate-500"
+    //       }`}
+    //     >
+    //       {row.isBaseUnit ? "Base" : "Derived"}
+    //     </span>
+    //   ),
+    // },
 
     // {
     //   key: "status",
@@ -100,26 +111,44 @@ const AllUnitsPage = () => {
 
   const resetUnitModal = () => {
     setShowUnitModal(false);
+    setSelectedUnit(false);
+  };
+
+  const handleCreateUnit = async ({ id, values, resetForm }) => {
+    const action = id
+      ? updateUnit({ id, values })
+      : createUnit({ outletId, values });
+    await handleResponse(dispatch(action), () => {
+      fetchUnits();
+      resetUnitModal();
+      resetForm();
+    });
   };
 
   return (
-    <div className="space-y-6">
-      <PageHeader title={"All Units"} actions={actions} />
+    <>
+      <div className="space-y-6">
+        <PageHeader title={"All Units"} actions={actions} />
 
-      <SmartTable
-        title="Units"
-        totalcount={units?.length}
-        data={units}
-        columns={columns}
-        // actions={rowActions}
-        loading={isFetchingUnits}
+        <SmartTable
+          title="Units"
+          totalcount={units?.length}
+          data={units}
+          columns={columns}
+          // actions={rowActions}
+          loading={isFetchingUnits}
+        />
+      </div>
+
+      <UnitModal
+        isOpen={showUnitModal}
+        onClose={resetUnitModal}
+        onSubmit={handleCreateUnit}
+        unit={selectedUnit}
+        loading={isCreatingUnit || isUpdatingUnit}
+        units={units}
       />
-
-      {/* <UnitModal 
-      isOpen={showUnitModal}
-      onClose={resetUnitModal}
-      /> */}
-    </div>
+    </>
   );
 };
 

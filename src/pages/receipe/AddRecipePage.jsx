@@ -85,7 +85,6 @@ function IngredientRow({
             formik.touched.ingredients?.[index]?.ingredientId &&
             formik.errors.ingredients?.[index]?.ingredientId
           }
-
         />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-start">
           {/* Quantity */}
@@ -169,6 +168,7 @@ const AddRecipePage = () => {
   const { recipeId } = useQueryParams();
 
   const [searchItemQuery, setSearchItemQuery] = useState("");
+  const [selectedMenuItem, setSelectedMenuItem] = useState(null);
 
   const { outletId } = useSelector((state) => state.auth);
 
@@ -181,7 +181,7 @@ const AddRecipePage = () => {
   const { ingredients } = allIngredients || {};
   const { allUnits, isFetchingUnits } = useSelector((s) => s.unit);
   const { units } = allUnits || {};
-  
+
   const {
     isCreatingRecipe,
     isFetchingRecipeDetails,
@@ -198,7 +198,12 @@ const AddRecipePage = () => {
   useEffect(() => {
     if (!outletId) return;
     dispatch(fetchAllItems({ outletId, search: searchItemQuery }));
-    dispatch(fetchAllIngredients(outletId));
+  }, [outletId, searchItemQuery]);
+
+  useEffect(() => {
+    if (!outletId) return;
+
+    dispatch(fetchAllIngredients({ outletId }));
     dispatch(fetchAllUnits(outletId));
   }, [outletId, searchItemQuery]);
 
@@ -246,6 +251,12 @@ const AddRecipePage = () => {
   /* ── validation ── */
   const validationSchema = Yup.object({
     menuItemId: Yup.number().required("Menu item is required"),
+    variantId: Yup.number().when("menuItemId", {
+      is: () => selectedMenuItem?.has_variants === 1, // reads closure, not allMenuItems
+      then: (schema) => schema.required("Variant is required"),
+      otherwise: (schema) => schema.nullable(),
+    }),
+
     name: Yup.string().required("Recipe name is required"),
     preparationTimeMins: Yup.number()
       .typeError("Must be a number")
@@ -330,6 +341,17 @@ const AddRecipePage = () => {
             {/* ══ RECIPE INFO ══ */}
             <AccordionSection title="Recipe Info" icon={BookOpen}>
               <div className="space-y-5">
+                <InputField
+                  label="Recipe Name"
+                  name="name"
+                  placeholder="e.g. Margherita Pizza Recipe"
+                  required
+                  value={formik.values.name}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  error={formik.touched.name && formik.errors.name}
+                />
+                
                 {/* Menu item picker — full width */}
                 <SearchSelectField
                   label="Menu Item"
@@ -338,72 +360,70 @@ const AddRecipePage = () => {
                   onChange={(v) => {
                     formik.setFieldValue("menuItemId", v);
                     formik.setFieldValue("variantId", "");
+                    const item =
+                      allMenuItems?.find((m) => m.id === Number(v)) || null;
+                    setSelectedMenuItem(item);
                   }}
                   onBlur={() => formik.setFieldTouched("menuItemId", true)}
-                  // ✅ THIS WAS MISSING
                   options={menuOptions}
                   error={formik.touched.menuItemId && formik.errors.menuItemId}
                   onSearch={(q) => setSearchItemQuery(q)}
                   loading={loading}
                 />
 
-                {/* Recipe name + variant (side by side) */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <InputField
-                    label="Recipe Name"
-                    name="name"
-                    placeholder="e.g. Margherita Pizza Recipe"
-                    required
-                    value={formik.values.name}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    error={formik.touched.name && formik.errors.name}
-                  />
-                  <SelectField
-                    label="Variant (optional)"
-                    name="variantId"
-                    options={
-                      allMenuItems
-                        ?.find((m) => m.id === Number(formik.values.menuItemId))
-                        ?.variants?.map((v) => ({
-                          value: v.id,
-                          label: v.name,
-                        })) ?? []
-                    }
-                    value={formik.values.variantId}
-                    onChange={formik.handleChange}
-                    disabled={!formik.values.menuItemId}
-                  />
-                </div>
+                {(() => {
+                  const hasVariants = selectedMenuItem?.has_variants === 1;
+                  const variantOptions =
+                    selectedMenuItem?.variants
+                      ?.filter((v) => v.is_active)
+                      ?.map((v) => ({ value: v.id, label: v.name })) ?? [];
 
-                {/* Portion + prep time */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <InputField
-                    label="Portion Size"
-                    name="portionSize"
-                    placeholder="e.g. 1 pizza, 2 servings"
-                    icon={Layers}
-                    value={formik.values.portionSize}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                  />
-                  <InputField
-                    label="Preparation Time (mins)"
-                    name="preparationTimeMins"
-                    type="number"
-                    min="1"
-                    placeholder="e.g. 20"
-                    icon={Clock}
-                    required
-                    value={formik.values.preparationTimeMins}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    error={
-                      formik.touched.preparationTimeMins &&
-                      formik.errors.preparationTimeMins
-                    }
-                  />
-                </div>
+                  return (
+                    <div
+                      className={`grid grid-cols-1 gap-4 ${hasVariants ? "md:grid-cols-3" : "md:grid-cols-2"}`}
+                    >
+                      {hasVariants && (
+                        <SelectField
+                          label="Variant"
+                          name="variantId"
+                          required
+                          options={variantOptions}
+                          value={formik.values.variantId}
+                          onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}
+                          error={
+                            formik.touched.variantId && formik.errors.variantId
+                          }
+                        />
+                      )}
+                      <InputField
+                        label="Portion Size"
+                        name="portionSize"
+                        placeholder="e.g. 1 pizza"
+                        icon={Layers}
+                        value={formik.values.portionSize}
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                      />
+                      <InputField
+                        label="Prep Time (mins)"
+                        name="preparationTimeMins"
+                        type="number"
+                        min="1"
+                        placeholder="e.g. 20"
+                        icon={Clock}
+                        required
+                        value={formik.values.preparationTimeMins}
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                        error={
+                          formik.touched.preparationTimeMins &&
+                          formik.errors.preparationTimeMins
+                        }
+                      />
+                    </div>
+                  );
+                })()}
 
                 {/* Description */}
                 <TextareaField

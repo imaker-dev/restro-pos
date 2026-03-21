@@ -5,9 +5,9 @@ export default false
       message: "You are Offline. Please turn on the internet",
     }
   : {
-    getStockSummaryApi:(outletId) => {
-      return Api.get(`/inventory/${outletId}/stock-summary`)
-    },
+      getStockSummaryApi: (outletId) => {
+        return Api.get(`/inventory/${outletId}/stock-summary`);
+      },
       getAllInventoryCategoryApi: (outletId) => {
         return Api.get(`/inventory/${outletId}/categories`);
       },
@@ -17,9 +17,14 @@ export default false
       updateInventoryCategoryApi: (id, values) => {
         return Api.put(`/inventory/categories/${id}`, values);
       },
-
-      getAllInventoryItemApi: (outletId) => {
-        return Api.get(`/inventory/${outletId}/items`);
+      getAllInventoryItemApi: (outletId, page = 1, limit = 20, search) => {
+        return Api.get(`/inventory/${outletId}/items`, {
+          params: {
+            page,
+            limit,
+            ...(search && { search }),
+          },
+        });
       },
       getInventoryItemByIdApi: (id) => {
         return Api.get(`/inventory/items/${id}`);
@@ -30,7 +35,6 @@ export default false
       updateInventoryItemApi: (id, values) => {
         return Api.put(`/inventory/items/${id}`, values);
       },
-
       createPurchaseApi: (outletId, values) => {
         return Api.post(`/inventory/${outletId}/purchases`, values);
       },
@@ -58,7 +62,6 @@ export default false
         const url = `/inventory/${outletId}/purchases?${params.toString()}`;
         return Api.get(url);
       },
-
       getPurchaseByIdApi: (id) => {
         return Api.get(`/inventory/purchases/${id}`);
       },
@@ -96,8 +99,18 @@ export default false
       createAdjustmentApi: (outletId, values) => {
         return Api.post(`/inventory/${outletId}/adjustments`, values);
       },
-
       createWastageApi: (outletId, values) => {
         return Api.post(`/inventory/${outletId}/wastage`, values);
+      },
+      getAllWastageLogsApi: ({ outletId, page, limit, search, dateRange }) => {
+        return Api.get(`/wastage/${outletId}`, {
+          params: {
+            page,
+            limit,
+            ...(search?.trim() && { search: search.trim() }),
+            ...(dateRange?.startDate && { startDate: dateRange.startDate }),
+            ...(dateRange?.endDate && { endDate: dateRange.endDate }),
+          },
+        });
       },
     };

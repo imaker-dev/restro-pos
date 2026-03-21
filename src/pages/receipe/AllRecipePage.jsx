@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import PageHeader from "../../layout/PageHeader";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllRecipes } from "../../redux/slices/recipeSlice";
@@ -7,10 +7,19 @@ import StatCard from "../../components/StatCard";
 import { formatNumber } from "../../utils/numberFormatter";
 import NoDataFound from "../../layout/NoDataFound";
 import { useNavigate } from "react-router-dom";
-import { Plus, BookOpen, TrendingUp, Percent, Star } from "lucide-react";
+import {
+  Plus,
+  BookOpen,
+  TrendingUp,
+  Percent,
+  Star,
+  Wallet,
+  IndianRupee,
+} from "lucide-react";
 import { RecipeCard } from "../../partial/recipe/RecipeCard";
 import SearchBar from "../../components/SearchBar";
 import { RecipeCardSkeleton } from "../../partial/recipe/RecipeCardSkeleton";
+import Pagination from "../../components/Pagination";
 
 /* ═══════════════════════════════════════════════════════════════════════════
    MAIN PAGE
@@ -19,15 +28,32 @@ const AllRecipePage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(9);
+
   const { outletId } = useSelector((state) => state.auth);
   const { isFetchingRecipes, allRecipes } = useSelector(
     (state) => state.recipe,
   );
+
   const { recipes = [], summary, costingMethod, pagination } = allRecipes || {};
 
+  const fetchRecipes = () => {
+    if (!outletId) return;
+    dispatch(
+      fetchAllRecipes({
+        outletId,
+        page: currentPage,
+        limit: itemsPerPage,
+        search: searchTerm,
+      }),
+    );
+  };
+
   useEffect(() => {
-    if (outletId) dispatch(fetchAllRecipes(outletId));
-  }, [outletId]);
+    fetchRecipes();
+  }, [outletId, currentPage, itemsPerPage, searchTerm]);
 
   const actions = [
     {
@@ -38,19 +64,48 @@ const AllRecipePage = () => {
     },
   ];
 
-
   const stats = [
+    // CORE
     {
       title: "Total Recipes",
       value: formatNumber(summary?.totalRecipes),
-      subtitle: `${summary?.linkedToMenu} linked to menu`,
+      subtitle: `${summary?.linkedToMenu} linked • ${summary?.unlinked} unlinked`,
       icon: BookOpen,
       color: "slate",
     },
+
+    // REVENUE
     {
-      title: "Avg Food Cost",
+      title: "Total Revenue",
+      value: `${formatNumber(summary?.totalSellingPrice, true)}`,
+      subtitle: "Total selling value",
+      icon: TrendingUp,
+      color: "green",
+    },
+
+    // COST
+    {
+      title: "Total Cost",
+      value: `${formatNumber(summary?.totalMakingCost, true)}`,
+      subtitle: "Total making cost",
+      icon: Wallet,
+      color: "red",
+    },
+
+    // PROFIT
+    {
+      title: "Total Profit",
+      value: `${formatNumber(summary?.totalProfit, true)}`,
+      subtitle: summary?.totalProfit >= 0 ? "Overall profit" : "Overall loss",
+      icon: IndianRupee,
+      color: summary?.totalProfit >= 0 ? "green" : "red",
+    },
+
+    // FOOD COST %
+    {
+      title: "Food Cost %",
       value: `${summary?.avgFoodCostPercentage}%`,
-      subtitle: `Target: below 30%`,
+      subtitle: "Target: < 30%",
       icon: Percent,
       color:
         summary?.avgFoodCostPercentage <= 30
@@ -59,17 +114,26 @@ const AllRecipePage = () => {
             ? "amber"
             : "red",
     },
+
+    // PROFIT %
     {
-      title: "Avg Profit Margin",
+      title: "Profit Margin",
       value: `${summary?.avgProfitPercentage}%`,
-      subtitle: "Across all recipes",
+      subtitle: "Average margin",
       icon: TrendingUp,
-      color: "green",
+      color:
+        summary?.avgProfitPercentage >= 70
+          ? "green"
+          : summary?.avgProfitPercentage >= 50
+            ? "amber"
+            : "red",
     },
+
+    // PERFORMANCE
     {
-      title: "Profitable",
+      title: "Profitable Recipes",
       value: `${summary?.recipesWithProfit} / ${summary?.totalRecipes}`,
-      subtitle: `${summary?.recipesWithLoss} at loss`,
+      subtitle: `${summary?.recipesWithLoss} loss-making`,
       icon: Star,
       color: summary?.recipesWithLoss > 0 ? "amber" : "green",
     },
@@ -80,23 +144,22 @@ const AllRecipePage = () => {
       <PageHeader title="All Recipes" actions={actions} />
 
       {/* ── Summary KPIs ── */}
-      {summary && (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          {stats.map((s) => (
-            <StatCard
-              key={s.title}
-              icon={s.icon}
-              title={s.title}
-              value={s.value}
-              subtitle={s.subtitle}
-              color={s.color}
-              variant="v9"
-            />
-          ))}
-        </div>
-      )}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-3">
+        {stats.map((s) => (
+          <StatCard
+            key={s.title}
+            icon={s.icon}
+            title={s.title}
+            value={s.value}
+            subtitle={s.subtitle}
+            color={s.color}
+            variant="v9"
+            loading={isFetchingRecipes}
+          />
+        ))}
+      </div>
 
-      <SearchBar />
+      <SearchBar onSearch={(v) => setSearchTerm(v)}/>
 
       {/* Recipe grid */}
       {isFetchingRecipes ? (
@@ -122,6 +185,20 @@ const AllRecipePage = () => {
           className="bg-white"
         />
       )}
+
+      <Pagination
+        totalItems={pagination?.total}
+        currentPage={currentPage}
+        pageSize={itemsPerPage}
+        totalPages={pagination?.totalPages}
+        onPageChange={(page) => setCurrentPage(page)}
+        maxPageNumbers={5}
+        showPageSizeSelector={true}
+        onPageSizeChange={(size) => {
+          setCurrentPage(1);
+          setItemsPerPage(size);
+        }}
+      />
     </div>
   );
 };

@@ -5,8 +5,14 @@ export default false
       message: "You are Offline. Please turn on the internet",
     }
   : {
-      getAllRecipesApi: (outletId) => {
-        return Api.get(`/recipes/${outletId}/recipes`);
+      getAllRecipesApi: (outletId, page, limit, search) => {
+        let url = `/recipes/${outletId}/recipes?page=${page}&limit=${limit}`;
+
+        if (search) {
+          url += `&search=${encodeURIComponent(search)}`;
+        }
+
+        return Api.get(url);
       },
       getRecipeByIdApi: (id) => {
         return Api.get(`/recipes/recipes/${id}`);
@@ -30,5 +36,8 @@ export default false
       },
       updateProductionRecipeApi: (id, values) => {
         return Api.put(`/production/recipes/${id}`, values);
+      },
+      produceProductionRecipeApi: (outletId, values) => {
+        return Api.post(`production/${outletId}/produce`, values);
       },
     };

@@ -26,10 +26,16 @@ const AddVendorPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { vendorId } = useQueryParams();
-  const {outletId} = useSelector((state) => state.auth)
+  const { outletId } = useSelector((state) => state.auth);
 
-  const { vendorDetails, isFetchingVendor, isCreatingVendor, isUpdatingVendor } =
-    useSelector((state) => state.vendor);
+  const {
+    vendorDetails,
+    isFetchingVendorDetails,
+    isCreatingVendor,
+    isUpdatingVendor,
+  } = useSelector((state) => state.vendor);
+
+  const { vendor } = vendorDetails || {};
 
   useEffect(() => {
     if (vendorId) {
@@ -37,42 +43,41 @@ const AddVendorPage = () => {
     }
   }, [dispatch, vendorId]);
 
-  const initialValues = useMemo(() => {
-    if (!vendorId || !vendorDetails) {
-      return {
-        name: "",
-        contactPerson: "",
-        phone: "",
-        email: "",
-        address: "",
-        city: "",
-        state: "",
-        pincode: "",
-        gstNumber: "",
-        panNumber: "",
-        paymentTerms: "",
-        creditDays: "",
-        notes: "",
-      };
-    }
-
+const initialValues = useMemo(() => {
+  if (!vendorId || !vendor) {
     return {
-      name: vendorDetails.name || "",
-      contactPerson: vendorDetails.contactPerson || "",
-      phone: vendorDetails.phone || "",
-      email: vendorDetails.email || "",
-      address: vendorDetails.address || "",
-      city: vendorDetails.city || "",
-      state: vendorDetails.state || "",
-      pincode: vendorDetails.pincode || "",
-      gstNumber: vendorDetails.gstNumber || "",
-      panNumber: vendorDetails.panNumber || "",
-      paymentTerms: vendorDetails.paymentTerms || "",
-      creditDays: vendorDetails.creditDays || "",
-      notes: vendorDetails.notes || "",
+      name: "",
+      contactPerson: "",
+      phone: "",
+      email: "",
+      address: "",
+      city: "",
+      state: "",
+      pincode: "",
+      gstNumber: "",
+      panNumber: "",
+      paymentTerms: "",
+      creditDays: "",
+      notes: "",
     };
-  }, [vendorId, vendorDetails]);
+  }
 
+  return {
+    name: vendor.name || "",
+    contactPerson: vendor.contactPerson || "",
+    phone: vendor.phone || "",
+    email: vendor.email || "",
+    address: vendor.address || "",
+    city: vendor.city || "",
+    state: vendor.state || "",
+    pincode: vendor.pincode || "",
+    gstNumber: vendor.gstNumber || "",
+    panNumber: vendor.panNumber || "",
+    paymentTerms: vendor.paymentTerms || "",
+    creditDays: vendor.creditDays || "",
+    notes: vendor.notes || "",
+  };
+}, [vendorId, vendor]);
   const validationSchema = Yup.object({
     name: Yup.string().required("Vendor name is required"),
   });
@@ -85,14 +90,14 @@ const AddVendorPage = () => {
 
     const action = vendorId
       ? updateVendor({ id: vendorId, values: payload })
-      : createVendor({ outletId,values: payload });
+      : createVendor({ outletId, values: payload });
 
     await handleResponse(dispatch(action), () => {
       navigate("/inventory-vendors");
     });
   };
 
-  if (isFetchingVendor && vendorId) {
+  if (isFetchingVendorDetails && vendorId) {
     return <LoadingOverlay text="Loading vendor details..." />;
   }
 

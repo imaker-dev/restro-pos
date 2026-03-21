@@ -106,6 +106,7 @@ const AllPurchaseOrdersPage = () => {
   const [showPaymentOverlay, setShowPaymentOverlay] = useState(false);
   const [showCancelOverlay, setShowCancelOverlay] = useState(false);
   const [selectedPurchase, setSelectedPurchase] = useState(null);
+  
 
   const { outletId } = useSelector((state) => state.auth);
   const {
@@ -121,9 +122,6 @@ const AllPurchaseOrdersPage = () => {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [search, setSearch] = useState("");
   const [dateRange, setDateRange] = useState();
-
-  const [statusFilter, setStatusFilter] = useState("");
-  const [paymentFilter, setPaymentFilter] = useState("");
 
   const fetchPurchases = () => {
     if (!outletId || !dateRange?.startDate || !dateRange?.endDate) return;
