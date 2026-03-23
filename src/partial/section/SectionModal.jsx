@@ -7,6 +7,7 @@ import { InputField } from "../../components/fields/InputField";
 import { CheckboxField } from "../../components/fields/CheckboxField";
 import { SECTION_TYPE_OPTIONS } from "../../constants/selectOptions";
 import { SelectField } from "../../components/fields/SelectField";
+import InfoCard from "../../components/InfoCard";
 
 const validationSchema = Yup.object({
   name: Yup.string().trim().required("Section name is required").max(50),
@@ -91,6 +92,7 @@ const SectionModal = ({
           error={formik.touched.name && formik.errors.name}
         />
 
+
         {/* Code */}
         <InputField
           label="Code"
@@ -102,6 +104,14 @@ const SectionModal = ({
           onBlur={formik.handleBlur}
           error={formik.touched.code && formik.errors.code}
         />
+
+        
+<InfoCard
+  type="warning"
+  size="sm"
+  title="Unique Section Name & Code"
+  description="Both section name and code must be unique across all floors within this outlet. Duplicate values are not allowed."
+/>
 
         {/* Section Type */}
         <SelectField
@@ -177,6 +187,7 @@ const SectionModal = ({
           </button>
         </div>
       </form>
+      
     </ModalBasic>
   );
 };

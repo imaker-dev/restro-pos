@@ -10,39 +10,45 @@
 
 <!doctype html>
 <html lang="en" class="dark">
-  <head>
-    <meta charset="UTF-8" />
 
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="/favicon.png" />
+<head>
+  <meta charset="UTF-8" />
 
-    <!-- Responsive -->
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-    />
+  <!-- Block Search Engines -->
+  <meta name="robots" content="noindex, nofollow, noarchive" />
 
-    <!-- SEO / Description -->
-    <meta
-      name="description"
-      content="iMaker Restro - Smart Restaurant POS System for managing orders, billing, tables, and inventory."
-    />
-    <meta
-      name="keywords"
-      content="iMaker Restro, restaurant pos, billing system, restaurant management, food order system"
-    />
-    <meta name="author" content="iMaker" />
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="/favicon.png" />
 
-    <!-- Title -->
-    <title>iMaker Restro | Restaurant POS</title>
-  </head>
+  <!-- Responsive -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 
-  <body>
-    <noscript>You need to enable JavaScript to run iMaker Restro.</noscript>
+  <!-- SEO / Description -->
+  <meta name="description"
+    content="iMaker Restro - Smart Restaurant POS System for managing orders, billing, tables, and inventory." />
+  <meta name="keywords"
+    content="iMaker Restro, restaurant pos, billing system, restaurant management, food order system" />
+  <meta name="author" content="iMaker" />
 
-    <div id="root"></div>
+  <!-- Open Graph (for sharing) -->
+  <meta property="og:title" content="iMaker Restro | Restaurant POS" />
+  <meta property="og:description"
+    content="Smart Restaurant POS System for managing orders, billing, tables, and inventory." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://imakerrestro.com" />
+  <meta property="og:image" content="https://imakerrestro.com/Images/og-image.png" />
 
-    <!-- Main React Entry -->
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+  <!-- Title -->
+  <title>iMaker Restro | Restaurant POS</title>
+</head>
+
+<body>
+  <noscript>You need to enable JavaScript to run iMaker Restro.</noscript>
+
+  <div id="root"></div>
+
+  <!-- Main React Entry -->
+  <script type="module" src="/src/main.jsx"></script>
+</body>
+
 </html>

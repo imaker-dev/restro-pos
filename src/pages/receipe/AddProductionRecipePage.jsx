@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Formik, Form, FieldArray } from "formik";
 import * as Yup from "yup";
 import PageHeader from "../../layout/PageHeader";
@@ -59,21 +59,23 @@ const AddProductionRecipePage = () => {
     isUpdatingProductionRecipe,
   } = useSelector((s) => s.recipe);
 
-  console.log(productionRecipeDetails);
-  useEffect(() => {
-    if (!outletId) return;
-    dispatch(fetchAllInventoryItems({ outletId, search: searchItemQuery }));
-  }, [outletId, searchItemQuery]);
+// ✅ Initial loads
+useEffect(() => {
+  if (!outletId) return;
+  dispatch(fetchAllInventoryItems({ outletId, search: "" }));
+  dispatch(fetchAllIngredients({ outletId, search: "" }));
+  dispatch(fetchAllUnits(outletId));
+}, [outletId]);
 
-  useEffect(() => {
-    if (!outletId) return;
-    dispatch(fetchAllIngredients({ outletId, search: searchIngredientQuery }));
-  }, [outletId, searchIngredientQuery]);
+// ✅ Stable search handlers
+const handleItemSearch = useCallback((query) => {
+  if (outletId) dispatch(fetchAllInventoryItems({ outletId, search: query }));
+}, [outletId, dispatch]);
 
-  useEffect(() => {
-    if (!outletId) return;
-    dispatch(fetchAllUnits(outletId));
-  }, [outletId]);
+const handleIngredientSearch = useCallback((query) => {
+  if (outletId) dispatch(fetchAllIngredients({ outletId, search: query }));
+}, [outletId, dispatch]);
+
 
   /* Initial Values */
   const getInitialValues = () => {
@@ -230,7 +232,8 @@ const AddProductionRecipePage = () => {
                     formik.touched.outputInventoryItemId &&
                     formik.errors.outputInventoryItemId
                   }
-                  onSearch={(value) => setSearchItemQuery(value)}
+                  onSearch={handleItemSearch}
+
                 />
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -300,9 +303,7 @@ const AddProductionRecipePage = () => {
                         units={units}
                         formik={formik}
                         remove={remove}
-                        onIngredientSearch={(value) =>
-                          setSearchIngredientQuery(value)
-                        }
+                        onIngredientSearch={handleIngredientSearch}
                         canRemove={formik.values.ingredients.length > 1}
                       />
                     ))}

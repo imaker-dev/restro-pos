@@ -217,7 +217,7 @@ export const navConfig = [
     {
       name: "Setup",
       icon: Layers,
-      roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN],
+      roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN,ROLES.MANAGER],
       children: [
         {
           name: "Items",

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { Formik, Form, FieldArray } from "formik";
 import * as Yup from "yup";
 import PageHeader from "../../layout/PageHeader";
@@ -41,6 +41,7 @@ function IngredientRow({
   formik,
   remove,
   canRemove,
+  onSearch,
 }) {
   return (
     <div className="bg-white border border-slate-100 rounded-2xl  hover:border-slate-200 transition-colors duration-150">
@@ -85,6 +86,7 @@ function IngredientRow({
             formik.touched.ingredients?.[index]?.ingredientId &&
             formik.errors.ingredients?.[index]?.ingredientId
           }
+          onSearch={onSearch}
         />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-start">
           {/* Quantity */}
@@ -167,7 +169,6 @@ const AddRecipePage = () => {
   const navigate = useNavigate();
   const { recipeId } = useQueryParams();
 
-  const [searchItemQuery, setSearchItemQuery] = useState("");
   const [selectedMenuItem, setSelectedMenuItem] = useState(null);
 
   const { outletId } = useSelector((state) => state.auth);
@@ -195,17 +196,28 @@ const AddRecipePage = () => {
     }
   }, [recipeId]);
 
+  // ✅ Initial loads — runs once on mount, no search query deps
   useEffect(() => {
     if (!outletId) return;
-    dispatch(fetchAllItems({ outletId, search: searchItemQuery }));
-  }, [outletId, searchItemQuery]);
-
-  useEffect(() => {
-    if (!outletId) return;
-
+    dispatch(fetchAllItems({ outletId, search: "" }));
     dispatch(fetchAllIngredients({ outletId }));
     dispatch(fetchAllUnits(outletId));
-  }, [outletId, searchItemQuery]);
+  }, [outletId]);
+
+  // ✅ Stable menu item search handler
+  const handleMenuItemSearch = useCallback(
+    (query) => {
+      if (outletId) dispatch(fetchAllItems({ outletId, search: query }));
+    },
+    [outletId, dispatch],
+  );
+
+  const handleIngredientSearch = useCallback(
+    (query) => {
+      if (outletId) dispatch(fetchAllIngredients({ outletId, search: query }));
+    },
+    [outletId, dispatch],
+  );
 
   const getInitialValues = () => {
     if (!recipeId || !recipeDetails) {
@@ -351,7 +363,7 @@ const AddRecipePage = () => {
                   onBlur={formik.handleBlur}
                   error={formik.touched.name && formik.errors.name}
                 />
-                
+
                 {/* Menu item picker — full width */}
                 <SearchSelectField
                   label="Menu Item"
@@ -367,7 +379,7 @@ const AddRecipePage = () => {
                   onBlur={() => formik.setFieldTouched("menuItemId", true)}
                   options={menuOptions}
                   error={formik.touched.menuItemId && formik.errors.menuItemId}
-                  onSearch={(q) => setSearchItemQuery(q)}
+                  onSearch={handleMenuItemSearch}
                   loading={loading}
                 />
 
@@ -466,6 +478,7 @@ const AddRecipePage = () => {
                         formik={formik}
                         remove={remove}
                         canRemove={formik.values.ingredients.length > 1}
+                        onSearch={handleIngredientSearch}
                       />
                     ))}
 

@@ -6,7 +6,7 @@ import LoadingOverlay from "../../components/LoadingOverlay";
 import StatCard from "../../components/StatCard";
 import { formatNumber } from "../../utils/numberFormatter";
 import NoDataFound from "../../layout/NoDataFound";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Plus,
   BookOpen,
@@ -15,6 +15,8 @@ import {
   Star,
   Wallet,
   IndianRupee,
+  Unlink,
+  AlertTriangle,
 } from "lucide-react";
 import { RecipeCard } from "../../partial/recipe/RecipeCard";
 import SearchBar from "../../components/SearchBar";
@@ -65,7 +67,6 @@ const AllRecipePage = () => {
   ];
 
   const stats = [
-    // CORE
     {
       title: "Total Recipes",
       value: formatNumber(summary?.totalRecipes),
@@ -73,69 +74,71 @@ const AllRecipePage = () => {
       icon: BookOpen,
       color: "slate",
     },
-
-    // REVENUE
     {
-      title: "Total Revenue",
-      value: `${formatNumber(summary?.totalSellingPrice, true)}`,
-      subtitle: "Total selling value",
-      icon: TrendingUp,
+      title: "Linked to Menu",
+      value: formatNumber(summary?.linkedToMenu),
+      subtitle: "Recipes in menu",
+      icon: Link,
       color: "green",
     },
-
-    // COST
     {
-      title: "Total Cost",
-      value: `${formatNumber(summary?.totalMakingCost, true)}`,
-      subtitle: "Total making cost",
-      icon: Wallet,
+      title: "Unlinked Recipes",
+      value: formatNumber(summary?.unlinked),
+      subtitle: "Not in menu",
+      icon: Unlink,
       color: "red",
     },
 
-    // PROFIT
+    {
+      title: "Total Revenue",
+      value: formatNumber(summary?.totalSellingPrice, true),
+      subtitle: "Selling value",
+      icon: TrendingUp,
+      color: "green",
+    },
+    {
+      title: "Total Cost",
+      value: formatNumber(summary?.totalMakingCost, true),
+      subtitle: "Making cost",
+      icon: Wallet,
+      color: "red",
+    },
     {
       title: "Total Profit",
-      value: `${formatNumber(summary?.totalProfit, true)}`,
-      subtitle: summary?.totalProfit >= 0 ? "Overall profit" : "Overall loss",
+      value: formatNumber(summary?.totalProfit, true),
+      subtitle: "Profit",
       icon: IndianRupee,
-      color: summary?.totalProfit >= 0 ? "green" : "red",
+      color: "green",
     },
 
-    // FOOD COST %
     {
       title: "Food Cost %",
       value: `${summary?.avgFoodCostPercentage}%`,
-      subtitle: "Target: < 30%",
+      subtitle: "Average",
       icon: Percent,
-      color:
-        summary?.avgFoodCostPercentage <= 30
-          ? "green"
-          : summary?.avgFoodCostPercentage <= 40
-            ? "amber"
-            : "red",
+      color: "blue",
     },
-
-    // PROFIT %
     {
-      title: "Profit Margin",
+      title: "Profit %",
       value: `${summary?.avgProfitPercentage}%`,
-      subtitle: "Average margin",
+      subtitle: "Average",
       icon: TrendingUp,
-      color:
-        summary?.avgProfitPercentage >= 70
-          ? "green"
-          : summary?.avgProfitPercentage >= 50
-            ? "amber"
-            : "red",
+      color: "blue",
     },
 
-    // PERFORMANCE
     {
       title: "Profitable Recipes",
-      value: `${summary?.recipesWithProfit} / ${summary?.totalRecipes}`,
-      subtitle: `${summary?.recipesWithLoss} loss-making`,
+      value: formatNumber(summary?.recipesWithProfit),
+      subtitle: "In profit",
       icon: Star,
-      color: summary?.recipesWithLoss > 0 ? "amber" : "green",
+      color: "green",
+    },
+    {
+      title: "Loss Recipes",
+      value: formatNumber(summary?.recipesWithLoss),
+      subtitle: "In loss",
+      icon: AlertTriangle,
+      color: "red",
     },
   ];
 
@@ -159,7 +162,7 @@ const AllRecipePage = () => {
         ))}
       </div>
 
-      <SearchBar onSearch={(v) => setSearchTerm(v)}/>
+      <SearchBar onSearch={(v) => setSearchTerm(v)} />
 
       {/* Recipe grid */}
       {isFetchingRecipes ? (

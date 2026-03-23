@@ -44,8 +44,13 @@ export const updateInventoryCategory = createAsyncThunk(
 // Fetch all inventory items
 export const fetchAllInventoryItems = createAsyncThunk(
   "/fetch/inventory/items",
-  async ({outletId,page,limit,search}) => {
-    const res = await InventoryServices.getAllInventoryItemApi(outletId,page,limit,search);
+  async ({ outletId, page, limit, search }) => {
+    const res = await InventoryServices.getAllInventoryItemApi(
+      outletId,
+      page,
+      limit,
+      search,
+    );
     return res.data;
   },
 );
@@ -168,8 +173,14 @@ export const createWastage = createAsyncThunk(
 // wastage logs
 export const fetchWastageLogs = createAsyncThunk(
   "/fetch/wastage/logs",
-  async ({ outletId,search,page,limit,dateRange }) => {
-    const res = await InventoryServices.getAllWastageLogsApi({outletId,search,page,limit,dateRange});
+  async ({ outletId, search, page, limit, dateRange }) => {
+    const res = await InventoryServices.getAllWastageLogsApi({
+      outletId,
+      search,
+      page,
+      limit,
+      dateRange,
+    });
     return res.data;
   },
 );
@@ -177,8 +188,8 @@ export const fetchWastageLogs = createAsyncThunk(
 const inventorySlice = createSlice({
   name: "inventory",
   initialState: {
-    isFetchingStockSummary:false,
-    stockSummary:null,
+    isFetchingStockSummary: false,
+    stockSummary: null,
 
     isFetchingCategories: false,
     isCreatingCategory: false,
@@ -211,8 +222,8 @@ const inventorySlice = createSlice({
     isCreatingAdjustment: false,
     isCreatingWastage: false,
 
-    isFetchingWastageLogs:false,
-    allWastageLogs:null,
+    isFetchingWastageLogs: false,
+    allWastageLogs: null,
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -302,7 +313,7 @@ const inventorySlice = createSlice({
       })
       .addCase(createInventoryItem.fulfilled, (state, action) => {
         state.isCreatingItem = false;
-        toast.success(action.payload.message);
+        toast.success(action.payload?.message || "Item created successfully");
       })
       .addCase(createInventoryItem.rejected, (state, action) => {
         state.isCreatingItem = false;
@@ -315,7 +326,7 @@ const inventorySlice = createSlice({
       })
       .addCase(updateInventoryItem.fulfilled, (state, action) => {
         state.isUpdatingItem = false;
-        toast.success(action.payload.message);
+        toast.success(action.payload?.message || "Item updated successfully");
       })
       .addCase(updateInventoryItem.rejected, (state, action) => {
         state.isUpdatingItem = false;
@@ -437,7 +448,7 @@ const inventorySlice = createSlice({
       .addCase(fetchWastageLogs.rejected, (state, action) => {
         state.isFetchingWastageLogs = false;
         toast.error(action.error.message);
-      })
+      });
   },
 });
 

@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useCallback } from "react";
 import { Formik, Form, FieldArray } from "formik";
 import * as Yup from "yup";
 import PageHeader from "../../layout/PageHeader";
 import AccordionSection from "../../components/AccordionSection";
 import { InputField } from "../../components/fields/InputField";
 import { TextareaField } from "../../components/fields/TextareaField";
-import { Info, Loader2, Plus, Trash2 } from "lucide-react";
+import { Loader2, Plus, Trash2 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllInventoryItems } from "../../redux/slices/inventorySlice";
 import {
@@ -26,12 +26,9 @@ const AddIngredientPage = () => {
 
   const { ingredientId } = useQueryParams();
   const isEditMode = Boolean(ingredientId);
-  const [itemSearchQuery, setItemSearchQuery] = useState("");
 
-  const { outletId } = useSelector((state) => state.auth);
-  const { allItemsData, isFetchingItems } = useSelector(
-    (state) => state.inventory,
-  );
+  const { outletId } = useSelector((s) => s.auth);
+  const { allItemsData, isFetchingItems } = useSelector((s) => s.inventory);
   const { items } = allItemsData || {};
 
   const {
@@ -39,34 +36,39 @@ const AddIngredientPage = () => {
     ingredientDetails,
     isCreatingIngredient,
     isUpdatingIngredient,
-  } = useSelector((state) => state.ingredient);
+  } = useSelector((s) => s.ingredient);
 
+  // ── Initial fetch (no search query — load defaults) ──────────────────────
   useEffect(() => {
     if (outletId) {
-      dispatch(fetchAllInventoryItems({ outletId, search: itemSearchQuery }));
+      dispatch(fetchAllInventoryItems({ outletId, search: "" }));
     }
-  }, [outletId, dispatch, itemSearchQuery]);
+  }, [outletId, dispatch]);
 
   useEffect(() => {
-    if (ingredientId) {
-      dispatch(fetchIngredientById(ingredientId));
-    }
+    if (ingredientId) dispatch(fetchIngredientById(ingredientId));
   }, [ingredientId, dispatch]);
 
-  // helper
-  const getFieldError = (formik, name) => {
-    const error = name
-      .split(".")
-      .reduce((acc, part) => acc?.[part], formik.errors);
+  const handleItemSearch = useCallback(
+    (query) => {
+      console.log(query)
+      if (outletId) {
+        dispatch(fetchAllInventoryItems({ outletId, search: query }));
+      }
+    },
+    [outletId, dispatch],
+  );
 
+  // ── Field error helper ────────────────────────────────────────────────────
+  const getFieldError = (formik, name) => {
+    const error = name.split(".").reduce((acc, p) => acc?.[p], formik.errors);
     const touched = name
       .split(".")
-      .reduce((acc, part) => acc?.[part], formik.touched);
-
+      .reduce((acc, p) => acc?.[p], formik.touched);
     return touched && error ? error : null;
   };
 
-  // initial values
+  // ── Initial values ────────────────────────────────────────────────────────
   const getInitialValues = () => {
     if (!isEditMode || !ingredientDetails) {
       return {
@@ -82,7 +84,6 @@ const AddIngredientPage = () => {
         ],
       };
     }
-
     return {
       items: [
         {
@@ -97,6 +98,7 @@ const AddIngredientPage = () => {
     };
   };
 
+  // ── Validation ────────────────────────────────────────────────────────────
   const validationSchema = Yup.object({
     items: Yup.array().of(
       Yup.object({
@@ -112,9 +114,9 @@ const AddIngredientPage = () => {
     ),
   });
 
+  // ── Submit ────────────────────────────────────────────────────────────────
   const handleSubmit = async (values) => {
     const item = values.items[0];
-
     const payload = {
       inventoryItemId: Number(item.inventoryItemId),
       name: item.name?.trim() || null,
@@ -128,14 +130,10 @@ const AddIngredientPage = () => {
       ? updateIngredient({ id: ingredientId, values: payload })
       : createIngredient({ outletId, values: { items: values.items } });
 
-    await handleResponse(dispatch(action), () => {
-      navigate("/ingredients");
-    });
+    await handleResponse(dispatch(action), () => navigate("/ingredients"));
   };
 
-  if (isEditMode && isFetchingIngredientDetails) {
-    return <LoadingOverlay />;
-  }
+  if (isEditMode && isFetchingIngredientDetails) return <LoadingOverlay />;
 
   return (
     <div className="space-y-6">
@@ -151,19 +149,24 @@ const AddIngredientPage = () => {
         enableReinitialize
       >
         {(formik) => (
-          <Form className="space-y-6">
+          <Form className="space-y-6" autoComplete="off">
             <FieldArray name="items">
               {({ push, remove }) => (
                 <div className="space-y-6">
                   {formik.values.items.map((item, index) => (
-                    <AccordionSection title="Ingredient Details" index={index}>
+                    <AccordionSection
+                      key={index}
+                      title={`Ingredient ${formik.values.items.length > 1 ? index + 1 : "Details"}`}
+                      index={index}
+                    >
                       <div className="space-y-5">
+                        {/* Inventory item picker */}
                         <SearchSelectField
                           label="Inventory Item"
                           name={`items.${index}.inventoryItemId`}
                           required
                           loading={isFetchingItems}
-                          options={items?.map((i) => ({
+                          options={(items || []).map((i) => ({
                             value: i.id,
                             label: i.name,
                           }))}
@@ -173,11 +176,10 @@ const AddIngredientPage = () => {
                               `items.${index}.inventoryItemId`,
                               value,
                             );
-
-                            const selected = items.find(
+                            // Auto-fill name from selected item
+                            const selected = items?.find(
                               (i) => i.id === Number(value),
                             );
-
                             if (selected) {
                               formik.setFieldValue(
                                 `items.${index}.name`,
@@ -190,15 +192,17 @@ const AddIngredientPage = () => {
                             formik,
                             `items.${index}.inventoryItemId`,
                           )}
-                          placeholder="Search inventory item..."
+                          placeholder="Search inventory item…"
                           disabled={isEditMode}
-                          onSearch={(q) => setItemSearchQuery(q)}
+                          onSearch={handleItemSearch}
                         />
 
+                        {/* Name + Yield + Wastage */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                           <InputField
                             label="Ingredient Name"
                             name={`items.${index}.name`}
+                            required
                             placeholder="Auto-filled or custom name"
                             value={item.name}
                             onChange={formik.handleChange}
@@ -206,11 +210,11 @@ const AddIngredientPage = () => {
                             error={getFieldError(formik, `items.${index}.name`)}
                             helperText="Created from inventory item"
                           />
-                          
                           <InputField
                             label="Yield (%)"
                             name={`items.${index}.yieldPercentage`}
                             type="number"
+                            required
                             placeholder="e.g. 80"
                             helperText="After prep usable quantity"
                             value={item.yieldPercentage}
@@ -221,7 +225,6 @@ const AddIngredientPage = () => {
                               `items.${index}.yieldPercentage`,
                             )}
                           />
-
                           <InputField
                             label="Wastage (%)"
                             name={`items.${index}.wastagePercentage`}
@@ -234,6 +237,7 @@ const AddIngredientPage = () => {
                           />
                         </div>
 
+                        {/* Preparation Notes */}
                         <TextareaField
                           label="Preparation Notes"
                           name={`items.${index}.preparationNotes`}
@@ -243,6 +247,7 @@ const AddIngredientPage = () => {
                           onChange={formik.handleChange}
                         />
 
+                        {/* Description */}
                         <TextareaField
                           label="Description"
                           name={`items.${index}.description`}
@@ -252,19 +257,24 @@ const AddIngredientPage = () => {
                           onChange={formik.handleChange}
                         />
 
+                        {/* Remove row button — only in add mode with multiple items */}
                         {!isEditMode && formik.values.items.length > 1 && (
-                          <button
-                            type="button"
-                            onClick={() => remove(index)}
-                            className="p-1.5 rounded-md hover:bg-red-50 text-gray-400 hover:text-red-500"
-                          >
-                            <Trash2 size={16} />
-                          </button>
+                          <div className="flex justify-end">
+                            <button
+                              type="button"
+                              onClick={() => remove(index)}
+                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-semibold text-rose-600 border border-rose-200 bg-rose-50 hover:bg-rose-100 transition-colors"
+                            >
+                              <Trash2 size={13} strokeWidth={2} />
+                              Remove
+                            </button>
+                          </div>
                         )}
                       </div>
                     </AccordionSection>
                   ))}
 
+                  {/* Add another ingredient — only in add mode */}
                   {!isEditMode && (
                     <button
                       type="button"
@@ -272,13 +282,15 @@ const AddIngredientPage = () => {
                         push({
                           inventoryItemId: "",
                           name: "",
+                          description: "",
                           yieldPercentage: "",
                           wastagePercentage: "",
+                          preparationNotes: "",
                         })
                       }
-                      className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border-2 border-dashed border-gray-300 hover:border-primary-400 hover:bg-primary-50 text-gray-600 hover:text-primary-600 transition"
+                      className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border-2 border-dashed border-slate-200 hover:border-primary-400 hover:bg-primary-50 text-slate-500 hover:text-primary-600 text-[13px] font-semibold transition-all duration-150"
                     >
-                      <Plus size={16} />
+                      <Plus size={15} strokeWidth={2.5} />
                       Add Another Ingredient
                     </button>
                   )}
@@ -286,32 +298,29 @@ const AddIngredientPage = () => {
               )}
             </FieldArray>
 
+            {/* Info card */}
             <InfoCard
               type="info"
               title="Understanding Yield & Wastage"
-              description={`Yield = usable portion after preparation.
-              Example: 1kg → 800g usable → Yield = 80%.
-              Raw Needed = Recipe Qty ÷ (Yield / 100)
-              Wastage = additional cooking loss.
-              Effective Qty = Recipe Qty × (1 + wastage%) × (100 / yield)`}
+              description={`Yield = usable portion after preparation.\nExample: 1kg → 800g usable → Yield = 80%.\nRaw Needed = Recipe Qty ÷ (Yield / 100)\nWastage = additional cooking loss.\nEffective Qty = Recipe Qty × (1 + wastage%) × (100 / yield)`}
             />
 
+            {/* Submit */}
             <div className="flex justify-end">
               <button
                 type="submit"
                 disabled={isCreatingIngredient || isUpdatingIngredient}
-                className="btn bg-primary-500 hover:bg-primary-600 text-white font-medium flex items-center gap-2"
+                className="btn bg-primary-500 hover:bg-primary-600 text-white font-medium flex items-center gap-2 disabled:opacity-70"
               >
                 {(isCreatingIngredient || isUpdatingIngredient) && (
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <Loader2 size={15} className="animate-spin" />
                 )}
-
                 {isEditMode
                   ? isUpdatingIngredient
-                    ? "Updating..."
+                    ? "Updating…"
                     : "Update Ingredient"
                   : isCreatingIngredient
-                    ? "Creating..."
+                    ? "Creating…"
                     : "Create Ingredients"}
               </button>
             </div>

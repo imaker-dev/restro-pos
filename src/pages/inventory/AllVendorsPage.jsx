@@ -2,12 +2,26 @@ import React, { useEffect, useState } from "react";
 import PageHeader from "../../layout/PageHeader";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchVendors } from "../../redux/slices/vendorSlice";
-import { Edit3, Eye, Plus } from "lucide-react";
+import {
+  AlertCircle,
+  BarChart2,
+  Edit3,
+  Eye,
+  FileText,
+  IndianRupee,
+  Plus,
+  ShoppingBag,
+  TrendingUp,
+  UserCheck,
+  Users,
+  UserX,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import SmartTable from "../../components/SmartTable";
 import { formatNumber } from "../../utils/numberFormatter";
 import { formatDate } from "../../utils/dateFormatter";
 import StatusBadge from "../../layout/StatusBadge";
+import StatCard from "../../components/StatCard";
 
 const AllVendorsPage = () => {
   const dispatch = useDispatch();
@@ -18,7 +32,7 @@ const AllVendorsPage = () => {
     (state) => state.vendor,
   );
 
-  const { vendors, pagination } = allVendorsData || {};
+  const { vendors, pagination, summary } = allVendorsData || {};
 
   useEffect(() => {
     if (!outletId) return;
@@ -33,6 +47,7 @@ const AllVendorsPage = () => {
       onClick: () => navigate(`/inventory-vendors/add`),
     },
   ];
+
   const columns = [
     {
       key: "name",
@@ -185,9 +200,97 @@ const AllVendorsPage = () => {
     },
   ];
 
+  const stats = [
+    //  Overview (what & how many)
+    {
+      label: "Total Vendors",
+      value: formatNumber(summary?.totalVendors),
+      sub: `${formatNumber(summary?.activeVendors)} active`,
+      icon: Users,
+      color: "slate",
+      dark: true,
+    },
+    // {
+    //   label: "Active Vendors",
+    //   value: formatNumber(summary?.activeVendors),
+    //   sub: "Currently supplying",
+    //   icon: UserCheck,
+    //   color: "green",
+    // },
+    // {
+    //   label: "Inactive Vendors",
+    //   value: formatNumber(summary?.inactiveVendors),
+    //   sub: "Not currently active",
+    //   icon: UserX,
+    //   color: "red",
+    // },
+
+    //  Engagement (who is actually used)
+    {
+      label: "Vendors with Purchases",
+      value: formatNumber(summary?.vendorsWithPurchases),
+      sub: "Have transactions",
+      icon: ShoppingBag,
+      color: "blue",
+    },
+
+    //  Activity
+    {
+      label: "Purchase Orders",
+      value: formatNumber(summary?.totalPurchaseOrders),
+      sub: "Total POs created",
+      icon: FileText,
+      color: "purple",
+    },
+
+    //  Financials (MOST important → keep together)
+    {
+      label: "Total Purchase Value",
+      value: formatNumber(summary?.totalPurchaseValue, true),
+      sub: "Overall procurement",
+      icon: IndianRupee,
+      color: "slate",
+    },
+    {
+      label: "Outstanding Amount",
+      value: formatNumber(summary?.totalOutstanding, true),
+      sub: "Pending to vendors",
+      icon: AlertCircle,
+      color: "red",
+    },
+
+    {
+      label: "Avg Purchase per Vendor",
+      value: formatNumber(
+        (summary?.totalPurchaseValue || 0) /
+          (summary?.vendorsWithPurchases || 1),
+        true,
+      ),
+      sub: "Per active vendor",
+      icon: BarChart2,
+      color: "blue",
+    },
+  ];
+
   return (
     <div className="space-y-6">
       <PageHeader title={"All Vendors"} actions={actions} />
+
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+        {stats.map((stat, i) => (
+          <StatCard
+            key={i}
+            icon={stat.icon}
+            title={stat.label}
+            value={stat.value}
+            subtitle={stat.sub}
+            color={stat.color}
+            mode={stat.dark ? "solid" : ""}
+            variant="v9"
+            loading={isFetchingVendors}
+          />
+        ))}
+      </div>
 
       <SmartTable
         title="Vendors"

@@ -7,7 +7,7 @@ import { InputField } from "../../components/fields/InputField";
 import { SelectField } from "../../components/fields/SelectField";
 import { TextareaField } from "../../components/fields/TextareaField";
 import ToggleField from "../../components/fields/ToggleField";
-import { Info, Package } from "lucide-react";
+import { Info, Loader2, Package } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useQueryParams } from "../../hooks/useQueryParams";
@@ -30,8 +30,13 @@ const AddInventoryItemPage = () => {
 
   const { outletId } = useSelector((state) => state.auth);
 
-  const { inventoryItemDetails, isFetchingItemDetails, allCategories } =
-    useSelector((state) => state.inventory);
+  const {
+    inventoryItemDetails,
+    isFetchingItemDetails,
+    isCreatingItem,
+    isUpdatingItem,
+    allCategories,
+  } = useSelector((state) => state.inventory);
   const { categories } = allCategories || {};
   const { allUnits } = useSelector((state) => state.unit);
   const { units } = allUnits || {};
@@ -188,7 +193,7 @@ const AddInventoryItemPage = () => {
                     required
                     options={units?.map((u) => ({
                       value: u.id,
-                      label: u.name,
+                      label: `${u.name} (${u.abbreviation})`,
                     }))}
                     value={formik.values.baseUnitId}
                     onChange={formik.handleChange}
@@ -276,9 +281,20 @@ const AddInventoryItemPage = () => {
             <div className="flex justify-end">
               <button
                 type="submit"
-                className="btn bg-primary-500 hover:bg-primary-600 text-white"
+                disabled={isCreatingItem || isUpdatingItem}
+                className="btn bg-primary-500 hover:bg-primary-600 text-white flex items-center gap-2"
               >
-                {itemId ? "Update Item" : "Create Item"}
+                {(isCreatingItem || isUpdatingItem) && (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                )}
+
+                {itemId
+                  ? isUpdatingItem
+                    ? "Updating..."
+                    : "Update Item"
+                  : isCreatingItem
+                    ? "Creating..."
+                    : "Create Item"}
               </button>
             </div>
           </Form>

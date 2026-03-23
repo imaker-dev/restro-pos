@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Formik, Form, FieldArray } from "formik";
 import * as Yup from "yup";
 import PageHeader from "../../layout/PageHeader";
@@ -16,25 +16,41 @@ import {
 import { fetchVendors } from "../../redux/slices/vendorSlice";
 import { handleResponse } from "../../utils/helpers";
 import { useNavigate } from "react-router-dom";
+import { SearchSelectField } from "../../components/fields/SearchSelectField";
 
 const AddPurchaseOrderPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  const [searchItemQuery, setSearchItemQuery] = useState("");
   const { outletId } = useSelector((state) => state.auth);
   const { allVendorsData } = useSelector((state) => state.vendor);
   const { vendors } = allVendorsData || {};
 
-  const { allItemsData, isCreatingPurchase } = useSelector(
+  const { allItemsData, isCreatingPurchase, isFetchingItems } = useSelector(
     (state) => state.inventory,
   );
   const { items } = allItemsData || {};
+
+  // ✅ Initial load
+  useEffect(() => {
+    if (!outletId) return;
+    dispatch(fetchAllInventoryItems({ outletId, search: "" }));
+  }, [outletId]);
+
+  // ✅ Stable per-field search handler
+  const handleItemSearch = useCallback(
+    (query) => {
+      if (outletId)
+        dispatch(fetchAllInventoryItems({ outletId, search: query }));
+    },
+    [outletId, dispatch],
+  );
 
   useEffect(() => {
     if (!outletId) return;
     dispatch(fetchVendors(outletId));
     dispatch(fetchAllUnits(outletId));
-    dispatch(fetchAllInventoryItems({outletId}));
   }, [outletId]);
 
   /* ---------------- HELPERS ---------------- */
@@ -158,6 +174,7 @@ const AddPurchaseOrderPage = () => {
                 placeholder="Add any notes about this purchase (optional)"
                 value={formik.values.notes}
                 onChange={formik.handleChange}
+                rows={2}
               />
             </AccordionSection>
 
@@ -176,49 +193,52 @@ const AddPurchaseOrderPage = () => {
                           key={index}
                           className="border border-slate-200 rounded-lg p-5 bg-white space-y-4"
                         >
-                          <div className="grid md:grid-cols-5 gap-4">
-                            {/* ITEM */}
-                            <SelectField
-                              label="Inventory Item"
-                              name={`items.${index}.inventoryItemId`}
-                              placeholder="Select item"
-                              required
-                              options={items?.map((i) => ({
-                                value: i.id,
-                                label: i.name,
-                              }))}
-                              value={item.inventoryItemId}
-                              onChange={(e) => {
-                                const value = e.target.value;
+                          <SearchSelectField
+                            label="Inventory Item"
+                            name={`items.${index}.inventoryItemId`}
+                            placeholder="Search item..."
+                            required
+                            value={item.inventoryItemId}
+                            options={items?.map((i) => ({
+                              value: i.id,
+                              label: i.name,
+                            }))}
+                            onChange={(value) => {
+                              formik.setFieldValue(
+                                `items.${index}.inventoryItemId`,
+                                value,
+                              );
+
+                              const selected = items.find(
+                                (i) => i.id === Number(value),
+                              );
+
+                              if (selected) {
+                                formik.setFieldValue(
+                                  `items.${index}.unitId`,
+                                  selected.unitId,
+                                );
 
                                 formik.setFieldValue(
-                                  `items.${index}.inventoryItemId`,
-                                  value,
+                                  `items.${index}.pricePerUnit`,
+                                  selected.latestPrice || "",
                                 );
-
-                                const selected = items.find(
-                                  (i) => i.id === Number(value),
-                                );
-
-                                if (selected) {
-                                  formik.setFieldValue(
-                                    `items.${index}.unitId`,
-                                    selected.unitId,
-                                  );
-
-                                  formik.setFieldValue(
-                                    `items.${index}.pricePerUnit`,
-                                    selected.latestPrice || "",
-                                  );
-                                }
-                              }}
-                              onBlur={formik.handleBlur}
-                              error={getError(
-                                formik,
+                              }
+                            }}
+                            onBlur={() =>
+                              formik.setFieldTouched(
                                 `items.${index}.inventoryItemId`,
-                              )}
-                            />
-
+                                true,
+                              )
+                            }
+                            error={getError(
+                              formik,
+                              `items.${index}.inventoryItemId`,
+                            )}
+                            onSearch={handleItemSearch}
+                            loading={isFetchingItems}
+                          />
+                          <div className="grid md:grid-cols-4 gap-4">
                             {/* UNIT (LOCKED) */}
                             <InputField
                               label="Unit"
@@ -286,6 +306,7 @@ const AddPurchaseOrderPage = () => {
                             placeholder="e.g. Fresh stock, urgent use"
                             value={item.notes}
                             onChange={formik.handleChange}
+                            rows={2}
                           />
 
                           {formik.values.items.length > 1 && (

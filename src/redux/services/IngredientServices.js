@@ -5,7 +5,7 @@ export default false
       message: "You are Offline. Please turn on the internet",
     }
   : {
-      getAllIngredientsApi: (outletId, page, limit, search) => {
+      getAllIngredientsApi: (outletId, page = 1, limit = 20, search) => {
         let url = `/recipes/${outletId}/ingredients?page=${page}&limit=${limit}`;
 
         if (search) {

@@ -18,6 +18,13 @@ import {
   CheckCircle2,
   IndianRupee,
   Wallet,
+  Activity,
+  CheckCircle,
+  AlertCircle,
+  CheckCheck,
+  PauseCircle,
+  TrendingUp,
+  ShoppingCart,
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -40,62 +47,6 @@ import SearchBar from "../../components/SearchBar";
 import CustomDateRangePicker from "../../components/CustomDateRangePicker";
 import Pagination from "../../components/Pagination";
 
-/* ─── Summary bar ─────────────────────────────────────────────────────────── */
-function SummaryBar({ purchases }) {
-  const total = purchases.length;
-  const totalAmt = purchases.reduce((s, p) => s + (p.totalAmount ?? 0), 0);
-  const totalPaid = purchases.reduce((s, p) => s + (p.paidAmount ?? 0), 0);
-  const totalDue = purchases.reduce((s, p) => s + (p.dueAmount ?? 0), 0);
-  const unpaidCnt = purchases.filter(
-    (p) => p.paymentStatus?.toLowerCase() === "unpaid",
-  ).length;
-
-  return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-      {[
-        {
-          label: "Total Orders",
-          value: total,
-          sub: "Purchase orders",
-          color: "slate",
-          icon: ReceiptText,
-        },
-        {
-          label: "Total Value",
-          value: formatNumber(totalAmt, true),
-          sub: "Gross purchase value",
-          color: "violet",
-          icon: BadgeIndianRupee,
-        },
-        {
-          label: "Total Paid",
-          value: formatNumber(totalPaid, true),
-          sub: "Amount settled",
-          color: "emerald",
-          icon: BadgeIndianRupee,
-        },
-        {
-          label: "Total Due",
-          value: formatNumber(totalDue, true),
-          sub: `${unpaidCnt} unpaid`,
-          color: "red",
-          icon: Hash,
-        },
-      ].map(({ label, value, sub, color, iconBg, icon }) => (
-        <StatCard
-          key={label}
-          icon={icon}
-          title={label}
-          value={value}
-          subtitle={sub}
-          variant="v9"
-          color={color}
-        />
-      ))}
-    </div>
-  );
-}
-
 /* ═══════════════════════════════════════════════════════════════════════════
    MAIN PAGE
 ═══════════════════════════════════════════════════════════════════════════ */
@@ -106,7 +57,6 @@ const AllPurchaseOrdersPage = () => {
   const [showPaymentOverlay, setShowPaymentOverlay] = useState(false);
   const [showCancelOverlay, setShowCancelOverlay] = useState(false);
   const [selectedPurchase, setSelectedPurchase] = useState(null);
-  
 
   const { outletId } = useSelector((state) => state.auth);
   const {
@@ -116,10 +66,10 @@ const AllPurchaseOrdersPage = () => {
     isCancellingPurchase,
   } = useSelector((state) => state.inventory);
 
-  const { purchases, pagination } = allPurchaseData || {};
+  const { purchases, pagination, summary } = allPurchaseData || {};
 
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [itemsPerPage, setItemsPerPage] = useState(9);
   const [search, setSearch] = useState("");
   const [dateRange, setDateRange] = useState();
 
@@ -177,6 +127,98 @@ const AllPurchaseOrdersPage = () => {
     },
   ];
 
+  const stats = [
+    // Overview
+    {
+      label: "Total Purchases",
+      value: formatNumber(summary?.totalPurchases),
+      sub: `${formatNumber(summary?.cancelledCount)} cancelled`,
+      icon: ShoppingCart,
+      color: "slate",
+      dark: true,
+    },
+
+    // Status Breakdown
+    {
+      label: "Active Orders",
+      value: formatNumber(summary?.activeCount),
+      sub: "Ongoing purchases",
+      icon: Activity,
+      color: "blue",
+    },
+    {
+      label: "Received Orders",
+      value: formatNumber(summary?.receivedCount),
+      sub: "Fully received",
+      icon: CheckCircle,
+      color: "green",
+    },
+    {
+      label: "Cancelled Orders",
+      value: formatNumber(summary?.cancelledCount),
+      sub: "Voided purchases",
+      icon: XCircle,
+      color: "red",
+    },
+
+    // Financials
+    {
+      label: "Total Amount",
+      value: formatNumber(summary?.totalAmount, true),
+      sub: "Total purchase value",
+      icon: IndianRupee,
+      color: "slate",
+    },
+    {
+      label: "Paid Amount",
+      value: formatNumber(summary?.totalPaid, true),
+      sub: "Amount paid",
+      icon: Wallet,
+      color: "green",
+    },
+    {
+      label: "Due Amount",
+      value: formatNumber(summary?.totalDue, true),
+      sub: "Pending payment",
+      icon: AlertCircle,
+      color: "red",
+    },
+
+    // Payment Status
+    {
+      label: "Paid Orders",
+      value: formatNumber(summary?.paidCount),
+      sub: "Fully paid",
+      icon: CheckCheck,
+      color: "green",
+    },
+    {
+      label: "Partially Paid",
+      value: formatNumber(summary?.partialCount),
+      sub: "Partially settled",
+      icon: PauseCircle,
+      color: "orange",
+    },
+    {
+      label: "Unpaid Orders",
+      value: formatNumber(summary?.unpaidCount),
+      sub: "No payment yet",
+      icon: AlertTriangle,
+      color: "red",
+    },
+
+    // Insight (optional but useful)
+    {
+      label: "Payment Completion",
+      value: `${Math.round(
+        ((summary?.totalPaid || 0) / (summary?.totalAmount || 1)) * 100,
+      )}%`,
+      sub: "Paid vs total",
+      icon: TrendingUp,
+      color: "blue",
+    },
+  ];
+
   return (
     <>
       <div className="space-y-6">
@@ -187,8 +229,25 @@ const AllPurchaseOrdersPage = () => {
             <CustomDateRangePicker value={dateRange} onChange={setDateRange} />
           }
         />
-        {purchases?.length > 0 && <SummaryBar purchases={purchases} />}
+
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+          {stats.map((stat, i) => (
+            <StatCard
+              key={i}
+              icon={stat.icon}
+              title={stat.label}
+              value={stat.value}
+              // subtitle={stat.sub}
+              color={stat.color}
+              mode={stat.dark ? "solid" : ""}
+              variant="v9"
+              loading={isFetchingPurchase}
+            />
+          ))}
+        </div>
+
         <SearchBar onSearch={(value) => setSearch(value)} />
+
         {isFetchingPurchase ? (
           <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
             {Array.from({ length: 6 }).map((_, i) => (

@@ -2,7 +2,6 @@ import { useEffect, useState, useMemo } from "react";
 import PageHeader from "../../layout/PageHeader";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllMovements } from "../../redux/slices/inventorySlice";
-import LoadingOverlay from "../../components/LoadingOverlay";
 import { formatNumber } from "../../utils/numberFormatter";
 import { formatDate } from "../../utils/dateFormatter";
 import {
@@ -11,12 +10,19 @@ import {
   ArrowRight,
   Info,
   RotateCcw,
+  ShoppingCart,
+  TrendingUp,
+  SlidersHorizontal,
+  Trash2,
+  Factory,
+  Activity,
 } from "lucide-react";
 import SmartTable from "../../components/SmartTable";
 import InventoryBadge from "../../partial/inventory/inventory/InventoryBadge";
 import CustomDateRangePicker from "../../components/CustomDateRangePicker";
 import SearchBar from "../../components/SearchBar";
 import Pagination from "../../components/Pagination";
+import StatCard from "../../components/StatCard";
 
 /* ─── Quantity display — colour + sign ───────────────────────────────────── */
 function QtyCell({ quantity, unit }) {
@@ -45,7 +51,7 @@ const InventoryMovementsPage = () => {
   const { isFetchingMovements, allMovements } = useSelector(
     (state) => state.inventory,
   );
-  const { movements = [], pagination } = allMovements || {};
+  const { movements = [], pagination, summary } = allMovements || {};
 
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -79,8 +85,8 @@ const InventoryMovementsPage = () => {
   ]);
 
   useEffect(() => {
-  setCurrentPage(1);
-}, [searchQuery, dateRange, selectedType]);
+    setCurrentPage(1);
+  }, [searchQuery, dateRange, selectedType]);
 
   const actions = [
     {
@@ -209,9 +215,66 @@ const InventoryMovementsPage = () => {
     { label: "All", value: "" },
     { label: "Purchase", value: "purchase" },
     { label: "Sale", value: "sale" },
-    // { label: "Production", value: "production" },
+    { label: "Reversals", value: "reversals" },
+    { label: "Production", value: "production" },
     { label: "Wastage", value: "wastage" },
     { label: "Adjustment", value: "adjustment" },
+  ];
+
+  const stats = [
+    // Movement Overview
+    {
+      label: "Total Movements",
+      value: formatNumber(summary?.totalMovements),
+      sub: "All stock activities",
+      icon: Activity,
+      color: "slate",
+      dark: true,
+    },
+
+    // Movement Types
+    {
+      label: "Purchases",
+      value: formatNumber(summary?.purchaseCount),
+      sub: "Stock inward entries",
+      icon: ShoppingCart,
+      color: "green",
+    },
+    {
+      label: "Sales",
+      value: formatNumber(summary?.saleCount),
+      sub: "Stock outward entries",
+      icon: TrendingUp,
+      color: "blue",
+    },
+    {
+      label: "Reversals",
+      value: formatNumber(summary?.reversalCount),
+      sub: "Voided / reversed entries",
+      icon: RotateCcw,
+      color: "orange",
+    },
+    {
+      label: "Adjustments",
+      value: formatNumber(summary?.adjustmentCount),
+      sub: "Manual corrections",
+      icon: SlidersHorizontal,
+      color: "purple",
+    },
+    {
+      label: "Wastage",
+      value: formatNumber(summary?.wastageCount),
+      sub: "Damaged / expired stock",
+      icon: Trash2,
+      color: "red",
+    },
+    {
+      label: "Production",
+      value: formatNumber(summary?.productionCount),
+      sub: "Manufactured stock",
+      icon: Factory,
+      color: "indigo",
+    },
   ];
 
   return (
@@ -223,6 +286,22 @@ const InventoryMovementsPage = () => {
           <CustomDateRangePicker value={dateRange} onChange={setDateRange} />
         }
       />
+
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
+        {stats.map((stat, i) => (
+          <StatCard
+            key={i}
+            icon={stat.icon}
+            title={stat.label}
+            value={stat.value}
+            subtitle={stat.sub}
+            color={stat.color}
+            mode={stat.dark ? "solid" : ""}
+            variant="v9"
+            loading={isFetchingMovements}
+          />
+        ))}
+      </div>
 
       <div className="flex items-center gap-2">
         <SearchBar
@@ -243,51 +322,6 @@ const InventoryMovementsPage = () => {
         </select>
       </div>
 
-      {/* ── KPI strip ── */}
-      {/* {movements.length > 0 && (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          {[
-            {
-              title: "Total Movements",
-              value: formatNumber(movements.length),
-              subtitle: `${itemNames.length} items tracked`,
-              icon: Activity,
-              color: "slate",
-            },
-            {
-              title: "Stock In",
-              value: formatNumber(Math.round(totalIn)),
-              subtitle: "Purchases & adjustments",
-              icon: TrendingUp,
-              color: "green",
-            },
-            {
-              title: "Stock Out",
-              value: formatNumber(Math.round(totalOut)),
-              subtitle: "Wastage & reductions",
-              icon: TrendingDown,
-              color: "red",
-            },
-            {
-              title: "Wastage Events",
-              value: formatNumber(wastages),
-              subtitle: `${purchases} purchases recorded`,
-              icon: Trash2,
-              color: wastages > 0 ? "amber" : "green",
-            },
-          ].map((s) => (
-            <StatCard
-              key={s.title}
-              icon={s.icon}
-              title={s.title}
-              value={s.value}
-              subtitle={s.subtitle}
-              color={s.color}
-              variant="v9"
-            />
-          ))}
-        </div>
-      )} */}
 
       <SmartTable
         title="Movements"

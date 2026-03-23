@@ -14,8 +14,10 @@ import {
   Plus,
   Package,
   AlertTriangle,
-  Thermometer,
   ShieldAlert,
+  CheckCircle,
+  XCircle,
+  IndianRupee,
 } from "lucide-react";
 import InventoryItemCard from "../../partial/inventory/inventory/InventoryItemCard";
 import StockAdjustOverlay from "../../partial/inventory/inventory/StockAdjustOverlay";
@@ -39,7 +41,8 @@ const InventoryItemPage = () => {
     isCreatingAdjustment,
     isCreatingWastage,
   } = useSelector((state) => state.inventory);
-  const { items = [], pagination } = allItemsData || {};
+  
+  const { items = [], pagination, summary } = allItemsData || {};
 
   const [showAdjust, setShowAdjust] = useState(false);
   const [showWastage, setShowWastage] = useState(false);
@@ -65,19 +68,6 @@ const InventoryItemPage = () => {
     if (!outletId) return;
     fetchInventory();
   }, [outletId, currentPage, itemsPerPage, searchQuery]);
-
-  /* ── derived stats ── */
-  const lowStockItems = items.filter(
-    (i) => i.isLowStock && i.currentStock > 0,
-  ).length;
-  const outOfStock = items.filter((i) => i.currentStock <= 0).length;
-  const perishable = items.filter((i) => i.isPerishable).length;
-
-  /* ── unique categories for filter ── */
-  const categories = useMemo(
-    () => [...new Set(items.map((i) => i.categoryName).filter(Boolean))].sort(),
-    [items],
-  );
 
   const actions = [
     {
@@ -113,56 +103,61 @@ const InventoryItemPage = () => {
     });
   }
 
+  const stats = [
+    // Overview
+    {
+      title: "Total Items",
+      value: formatNumber(summary?.totalItems),
+      subtitle: "All inventory items",
+      icon: Package,
+      color: "slate",
+    },
+
+    // Status
+    {
+      title: "Active Items",
+      value: formatNumber(summary?.activeItems),
+      subtitle: "Currently in use",
+      icon: CheckCircle,
+      color: "green",
+    },
+    {
+      title: "Inactive Items",
+      value: formatNumber(summary?.inactiveItems),
+      subtitle: "Not in use",
+      icon: XCircle,
+      color: "red",
+    },
+
+    // Value
+    {
+      title: "Total Stock Value",
+      value: formatNumber(summary?.totalStockValue, true),
+      subtitle: "Inventory worth",
+      icon: IndianRupee,
+      color: "blue",
+    },
+  ];
+
   return (
     <>
       <div className="space-y-5">
         <PageHeader title="Inventory Items" actions={actions} />
 
-        {/* ── Summary KPIs ── */}
-        {items.length > 0 && (
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            {[
-              {
-                title: "Total Items",
-                value: formatNumber(pagination?.total),
-                subtitle: `${categories.length} categories`,
-                icon: Package,
-                color: "slate",
-              },
-              {
-                title: "Low Stock",
-                value: formatNumber(lowStockItems),
-                subtitle: "Needs reorder",
-                icon: AlertTriangle,
-                color: lowStockItems > 0 ? "amber" : "green",
-              },
-              {
-                title: "Out of Stock",
-                value: formatNumber(outOfStock),
-                subtitle: "Zero inventory",
-                icon: ShieldAlert,
-                color: outOfStock > 0 ? "red" : "green",
-              },
-              {
-                title: "Perishable",
-                value: formatNumber(perishable),
-                subtitle: "Temperature sensitive",
-                icon: Thermometer,
-                color: "violet",
-              },
-            ].map((s) => (
-              <StatCard
-                key={s.title}
-                icon={s.icon}
-                title={s.title}
-                value={s.value}
-                subtitle={s.subtitle}
-                color={s.color}
-                variant="v9"
-              />
-            ))}
-          </div>
-        )}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+          {stats.map((s) => (
+            <StatCard
+              key={s.title}
+              icon={s.icon}
+              title={s.title}
+              value={s.value}
+              subtitle={s.subtitle}
+              color={s.color}
+              variant="v9"
+              loading={isFetchingItems}
+            />
+          ))}
+        </div>
 
         <SearchBar
           placeholder="Search by name, SKU, category…"
@@ -170,9 +165,9 @@ const InventoryItemPage = () => {
         />
 
         {/* ── Alerts strip ── */}
-        {(lowStockItems > 0 || outOfStock > 0) && (
+        {(summary?.lowStockItems > 0 || summary?.zeroStockItems > 0) && (
           <div className="flex flex-wrap gap-3">
-            {outOfStock > 0 && (
+            {summary?.zeroStockItems > 0 && (
               <div className="flex items-center gap-2.5 bg-red-50 border border-red-100 rounded-xl px-4 py-2.5">
                 <ShieldAlert
                   size={14}
@@ -180,12 +175,13 @@ const InventoryItemPage = () => {
                   strokeWidth={2}
                 />
                 <p className="text-[12px] font-bold text-red-700">
-                  {outOfStock} item{outOfStock !== 1 ? "s" : ""} out of stock —
+                  {summary?.zeroStockItems} item
+                  {summary?.zeroStockItems !== 1 ? "s" : ""} out of stock —
                   needs immediate restocking
                 </p>
               </div>
             )}
-            {lowStockItems > 0 && (
+            {summary?.lowStockItems > 0 && (
               <div className="flex items-center gap-2.5 bg-amber-50 border border-amber-100 rounded-xl px-4 py-2.5">
                 <AlertTriangle
                   size={14}
@@ -193,8 +189,9 @@ const InventoryItemPage = () => {
                   strokeWidth={2}
                 />
                 <p className="text-[12px] font-bold text-amber-700">
-                  {lowStockItems} item{lowStockItems !== 1 ? "s" : ""} running
-                  low — reorder soon
+                  {summary?.lowStockItems} item
+                  {summary?.lowStockItems !== 1 ? "s" : ""} running low —
+                  reorder soon
                 </p>
               </div>
             )}

@@ -7,6 +7,7 @@ import { InputField } from "../../components/fields/InputField";
 import { SelectField } from "../../components/fields/SelectField";
 import { CheckboxField } from "../../components/fields/CheckboxField";
 import ToggleField from "../../components/fields/ToggleField";
+import InfoCard from "../../components/InfoCard";
 
 const validationSchema = Yup.object({
   name: Yup.string().trim().required("Table name is required").max(50),
@@ -133,6 +134,15 @@ const TableModal = ({
             onBlur={formik.handleBlur}
             error={formik.touched.tableNumber && formik.errors.tableNumber}
           />
+
+          <div className="col-span-2">
+            <InfoCard
+              type="warning"
+              size="sm"
+              title="Unique Table Name & Number"
+              description="Table name and table number must be unique within this outlet. Duplicate values are not allowed."
+            />
+          </div>
 
           {/* CAPACITY */}
           <InputField
