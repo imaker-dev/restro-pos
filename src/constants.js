@@ -9,7 +9,11 @@ export const ROLES = {
   ADMIN: "admin",
   MANAGER: "manager",
   KITCHEN: "kitchen",
-  BAR: "bartender",
+  BARTENDER: "bartender",
+  CASHIER: "cashier",
+  CAPTAIN: "captain",
+  WAITER: "waiter",
+  INVENTORY: "inventory",
 };
 
 export const FOOD_TYPES = {

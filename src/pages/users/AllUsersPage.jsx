@@ -232,48 +232,37 @@ const AllUsersPage = () => {
       <div className="space-y-6">
         <PageHeader title={"All Users"} actions={actions} />
 
-        <div className="bg-white">
-          {/* Header Section */}
-          <div className="border-b border-slate-200">
-            <div className="px-6 py-5">
-              <div className="flex items-center justify-between gap-4">
-                {/* Search Bar */}
-                <SearchBar
-                  placeholder="Search employees..."
-                  // width="w-"
-                  onSearch={(value) => setSearchTerm(value)}
-                />
+        {/* Search Bar */}
+        <SearchBar
+          placeholder="Search employees..."
+          // width="w-"
+          onSearch={(value) => setSearchTerm(value)}
+        />
 
-                {/* Filter Dropdowns */}
-                <div className="flex items-center gap-2"></div>
-              </div>
-            </div>
-          </div>
+        <SmartTable
+          // title="Users"
+          // totalcount={allUsers?.length}
+          data={data}
+          columns={columns}
+          actions={rowActions}
+          loading={loading}
+        />
 
-          <SmartTable
-            // title="Users"
-            // totalcount={allUsers?.length}
-            data={data}
-            columns={columns}
-            actions={rowActions}
-            loading={loading}
-          />
-
-          <Pagination
-            totalItems={pagination?.total}
-            currentPage={currentPage}
-            pageSize={itemsPerPage}
-            totalPages={pagination?.totalPages}
-            onPageChange={(page) => setCurrentPage(page)}
-            maxPageNumbers={5}
-            showPageSizeSelector={true}
-            onPageSizeChange={(size) => {
-              setCurrentPage(1);
-              setItemsPerPage(size);
-            }}
-          />
-        </div>
+        <Pagination
+          totalItems={pagination?.total}
+          currentPage={currentPage}
+          pageSize={itemsPerPage}
+          totalPages={pagination?.totalPages}
+          onPageChange={(page) => setCurrentPage(page)}
+          maxPageNumbers={5}
+          showPageSizeSelector={true}
+          onPageSizeChange={(size) => {
+            setCurrentPage(1);
+            setItemsPerPage(size);
+          }}
+        />
       </div>
+      
       <AssignStationToUserModal
         isOpen={showAssginStationModal}
         onClose={clearUserStates}

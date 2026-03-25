@@ -100,15 +100,16 @@ const PageHeader = ({
                 const content = (
                   <>
                     {action.loading ? (
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      <Loader2 className="h-4 w-4 lg:mr-2 animate-spin" />
                     ) : (
-                      ActionIcon && <ActionIcon className="h-4 w-4 mr-2" />
+                      ActionIcon && <ActionIcon className="h-4 w-4 lg:mr-2" />
                     )}
-                    <span className="whitespace-nowrap">
+                    <span className="hidden lg:inline whitespace-nowrap">
                       {action.loading
                         ? action.loadingText || action.label
                         : action.label}
                     </span>
+
                   </>
                 );
 
@@ -128,7 +129,11 @@ const PageHeader = ({
                   <button
                     key={index}
                     type="button"
-                    title={isDisabled ? action.disabledTitle || "Action unavailable" : ""}
+                    title={
+                      isDisabled
+                        ? action.disabledTitle || "Action unavailable"
+                        : ""
+                    }
                     onClick={action.onClick}
                     disabled={isDisabled}
                     className={`btn lg:btn-lg ${variantClass} flex items-center ${

@@ -93,78 +93,72 @@ const AllOrdersPage = () => {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [
-    searchTerm,
-    dateRange,
-    sortBy,
-    sortOrder,
-    filters
-  ]);
+  }, [searchTerm, dateRange, sortBy, sortOrder, filters]);
 
-const orderCards = [
-  {
-    title: "Total Orders",
-    value: formatNumber(summary?.totalOrders),
-    color: "blue",
-    icon: ShoppingBag,
-  },
-  {
-    title: "Total Amount",
-    value: formatNumber(summary?.totalAmount, true),
-    color: "indigo",
-    icon: IndianRupee,
-  },
-  {
-    title: "Completed Amount",
-    value: formatNumber(summary?.completedAmount, true),
-    color: "green",
-    icon: CheckCircle,
-  },
-  {
-    title: "Cancelled Orders",
-    value: formatNumber(summary?.cancelledCount),
-    color: "red",
-    icon: XCircle,
-  },
-  {
-    title: "Dine-In Orders",
-    value: formatNumber(summary?.dineInCount),
-    color: "purple",
-    icon: Utensils,
-  },
-  {
-    title: "Takeaway Orders",
-    value: formatNumber(summary?.takeawayCount),
-    color: "cyan",
-    icon: Package,
-  },
-  {
-    title: "Delivery Orders",
-    value: formatNumber(summary?.deliveryCount),
-    color: "sky",
-    icon: Truck,
-  },
-  {
-    title: "Avg Order Value",
-    value: formatNumber(summary?.avgOrderValue, true),
-    color: "amber",
-    icon: TrendingUp,
-  },
+  const orderCards = [
+    {
+      title: "Total Orders",
+      value: formatNumber(summary?.totalOrders),
+      color: "blue",
+      icon: ShoppingBag,
+    },
+    {
+      title: "Total Amount",
+      value: formatNumber(summary?.totalAmount, true),
+      color: "indigo",
+      icon: IndianRupee,
+    },
+    {
+      title: "Completed Amount",
+      value: formatNumber(summary?.completedAmount, true),
+      color: "green",
+      icon: CheckCircle,
+    },
+    {
+      title: "Cancelled Orders",
+      value: formatNumber(summary?.cancelledCount),
+      color: "red",
+      icon: XCircle,
+    },
+    {
+      title: "Dine-In Orders",
+      value: formatNumber(summary?.dineInCount),
+      color: "purple",
+      icon: Utensils,
+    },
+    {
+      title: "Takeaway Orders",
+      value: formatNumber(summary?.takeawayCount),
+      color: "cyan",
+      icon: Package,
+    },
+    {
+      title: "Delivery Orders",
+      value: formatNumber(summary?.deliveryCount),
+      color: "sky",
+      icon: Truck,
+    },
+    {
+      title: "Avg Order Value",
+      value: formatNumber(summary?.avgOrderValue, true),
+      color: "amber",
+      icon: TrendingUp,
+    },
 
-  // NEW CARDS
-  {
-    title: "NC Orders",
-    value: formatNumber(summary?.ncCount),
-    color: "violet",
-    icon: Ban,
-  },
-  {
-    title: "NC Amount",
-    value: formatNumber(summary?.ncAmount, true),
-    color: "rose",
-    icon: ReceiptIndianRupee,
-  },
-];
+    // NEW CARDS
+    {
+      title: "NC Orders",
+      value: formatNumber(summary?.ncCount),
+      color: "violet",
+      icon: Ban,
+    },
+    {
+      title: "NC Amount",
+      value: formatNumber(summary?.ncAmount, true),
+      color: "rose",
+      icon: ReceiptIndianRupee,
+    },
+  ];
 
   const handleExportOrdersReport = async () => {
     if (!dateRange?.startDate || !dateRange?.endDate) return;
@@ -288,39 +282,32 @@ const orderCards = [
         ))}
       </div>
 
-      <div className="bg-white">
-        {/* Header Section */}
-        <div className="border-b border-slate-200">
-          <div className="px-4 sm:px-6 py-4 sm:py-5">
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-              {/* Search Bar */}
-              <SearchBar
-                placeholder="Search by order details..."
-                onSearch={(value) => setSearchTerm(value)}
-              />
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        {/* Search Bar */}
+        <SearchBar
+          placeholder="Search by order details..."
+          onSearch={(value) => setSearchTerm(value)}
+        />
 
-              {/* Filters */}
-              <SidebarFilter
-                filterGroups={orderFilterGroups}
-                filters={filters}
-                onApplyFilters={setFilters}
-              />
-            </div>
-          </div>
-        </div>
-
-        <SmartTable
-          // title="Items"
-          totalcount={orders?.length}
-          data={orders}
-          columns={columns}
-          actions={rowActions}
-          loading={loading}
-          sortField={sortBy}
-          sortDirection={sortOrder}
-          onSortChange={handleSort}
+        {/* Filters */}
+        <SidebarFilter
+          filterGroups={orderFilterGroups}
+          filters={filters}
+          onApplyFilters={setFilters}
         />
       </div>
+
+      <SmartTable
+        title="Orders"
+        totalcount={pagination?.total}
+        data={orders}
+        columns={columns}
+        actions={rowActions}
+        loading={loading}
+        sortField={sortBy}
+        sortDirection={sortOrder}
+        onSortChange={handleSort}
+      />
 
       <Pagination
         totalItems={pagination?.total}

@@ -10,7 +10,6 @@ import { User, Shield, User2, Mail, Loader2, RefreshCw } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllRoles } from "../../redux/slices/roleSlice";
 import { fetchAllFloors } from "../../redux/slices/floorSlice";
-import { fetchAllPermissions } from "../../redux/slices/permissionSlice";
 import { MultiSelectDropdownField } from "../../components/fields/MultiSelectDropdownField";
 import { handleResponse } from "../../utils/helpers";
 import {
@@ -22,22 +21,20 @@ import { useNavigate } from "react-router-dom";
 import { useQueryParams } from "../../hooks/useQueryParams";
 import InfoCard from "../../components/InfoCard";
 import ToggleField from "../../components/fields/ToggleField";
+import { ROLES } from "../../constants";
 
 const AddUserPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { userId } = useQueryParams();
 
+  
   const { outletId } = useSelector((state) => state.auth);
   const { userDetails, isFetchingUserDetails, isCreatingUser, isupdatingUser } =
     useSelector((state) => state.user);
   const { allRoles } = useSelector((s) => s.role);
   const { roles } = allRoles || {};
-
   const { allFloors, loading: fetchingAllFloors } = useSelector((s) => s.floor);
-
-  const { allPermissions } = useSelector((state) => state.permission);
-  const { grouped } = allPermissions || {};
 
   useEffect(() => {
     if (userId) {
@@ -178,6 +175,26 @@ const AddUserPage = () => {
         enableReinitialize
       >
         {(formik) => {
+          const allowedFloorRoles = [
+            ROLES.CAPTAIN,
+            ROLES.CASHIER,
+            ROLES.BARTENDER,
+          ];
+
+          const selectedRole = roles?.find(
+            (r) => String(r.id) === String(formik?.values?.roleId),
+          );
+
+          const shouldShowFloors = allowedFloorRoles.includes(
+            selectedRole?.name?.toLowerCase(),
+          );
+
+          useEffect(() => {
+            if (!shouldShowFloors) {
+              formik.setFieldValue("floors", []);
+            }
+          }, [shouldShowFloors]);
+
           return (
             <Form className="space-y-8" autoComplete="off">
               {/* BASIC INFO */}
@@ -266,7 +283,7 @@ const AddUserPage = () => {
 
               {/* ROLE + OUTLET + FLOORS */}
               <AccordionSection title="Access Control" icon={Shield}>
-                <div className="grid md:grid-cols-2 gap-4 mb-6">
+                <div className="grid grid-cols-1 gap-4 mb-6">
                   {/* ROLE  */}
                   <SelectField
                     label="Role"
@@ -282,25 +299,27 @@ const AddUserPage = () => {
                   />
 
                   {/* FLOORS */}
-                  <MultiSelectDropdownField
-                    label="Floors"
-                    name="floors"
-                    options={allFloors?.map((f) => ({
-                      id: f.id,
-                      label: f.name,
-                    }))}
-                    value={formik.values.floors}
-                    onChange={(val) => formik.setFieldValue("floors", val)}
-                    onBlur={formik.handleBlur}
-                    error={formik.touched.floors && formik.errors.floors}
-                    disabled={!formik.values.outletId}
-                    disabledText={
-                      !formik.values.outletId
-                        ? "Please select an outlet first"
-                        : "Floors unavailable"
-                    }
-                    loading={fetchingAllFloors}
-                  />
+                  {shouldShowFloors && (
+                    <MultiSelectDropdownField
+                      label="Floors"
+                      name="floors"
+                      options={allFloors?.map((f) => ({
+                        id: f.id,
+                        label: f.name,
+                      }))}
+                      value={formik.values.floors}
+                      onChange={(val) => formik.setFieldValue("floors", val)}
+                      onBlur={formik.handleBlur}
+                      error={formik.touched.floors && formik.errors.floors}
+                      disabled={!formik.values.outletId}
+                      disabledText={
+                        !formik.values.outletId
+                          ? "Please select an outlet first"
+                          : "Floors unavailable"
+                      }
+                      loading={fetchingAllFloors}
+                    />
+                  )}
                 </div>
                 {/* ACTIVE USER */}
                 <ToggleField

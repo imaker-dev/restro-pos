@@ -15,6 +15,8 @@ import ValidationSection from "../../partial/bulk-items/ValidationSection";
 import PreviewSection from "../../partial/bulk-items/PreviewSection";
 import SuccessSection from "../../partial/bulk-items/SuccessSection";
 import StepIndicator from "../../partial/bulk-items/StepIndicator";
+import { Eye } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 // ─── Prevent accidental page leave ───────────────────────────────────────────
 function usePreventNavigation(active) {
@@ -34,6 +36,8 @@ function usePreventNavigation(active) {
 // ─────────────────────────────────────────────────────────────────────────────
 const AddBulkItemPage = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const { outletId } = useSelector((state) => state.auth);
   const {
     loadingTemplate,
@@ -99,9 +103,18 @@ const AddBulkItemPage = () => {
     setMaxReached(1);
   };
 
+  const actions = [
+    {
+      label: "View Summary",
+      type: "primary",
+      icon: Eye,
+      onClick: () => navigate(`/items/bulk-add/summary`),
+    },
+  ];
+
   return (
     <div className="space-y-6">
-      <PageHeader title="Bulk Upload Items" />
+      <PageHeader title="Bulk Upload Items" actions={actions} showBackButton />
 
       <div>
         <StepIndicator

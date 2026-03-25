@@ -63,7 +63,7 @@ export const navConfig = [
         name: "Dashboard",
         icon: Home,
         path: "/",
-        roles: [ROLES.KITCHEN, ROLES.BAR],
+        roles: [ROLES.KITCHEN, ROLES.BARTENDER],
       },
 
       {
@@ -379,7 +379,7 @@ export const navConfig = [
         name: "Order Display",
         icon: Monitor,
         path: "/order-display",
-        roles: [ROLES.KITCHEN, ROLES.BAR],
+        roles: [ROLES.KITCHEN, ROLES.BARTENDER],
       },
     ],
   },

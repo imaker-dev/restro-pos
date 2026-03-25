@@ -37,6 +37,14 @@ export const uploadBulkUploadFile = createAsyncThunk(
     return res.data;
   },
 );
+// Bulk Upload File Summary
+export const fetchBulkUploadSummary = createAsyncThunk(
+  "/fetch/bulk-upload/summary",
+  async ({outletId}) => {
+    const res = await BulkUploadServices.getBulkUploadSummaryApi(outletId);
+    return res.data;
+  },
+);
 
 const bulkUploadSlice = createSlice({
   name: "bulkUpload",
@@ -47,7 +55,9 @@ const bulkUploadSlice = createSlice({
     isUploading: false,
     validationData: null,
     previewData: null,
-    uploadResult:null,
+    uploadResult: null,
+    isFetchingSummmary: false,
+    uploadSummary: null,
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -59,7 +69,7 @@ const bulkUploadSlice = createSlice({
       })
       .addCase(downloadBulkUploadTemplate.fulfilled, (state, action) => {
         state.loadingTemplate = false;
-        toast.success("Template downloaded successfully")
+        toast.success("Template downloaded successfully");
       })
       .addCase(downloadBulkUploadTemplate.rejected, (state, action) => {
         state.loadingTemplate = false;
@@ -104,6 +114,19 @@ const bulkUploadSlice = createSlice({
       })
       .addCase(uploadBulkUploadFile.rejected, (state, action) => {
         state.isUploading = false;
+        toast.error(action.error.message);
+      })
+
+      // summary
+      .addCase(fetchBulkUploadSummary.pending, (state) => {
+        state.isFetchingSummmary = true;
+      })
+      .addCase(fetchBulkUploadSummary.fulfilled, (state, action) => {
+        state.isFetchingSummmary = false;
+        state.uploadSummary = action.payload.data;
+      })
+      .addCase(fetchBulkUploadSummary.rejected, (state, action) => {
+        state.isFetchingSummmary = false;
         toast.error(action.error.message);
       });
   },

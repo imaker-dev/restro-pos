@@ -54,7 +54,7 @@
 .rdrCalendarWrapper,
 .rdrDateRangePickerWrapper,
 .rdrDateDisplayWrapper,
-.rdrMonthAndYearWrapper,
+/* .rdrMonthAndYearWrapper, */
 .rdrMonths,
 .rdrMonth {
   display: block !important;

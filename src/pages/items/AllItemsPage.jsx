@@ -261,54 +261,45 @@ const AllItemsPage = () => {
   ];
 
   return (
-    <>
-      <div className="space-y-6">
-        <PageHeader title={"All Items"} actions={actions} />
+    <div className="space-y-6">
+      <PageHeader title={"All Items"} actions={actions} />
 
-        <div className="bg-white">
-          {/* Header Section */}
-          <div className="border-b border-slate-200">
-            <div className="px-6 py-5">
-              <div className="flex items-center justify-between gap-4">
-                {/* Search Bar */}
-                <SearchBar
-                  placeholder="Search items..."
-                  onSearch={(value) => setSearchTerm(value)}
-                />
-                <SidebarFilter
-                  filterGroups={menuFilterGroups}
-                  filters={filters}
-                  onApplyFilters={setFilters}
-                />
-              </div>
-            </div>
-          </div>
-
-          <SmartTable
-            // title="Items"
-            totalcount={pagination?.total}
-            data={data}
-            columns={columns}
-            actions={rowActions}
-            loading={loading}
-          />
-
-          <Pagination
-            totalItems={pagination?.total}
-            currentPage={currentPage}
-            pageSize={itemsPerPage}
-            totalPages={pagination?.totalPages}
-            onPageChange={(page) => setCurrentPage(page)}
-            maxPageNumbers={5}
-            showPageSizeSelector={true}
-            onPageSizeChange={(size) => {
-              setCurrentPage(1);
-              setItemsPerPage(size);
-            }}
-          />
-        </div>
+      <div className="flex items-center justify-between gap-4">
+        {/* Search Bar */}
+        <SearchBar
+          placeholder="Search items..."
+          onSearch={(value) => setSearchTerm(value)}
+        />
+        <SidebarFilter
+          filterGroups={menuFilterGroups}
+          filters={filters}
+          onApplyFilters={setFilters}
+        />
       </div>
-    </>
+
+      <SmartTable
+        title="Items"
+        totalcount={pagination?.total}
+        data={data}
+        columns={columns}
+        actions={rowActions}
+        loading={loading}
+      />
+
+      <Pagination
+        totalItems={pagination?.total}
+        currentPage={currentPage}
+        pageSize={itemsPerPage}
+        totalPages={pagination?.totalPages}
+        onPageChange={(page) => setCurrentPage(page)}
+        maxPageNumbers={5}
+        showPageSizeSelector={true}
+        onPageSizeChange={(size) => {
+          setCurrentPage(1);
+          setItemsPerPage(size);
+        }}
+      />
+    </div>
   );
 };
 

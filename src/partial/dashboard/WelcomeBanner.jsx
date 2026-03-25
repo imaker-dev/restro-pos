@@ -44,7 +44,7 @@ export default function WelcomeBanner() {
         return "Manage your business efficiently 📊";
       case ROLES.KITCHEN:
         return "Orders are waiting — let’s cook! 🔥";
-      case ROLES.BAR:
+      case ROLES.BARTENDER:
         return "Drinks lineup ready to serve 🍹";
       default:
         return "Welcome! Have a productive day ✨";

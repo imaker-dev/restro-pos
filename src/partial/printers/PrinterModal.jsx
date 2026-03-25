@@ -6,6 +6,7 @@ import { Loader2 } from "lucide-react";
 import { InputField } from "../../components/fields/InputField";
 import { SelectField } from "../../components/fields/SelectField";
 import InfoCard from "../../components/InfoCard";
+import ToggleField from "../../components/fields/ToggleField";
 
 const validationSchema = Yup.object({
   name: Yup.string()
@@ -20,7 +21,7 @@ const validationSchema = Yup.object({
     .required("IP Address is required")
     .matches(
       /^(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}$/,
-      "Invalid IP address"
+      "Invalid IP address",
     ),
 
   port: Yup.number()
@@ -59,6 +60,7 @@ const PrinterModal = ({
 
       ip_address: printer?.ipAddress || "",
       port: printer?.port ?? "",
+      is_active: printer?.isActive ?? true,
     },
 
     validationSchema,
@@ -75,6 +77,8 @@ const PrinterModal = ({
 
         ip_address: values.ip_address,
         port: Number(values.port),
+          is_active: Boolean(values.is_active),
+
       };
 
       if (isEditMode) {
@@ -152,6 +156,13 @@ const PrinterModal = ({
           />
         </div>
 
+        <ToggleField
+          label="Printer Active"
+          description="Inactive printers will not receive print jobs."
+          checked={formik.values.is_active}
+          onChange={(val) => formik.setFieldValue("is_active", val)}
+        />
+
         <InfoCard
           size="sm"
           type="info"
@@ -180,8 +191,8 @@ const PrinterModal = ({
                 ? "Updating..."
                 : "Saving..."
               : isEditMode
-              ? "Update"
-              : "Save"}
+                ? "Update"
+                : "Save"}
           </button>
         </div>
       </form>

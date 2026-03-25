@@ -80,6 +80,7 @@ import VendorDetailsPage from "../pages/inventory/VendorDetailsPage";
 import InventoryItemBatches from "../pages/inventory/InventoryItemBatches";
 import inventorySummaryPage from "../pages/inventory/inventorySummaryPage";
 import InventoryWastagePage from "../pages/inventory/InventoryWastagePage";
+import BulkUploadSummaryPage from "../pages/items/BulkUploadSummaryPage";
 
 const routeConfig = [
   // { path: "/", element: Dashboard, roles: [ROLES.SUPER_ADMIN] },
@@ -90,12 +91,12 @@ const routeConfig = [
       [ROLES.ADMIN]: Dashboard,
       [ROLES.MANAGER]: Dashboard,
       [ROLES.KITCHEN]: OrderDashboard,
-      [ROLES.BAR]: OrderDashboard,
+      [ROLES.BARTENDER]: OrderDashboard,
     },
-    roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER, ROLES.KITCHEN, ROLES.BAR],
+    roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER, ROLES.KITCHEN, ROLES.BARTENDER],
   },
 
-  { path: "/order-display", element: OrderDisplayPage, roles: [ROLES.BAR, ROLES.KITCHEN] },
+  { path: "/order-display", element: OrderDisplayPage, roles: [ROLES.BARTENDER, ROLES.KITCHEN] },
 
   { path: "/daily-sales", element: DailySalesReportPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
   { path: "/daily-sales/details", element: DailySalesReportDetailsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
@@ -153,7 +154,7 @@ const routeConfig = [
   { path: "/day-end-summary/details", element: DayEndSummaryDetailsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
   
   { path: "/outlets", element: AllOutletsPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN] },
-  { path: "//outlet-logo", element: OutletLogoPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN] },
+  { path: "/outlet-logo", element: OutletLogoPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN] },
   { path: "/outlets/details", element: OutletDetails, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN] },
   { path: "/outlets/add", element: AddOutletPage, roles: [ROLES.SUPER_ADMIN] },
   { path: "/outlets/delete", element: OutletDeletePage, roles: [ROLES.SUPER_ADMIN] },
@@ -163,6 +164,7 @@ const routeConfig = [
   { path: "/items/details", element: ItemDetailsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN,ROLES.MANAGER] },
   { path: "/items/add", element: AddItemPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN,ROLES.MANAGER] },
   { path: "/items/bulk-add", element: AddBulkItemPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN,ROLES.MANAGER] },
+  { path: "/items/bulk-add/summary", element: BulkUploadSummaryPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN,ROLES.MANAGER] },
   
   { path: "/stations", element: AllStationsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN,ROLES.MANAGER] },
   { path: "/printers", element: AllPrintersPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN,ROLES.MANAGER] },

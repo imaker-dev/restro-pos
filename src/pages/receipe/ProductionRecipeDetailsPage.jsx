@@ -21,6 +21,8 @@ import {
 import { formatDate } from "../../utils/dateFormatter";
 import { formatNumber, num } from "../../utils/numberFormatter";
 import PageHeader from "../../layout/PageHeader";
+import MetricPanel from "../../partial/report/daily-sales-report/MetricPanel";
+import StatCard from "../../components/StatCard";
 
 const fmt = (v) => formatNumber(v, true);
 
@@ -40,81 +42,6 @@ function Skeleton() {
           <div className="h-[200px] rounded-2xl bg-slate-100" />
         </div>
         <div className="h-[260px] rounded-2xl bg-slate-100" />
-      </div>
-    </div>
-  );
-}
-
-// ─── Stat tile ─────────────────────────────────────────────────────────────────
-function StatTile({ icon: Icon, label, value, sub, dark = false }) {
-  return (
-    <div
-      className={`rounded-2xl p-4 border ${dark ? "bg-slate-900 border-slate-800" : "bg-white border-slate-200"}`}
-      style={{
-        boxShadow: dark
-          ? "0 4px 14px rgba(0,0,0,0.18)"
-          : "0 1px 3px rgba(0,0,0,0.06)",
-      }}
-    >
-      <div className="flex items-start justify-between gap-2 mb-3">
-        <p
-          className={`text-[9px] font-black uppercase tracking-[0.13em] ${dark ? "text-white/45" : "text-slate-400"}`}
-        >
-          {label}
-        </p>
-        <div
-          className={`w-6 h-6 rounded-lg flex items-center justify-center ${dark ? "bg-white/10" : "bg-slate-100"}`}
-        >
-          <Icon
-            size={12}
-            className={dark ? "text-white/60" : "text-slate-500"}
-            strokeWidth={2}
-          />
-        </div>
-      </div>
-      <p
-        className={`text-[22px] font-black tabular-nums leading-none ${dark ? "text-white" : "text-slate-900"}`}
-      >
-        {value}
-      </p>
-      {sub && (
-        <p
-          className={`text-[10px] font-medium mt-1.5 ${dark ? "text-white/40" : "text-slate-400"}`}
-        >
-          {sub}
-        </p>
-      )}
-    </div>
-  );
-}
-
-// ─── Panel ────────────────────────────────────────────────────────────────────
-function Panel({ children, className = "" }) {
-  return (
-    <div
-      className={`bg-white rounded-2xl border border-slate-200 overflow-hidden ${className}`}
-      style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}
-    >
-      {children}
-    </div>
-  );
-}
-
-function PanelHead({ icon: Icon, title, subtitle }) {
-  return (
-    <div className="flex items-center gap-3 px-5 py-4 border-b border-slate-100">
-      <div className="w-7 h-7 rounded-lg bg-slate-900 flex items-center justify-center flex-shrink-0">
-        <Icon size={13} className="text-white" strokeWidth={2} />
-      </div>
-      <div>
-        <p className="text-[13px] font-black text-slate-800 leading-none">
-          {title}
-        </p>
-        {subtitle && (
-          <p className="text-[10px] text-slate-400 font-medium mt-0.5">
-            {subtitle}
-          </p>
-        )}
       </div>
     </div>
   );
@@ -206,6 +133,38 @@ const ProductionRecipeDetailsPage = () => {
     dispatch(fetchProductionRecipeById(recipeId));
   }, [recipeId]);
 
+  const KPI_TILES = [
+    {
+      icon: IndianRupee,
+      label: "Total Input Cost",
+      value: fmt(recipe?.totalInputCost),
+      sub: "All ingredients",
+      color: "primary",
+      dark: true,
+    },
+    {
+      icon: TrendingUp,
+      label: "Cost Per Output",
+      value: fmt(recipe?.costPerOutputUnit),
+      sub: `per ${recipe?.outputUnitAbbreviation}`,
+      color: "blue",
+    },
+    {
+      icon: Package,
+      label: "Output Quantity",
+      value: `${recipe?.outputQuantity} ${recipe?.outputUnitAbbreviation}`,
+      sub: recipe?.outputItemName,
+      color: "purple",
+    },
+    {
+      icon: Clock,
+      label: "Prep Time",
+      value: `${recipe?.preparationTimeMins}m`,
+      sub: "Minutes required",
+      color: "amber",
+    },
+  ];
+
   return (
     <div className="space-y-5 pb-10">
       <PageHeader onlyBack backLabel="Back to Recipes" />
@@ -214,123 +173,105 @@ const ProductionRecipeDetailsPage = () => {
 
       {recipe && !isFetchingProductionRecipeDetails && (
         <>
-          {/* ── HERO ─────────────────────────────────────────── */}
+          {/* ── RECIPE HERO (UNIVERSAL STYLE) ── */}
           <div
-            className="relative rounded-2xl overflow-hidden"
+            className="relative rounded-3xl overflow-hidden shadow-lg"
             style={{
               background:
-                "linear-gradient(160deg,#0f172a 0%,#1e293b 55%,#1e3a5f 100%)",
-              boxShadow: "0 8px 32px rgba(0,0,0,0.22)",
+                "linear-gradient(135deg, var(--color-primary-600), var(--color-primary-700))",
             }}
           >
+            {/* highlight line */}
             <div
               className="absolute top-0 left-0 right-0 h-[1px]"
               style={{
                 background:
-                  "linear-gradient(90deg,transparent,rgba(148,163,184,0.2),transparent)",
-              }}
-            />
-            <div
-              className="absolute -top-14 -right-14 w-52 h-52 rounded-full pointer-events-none opacity-20"
-              style={{
-                background:
-                  "radial-gradient(circle,rgba(99,102,241,0.6),transparent 70%)",
+                  "linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)",
               }}
             />
 
-            <div className="relative z-10 p-6">
-              <div className="flex flex-col sm:flex-row sm:items-start gap-5">
-                {/* Left: identity */}
+            {/* glow */}
+            <div className="absolute -top-20 -right-20 w-72 h-72 rounded-full bg-white/10 pointer-events-none" />
+
+            <div className="relative z-10 px-6 py-5 text-white">
+              {/* ── Top Row ── */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+                {/* Left Section */}
                 <div className="flex items-center gap-4 flex-1 min-w-0">
-                  <div className="w-14 h-14 rounded-2xl bg-white/10 border border-white/15 flex items-center justify-center flex-shrink-0">
-                    <ChefHat
-                      size={24}
-                      className="text-white/75"
-                      strokeWidth={1.7}
-                    />
+                  {/* Icon */}
+                  <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-white/15 border border-white/20 backdrop-blur text-[20px] font-black">
+                    <ChefHat size={20} />
                   </div>
+
                   <div className="min-w-0">
-                    <div className="flex flex-wrap items-center gap-2 mb-1.5">
-                      <h1 className="text-[22px] font-black text-white leading-none">
-                        {recipe.name}
-                      </h1>
+                    <p className="text-[9px] font-semibold text-white/70 uppercase tracking-widest">
+                      Pre Production Recipe
+                    </p>
+
+                    <h1 className="text-[20px] font-bold leading-tight truncate">
+                      {recipe.name}
+                    </h1>
+
+                    <div className="flex flex-wrap items-center gap-3 mt-1 text-[11px] text-white/75">
                       {recipe.isActive ? (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-black bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                          ACTIVE
+                        <span className="flex items-center gap-1 text-emerald-300">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-300" />
+                          Active
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-black bg-white/10 text-white/50 border border-white/15">
-                          INACTIVE
-                        </span>
+                        <span className="text-white/50">Inactive</span>
+                      )}
+
+                      {recipe.outputItemName && (
+                        <span>{recipe.outputItemName}</span>
                       )}
                     </div>
-                    {recipe.description && (
-                      <p className="text-[11px] text-white/45 font-medium leading-snug">
-                        {recipe.description}
-                      </p>
-                    )}
                   </div>
                 </div>
 
-                {/* Right: cost per unit */}
-                <div className="flex-shrink-0 sm:text-right">
-                  <p className="text-[9px] font-black text-white/30 uppercase tracking-[0.15em] mb-1">
-                    Cost Per Output Unit
+                {/* Right Section */}
+                <div className="sm:text-right flex-shrink-0">
+                  <p className="text-[9px] font-semibold text-white/70 uppercase tracking-wide">
+                    Cost Per Unit
                   </p>
-                  <p className="text-[34px] font-black text-white tabular-nums leading-none">
+
+                  <p className="text-[30px] sm:text-[34px] font-extrabold tabular-nums leading-none">
                     {fmt(recipe.costPerOutputUnit)}
                   </p>
-                  <p className="text-[10px] text-white/30 font-medium mt-1.5">
+
+                  <p className="text-[11px] text-white/70 mt-1">
                     per {recipe.outputUnitAbbreviation}
                   </p>
                 </div>
               </div>
 
-              {/* 3-col strip */}
-              <div className="grid grid-cols-3 gap-2 mt-5">
+              {/* ── Metric Strip ── */}
+              <div className="grid grid-cols-3 gap-3 mt-5">
                 {[
                   {
-                    icon: Package,
                     label: "Output",
                     value: `${recipe.outputQuantity} ${recipe.outputUnitAbbreviation}`,
-                    sub: recipe.outputItemName,
                   },
                   {
-                    icon: Clock,
                     label: "Prep Time",
                     value: `${recipe.preparationTimeMins} min`,
-                    sub: "Preparation time",
                   },
                   {
-                    icon: FlaskConical,
                     label: "Ingredients",
                     value: recipe.ingredients?.length || 0,
-                    sub: "Components used",
                   },
-                ].map(({ icon: Icon, label, value, sub }) => (
+                ].map(({ label, value }) => (
                   <div
                     key={label}
-                    className="flex items-start gap-3 rounded-xl px-4 py-3"
-                    style={{
-                      background: "rgba(255,255,255,0.055)",
-                      border: "1px solid rgba(255,255,255,0.08)",
-                    }}
+                    className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-white/10 border border-white/20 backdrop-blur-sm"
                   >
-                    <Icon
-                      size={13}
-                      className="text-white/30 mt-0.5 flex-shrink-0"
-                      strokeWidth={2}
-                    />
                     <div className="min-w-0">
-                      <p className="text-[8px] font-black text-white/30 uppercase tracking-[0.13em]">
+                      <p className="text-[9px] font-semibold text-white/70 uppercase tracking-wide mb-2">
                         {label}
                       </p>
-                      <p className="text-[13px] font-black text-white/80 tabular-nums leading-tight truncate">
+
+                      <p className="text-[14px] font-bold tabular-nums leading-none truncate">
                         {value}
-                      </p>
-                      <p className="text-[9px] text-white/25 font-medium truncate">
-                        {sub}
                       </p>
                     </div>
                   </div>
@@ -341,31 +282,17 @@ const ProductionRecipeDetailsPage = () => {
 
           {/* ── 4 KPI TILES ──────────────────────────────────── */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            <StatTile
-              dark
-              icon={IndianRupee}
-              label="Total Input Cost"
-              value={fmt(recipe.totalInputCost)}
-              sub="All ingredients"
-            />
-            <StatTile
-              icon={TrendingUp}
-              label="Cost Per Output"
-              value={fmt(recipe.costPerOutputUnit)}
-              sub={`per ${recipe.outputUnitAbbreviation}`}
-            />
-            <StatTile
-              icon={Package}
-              label="Output Quantity"
-              value={`${recipe.outputQuantity} ${recipe.outputUnitAbbreviation}`}
-              sub={recipe.outputItemName}
-            />
-            <StatTile
-              icon={Clock}
-              label="Prep Time"
-              value={`${recipe.preparationTimeMins}m`}
-              sub="Minutes required"
-            />
+            {KPI_TILES?.map((stat) => (
+              <StatCard
+                icon={stat.icon}
+                title={stat.label}
+                value={stat.value}
+                subtitle={stat.sub}
+                color={stat.color}
+                variant="v9"
+                mode={stat.dark ? "solid" : "light"}
+              />
+            ))}
           </div>
 
           {/* ── MAIN GRID ────────────────────────────────────── */}
@@ -373,33 +300,12 @@ const ProductionRecipeDetailsPage = () => {
             {/* LEFT: ingredients + instructions */}
             <div className="lg:col-span-2 space-y-4">
               {/* Ingredients */}
-              <Panel>
-                <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
-                  <div className="flex items-center gap-3">
-                    <div className="w-7 h-7 rounded-lg bg-slate-900 flex items-center justify-center flex-shrink-0">
-                      <FlaskConical
-                        size={13}
-                        className="text-white"
-                        strokeWidth={2}
-                      />
-                    </div>
-                    <div>
-                      <p className="text-[13px] font-black text-slate-800 leading-none">
-                        Ingredients
-                      </p>
-                      <p className="text-[10px] text-slate-400 font-medium mt-0.5">
-                        {recipe.ingredients?.length || 0} components ·{" "}
-                        {fmt(recipe.totalInputCost)} total
-                      </p>
-                    </div>
-                  </div>
-                  {/* Column headers */}
-                  <div className="hidden md:flex items-center gap-6 text-[9px] font-black text-slate-400 uppercase tracking-[0.1em]">
-                    <span className="w-16 text-right">Stock</span>
-                    <span className="w-20 text-right">Cost</span>
-                  </div>
-                </div>
-
+              <MetricPanel
+                icon={FlaskConical}
+                title={"Ingredients"}
+                desc={`${recipe.ingredients?.length || 0} components · ${fmt(recipe.totalInputCost)} total`}
+                noPad
+              >
                 {recipe.ingredients?.length > 0 ? (
                   <>
                     {recipe.ingredients.map((ing, i) => (
@@ -433,95 +339,79 @@ const ProductionRecipeDetailsPage = () => {
                     </p>
                   </div>
                 )}
-              </Panel>
+              </MetricPanel>
 
-              {/* Instructions */}
-              {recipe.instructions && (
-                <Panel>
-                  <PanelHead
-                    icon={FileText}
-                    title="Preparation Instructions"
-                    subtitle="Step-by-step guide"
-                  />
-                  <div className="px-5 py-4">
-                    <div className="space-y-1.5">
-                      {recipe.instructions
-                        .split("\n")
-                        .filter(Boolean)
-                        .map((step, i) => (
-                          <div key={i} className="flex items-start gap-3">
-                            <span className="text-[11px] font-black text-slate-400 tabular-nums mt-0.5 flex-shrink-0 w-4">
-                              {i + 1}.
-                            </span>
-                            <p className="text-[12.5px] text-slate-700 font-medium leading-snug">
-                              {step.replace(/^\d+\.\s*/, "")}
-                            </p>
-                          </div>
-                        ))}
-                    </div>
+              {/* Recipe Instruction  */}
+              {recipe?.instructions && (
+                <MetricPanel
+                  icon={FileText}
+                  title="Preparation Instructions"
+                  desc="Step-by-step guide"
+                >
+                  <div className="space-y-1.5">
+                    {recipe.instructions
+                      .split("\n")
+                      .filter(Boolean)
+                      .map((step, i) => (
+                        <div key={i} className="flex items-start gap-3">
+                          <span className="text-[11px] font-black text-slate-400 tabular-nums mt-0.5 flex-shrink-0 w-4">
+                            {i + 1}.
+                          </span>
+                          <p className="text-[12.5px] text-slate-700 font-medium leading-snug">
+                            {step.replace(/^\d+\.\s*/, "")}
+                          </p>
+                        </div>
+                      ))}
                   </div>
-                </Panel>
+                </MetricPanel>
               )}
             </div>
 
             {/* RIGHT: recipe info + output item */}
             <div className="space-y-4">
               {/* Output item */}
-              <Panel>
-                <PanelHead
-                  icon={Package}
-                  title="Output Item"
-                  subtitle="What this recipe produces"
-                />
-                <div className="px-5 py-4">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center flex-shrink-0">
-                      <Layers
-                        size={16}
-                        className="text-slate-500"
-                        strokeWidth={1.8}
-                      />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-[14px] font-black text-slate-800 leading-tight">
-                        {recipe.outputItemName}
-                      </p>
-                      <p className="text-[10px] text-slate-400 font-mono mt-0.5">
-                        {recipe.outputItemSku}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="space-y-0">
-                    {[
-                      {
-                        label: "Quantity",
-                        value: `${recipe.outputQuantity} ${recipe.outputUnitAbbreviation}`,
-                      },
-                      { label: "Unit", value: recipe.outputUnitName },
-                      {
-                        label: "Unit Cost",
-                        value: fmt(recipe.costPerOutputUnit),
-                      },
-                    ].map(({ label, value }, i, arr) => (
-                      <div
-                        key={label}
-                        className={`flex items-center justify-between py-2.5 ${i < arr.length - 1 ? "border-b border-slate-100" : ""}`}
-                      >
-                        <span className="text-[12px] text-slate-500 font-medium">
-                          {label}
-                        </span>
-                        <span className="text-[12px] font-bold text-slate-800 tabular-nums">
-                          {value}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
+              <MetricPanel
+                icon={Package}
+                title="Output Item"
+                desc="What this recipe produces"
+              >
+                <div className="min-w-0">
+                  <p className="text-[14px] font-black text-slate-800 leading-tight">
+                    {recipe.outputItemName}
+                  </p>
+                  <p className="text-[10px] text-slate-400 font-mono mt-0.5">
+                    {recipe.outputItemSku}
+                  </p>
                 </div>
-              </Panel>
+                <div className="space-y-0">
+                  {[
+                    {
+                      label: "Quantity",
+                      value: `${recipe.outputQuantity} ${recipe.outputUnitAbbreviation}`,
+                    },
+                    { label: "Unit", value: recipe.outputUnitName },
+                    {
+                      label: "Unit Cost",
+                      value: fmt(recipe.costPerOutputUnit),
+                    },
+                  ].map(({ label, value }, i, arr) => (
+                    <div
+                      key={label}
+                      className={`flex items-center justify-between py-2.5 ${i < arr.length - 1 ? "border-b border-slate-100" : ""}`}
+                    >
+                      <span className="text-[12px] text-slate-500 font-medium">
+                        {label}
+                      </span>
+                      <span className="text-[12px] font-bold text-slate-800 tabular-nums">
+                        {value}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </MetricPanel>
 
               {/* Recipe info */}
-              <Panel>
-                <PanelHead icon={Hash} title="Recipe Info" />
+              <MetricPanel icon={Hash} title="Recipe Info" noPad>
                 <div className="px-5 py-1 pb-3">
                   {[
                     { label: "Recipe ID", value: `#${recipe.id}` },
@@ -553,20 +443,16 @@ const ProductionRecipeDetailsPage = () => {
                     </div>
                   ))}
                 </div>
-              </Panel>
+              </MetricPanel>
 
               {/* Edit CTA */}
               <button
                 onClick={() =>
-                  navigate(`/prep-recipes/edit?recipeId=${recipe.id}`)
+                  navigate(`/prep-recipes/add?recipeId=${recipe.id}`)
                 }
-                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-2xl text-[12px] font-black text-white transition-all hover:shadow-md hover:-translate-y-px"
-                style={{
-                  background: "linear-gradient(135deg,#0f172a,#1e293b)",
-                  boxShadow: "0 2px 8px rgba(15,23,42,0.25)",
-                }}
+                className="btn w-full bg-primary-500 hover:bg-primary-600 text-white transition-all hover:shadow-md hover:-translate-y-px"
               >
-                <Pencil size={13} strokeWidth={2} />
+                <Pencil size={13} strokeWidth={2} className="mr-2" />
                 Edit Recipe
               </button>
             </div>

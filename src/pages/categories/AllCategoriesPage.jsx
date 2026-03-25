@@ -186,41 +186,35 @@ const AllCategoriesPage = () => {
       <div className="space-y-6">
         <PageHeader title={"All Categories"} actions={actions} />
 
-        <div className="bg-white">
-          {/* Header Section */}
-          <div className="border-b border-slate-200">
-            <div className="px-6 py-5">
-              <div className="flex items-center justify-between gap-4">
-                {/* Search Bar */}
-                <SearchBar
-                  placeholder="Search categories..."
-                  onSearch={(value) => setSearchTerm(value)}
-                />
-
-                <select
-                  className="form-select"
-                  value={serviceType}
-                  onChange={(e) => setServiceType(e.target.value)}
-                >
-                  <option value="">All</option>
-                  {Object.values(SERVICE_TYPES).map((value) => (
-                    <option key={value} value={value}>
-                      {formatText(value)}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-          </div>
-          <SmartTable
-            // title="Categories"
-            totalcount={pagination?.total}
-            data={data}
-            columns={columns}
-            actions={rowActions}
-            loading={loading}
+        <div className="flex items-center justify-between gap-4">
+          {/* Search Bar */}
+          <SearchBar
+            placeholder="Search categories..."
+            onSearch={(value) => setSearchTerm(value)}
           />
+
+          <select
+            className="form-select"
+            value={serviceType}
+            onChange={(e) => setServiceType(e.target.value)}
+          >
+            <option value="">All</option>
+            {Object.values(SERVICE_TYPES).map((value) => (
+              <option key={value} value={value}>
+                {formatText(value)}
+              </option>
+            ))}
+          </select>
         </div>
+
+        <SmartTable
+          title="Categories"
+          totalcount={pagination?.total}
+          data={data}
+          columns={columns}
+          actions={rowActions}
+          loading={loading}
+        />
 
         <Pagination
           totalItems={pagination?.total}

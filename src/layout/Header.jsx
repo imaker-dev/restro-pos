@@ -78,7 +78,7 @@ function Header({ sidebarOpen, setSidebarOpen }) {
               <OutletSwitcher />
 
               {/* Connectivity */}
-              <PermissionGuard roles={[ROLES.KITCHEN, ROLES.BAR]}>
+              <PermissionGuard roles={[ROLES.KITCHEN, ROLES.BARTENDER]}>
                 <div
                   title={
                     connecting
@@ -121,6 +121,7 @@ function Header({ sidebarOpen, setSidebarOpen }) {
 
       <ModalAction
         id="logout-modal"
+        variant="minimal"
         isOpen={showLogoutOverlay}
         onClose={() => setShowLogoutOverlay(false)}
         onConfirm={handleLogoutConfirm}

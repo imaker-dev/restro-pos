@@ -193,67 +193,10 @@ const AllPrintersPage = () => {
     });
   };
 
-  const stats = [
-    {
-      title: "Total Printers",
-      value: summary?.total || 0,
-      subtitle: "Configured in system",
-      icon: Printer,
-      color: "blue",
-    },
-    {
-      title: "Online",
-      value: summary?.online || 0,
-      subtitle:
-        summary?.online === summary?.total
-          ? "All printers operational"
-          : "Currently reachable",
-      icon: Wifi,
-      color:
-        summary?.online === summary?.total
-          ? "green"
-          : summary?.online > 0
-            ? "yellow"
-            : "gray",
-    },
-    {
-      title: "Offline",
-      value: summary?.offline || 0,
-      subtitle:
-        summary?.offline === 0
-          ? "No connectivity issues"
-          : summary?.offline === summary?.total
-            ? "All printers disconnected"
-            : "Require attention",
-      icon: WifiOff,
-      color:
-        summary?.offline === 0
-          ? "green"
-          : summary?.offline === summary?.total
-            ? "red"
-            : "yellow",
-    },
-  ];
-
   return (
     <>
       <div className="space-y-6">
         <PageHeader title={"All Printers"} actions={actions} />
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {stats?.map((stat, index) => (
-            <StatCard
-              key={index}
-              title={stat?.title}
-              value={stat?.value}
-              subtitle={stat?.subtitle}
-              icon={stat?.icon}
-              color={stat?.color}
-              variant="v9"
-              loading={loading}
-            />
-          ))}
-        </div>
 
         <SmartTable
           title="Printers"

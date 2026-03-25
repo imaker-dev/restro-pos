@@ -16,5 +16,8 @@ export default false
       },
       uploadItemBulkUploadApi:(file) => {
         return Api.post(`/bulk-upload/menu`,file)
+      },
+      getBulkUploadSummaryApi:(outletId) => {
+        return Api.get(`/bulk-upload/history?outletId=${outletId}`)
       }
     };
