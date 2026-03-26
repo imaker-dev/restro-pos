@@ -8,6 +8,7 @@ import {
   ChefHat,
   Martini,
 } from "lucide-react";
+import Tooltip from "../../components/Tooltip";
 
 /**
  * Role Variant Configuration
@@ -99,6 +100,7 @@ export default function RoleBadge({
   const label = normalized.charAt(0).toUpperCase() + normalized.slice(1);
 
   return (
+    <Tooltip content={`Assigned role ${label}`}> 
     <span
       role="status"
       aria-label={label}
@@ -120,5 +122,6 @@ export default function RoleBadge({
 
       {label}
     </span>
+    </Tooltip>
   );
 }

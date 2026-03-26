@@ -1,4 +1,5 @@
 import React from "react";
+import Tooltip from "../components/Tooltip";
 
 /**
  * Variants control colors
@@ -64,6 +65,7 @@ export default function StatusBadge({
   const label = value ? trueText : falseText;
 
   return (
+    <Tooltip content={`Currently ${label.toLowerCase()}`}>
     <span
       role="status"
       aria-label={label}
@@ -82,5 +84,6 @@ export default function StatusBadge({
       )}
       {label}
     </span>
+    </Tooltip>
   );
 }

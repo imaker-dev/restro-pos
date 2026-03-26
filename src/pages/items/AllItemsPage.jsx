@@ -172,7 +172,11 @@ const AllItemsPage = () => {
       render: (row) => (
         <div className="flex flex-col gap-1">
           <div className="w-fit">
-            <StatusBadge value={Number(row.is_active)} />
+            <StatusBadge
+              value={Number(row.is_active)}
+              trueText="Available"
+              falseText="Unavailable"
+            />
           </div>
         </div>
       ),

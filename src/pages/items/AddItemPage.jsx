@@ -9,6 +9,7 @@ import {
   Image,
   IndianRupee,
   Info,
+  Loader2,
   Plus,
   RefreshCw,
   Text,
@@ -89,6 +90,7 @@ const AddItemPage = () => {
     outletId: outletId || "",
     categoryId: "",
     name: "",
+    shortName: "",
     description: "",
     itemType: "veg",
     basePrice: "",
@@ -97,6 +99,7 @@ const AddItemPage = () => {
     hasAddons: false,
     allowSpecialNotes: true,
     isActive: true,
+    isOpenItem: false,
     minQuantity: 1,
     maxQuantity: 10,
     kitchenStationId: "",
@@ -114,6 +117,7 @@ const AddItemPage = () => {
       outletId: itemDetails.outlet_id || outletId,
       categoryId: itemDetails.category_id || "",
       name: itemDetails.name || "",
+      shortName: itemDetails.short_name || "",
       description: itemDetails.description || "",
       itemType: itemDetails.item_type || "veg",
 
@@ -126,6 +130,7 @@ const AddItemPage = () => {
       allowSpecialNotes: Boolean(itemDetails.allow_special_notes),
 
       isActive: itemDetails?.is_active ?? true, // ✅ ADD
+      isOpenItem: Boolean(itemDetails.is_open_item),
 
       minQuantity: itemDetails.min_quantity || 1,
       maxQuantity: itemDetails.max_quantity || 10,
@@ -157,9 +162,10 @@ const AddItemPage = () => {
     outletId: Yup.string().required("Outlet is required"),
     categoryId: Yup.string().required("Category is required"),
     name: Yup.string().required("Product name is required"),
-
-    basePrice: Yup.number().when("hasVariants", {
-      is: false,
+    shortName: Yup.string().max(50, "Short name too long"),
+    itemType: Yup.string().required("Item type is required"),
+    basePrice: Yup.number().when(["hasVariants", "isOpenItem"], {
+      is: (hasVariants, isOpenItem) => !hasVariants && !isOpenItem,
       then: (schema) =>
         schema
           .typeError("Price must be a number")
@@ -198,6 +204,7 @@ const AddItemPage = () => {
       categoryId: Number(values.categoryId),
 
       name: values.name.trim(),
+      shortName: values.shortName?.trim() || null,
       description: values.description?.trim() || null,
       itemType: values.itemType,
 
@@ -210,6 +217,7 @@ const AddItemPage = () => {
       hasAddons: Boolean(values.hasAddons),
       allowSpecialNotes: Boolean(values.allowSpecialNotes),
       isActive: Boolean(values.isActive),
+      isOpenItem: Boolean(values.isOpenItem),
 
       minQuantity: Number(values.minQuantity),
       maxQuantity: Number(values.maxQuantity),
@@ -264,17 +272,29 @@ const AddItemPage = () => {
             {/* PRODUCT INFO */}
             <AccordionSection title="Product Info" icon={Info}>
               <div className="space-y-4">
-                {/* PRODUCT NAME */}
-                <InputField
-                  label="Product Name"
-                  name="name"
-                  placeholder="Product Name"
-                  required
-                  value={formik.values.name}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  error={formik.touched.name && formik.errors.name}
-                />
+                <div className="grid grid-cols-2 gap-6">
+                  {/* PRODUCT NAME */}
+                  <InputField
+                    label="Product Name"
+                    name="name"
+                    placeholder="Product Name"
+                    required
+                    value={formik.values.name}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    error={formik.touched.name && formik.errors.name}
+                  />
+
+                  <InputField
+                    label="Short Name"
+                    name="shortName"
+                    placeholder="Short name (e.g. Paneer Tikka)"
+                    value={formik.values.shortName}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    error={formik.touched.shortName && formik.errors.shortName}
+                  />
+                </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   {/* FLOORS */}
@@ -344,11 +364,13 @@ const AddItemPage = () => {
                   <SelectField
                     label="Item Type"
                     name="itemType"
+                    required
                     options={FOOD_TYPE_OPTIONS}
                     value={formik.values.itemType}
                     onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    error={formik.touched.itemType && formik.errors.itemType}
                   />
-
                   {/* SECTIONS */}
                   {/* <MultiSelectDropdownField
                   label="Sections"
@@ -370,6 +392,16 @@ const AddItemPage = () => {
                   value={formik.values.description}
                   onChange={formik.handleChange}
                   rows={3}
+                />
+
+                <ToggleField
+                  label="Open Item"
+                  description="Enable this to allow cashier to enter custom price/name while ordering."
+                  checked={formik.values.isOpenItem}
+                  onChange={(value) =>
+                    formik.setFieldValue("isOpenItem", value)
+                  }
+                  activeColorClass="bg-indigo-600"
                 />
 
                 <ToggleField
@@ -404,12 +436,17 @@ const AddItemPage = () => {
 
                 <ToggleField
                   label="Enable Size / Portion Variations"
-                  description="Turn this on if the dish is available in multiple sizes like Half / Full, Regular / Large, or different serving portions."
+                  description={
+                    formik.values.isOpenItem
+                      ? "Disabled because this is an open item"
+                      : "Turn this on if the dish is available in multiple sizes"
+                  }
                   checked={formik.values.hasVariants}
                   onChange={(value) =>
                     formik.setFieldValue("hasVariants", value)
                   }
                   activeColorClass="bg-indigo-600"
+                  disabled={formik.values.isOpenItem}
                 />
 
                 {/* BASE PRICE – SHOW ONLY WHEN NO VARIANTS */}
@@ -425,7 +462,12 @@ const AddItemPage = () => {
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                     error={formik.touched.basePrice && formik.errors.basePrice}
-                    helperText="Enter the standard product price"
+                    helperText={
+                      formik.values.isOpenItem
+                        ? "Price will be entered by cashier during billing (Open Item)"
+                        : "Enter the standard product price"
+                    }
+                    disabled={formik.values.isOpenItem}
                   />
                 )}
 
@@ -555,10 +597,15 @@ const AddItemPage = () => {
 
                 <ToggleField
                   label="Enable Add-Ons & Extras"
-                  description="Turn this on to allow guests to select additional items such as toppings, sides, beverages, or special upgrades."
+                  description={
+                    formik.values.isOpenItem
+                      ? "Disabled because this is an open item (cashier will customize directly)"
+                      : "Turn this on to allow guests to select additional items such as toppings, sides, beverages, or special upgrades."
+                  }
                   checked={formik.values.hasAddons}
                   onChange={(value) => formik.setFieldValue("hasAddons", value)}
                   activeColorClass="bg-emerald-600"
+                  disabled={formik.values.isOpenItem}
                 />
 
                 {/* ADDON GROUPS */}
@@ -625,8 +672,12 @@ const AddItemPage = () => {
                 disabled={
                   isCreatingItem || isUpdatingItem || formik.isSubmitting
                 }
-                className="btn bg-primary-500 hover:bg-primary-600 text-white"
+                className="btn bg-primary-500 hover:bg-primary-600 text-white flex items-center justify-center gap-2 disabled:opacity-70"
               >
+                {(isCreatingItem || isUpdatingItem) && (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                )}
+
                 {isCreatingItem || isUpdatingItem
                   ? itemId
                     ? "Updating..."

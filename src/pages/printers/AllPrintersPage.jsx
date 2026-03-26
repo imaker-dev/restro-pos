@@ -92,9 +92,9 @@ const AllPrintersPage = () => {
             <span className="text-sm font-medium text-slate-700 truncate">
               {station.name}
             </span>
-            <span className="text-xs text-slate-400 font-mono">
+            {/* <span className="text-xs text-slate-400 font-mono">
               {station.code}
-            </span>
+            </span> */}
           </div>
         );
       },
