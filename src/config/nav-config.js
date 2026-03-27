@@ -339,6 +339,12 @@ export const navConfig = [
         path: "/nc-reasons",
         roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN],
       },
+      {
+        name: "Menu Media",
+        icon: Image,
+        path: "/menu-media",
+        roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
+      },
     ],
   },
 

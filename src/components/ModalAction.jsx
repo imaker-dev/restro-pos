@@ -112,9 +112,6 @@ function CenteredModal({
     <div
       className={`relative w-full ${sz.maxW} overflow-hidden rounded-[20px] bg-white shadow-2xl shadow-slate-900/20 ring-1 ring-black/[0.06]`}
     >
-      {/* 4px top color bar */}
-      <div className={`h-1 w-full ${cfg.bar}`} />
-
       {/* Close button */}
       <button
         onClick={onClose}
@@ -210,9 +207,6 @@ function MinimalModal({
     <div
       className={`relative w-full ${sz.mnMaxW} overflow-hidden rounded-2xl border-[1.5px] border-slate-200 bg-white shadow-xl shadow-slate-900/12 ring-1 ring-black/[0.04]`}
     >
-      {/* 3.5px top bar */}
-      <div className={`h-[3.5px] w-full ${cfg.bar}`} />
-
       {/* Body */}
       <div className={`flex gap-[14px] ${sz.mnPad}`}>
         {/* Icon */}

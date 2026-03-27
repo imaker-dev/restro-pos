@@ -109,7 +109,6 @@ const PageHeader = ({
                         ? action.loadingText || action.label
                         : action.label}
                     </span>
-
                   </>
                 );
 
@@ -134,7 +133,10 @@ const PageHeader = ({
                         ? action.disabledTitle || "Action unavailable"
                         : ""
                     }
-                    onClick={action.onClick}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      action.onClick && action.onClick(e);
+                    }}
                     disabled={isDisabled}
                     className={`btn lg:btn-lg ${variantClass} flex items-center ${
                       isDisabled ? "opacity-70 !cursor-not-allowed" : ""

@@ -8,6 +8,7 @@ import AppLayoutSkeleton from "./layout/AppLayoutSkeleton";
 import { usePreventNumberInputScroll, useScrollToTop } from "./hooks/useScroll";
 import { useSocket } from "./hooks/useSocket";
 import NetworkStatusBanner from "./components/NetworkStatusBanner";
+import PublicMenuPage from "./pages/items/PublicMenuPage";
 
 const App = () => {
   const dispatch = useDispatch();
@@ -31,6 +32,8 @@ const App = () => {
     <Suspense fallback={<div>Loading...</div>}>
       <NetworkStatusBanner />
       <Routes>
+          <Route path="/menu" element={<PublicMenuPage />} />
+
         {/* AUTH */}
         {!logIn && <Route path="/auth" element={<AuthPage />} />}
         {logIn && <Route path="/auth" element={<Navigate to="/" replace />} />}

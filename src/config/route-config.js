@@ -81,6 +81,7 @@ import InventoryItemBatches from "../pages/inventory/InventoryItemBatches";
 import inventorySummaryPage from "../pages/inventory/inventorySummaryPage";
 import InventoryWastagePage from "../pages/inventory/InventoryWastagePage";
 import BulkUploadSummaryPage from "../pages/items/BulkUploadSummaryPage";
+import MenuMediaPage from "../pages/items/MenuMediaPage";
 
 const routeConfig = [
   // { path: "/", element: Dashboard, roles: [ROLES.SUPER_ADMIN] },
@@ -160,6 +161,7 @@ const routeConfig = [
   { path: "/outlets/delete", element: OutletDeletePage, roles: [ROLES.SUPER_ADMIN] },
 
   { path: "/categories", element: AllCategoriesPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER,] },
+  { path: "/menu-media", element: MenuMediaPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN,ROLES.MANAGER] },
   { path: "/items", element: AllItemsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN,ROLES.MANAGER] },
   { path: "/items/details", element: ItemDetailsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN,ROLES.MANAGER] },
   { path: "/items/add", element: AddItemPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN,ROLES.MANAGER] },
