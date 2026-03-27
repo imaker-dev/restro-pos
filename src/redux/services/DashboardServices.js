@@ -1,4 +1,5 @@
 import Api from "../api.js";
+import { cleanParams } from "../../utils/cleanParams.js";
 
 export default false
   ? {
@@ -6,36 +7,32 @@ export default false
     }
   : {
       getDashboardStatsApi: (outletId, dateRange = {}) => {
-        let url = `/reports/dashboard?outletId=${outletId}`;
+        const params = cleanParams({
+          outletId,
+          start_date: dateRange?.startDate, // mapping handled here
+          end_date: dateRange?.endDate,
+        });
 
-        if (dateRange?.startDate) {
-          url += `&start_date=${encodeURIComponent(dateRange.startDate)}`;
-        }
-
-        if (dateRange?.endDate) {
-          url += `&end_date=${encodeURIComponent(dateRange.endDate)}`;
-        }
-
-        return Api.get(url);
+        return Api.get(`/reports/dashboard`, { params });
       },
-      getDailyEndSummaryApi: (outletId, dateRange) => {
-        let url = `/reports/day-end-summary?outletId=${outletId}`;
 
-        if (dateRange?.startDate && dateRange?.endDate) {
-          url += `&startDate=${dateRange.startDate}`;
-          url += `&endDate=${dateRange.endDate}`;
-        }
+      getDailyEndSummaryApi: (outletId, dateRange = {}) => {
+        const params = cleanParams({
+          outletId,
+          startDate: dateRange?.startDate,
+          endDate: dateRange?.endDate,
+        });
 
-        return Api.get(url);
+        return Api.get(`/reports/day-end-summary`, { params });
       },
+
       getDailyEndSummaryDetailsApi: (outletId, date) => {
-        let url = `/reports/day-end-summary/detail?outletId=${outletId}`;
+        const params = cleanParams({
+          outletId,
+          startDate: date,
+          endDate: date,
+        });
 
-        if (date) {
-          url += `&startDate=${date}`;
-          url += `&endDate=${date}`;
-        }
-
-        return Api.get(url);
+        return Api.get(`/reports/day-end-summary/detail`, { params });
       },
     };

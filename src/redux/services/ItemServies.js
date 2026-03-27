@@ -1,3 +1,4 @@
+import { cleanParams } from "../../utils/cleanParams.js";
 import Api from "../api.js";
 
 export default false
@@ -8,35 +9,25 @@ export default false
       getAllItemsApi: (
         outletId,
         search,
-        page=1,
-        limit=10,
+        page = 1,
+        limit = 10,
         categoryId,
         itemType,
         serviceType,
         includeInactive,
       ) => {
-        let url = `/menu/items/outlet/${outletId}?page=${page}&limit=${limit}`;
+        const params = cleanParams({
+          page,
+          limit,
+          search,
+          categoryId,
+          itemType,
+          serviceType,
+          includeInactive,
+        });
 
-        if (search) {
-          url += `&search=${encodeURIComponent(search)}`;
-        }
-        if (categoryId) {
-          url += `&categoryId=${categoryId}`;
-        }
-        if (itemType) {
-          url += `&itemType=${itemType}`;
-        }
-        if (serviceType) {
-          url += `&serviceType=${serviceType}`;
-        }
-
-        if (includeInactive !== undefined && includeInactive !== "") {
-          url += `&includeInactive=${includeInactive}`;
-        }
-
-        return Api.get(url);
+        return Api.get(`/menu/items/outlet/${outletId}`, { params });
       },
-
       getAllItemsByCategoryApi: (categoryId) => {
         return Api.get(`/menu/items/category/${categoryId}`);
       },

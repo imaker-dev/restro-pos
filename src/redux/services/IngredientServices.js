@@ -1,3 +1,4 @@
+import { cleanParams } from "../../utils/cleanParams.js";
 import Api from "../api.js";
 
 export default false
@@ -6,13 +7,13 @@ export default false
     }
   : {
       getAllIngredientsApi: (outletId, page = 1, limit = 20, search) => {
-        let url = `/recipes/${outletId}/ingredients?page=${page}&limit=${limit}`;
+        const params = cleanParams({
+          page,
+          limit,
+          search,
+        });
 
-        if (search) {
-          url += `&search=${encodeURIComponent(search)}`;
-        }
-
-        return Api.get(url);
+        return Api.get(`/recipes/${outletId}/ingredients`, { params });
       },
       getIngredientByIdApi: (id) => {
         return Api.get(`/recipes/ingredients/${id}`);

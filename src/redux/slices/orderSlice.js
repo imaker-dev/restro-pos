@@ -16,6 +16,8 @@ export const fetchAllOrders = createAsyncThunk(
     paymentStatus,
     sortBy,
     sortOrder,
+    hasOpenItems,
+    hasNcItems,
   }) => {
     const res = await OrderServices.getAllOrdersApi(
       outletId,
@@ -28,6 +30,8 @@ export const fetchAllOrders = createAsyncThunk(
       paymentStatus,
       sortBy,
       sortOrder,
+      hasOpenItems,
+      hasNcItems,
     );
     return res.data;
   },
@@ -56,7 +60,7 @@ const orderSlice = createSlice({
     allOrdersData: null,
     isFetchingOrderDetails: false,
     orderDetails: null,
-    isDownloadingInvoice:false,
+    isDownloadingInvoice: false,
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -92,7 +96,7 @@ const orderSlice = createSlice({
       .addCase(downloadOrderInvoice.rejected, (state, action) => {
         state.isDownloadingInvoice = false;
         toast.error(action.error.message);
-      })
+      });
   },
 });
 

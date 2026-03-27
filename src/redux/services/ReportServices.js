@@ -1,3 +1,4 @@
+import { cleanParams } from "../../utils/cleanParams.js";
 import Api from "../api.js";
 
 export default false
@@ -6,191 +7,154 @@ export default false
     }
   : {
       getDailySalesReportApi: ({ outletId, dateRange }) => {
-        const params = new URLSearchParams();
+        const params = cleanParams({
+          startDate: dateRange?.startDate,
+          endDate: dateRange?.endDate,
+        });
 
-        if (dateRange?.startDate) {
-          params.append("startDate", dateRange.startDate);
-        }
-        if (dateRange?.endDate) {
-          params.append("endDate", dateRange.endDate);
-        }
-        const query = params.toString();
-        return Api.get(
-          `/orders/reports/${outletId}/daily-sales${query ? `?${query}` : ""}`,
-        );
+        return Api.get(`/orders/reports/${outletId}/daily-sales`, { params });
       },
 
       getDailyReportDetailsApi: (outletId, date, page, limit) => {
-        return Api.get(
-          `/orders/reports/${outletId}/daily-sales/detail?startDate=${date}&endDate=${date}&page=${page}&limit=${limit}`,
-        );
+        const params = cleanParams({
+          startDate: date,
+          endDate: date,
+          page,
+          limit,
+        });
+
+        return Api.get(`/orders/reports/${outletId}/daily-sales/detail`, {
+          params,
+        });
       },
 
       getItemSalesReportApi: (outletId, dateRange) => {
-        const params = new URLSearchParams();
+        const params = cleanParams({
+          startDate: dateRange?.startDate,
+          endDate: dateRange?.endDate,
+        });
 
-        if (dateRange?.startDate) {
-          params.append("startDate", dateRange.startDate);
-        }
-        if (dateRange?.endDate) {
-          params.append("endDate", dateRange.endDate);
-        }
-        const query = params.toString();
-        return Api.get(
-          `/orders/reports/${outletId}/item-sales${query ? `?${query}` : ""}`,
-        );
+        return Api.get(`/orders/reports/${outletId}/item-sales`, { params });
       },
 
       getCategorySalesReportApi: (outletId, dateRange) => {
-        const params = new URLSearchParams();
+        const params = cleanParams({
+          startDate: dateRange?.startDate,
+          endDate: dateRange?.endDate,
+        });
 
-        if (dateRange?.startDate) {
-          params.append("startDate", dateRange.startDate);
-        }
-        if (dateRange?.endDate) {
-          params.append("endDate", dateRange.endDate);
-        }
-        const query = params.toString();
-        return Api.get(
-          `/orders/reports/${outletId}/category-sales${query ? `?${query}` : ""}`,
-        );
+        return Api.get(`/orders/reports/${outletId}/category-sales`, {
+          params,
+        });
       },
 
       getStaffSalesReportApi: (outletId, dateRange) => {
-        const params = new URLSearchParams();
+        const params = cleanParams({
+          startDate: dateRange?.startDate,
+          endDate: dateRange?.endDate,
+        });
 
-        if (dateRange?.startDate) {
-          params.append("startDate", dateRange.startDate);
-        }
-        if (dateRange?.endDate) {
-          params.append("endDate", dateRange.endDate);
-        }
-        const query = params.toString();
-        return Api.get(
-          `/orders/reports/${outletId}/staff${query ? `?${query}` : ""}`,
-        );
+        return Api.get(`/orders/reports/${outletId}/staff`, { params });
       },
 
       getPaymentModeReportApi: (outletId, dateRange) => {
-        const params = new URLSearchParams();
+        const params = cleanParams({
+          startDate: dateRange?.startDate,
+          endDate: dateRange?.endDate,
+        });
 
-        if (dateRange?.startDate) {
-          params.append("startDate", dateRange.startDate);
-        }
-        if (dateRange?.endDate) {
-          params.append("endDate", dateRange.endDate);
-        }
-        const query = params.toString();
-        return Api.get(
-          `/orders/reports/${outletId}/payment-modes${query ? `?${query}` : ""}`,
-        );
+        return Api.get(`/orders/reports/${outletId}/payment-modes`, { params });
       },
 
       getTaxReportApi: (outletId, dateRange) => {
-        const params = new URLSearchParams();
+        const params = cleanParams({
+          startDate: dateRange?.startDate,
+          endDate: dateRange?.endDate,
+        });
 
-        if (dateRange?.startDate) {
-          params.append("startDate", dateRange.startDate);
-        }
-        if (dateRange?.endDate) {
-          params.append("endDate", dateRange.endDate);
-        }
-        const query = params.toString();
-        return Api.get(
-          `/orders/reports/${outletId}/tax${query ? `?${query}` : ""}`,
-        );
+        return Api.get(`/orders/reports/${outletId}/tax`, { params });
       },
-      getTaxReportDetailsApi: (outletId, date) => {
-        const params = new URLSearchParams();
 
-        if (date) {
-          params.append("startDate", date);
-        }
-        if (date) {
-          params.append("endDate", date);
-        }
-        const query = params.toString();
-        return Api.get(
-          `/orders/reports/${outletId}/tax${query ? `?${query}` : ""}`,
-        );
+      getTaxReportDetailsApi: (outletId, date) => {
+        const params = cleanParams({
+          startDate: date,
+          endDate: date,
+        });
+
+        return Api.get(`/orders/reports/${outletId}/tax`, { params });
       },
 
       getServiceTypeBreakdownReportApi: (outletId, dateRange) => {
-        const params = new URLSearchParams();
+        const params = cleanParams({
+          startDate: dateRange?.startDate,
+          endDate: dateRange?.endDate,
+        });
 
-        if (dateRange?.startDate) {
-          params.append("startDate", dateRange.startDate);
-        }
-        if (dateRange?.endDate) {
-          params.append("endDate", dateRange.endDate);
-        }
-        const query = params.toString();
-        return Api.get(
-          `/orders/reports/${outletId}/service-type-breakdown${query ? `?${query}` : ""}`,
-        );
+        return Api.get(`/orders/reports/${outletId}/service-type-breakdown`, {
+          params,
+        });
       },
 
       getRunningTableApi: (outletId) => {
-        return Api.get(`/reports/running-tables?outletId=${outletId}`);
-      },
-      getRunnigOrderApi: (outletId) => {
-        return Api.get(`/reports/running-orders?outletId=${outletId}`);
-      },
-      getSectionSalesReportApi: (outletId, dateRange = {}) => {
-        const params = {};
+        const params = cleanParams({ outletId });
 
-        if (dateRange.startDate && dateRange.endDate) {
-          params.startDate = dateRange.startDate;
-          params.endDate = dateRange.endDate;
-        }
+        return Api.get(`/reports/running-tables`, { params });
+      },
+
+      getRunningOrderApi: (outletId) => {
+        const params = cleanParams({ outletId });
+
+        return Api.get(`/reports/running-orders`, { params });
+      },
+      
+      getSectionSalesReportApi: (outletId, dateRange = {}) => {
+        const params = cleanParams({
+          startDate: dateRange?.startDate,
+          endDate: dateRange?.endDate,
+        });
 
         return Api.get(`/orders/reports/${outletId}/floor-section`, { params });
       },
-      getStationSalesReportApi: (outletId, dateRange = {}) => {
-        const params = {};
 
-        if (dateRange.startDate && dateRange.endDate) {
-          params.startDate = dateRange.startDate;
-          params.endDate = dateRange.endDate;
-        }
+      getStationSalesReportApi: (outletId, dateRange = {}) => {
+        const params = cleanParams({
+          startDate: dateRange?.startDate,
+          endDate: dateRange?.endDate,
+        });
 
         return Api.get(`/orders/reports/${outletId}/counter`, { params });
       },
-      getCancellationReportApi: (outletId, dateRange = {}) => {
-        const params = {};
 
-        if (dateRange?.startDate && dateRange?.endDate) {
-          params.startDate = dateRange.startDate;
-          params.endDate = dateRange.endDate;
-        }
+      getCancellationReportApi: (outletId, dateRange = {}) => {
+        const params = cleanParams({
+          startDate: dateRange?.startDate,
+          endDate: dateRange?.endDate,
+        });
 
         return Api.get(`/orders/reports/${outletId}/cancellations`, { params });
       },
-      
+
       getDueReportApi: (outletId, dateRange = {}, page, limit, search) => {
-        let query = `?page=${page}&limit=${limit}`;
+        const params = cleanParams({
+          page,
+          limit,
+          search,
+          startDate: dateRange?.startDate,
+          endDate: dateRange?.endDate,
+        });
 
-        if (dateRange?.startDate && dateRange?.endDate) {
-          query += `&startDate=${dateRange.startDate}&endDate=${dateRange.endDate}`;
-        }
-
-        if (search) {
-          query += `&search=${encodeURIComponent(search)}`;
-        }
-
-        return Api.get(`/orders/reports/${outletId}/due${query}`);
+        return Api.get(`/orders/reports/${outletId}/due`, { params });
       },
+      
       getNcReportApi: (outletId, dateRange = {}, page, limit, search) => {
-        let query = `?page=${page}&limit=${limit}`;
+        const params = cleanParams({
+          page,
+          limit,
+          search,
+          startDate: dateRange?.startDate,
+          endDate: dateRange?.endDate,
+        });
 
-        if (dateRange?.startDate && dateRange?.endDate) {
-          query += `&startDate=${dateRange.startDate}&endDate=${dateRange.endDate}`;
-        }
-
-        if (search) {
-          query += `&search=${encodeURIComponent(search)}`;
-        }
-
-        return Api.get(`/orders/reports/${outletId}/nc${query}`);
+        return Api.get(`/orders/reports/${outletId}/nc`, { params });
       },
     };

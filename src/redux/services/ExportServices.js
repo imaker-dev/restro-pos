@@ -1,3 +1,4 @@
+import { cleanParams } from "../../utils/cleanParams.js";
 import Api from "../api.js";
 
 export default false
@@ -6,121 +7,104 @@ export default false
     }
   : {
       exportDailySalesReportApi: (outletId, dateRange) => {
-        const params = new URLSearchParams();
+        const params = cleanParams({
+          startDate: dateRange?.startDate,
+          endDate: dateRange?.endDate,
+        });
 
-        if (dateRange?.startDate) {
-          params.append("startDate", dateRange.startDate);
-        }
-        if (dateRange?.endDate) {
-          params.append("endDate", dateRange.endDate);
-        }
-        const query = params.toString();
-        return Api.get(
-          `/orders/reports/${outletId}/daily-sales/export${query ? `?${query}` : ""}`,
-          { responseType: "blob" },
-        );
+        return Api.get(`/orders/reports/${outletId}/daily-sales/export`, {
+          params,
+          responseType: "blob",
+        });
       },
 
       exportDailyReportDetailsApi: (outletId, date) => {
+        const params = cleanParams({
+          startDate: date,
+          endDate: date,
+        });
+
         return Api.get(
-          `/orders/reports/${outletId}/daily-sales/detail/export?startDate=${date}&endDate=${date}`,
-          { responseType: "blob" },
+          `/orders/reports/${outletId}/daily-sales/detail/export`,
+          {
+            params,
+            responseType: "blob",
+          },
         );
       },
 
       exportItemSalesReportApi: (outletId, dateRange) => {
-        const params = new URLSearchParams();
+        const params = cleanParams({
+          startDate: dateRange?.startDate,
+          endDate: dateRange?.endDate,
+        });
 
-        if (dateRange?.startDate) {
-          params.append("startDate", dateRange.startDate);
-        }
-        if (dateRange?.endDate) {
-          params.append("endDate", dateRange.endDate);
-        }
-        const query = params.toString();
-        return Api.get(
-          `/orders/reports/${outletId}/item-sales/export${query ? `?${query}` : ""}`,
-          { responseType: "blob" },
-        );
+        return Api.get(`/orders/reports/${outletId}/item-sales/export`, {
+          params,
+          responseType: "blob",
+        });
       },
 
       exportCategorySalesReportApi: (outletId, dateRange) => {
-        const params = new URLSearchParams();
+        const params = cleanParams({
+          startDate: dateRange?.startDate,
+          endDate: dateRange?.endDate,
+        });
 
-        if (dateRange?.startDate) {
-          params.append("startDate", dateRange.startDate);
-        }
-        if (dateRange?.endDate) {
-          params.append("endDate", dateRange.endDate);
-        }
-        const query = params.toString();
-        return Api.get(
-          `/orders/reports/${outletId}/category-sales/export${query ? `?${query}` : ""}`,
-          { responseType: "blob" },
-        );
+        return Api.get(`/orders/reports/${outletId}/category-sales/export`, {
+          params,
+          responseType: "blob",
+        });
       },
 
       exportStaffSalesReportApi: (outletId, dateRange) => {
-        const params = new URLSearchParams();
+        const params = cleanParams({
+          startDate: dateRange?.startDate,
+          endDate: dateRange?.endDate,
+        });
 
-        if (dateRange?.startDate) {
-          params.append("startDate", dateRange.startDate);
-        }
-        if (dateRange?.endDate) {
-          params.append("endDate", dateRange.endDate);
-        }
-        const query = params.toString();
-        return Api.get(
-          `/orders/reports/${outletId}/staff/export${query ? `?${query}` : ""}`,
-          { responseType: "blob" },
-        );
+        return Api.get(`/orders/reports/${outletId}/staff/export`, {
+          params,
+          responseType: "blob",
+        });
       },
 
       exportPaymentModeReportApi: (outletId, dateRange) => {
-        const params = new URLSearchParams();
+        const params = cleanParams({
+          startDate: dateRange?.startDate,
+          endDate: dateRange?.endDate,
+        });
 
-        if (dateRange?.startDate) {
-          params.append("startDate", dateRange.startDate);
-        }
-        if (dateRange?.endDate) {
-          params.append("endDate", dateRange.endDate);
-        }
-        const query = params.toString();
-        return Api.get(
-          `/orders/reports/${outletId}/payment-modes/export${query ? `?${query}` : ""}`,
-          { responseType: "blob" },
-        );
+        return Api.get(`/orders/reports/${outletId}/payment-modes/export`, {
+          params,
+          responseType: "blob",
+        });
       },
 
       exportTaxReportApi: (outletId, dateRange) => {
-        const params = new URLSearchParams();
+        const params = cleanParams({
+          startDate: dateRange?.startDate,
+          endDate: dateRange?.endDate,
+        });
 
-        if (dateRange?.startDate) {
-          params.append("startDate", dateRange.startDate);
-        }
-        if (dateRange?.endDate) {
-          params.append("endDate", dateRange.endDate);
-        }
-        const query = params.toString();
-        return Api.get(
-          `/orders/reports/${outletId}/tax/export${query ? `?${query}` : ""}`,
-          { responseType: "blob" },
-        );
+        return Api.get(`/orders/reports/${outletId}/tax/export`, {
+          params,
+          responseType: "blob",
+        });
       },
 
       exportServiceTypeBreakdownReportApi: (outletId, dateRange) => {
-        const params = new URLSearchParams();
+        const params = cleanParams({
+          startDate: dateRange?.startDate,
+          endDate: dateRange?.endDate,
+        });
 
-        if (dateRange?.startDate) {
-          params.append("startDate", dateRange.startDate);
-        }
-        if (dateRange?.endDate) {
-          params.append("endDate", dateRange.endDate);
-        }
-        const query = params.toString();
         return Api.get(
-          `/orders/reports/${outletId}/service-type-breakdown/export${query ? `?${query}` : ""}`,
-          { responseType: "blob" },
+          `/orders/reports/${outletId}/service-type-breakdown/export`,
+          {
+            params,
+            responseType: "blob",
+          },
         );
       },
 
@@ -135,39 +119,36 @@ export default false
           responseType: "blob",
         });
       },
-      exportSectionSalesReportApi: (outletId, dateRange = {}) => {
-        const params = {};
 
-        if (dateRange.startDate && dateRange.endDate) {
-          params.startDate = dateRange.startDate;
-          params.endDate = dateRange.endDate;
-        }
+      exportSectionSalesReportApi: (outletId, dateRange = {}) => {
+        const params = cleanParams({
+          startDate: dateRange?.startDate,
+          endDate: dateRange?.endDate,
+        });
 
         return Api.get(`/orders/reports/${outletId}/floor-section/export`, {
           params,
           responseType: "blob",
         });
       },
-      exportStationSalesReportApi: (outletId, dateRange = {}) => {
-        const params = {};
 
-        if (dateRange.startDate && dateRange.endDate) {
-          params.startDate = dateRange.startDate;
-          params.endDate = dateRange.endDate;
-        }
+      exportStationSalesReportApi: (outletId, dateRange = {}) => {
+        const params = cleanParams({
+          startDate: dateRange?.startDate,
+          endDate: dateRange?.endDate,
+        });
 
         return Api.get(`/orders/reports/${outletId}/counter/export`, {
           params,
           responseType: "blob",
         });
       },
-      exportCancellationReportApi: (outletId, dateRange = {}) => {
-        const params = {};
 
-        if (dateRange?.startDate && dateRange?.endDate) {
-          params.startDate = dateRange.startDate;
-          params.endDate = dateRange.endDate;
-        }
+      exportCancellationReportApi: (outletId, dateRange = {}) => {
+        const params = cleanParams({
+          startDate: dateRange?.startDate,
+          endDate: dateRange?.endDate,
+        });
 
         return Api.get(`/orders/reports/${outletId}/cancellations/export`, {
           params,
@@ -178,22 +159,15 @@ export default false
       /* ───────── SHIFT HISTORY EXPORT ───────── */
 
       exportShiftHistoryApi: (outletId, dateRange = {}) => {
-        const params = new URLSearchParams();
+        const params = cleanParams({
+          startDate: dateRange?.startDate,
+          endDate: dateRange?.endDate,
+        });
 
-        if (dateRange?.startDate) {
-          params.append("startDate", dateRange.startDate);
-        }
-
-        if (dateRange?.endDate) {
-          params.append("endDate", dateRange.endDate);
-        }
-
-        const query = params.toString();
-
-        return Api.get(
-          `/orders/shifts/${outletId}/history/export${query ? `?${query}` : ""}`,
-          { responseType: "blob" },
-        );
+        return Api.get(`/orders/shifts/${outletId}/history/export`, {
+          params,
+          responseType: "blob",
+        });
       },
 
       exportShiftHistoryDetailsApi: (shiftId) => {
@@ -205,35 +179,33 @@ export default false
       /* ───────── DAY END SUMMARY EXPORT ───────── */
 
       exportDayEndSummaryApi: (outletId, dateRange = {}) => {
-        const params = new URLSearchParams();
+        const params = cleanParams({
+          outletId,
+          startDate: dateRange?.startDate,
+          endDate: dateRange?.endDate,
+        });
 
-        if (dateRange?.startDate) {
-          params.append("startDate", dateRange.startDate);
-        }
-
-        if (dateRange?.endDate) {
-          params.append("endDate", dateRange.endDate);
-        }
-
-        const query = params.toString();
-
-        return Api.get(
-          `/reports/day-end-summary/export?outletId=${outletId}${query ? `&${query}` : ""}`,
-          { responseType: "blob" },
-        );
+        return Api.get(`/reports/day-end-summary/export`, {
+          params,
+          responseType: "blob",
+        });
       },
 
       exportDayEndSummaryDetailsApi: (outletId, date) => {
-        return Api.get(
-          `/reports/day-end-summary/detail/export?outletId=${outletId}&startDate=${date}&endDate=${date}`,
-          { responseType: "blob" },
-        );
+        const params = cleanParams({
+          outletId,
+          startDate: date,
+          endDate: date,
+        });
+
+        return Api.get(`/reports/day-end-summary/detail/export`, {
+          params,
+          responseType: "blob",
+        });
       },
 
-      exportOrdersReportApi: (
+      exportOrdersReportApi: ({
         outletId,
-        page,
-        limit,
         search,
         dateRange,
         orderStatus,
@@ -241,76 +213,18 @@ export default false
         paymentStatus,
         sortBy,
         sortOrder,
-      ) => {
-        let url = `/orders/admin/list?page=${page}&limit=${limit}`;
-
-        // Outlet
-        if (outletId) {
-          url += `&outletId=${encodeURIComponent(outletId)}`;
-        }
-
-        // Search
-        if (search) {
-          url += `&search=${encodeURIComponent(search)}`;
-        }
-
-        // Date Range
-        if (dateRange?.startDate && dateRange?.endDate) {
-          url += `&startDate=${dateRange.startDate}&endDate=${dateRange.endDate}`;
-        }
-
-        // Order Status
-        if (orderStatus) {
-          url += `&status=${encodeURIComponent(orderStatus)}`;
-        }
-
-        // Order Type
-        if (orderType) {
-          url += `&orderType=${encodeURIComponent(orderType)}`;
-        }
-
-        // Payment Status
-        if (paymentStatus) {
-          url += `&paymentStatus=${encodeURIComponent(paymentStatus)}`;
-        }
-
-        // Sorting
-        if (sortBy) {
-          url += `&sortBy=${encodeURIComponent(sortBy)}`;
-        }
-
-        if (sortOrder) {
-          url += `&sortOrder=${encodeURIComponent(sortOrder)}`; // asc / desc
-        }
-
-        return Api.get(url);
-      },
-
-      exportOrdersReportApi: (
-        outletId,
-        dateRange,
-        search,
-        orderStatus,
-        orderType,
-        paymentStatus,
-        sortBy,
-        sortOrder,
-      ) => {
-        const params = {};
-
-        if (outletId) params.outletId = outletId;
-        if (search) params.search = search;
-
-        if (dateRange?.startDate && dateRange?.endDate) {
-          params.startDate = dateRange.startDate;
-          params.endDate = dateRange.endDate;
-        }
-
-        if (orderStatus) params.status = orderStatus;
-        if (orderType) params.orderType = orderType;
-        if (paymentStatus) params.paymentStatus = paymentStatus;
-        if (sortBy) params.sortBy = sortBy;
-        if (sortOrder) params.sortOrder = sortOrder;
+      }) => {
+        const params = cleanParams({
+          outletId,
+          search,
+          status: orderStatus,
+          orderType,
+          paymentStatus,
+          sortBy,
+          sortOrder,
+          startDate: dateRange?.startDate,
+          endDate: dateRange?.endDate,
+        });
 
         return Api.get(`/orders/admin/list/export`, {
           params,
@@ -319,44 +233,27 @@ export default false
       },
 
       exportDueReportApi: (outletId, dateRange, searchTerm) => {
-        const params = new URLSearchParams();
+        const params = cleanParams({
+          startDate: dateRange?.startDate,
+          endDate: dateRange?.endDate,
+          search: searchTerm, // mapping handled here ✅
+        });
 
-        if (dateRange?.startDate) {
-          params.append("startDate", dateRange.startDate);
-        }
-
-        if (dateRange?.endDate) {
-          params.append("endDate", dateRange.endDate);
-        }
-
-        if (searchTerm) {
-          params.append("search", searchTerm);
-        }
-
-        const query = params.toString();
-
-        return Api.get(
-          `/orders/reports/${outletId}/due/export${query ? `?${query}` : ""}`,
-          { responseType: "blob" },
-        );
+        return Api.get(`/orders/reports/${outletId}/due/export`, {
+          params,
+          responseType: "blob",
+        });
       },
 
       exportNcReportApi: (outletId, dateRange) => {
-        const params = new URLSearchParams();
+        const params = cleanParams({
+          startDate: dateRange?.startDate,
+          endDate: dateRange?.endDate,
+        });
 
-        if (dateRange?.startDate) {
-          params.append("startDate", dateRange.startDate);
-        }
-
-        if (dateRange?.endDate) {
-          params.append("endDate", dateRange.endDate);
-        }
-
-        const query = params.toString();
-
-        return Api.get(
-          `/orders/reports/${outletId}/nc/export${query ? `?${query}` : ""}`,
-          { responseType: "blob" },
-        );
+        return Api.get(`/orders/reports/${outletId}/nc/export`, {
+          params,
+          responseType: "blob",
+        });
       },
     };

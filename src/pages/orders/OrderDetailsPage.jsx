@@ -23,6 +23,7 @@ import {
   ShieldOff,
   AlertTriangle,
   CheckCircle2,
+  Info,
 } from "lucide-react";
 import PageHeader from "../../layout/PageHeader";
 import OrderBadge from "../../partial/order/OrderBadge";
@@ -425,6 +426,12 @@ const OrderDetailsPage = () => {
         noPad
         right={
           <div className="flex items-center gap-2">
+            {items.some((i) => i.isOpenItem) && (
+              <span className="text-[10px] font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-full flex items-center gap-1">
+                <Info size={10} strokeWidth={2.5} />
+                {items.filter((i) => i.isOpenItem).length} Open
+              </span>
+            )}
             {/* show NC item count badge if any items are NC */}
             {items.some((i) => i.isNC) && (
               <span className="text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full flex items-center gap-1">
@@ -528,6 +535,25 @@ const OrderDetailsPage = () => {
                                     </span>
                                   </>
                                 )}
+                              </div>
+                            )}
+                            {/* ── Item-level Open Item indicator ── */}
+                            {item.isOpenItem && (
+                              <div className="mt-1.5 flex items-center gap-1.5 bg-blue-50 border border-blue-200 rounded-md px-2 py-1 w-fit">
+                                <Info
+                                  size={10}
+                                  className="text-blue-500"
+                                  strokeWidth={2.5}
+                                />
+                                <span className="text-[10px] font-bold text-blue-700 uppercase tracking-wide">
+                                  Open Item
+                                </span>
+                                <span className="text-blue-400 text-[10px]">
+                                  ·
+                                </span>
+                                <span className="text-[10px] font-semibold text-blue-600">
+                                  Custom
+                                </span>
                               </div>
                             )}
                           </div>

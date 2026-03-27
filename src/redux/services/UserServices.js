@@ -1,3 +1,4 @@
+import { cleanParams } from "../../utils/cleanParams.js";
 import Api from "../api.js";
 
 export default false
@@ -5,14 +6,15 @@ export default false
       message: "You are Offline. Please turn on the internet",
     }
   : {
-      getAllUsersApi: (page, limit, search,outletId) => {
-        let url = `/users?page=${page}&limit=${limit}&outletId=${outletId}`;
+      getAllUsersApi: (page = 1, limit = 10, search, outletId) => {
+        const params = cleanParams({
+          page,
+          limit,
+          outletId,
+          search: search?.trim(),
+        });
 
-        if (search && search.trim()) {
-          url += `&search=${encodeURIComponent(search.trim())}`;
-        }
-
-        return Api.get(url);
+        return Api.get(`/users`, { params });
       },
       getUserByIdApi: (userId) => {
         return Api.get(`/users/${userId}`);

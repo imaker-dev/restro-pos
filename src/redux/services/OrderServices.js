@@ -1,3 +1,4 @@
+import { cleanParams } from "../../utils/cleanParams.js";
 import Api from "../api.js";
 
 export default false
@@ -16,55 +17,33 @@ export default false
         paymentStatus,
         sortBy,
         sortOrder,
+        hasOpenItems,
+        hasNcItems,
       ) => {
-        let url = `/orders/admin/list?page=${page}&limit=${limit}`;
-
-        // Outlet
-        if (outletId) {
-          url += `&outletId=${encodeURIComponent(outletId)}`;
-        }
-
-        // Search
-        if (search) {
-          url += `&search=${encodeURIComponent(search)}`;
-        }
-
-        // Date Range
-        if (dateRange?.startDate && dateRange?.endDate) {
-          url += `&startDate=${dateRange.startDate}&endDate=${dateRange.endDate}`;
-        }
-
-        // Order Status
-        if (orderStatus) {
-          url += `&status=${encodeURIComponent(orderStatus)}`;
-        }
-
-        // Order Type
-        if (orderType) {
-          url += `&orderType=${encodeURIComponent(orderType)}`;
-        }
-
-        // Payment Status
-        if (paymentStatus) {
-          url += `&paymentStatus=${encodeURIComponent(paymentStatus)}`;
-        }
-
-        // Sorting
-        if (sortBy) {
-          url += `&sortBy=${encodeURIComponent(sortBy)}`;
-        }
-
-        if (sortOrder) {
-          url += `&sortOrder=${encodeURIComponent(sortOrder)}`; // asc / desc
-        }
-
-        return Api.get(url);
+        const params = cleanParams({
+          page,
+          limit,
+          outletId,
+          search,
+          status: orderStatus,
+          orderType,
+          paymentStatus,
+          sortBy,
+          sortOrder,
+          hasOpenItems,
+          hasNcItems,
+          startDate: dateRange?.startDate,
+          endDate: dateRange?.endDate,
+        });
+        return Api.get("/orders/admin/list", { params });
       },
       getOrdersByIdApi: (orderId) => {
         return Api.get(`/orders/${orderId}`);
         // return Api.get(`/orders/admin/detail/${orderId}`);
       },
-      downloadOrderInvoiceApi:(invoiceId) => {
-        return Api.get(`/orders/invoice/${invoiceId}/download`,{responseType:"blob"})
-      }
+      downloadOrderInvoiceApi: (invoiceId) => {
+        return Api.get(`/orders/invoice/${invoiceId}/download`, {
+          responseType: "blob",
+        });
+      },
     };

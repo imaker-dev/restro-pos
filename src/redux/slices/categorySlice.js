@@ -11,17 +11,18 @@ export const fetchAllCategories = createAsyncThunk(
     serviceType,
     search,
   } = {}) => {
-    const res = await CategoryServices.getAllCategoriesApi(
+    const res = await CategoryServices.getAllCategoriesApi({
       outletId,
       page,
       limit,
       serviceType,
       search,
-    );
+    });
 
     return res.data;
   },
 );
+
 export const createCategory = createAsyncThunk(
   "/create/outlets/category",
   async (values) => {
@@ -29,10 +30,11 @@ export const createCategory = createAsyncThunk(
     return res.data;
   },
 );
+
 export const updateCategory = createAsyncThunk(
   "/update/outlets/category",
   async ({ id, values }) => {
-    const res = await CategoryServices.updateCategoryApi(id, values);
+    const res = await CategoryServices.updateCategoryApi({id, values});
     return res.data;
   },
 );

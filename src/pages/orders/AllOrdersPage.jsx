@@ -55,7 +55,8 @@ const AllOrdersPage = () => {
   const { columns, actions: rowActions } = getOrderTableConfig(navigate);
 
   const fetchOrders = () => {
-    const { status, orderType, paymentStatus } = filters || {};
+    const { status, orderType, paymentStatus, hasOpenItems, hasNcItems } =
+      filters || {};
 
     dispatch(
       fetchAllOrders({
@@ -69,6 +70,8 @@ const AllOrdersPage = () => {
         paymentStatus,
         sortBy,
         sortOrder,
+        hasOpenItems,
+        hasNcItems,
       }),
     );
   };
@@ -247,6 +250,24 @@ const AllOrdersPage = () => {
         label: item.label,
         value: item.value,
       })),
+    },
+    {
+      id: "hasOpenItems",
+      title: "Open Orders",
+      type: "radio",
+      options: [
+        { id: "openOnly", label: "Orders with Open Items", value: true },
+        { id: "normal", label: "Orders without Open Items", value: false },
+      ],
+    },
+    {
+      id: "hasNcItems",
+      title: "NC Orders",
+      type: "radio",
+      options: [
+        { id: "ncOnly", label: "Orders with NC Items Only", value: true },
+        { id: "normal", label: "Normal Orders", value: false },
+      ],
     },
   ];
 

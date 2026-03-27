@@ -1,3 +1,4 @@
+import { cleanParams } from "../../utils/cleanParams.js";
 import Api from "../api.js";
 
 export default false
@@ -6,14 +7,10 @@ export default false
     }
   : {
       getAllShiftHistoryApi: (outletId, dateRange = {}) => {
-        const { startDate, endDate } = dateRange;
-
-        const params = {};
-
-        if (startDate && endDate) {
-          params.startDate = startDate;
-          params.endDate = endDate;
-        }
+        const params = cleanParams({
+          startDate: dateRange?.startDate,
+          endDate: dateRange?.endDate,
+        });
 
         return Api.get(`/orders/shifts/${outletId}/history`, { params });
       },

@@ -1,3 +1,4 @@
+import { cleanParams } from "../../utils/cleanParams.js";
 import Api from "../api.js";
 
 export default false
@@ -5,14 +6,14 @@ export default false
       message: "You are Offline. Please turn on the internet",
     }
   : {
-      getAllRecipesApi: (outletId, page, limit, search) => {
-        let url = `/recipes/${outletId}/recipes?page=${page}&limit=${limit}`;
+      getAllRecipesApi: (outletId, page = 1, limit = 10, search) => {
+        const params = cleanParams({
+          page,
+          limit,
+          search,
+        });
 
-        if (search) {
-          url += `&search=${encodeURIComponent(search)}`;
-        }
-
-        return Api.get(url);
+        return Api.get(`/recipes/${outletId}/recipes`, { params });
       },
       getRecipeByIdApi: (id) => {
         return Api.get(`/recipes/recipes/${id}`);

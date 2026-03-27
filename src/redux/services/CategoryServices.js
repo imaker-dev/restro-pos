@@ -1,3 +1,4 @@
+import { cleanParams } from "../../utils/cleanParams.js";
 import Api from "../api.js";
 
 export default false
@@ -5,22 +6,19 @@ export default false
       message: "You are Offline. Please turn on the internet",
     }
   : {
-      getAllCategoriesApi: (outletId, page, limit, serviceType, search) => {
-        let url = `/menu/categories/outlet/${outletId}?page=${page}&limit=${limit}`;
-
-        if (search) {
-          url += `&search=${encodeURIComponent(search)}`;
-        }
-        if (serviceType) {
-          url += `&serviceType=${serviceType}`;
-        }
-
-        return Api.get(url);
+      getAllCategoriesApi: ({outletId, page, limit, serviceType, search}) => {
+        const params = cleanParams({
+          page,
+          limit,
+          search,
+          serviceType,
+        });
+        return Api.get(`/menu/categories/outlet/${outletId}`, { params });
       },
       createCategoryApi: (values) => {
         return Api.post("/menu/categories", values);
       },
-      updateCategoryApi: (id, values) => {
+      updateCategoryApi: ({id, values}) => {
         return Api.put(`/menu/categories/${id}`, values);
       },
     };

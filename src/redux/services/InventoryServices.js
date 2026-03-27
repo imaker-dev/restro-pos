@@ -1,3 +1,4 @@
+import { cleanParams } from "../../utils/cleanParams.js";
 import Api from "../api.js";
 
 export default false
@@ -18,13 +19,13 @@ export default false
         return Api.put(`/inventory/categories/${id}`, values);
       },
       getAllInventoryItemApi: (outletId, page = 1, limit = 20, search) => {
-        return Api.get(`/inventory/${outletId}/items`, {
-          params: {
-            page,
-            limit,
-            ...(search && { search }),
-          },
+        const params = cleanParams({
+          page,
+          limit,
+          search,
         });
+
+        return Api.get(`/inventory/${outletId}/items`, { params });
       },
       getInventoryItemByIdApi: (id) => {
         return Api.get(`/inventory/items/${id}`);
@@ -45,22 +46,15 @@ export default false
         search,
         dateRange,
       ) => {
-        const params = new URLSearchParams({
+        const params = cleanParams({
           page,
           limit,
+          search,
+          startDate: dateRange?.startDate,
+          endDate: dateRange?.endDate,
         });
 
-        if (dateRange?.startDate && dateRange?.endDate) {
-          params.append("startDate", dateRange.startDate);
-          params.append("endDate", dateRange.endDate);
-        }
-
-        if (search) {
-          params.append("search", search);
-        }
-
-        const url = `/inventory/${outletId}/purchases?${params.toString()}`;
-        return Api.get(url);
+        return Api.get(`/inventory/${outletId}/purchases`, { params });
       },
       getPurchaseByIdApi: (id) => {
         return Api.get(`/inventory/purchases/${id}`);
@@ -72,29 +66,16 @@ export default false
         return Api.post(`/inventory/purchases/${id}/cancel`, { reason });
       },
       getAllMovementsApi: (outletId, page, limit, dateRange, search, type) => {
-        const params = new URLSearchParams({
+        const params = cleanParams({
           page,
           limit,
+          search,
+          movementType: type,
+          startDate: dateRange?.startDate,
+          endDate: dateRange?.endDate,
         });
 
-        // Add date range if provided
-        if (dateRange?.startDate && dateRange?.endDate) {
-          params.append("startDate", dateRange.startDate);
-          params.append("endDate", dateRange.endDate);
-        }
-
-        // Add search if provided
-        if (search) {
-          params.append("search", search);
-        }
-
-        // Add type if provided
-        if (type) {
-          params.append("movementType", type);
-        }
-
-        const url = `/inventory/${outletId}/movements?${params.toString()}`;
-        return Api.get(url);
+        return Api.get(`/inventory/${outletId}/movements`, { params });
       },
       createAdjustmentApi: (outletId, values) => {
         return Api.post(`/inventory/${outletId}/adjustments`, values);
@@ -103,14 +84,14 @@ export default false
         return Api.post(`/inventory/${outletId}/wastage`, values);
       },
       getAllWastageLogsApi: ({ outletId, page, limit, search, dateRange }) => {
-        return Api.get(`/wastage/${outletId}`, {
-          params: {
-            page,
-            limit,
-            ...(search?.trim() && { search: search.trim() }),
-            ...(dateRange?.startDate && { startDate: dateRange.startDate }),
-            ...(dateRange?.endDate && { endDate: dateRange.endDate }),
-          },
+        const params = cleanParams({
+          page,
+          limit,
+          search: search?.trim(),
+          startDate: dateRange?.startDate,
+          endDate: dateRange?.endDate,
         });
+
+        return Api.get(`/wastage/${outletId}`, { params });
       },
     };
