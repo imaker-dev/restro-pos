@@ -18,6 +18,7 @@ const soundManager = {
       kotCreated: "/Sound/created.mp3",
       successSound: "/Sound/success.mp3",
       cancelSound: "/Sound/cancel.mp3",
+      serveSound: "/Sound/serve.mp3",
     };
 
     Object.entries(sounds).forEach(([name, path]) => {
@@ -117,6 +118,7 @@ soundManager.init();
 export const playOrderCreatedSound = () => soundManager.play("kotCreated");
 export const playSuccessSound = () => soundManager.play("successSound");
 export const playCancelSound = () => soundManager.play("cancelSound");
+export const playServeSound = () => soundManager.play("serveSound");
 
 export const setSoundEnabled = (v) => soundManager.setEnabled(v);
 

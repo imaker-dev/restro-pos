@@ -74,6 +74,34 @@ export const deleteMenuMedia = createAsyncThunk(
   }
 );
 
+export const fetchAllQrCodes = createAsyncThunk(
+  "/menu-media/qr/all",
+  async ({ outletId }) => {
+    const res = await MenuMediaServices.getAllQrCodesApi(outletId);
+    return res.data;
+  }
+);
+
+export const regenerateQr = createAsyncThunk(
+  "/menu-media/qr/regenerate",
+  async ({ outletId, menuType }) => {
+    const res = await MenuMediaServices.regenerateQrApi(outletId, menuType);
+    return res.data;
+  }
+);
+
+export const uploadQrLogo = createAsyncThunk(
+  "/menu-media/qr/upload-logo",
+  async ({ outletId, menuType, formData }) => {
+    const res = await MenuMediaServices.uploadQrLogoApi(
+      outletId,
+      menuType,
+      formData
+    );
+    return res.data;
+  }
+);
+
 const menuMediaSlice = createSlice({
   name: "menuMedia",
   initialState: {
@@ -88,6 +116,11 @@ const menuMediaSlice = createSlice({
     mediaList: [],
     viewData: null,
     uploadResult: null,
+
+    isFetchingQrCodes: false,
+isRegeneratingQr: false,
+isUploadingQrLogo: false,
+qrCodes: [],
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -189,7 +222,44 @@ const menuMediaSlice = createSlice({
       .addCase(deleteMenuMedia.rejected, (state, action) => {
         state.isDeleting = false;
         toast.error(action.error.message);
-      });
+      })
+
+
+      .addCase(fetchAllQrCodes.pending, (state) => {
+  state.isFetchingQrCodes = true;
+})
+.addCase(fetchAllQrCodes.fulfilled, (state, action) => {
+  state.isFetchingQrCodes = false;
+  state.qrCodes = action.payload.data;
+})
+.addCase(fetchAllQrCodes.rejected, (state, action) => {
+  state.isFetchingQrCodes = false;
+  toast.error(action.error.message);
+})
+
+.addCase(regenerateQr.pending, (state) => {
+  state.isRegeneratingQr = true;
+})
+.addCase(regenerateQr.fulfilled, (state, action) => {
+  state.isRegeneratingQr = false;
+  toast.success(action.payload.message);
+})
+.addCase(regenerateQr.rejected, (state, action) => {
+  state.isRegeneratingQr = false;
+  toast.error(action.error.message);
+})
+
+.addCase(uploadQrLogo.pending, (state) => {
+  state.isUploadingQrLogo = true;
+})
+.addCase(uploadQrLogo.fulfilled, (state, action) => {
+  state.isUploadingQrLogo = false;
+  toast.success(action.payload.message);
+})
+.addCase(uploadQrLogo.rejected, (state, action) => {
+  state.isUploadingQrLogo = false;
+  toast.error(action.error.message);
+})
   },
 });
 

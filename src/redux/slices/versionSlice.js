@@ -20,6 +20,10 @@ export const updateVersion = createAsyncThunk("/update/version", async ({id,valu
   const res = await VersionServices.updateVersionApi(id,values);
   return res.data;
 });
+export const deleteVersion = createAsyncThunk("/delete/version", async (id) => {
+  const res = await VersionServices.deleteVersionApi(id);
+  return res.data;
+});
 
 const versionSlice = createSlice({
   name: "version",
@@ -30,6 +34,7 @@ const versionSlice = createSlice({
     isUpdatingVersion:false,
     isFetchingVersionDetails:false,
     versionDetails:null,
+    isDeletingVersion:false,
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -76,6 +81,17 @@ const versionSlice = createSlice({
       })
       .addCase(updateVersion.rejected, (state, action) => {
         state.isUpdatingVersion = false;
+        toast.error(action.error.message);
+      })
+      .addCase(deleteVersion.pending, (state) => {
+        state.isDeletingVersion = true;
+      })
+      .addCase(deleteVersion.fulfilled, (state, action) => {
+        state.isDeletingVersion = false;
+        toast.success(action.payload.message)
+      })
+      .addCase(deleteVersion.rejected, (state, action) => {
+        state.isDeletingVersion = false;
         toast.error(action.error.message);
       })
   },

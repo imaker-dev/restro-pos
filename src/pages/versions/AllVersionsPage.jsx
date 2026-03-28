@@ -1,33 +1,36 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import PageHeader from "../../layout/PageHeader";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchAllVersions } from "../../redux/slices/versionSlice";
 import {
-  Apple,
-  Calendar,
-  Edit2,
-  Eye,
-  GitBranch,
-  Laptop,
-  Monitor,
-  Plus,
-  Smartphone,
-  Tag,
-  Terminal,
-} from "lucide-react";
+  deleteVersion,
+  fetchAllVersions,
+  updateVersion,
+} from "../../redux/slices/versionSlice";
+import { Edit2, Eye, Plus, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import SmartTable from "../../components/SmartTable";
 import StatusBadge from "../../layout/StatusBadge";
 import { formatDate } from "../../utils/dateFormatter";
+import ModalAction from "../../components/ModalAction";
+import { handleResponse } from "../../utils/helpers";
+import VersionModal from "../../partial/version/VersionModal";
 
 const AllVersionsPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { allVersions, loading } = useSelector((state) => state.version);
+  const [deleteItem, setDeleteItem] = useState(null);
+  const [editItem, setEditItem] = useState(null);
+
+  const { allVersions, loading, isDeletingVersion, isUpdatingVersion } =
+    useSelector((state) => state.version);
+
+  const fetchVersions = () => {
+    dispatch(fetchAllVersions());
+  };
 
   useEffect(() => {
-    dispatch(fetchAllVersions());
+    fetchVersions();
   }, []);
 
   const actions = [
@@ -40,146 +43,107 @@ const AllVersionsPage = () => {
   ];
 
   const columns = [
-    /* ===============================
-     VERSION
-    =============================== */
     {
       key: "version",
       label: "Version",
-      sortable: true,
       render: (row) => (
-        <div className="flex flex-col min-w-[180px]">
-          <div className="flex items-center gap-2">
-            <div className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-xs font-semibold tracking-wide">
-              v{row.version}
-            </div>
-
-            <span className="text-xs text-slate-400 font-medium">
-              Build {row.build}
-            </span>
-          </div>
-
-          <span className="text-[11px] text-slate-400 mt-1 uppercase tracking-wider">
-            {row.channel}
-          </span>
-        </div>
-      ),
-    },
-
-    /* ===============================
-     RELEASE SUMMARY
-    =============================== */
-    {
-      key: "release_notes",
-      label: "Release Summary",
-      sortable: false,
-      render: (row) => (
-        <div className="max-w-[320px] space-y-1">
-          <p className="text-sm text-slate-700 leading-snug line-clamp-2">
-            {row.release_notes || "No release notes provided"}
+        <div className="flex flex-col">
+          <p className="text-xs font-extrabold text-slate-800">
+            v{row.version}
           </p>
-
-          <span className="text-xs text-slate-400">
-            Released{" "}
-            {row.released_at
-              ? new Date(row.released_at).toLocaleDateString("en-GB", {
-                  day: "2-digit",
-                  month: "short",
-                  year: "numeric",
-                })
-              : "-"}
-          </span>
+          <p className="text-[11px] text-slate-500 font-medium">
+            Build {row.build}
+          </p>
         </div>
       ),
     },
 
-    /* ===============================
-     PLATFORM DISTRIBUTION
-    =============================== */
     {
-      key: "platforms",
-      label: "Distribution",
-      sortable: false,
-      render: (row) => {
-        const platforms = [
-          { key: "android_url", label: "Android", icon: Smartphone },
-          { key: "ios_url", label: "iOS", icon: Apple },
-          { key: "windows_url", label: "Windows", icon: Monitor },
-          { key: "mac_url", label: "macOS", icon: Laptop },
-          { key: "linux_url", label: "Linux", icon: Terminal },
-        ];
-
-        return (
-          <div className="flex items-center gap-2 flex-wrap">
-            {platforms.map((platform, index) => {
-              const Icon = platform.icon;
-              const isAvailable = !!row[platform.key];
-
-              return (
-                <div
-                  key={index}
-                  className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium
-                  ${
-                    isAvailable
-                      ? "bg-emerald-50 text-emerald-600"
-                      : "bg-slate-100 text-slate-400"
-                  }`}
-                >
-                  <Icon className="w-3.5 h-3.5" />
-                  {platform.label}
-                </div>
-              );
-            })}
-          </div>
-        );
-      },
-    },
-
-    /* ===============================
-     UPDATE POLICY
-    =============================== */
-    {
-      key: "force_update",
-      label: "Update Policy",
-      sortable: true,
+      key: "platform",
+      label: "Platform",
       render: (row) => (
-        <span
-          className={`px-3 py-1 text-xs font-semibold rounded-full tracking-wide
-          ${
-            row.force_update
-              ? "bg-rose-50 text-rose-600"
-              : "bg-amber-50 text-amber-600"
-          }`}
-        >
-          {row.force_update ? "Mandatory" : "Optional"}
+        <span className="text-[11px] font-semibold text-slate-600 uppercase">
+          {row.platform}
         </span>
       ),
     },
 
-    /* ===============================
-     STATUS
-    =============================== */
     {
-      key: "is_active",
-      label: "Status",
-      sortable: true,
+      key: "channel",
+      label: "Channel",
+      render: (row) => (
+        <span className="text-[11px] font-semibold text-slate-500">
+          {row.channel}
+        </span>
+      ),
+    },
+
+    {
+      key: "release_notes",
+      label: "Notes",
+      render: (row) => (
+        <p className="text-[11px] text-slate-500 truncate max-w-[220px]">
+          {row.release_notes || "—"}
+        </p>
+      ),
+    },
+
+    {
+      key: "release_date",
+      label: "Release Date",
+      sortValue: (row) => new Date(row.release_date).getTime(),
       render: (row) => (
         <div>
-          <StatusBadge value={row.is_active} />
+          <p className="text-[11px] font-semibold text-slate-600">
+            {formatDate(row.release_date, "long")}
+          </p>
+          <p className="text-[10px] text-slate-400">
+            {formatDate(row.release_date, "time")}
+          </p>
         </div>
       ),
     },
 
-    /* ===============================
-     UPDATED
-    =============================== */
     {
-      key: "updated_at",
-      label: "Updated On",
-      sortable: true,
+      key: "status",
+      label: "Status",
+      render: (row) => <StatusBadge value={row.is_active} />,
+    },
+
+    {
+      key: "links",
+      label: "Download",
       render: (row) => (
-        <div className="text-sm text-slate-600 whitespace-nowrap">
-          {formatDate(row.updated_at, "longTime")}
+        <div className="flex flex-col gap-1 text-[10px]">
+          {row.download_url && (
+            <a
+              href={row.download_url}
+              target="_blank"
+              className="text-blue-600 font-semibold"
+            >
+              Direct Link
+            </a>
+          )}
+
+          {row.android_url && (
+            <a
+              href={row.android_url}
+              target="_blank"
+              className="text-green-600 font-semibold"
+            >
+              Android
+            </a>
+          )}
+
+          {row.ios_url && (
+            <a
+              href={row.ios_url}
+              target="_blank"
+              className="text-slate-800 font-semibold"
+            >
+              iOS
+            </a>
+          )}
         </div>
       ),
     },
@@ -195,23 +159,71 @@ const AllVersionsPage = () => {
       label: "Edit",
       icon: Edit2,
       color: "blue",
-      onClick: (row) => navigate(`/versions/add?versionId=${row.id}`),
+      onClick: (row) => setEditItem(row),
+    },
+    {
+      label: "Delete",
+      icon: Trash2,
+      color: "red",
+      onClick: (row) => setDeleteItem(row),
     },
   ];
 
-  return (
-    <div className="space-y-5">
-      <PageHeader title={"All Versions"} actions={actions} />
+  const confirmDelete = async () => {
+    if (!deleteItem) return;
 
-      <SmartTable
-        title="Versions"
-        totalcount={allVersions?.length}
-        data={allVersions}
-        columns={columns}
-        actions={rowActions}
-        loading={loading}
+    await handleResponse(dispatch(deleteVersion(deleteItem.id)), () => {
+      fetchVersions();
+      setDeleteItem(null);
+    });
+  };
+
+  const handleUpdate = async ({ id, values }) => {
+    await handleResponse(dispatch(updateVersion({ id, values })), () => {
+      fetchVersions();
+      setEditItem(null);
+    });
+  };
+
+  return (
+    <>
+      <div className="space-y-5">
+        <PageHeader title={"All Versions"} actions={actions} />
+
+        <SmartTable
+          title="Versions"
+          totalcount={allVersions?.length}
+          data={allVersions}
+          columns={columns}
+          actions={rowActions}
+          loading={loading}
+          showSr
+        />
+      </div>
+
+      <ModalAction
+        id="delete-version"
+        isOpen={!!deleteItem}
+        onClose={() => setDeleteItem(null)}
+        onConfirm={confirmDelete}
+        title="Delete Version"
+        description={`Are you sure you want to delete "v${
+          deleteItem?.version || deleteItem?.id
+        }"? This action cannot be undone.`}
+        theme="danger"
+        confirmText="Delete"
+        cancelText="Cancel"
+        loading={isDeletingVersion}
       />
-    </div>
+
+      <VersionModal
+        isOpen={!!editItem}
+        onClose={() => setEditItem(null)}
+        onSubmit={handleUpdate}
+        versionData={editItem}
+        loading={isUpdatingVersion}
+      />
+    </>
   );
 };
 

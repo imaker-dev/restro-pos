@@ -17,6 +17,7 @@ import { devError, devLog, devWarn } from "../utils/logger";
 import {
   playCancelSound,
   playOrderCreatedSound,
+  playServeSound,
   playSuccessSound,
 } from "../utils/sound";
 import { showToast } from "../utils/toast";
@@ -96,6 +97,7 @@ export const registerSocketListeners = (socket, dispatch, getState) => {
         break;
 
       case KOT_SERVED:
+        playServeSound();
         dispatch(kotServed(data.kot));
         showToast({
           title: "Order Served",

@@ -17,4 +17,7 @@ export default false
       updateVersionApi: (id, values) => {
         return Api.put(`/app/versions/${id}`, values);
       },
+      deleteVersionApi: (id) => {
+        return Api.delete(`/app/versions/${id}`);
+      },
     };

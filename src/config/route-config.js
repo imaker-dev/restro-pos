@@ -82,6 +82,8 @@ import inventorySummaryPage from "../pages/inventory/inventorySummaryPage";
 import InventoryWastagePage from "../pages/inventory/InventoryWastagePage";
 import BulkUploadSummaryPage from "../pages/items/BulkUploadSummaryPage";
 import MenuMediaPage from "../pages/items/MenuMediaPage";
+import QrCodesPage from "../pages/items/QrCodesPage";
+import VersionDetailsPage from "../pages/versions/VersionDetailsPage";
 
 const routeConfig = [
   // { path: "/", element: Dashboard, roles: [ROLES.SUPER_ADMIN] },
@@ -162,6 +164,7 @@ const routeConfig = [
 
   { path: "/categories", element: AllCategoriesPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER,] },
   { path: "/menu-media", element: MenuMediaPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN,ROLES.MANAGER] },
+  { path: "/menu-media/qr-codes", element: QrCodesPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN,ROLES.MANAGER] },
   { path: "/items", element: AllItemsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN,ROLES.MANAGER] },
   { path: "/items/details", element: ItemDetailsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN,ROLES.MANAGER] },
   { path: "/items/add", element: AddItemPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN,ROLES.MANAGER] },
@@ -202,6 +205,7 @@ const routeConfig = [
 
   { path: "/versions", element: AllVersionsPage, roles: [ROLES.SUPER_ADMIN], },
   { path: "/versions/add", element: AddVersionPage, roles: [ROLES.SUPER_ADMIN], },
+  { path: "/versions/details", element: VersionDetailsPage, roles: [ROLES.SUPER_ADMIN], },
 
   { path: "/guide", element: SetupGuide, public:true, },
 ];

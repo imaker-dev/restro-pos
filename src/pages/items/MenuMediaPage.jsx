@@ -7,12 +7,13 @@ import {
   toggleMenuMediaActive,
   uploadMenuMedia,
 } from "../../redux/slices/menuMediaSlice";
-import { FileText, Clock, Plus, X } from "lucide-react";
+import { FileText, Clock, Plus, X, Eye } from "lucide-react";
 import StatusBadge from "../../layout/StatusBadge";
 import MenuMediaModal from "../../partial/items/MenuMediaModal";
 import { handleResponse } from "../../utils/helpers";
 import ModalAction from "../../components/ModalAction";
 import LoadingOverlay from "../../components/LoadingOverlay";
+import { useNavigate } from "react-router-dom";
 
 /* ─────────────────────────────────────────
    PREVIEW MODAL
@@ -102,7 +103,6 @@ const PreviewModal = ({ item, onClose }) => {
   );
 };
 
-
 /* ─────────────────────────────────────────
    MEDIA CARD (Grid View)
 ───────────────────────────────────────── */
@@ -144,6 +144,10 @@ const MediaCard = ({ item, onToggle, onDelete, onPreview }) => {
         {/* Status badge */}
         <div className="absolute top-3 right-3">
           <StatusBadge value={item.is_active} />
+        </div>
+                {/* Menu Type Badge - Bottom Left */}
+        <div className={`absolute bottom-3 left-3 px-3 py-1.5 rounded-lg bg-primary-500 text-white text-xs font-semibold uppercase tracking-tight capitalize shadow-sm`}>
+          {item.menu_type}
         </div>
       </div>
 
@@ -205,6 +209,8 @@ const MediaCard = ({ item, onToggle, onDelete, onPreview }) => {
 ───────────────────────────────────────── */
 const MenuMediaPage = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const { outletId } = useSelector((state) => state.auth);
 
   const { isFetching, mediaList, isUploading, isToggling, isDeleting } =
@@ -277,10 +283,16 @@ const MenuMediaPage = () => {
       icon: Plus,
       onClick: () => setShowUpload(true),
     },
+    {
+      label: "View QR Codes",
+      type: "secondary",
+      icon: Eye,
+      onClick: () => navigate('/menu-media/qr-codes'),
+    },
   ];
 
-  if(isFetching){
-    return <LoadingOverlay />
+  if (isFetching) {
+    return <LoadingOverlay />;
   }
   return (
     <>
