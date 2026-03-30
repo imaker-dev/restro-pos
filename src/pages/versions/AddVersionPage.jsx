@@ -82,7 +82,7 @@ const PLATFORMS = [
     hasSha: true,
   },
   {
-    key: "dmg",
+    key: "mac_os",
     label: "macOS",
     subtitle: ".dmg Package",
     icon: Laptop,

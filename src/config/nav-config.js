@@ -32,6 +32,7 @@ import {
   BadgeIndianRupee,
   ClipboardList,
   FlaskConical,
+  Headphones,
 } from "lucide-react";
 
 import { ROLES } from "../constants";
@@ -407,10 +408,22 @@ export const navConfig = [
         path: "/versions",
         roles: [ROLES.SUPER_ADMIN],
       },
+    ],
+  },
+
+  {
+    title: "Support",
+    items: [
       {
         name: "Guide",
         icon: Info,
         path: "/guide",
+        public: true,
+      },
+      {
+        name: "Support",
+        icon: Headphones,
+        path: "/support",
         public: true,
       },
     ],

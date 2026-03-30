@@ -312,7 +312,7 @@ function ItemDetail({ item, onClose }) {
                 </span>
               )}
               {item.isNew && (
-                <span className="text-[10px] font-bold bg-[#2d9e8f] text-white px-2 py-0.5 rounded-full">
+                <span className="text-[10px] font-bold bg-emerald-500 text-white px-2 py-0.5 rounded-full">
                   ✦ New
                 </span>
               )}
@@ -328,7 +328,7 @@ function ItemDetail({ item, onClose }) {
 
         <div className="flex-1 overflow-y-auto px-4 pt-4 pb-4">
           <div className="flex items-center gap-2 mb-3">
-            <span className="text-xl font-black text-[#2d9e8f]">
+            <span className="text-xl font-black text-primary-500">
               {formatPrice(
                 selectedVariant ? selectedVariant.price : item.price,
               )}
@@ -366,7 +366,7 @@ function ItemDetail({ item, onClose }) {
                   <button
                     key={v.name}
                     onClick={() => setSelectedVariant(v)}
-                    className={`px-3.5 py-2 rounded-xl text-sm font-bold border-2 transition-all ${selectedVariant?.name === v.name ? "bg-[#2d9e8f] text-white border-[#2d9e8f] shadow-md shadow-[#2d9e8f]/20" : "bg-white text-gray-600 border-gray-200 hover:border-[#2d9e8f]/50"}`}
+                    className={`px-3.5 py-2 rounded-xl text-sm font-bold border-2 transition-all ${selectedVariant?.name === v.name ? "bg-primary-500 text-white border-primary-500 shadow-md shadow-primary-500/20" : "bg-white text-gray-600 border-gray-200 hover:border-primary-500/50"}`}
                   >
                     {v.name}{" "}
                     <span
@@ -392,12 +392,12 @@ function ItemDetail({ item, onClose }) {
                     className="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-gray-50 border border-gray-100"
                   >
                     <div className="flex items-center gap-2">
-                      <Plus size={11} className="text-[#2d9e8f]" />
+                      <Plus size={11} className="text-primary-500" />
                       <span className="text-sm font-semibold text-gray-700">
                         {a.name}
                       </span>
                     </div>
-                    <span className="text-sm font-bold text-[#2d9e8f]">
+                    <span className="text-sm font-bold text-primary-500">
                       +{formatPrice(a.price)}
                     </span>
                   </div>
@@ -425,7 +425,7 @@ function GridCard({ item, onSelect }) {
   return (
     <div
       onClick={() => onSelect(item)}
-      className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer group border border-gray-100 hover:border-[#2d9e8f]/20 hover:-translate-y-0.5 flex flex-col"
+      className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer group border border-gray-100 hover:border-primary-500/20 hover:-translate-y-0.5 flex flex-col"
     >
       {/* Image — shorter on mobile */}
       <div className="relative overflow-hidden h-28 sm:h-32">
@@ -442,7 +442,7 @@ function GridCard({ item, onSelect }) {
             </span>
           )}
           {item.isNew && (
-            <span className="text-[8px] font-bold bg-[#2d9e8f] text-white px-1.5 py-0.5 rounded-full">
+            <span className="text-[8px] font-bold bg-emerald-500 text-white px-1.5 py-0.5 rounded-full">
               New
             </span>
           )}
@@ -476,7 +476,7 @@ function GridCard({ item, onSelect }) {
               <span className=" text-gray-400 ml-0.5 hidden sm:inline">+</span>
             )}
           </div>
-          <div className="w-6 h-6 sm:w-7 sm:h-7 bg-[#2d9e8f] rounded-full flex items-center justify-center shadow-sm shadow-[#2d9e8f]/30 shrink-0">
+          <div className="w-6 h-6 sm:w-7 sm:h-7 bg-primary-500 rounded-full flex items-center justify-center shadow-sm shadow-primary-500/30 shrink-0">
             <Plus size={12} className="text-white" />
           </div>
         </div>
@@ -490,7 +490,7 @@ function ListRow({ item, onSelect }) {
   return (
     <div
       onClick={() => onSelect(item)}
-      className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer group border border-gray-100 hover:border-[#2d9e8f]/25 flex items-stretch h-20 sm:h-24"
+      className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer group border border-gray-100 hover:border-primary-500/25 flex items-stretch h-20 sm:h-24"
     >
       {/* Image — fixed square */}
       <div className="relative w-20 sm:w-24 shrink-0 overflow-hidden">
@@ -507,7 +507,7 @@ function ListRow({ item, onSelect }) {
             </span>
           )}
           {item.isNew && (
-            <span className="text-[7px] font-bold bg-[#2d9e8f] text-white px-1 py-0.5 rounded-full leading-none">
+            <span className="text-[7px] font-bold bg-primary-500 text-white px-1 py-0.5 rounded-full leading-none">
               New
             </span>
           )}
@@ -546,7 +546,7 @@ function ListRow({ item, onSelect }) {
             </div>
             {/* Extra tags — desktop only */}
             {item.variants.length > 0 && (
-              <span className="hidden md:inline text-[9px] font-semibold text-[#2d9e8f] bg-[#2d9e8f]/8 border border-[#2d9e8f]/20 px-1.5 py-0.5 rounded-md">
+              <span className="hidden md:inline text-[9px] font-semibold text-primary-500 bg-primary-500/8 border border-primary-500/20 px-1.5 py-0.5 rounded-md">
                 {item.variants.length} sizes
               </span>
             )}
@@ -561,10 +561,10 @@ function ListRow({ item, onSelect }) {
 
       {/* Arrow */}
       <div className="flex items-center pr-2.5 shrink-0">
-        <div className="w-5 h-5 rounded-full bg-gray-100 group-hover:bg-[#2d9e8f]/10 flex items-center justify-center transition-colors">
+        <div className="w-5 h-5 rounded-full bg-gray-100 group-hover:bg-primary-500/10 flex items-center justify-center transition-colors">
           <ChevronRight
             size={11}
-            className="text-gray-400 group-hover:text-[#2d9e8f] transition-colors"
+            className="text-gray-400 group-hover:text-primary-500 transition-colors"
           />
         </div>
       </div>
@@ -605,10 +605,7 @@ export default function PublicMenuPage() {
   };
 
   return (
-    <div
-      className="min-h-screen bg-[#f7f8fa]"
-      style={{ fontFamily: "'DM Sans', system-ui, sans-serif" }}
-    >
+    <div className="min-h-screen bg-[#f7f8fa]">
       {/* ── HEADER ── compact, everything in 2 tight rows ────────────────── */}
       <div className="bg-white sticky top-0 z-20 border-b border-gray-100 shadow-sm">
         <div className="max-w-7xl mx-auto px-3 sm:px-5 lg:px-8">
@@ -616,7 +613,7 @@ export default function PublicMenuPage() {
           <div className="flex items-center gap-2 py-2.5">
             {/* Brand — icon + name, very compact */}
             <div className="flex items-center gap-1.5 shrink-0">
-              <div className="w-7 h-7 bg-[#2d9e8f] rounded-lg flex items-center justify-center shadow-sm shadow-[#2d9e8f]/25">
+              <div className="w-7 h-7 bg-primary-500 rounded-lg flex items-center justify-center shadow-sm shadow-primary-500/25">
                 <UtensilsCrossed size={13} className="text-white" />
               </div>
               <div className="hidden sm:block">
@@ -642,7 +639,7 @@ export default function PublicMenuPage() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search dishes..."
-                className="w-full bg-gray-100 rounded-lg pl-8.5 pr-8 py-2 text-xs text-gray-800 placeholder-gray-400 outline-none focus:ring-2 focus:ring-[#2d9e8f]/25 transition-all"
+                className="w-full bg-gray-100 rounded-lg pl-8.5 pr-8 py-2 text-xs text-gray-800 placeholder-gray-400 outline-none focus:ring-2 focus:ring-primary-500/25 transition-all"
                 style={{ paddingLeft: "2rem" }}
               />
               {search ? (
@@ -685,13 +682,13 @@ export default function PublicMenuPage() {
             <div className="flex items-center bg-gray-100 rounded-lg p-0.5 shrink-0">
               <button
                 onClick={() => setViewMode("grid")}
-                className={`w-7 h-7 flex items-center justify-center rounded-md transition-all ${viewMode === "grid" ? "bg-white text-[#2d9e8f] shadow-sm" : "text-gray-400"}`}
+                className={`w-7 h-7 flex items-center justify-center rounded-md transition-all ${viewMode === "grid" ? "bg-white text-primary-500 shadow-sm" : "text-gray-400"}`}
               >
                 <LayoutGrid size={13} />
               </button>
               <button
                 onClick={() => setViewMode("list")}
-                className={`w-7 h-7 flex items-center justify-center rounded-md transition-all ${viewMode === "list" ? "bg-white text-[#2d9e8f] shadow-sm" : "text-gray-400"}`}
+                className={`w-7 h-7 flex items-center justify-center rounded-md transition-all ${viewMode === "list" ? "bg-white text-primary-500 shadow-sm" : "text-gray-400"}`}
               >
                 <List size={13} />
               </button>
@@ -709,7 +706,7 @@ export default function PublicMenuPage() {
                 onClick={() => scrollCat(cat)}
                 className={`shrink-0 px-3 py-1 rounded-full text-[11px] font-bold transition-all ${
                   activeCategory === cat
-                    ? "bg-[#2d9e8f] text-white shadow-sm shadow-[#2d9e8f]/25"
+                    ? "bg-primary-500 text-white shadow-sm shadow-primary-500/25"
                     : "bg-gray-100 text-gray-500 hover:bg-gray-200"
                 }`}
               >
@@ -727,7 +724,7 @@ export default function PublicMenuPage() {
           <section className="mb-4">
             <div className="flex items-center justify-between mb-2">
               <h2 className="text-sm font-black text-gray-900">Best Sellers</h2>
-              <button className="flex items-center gap-0.5 text-[11px] font-bold text-[#2d9e8f]">
+              <button className="flex items-center gap-0.5 text-[11px] font-bold text-primary-500">
                 See all <ChevronRight size={11} />
               </button>
             </div>
@@ -755,7 +752,7 @@ export default function PublicMenuPage() {
                     <p className="text-[11px] font-bold text-gray-900 truncate leading-tight">
                       {item.name}
                     </p>
-                    <p className="text-[11px] font-black text-[#2d9e8f] mt-0.5">
+                    <p className="text-[11px] font-black text-primary-500 mt-0.5">
                       {formatPrice(item.price)}
                     </p>
                   </div>
@@ -779,7 +776,7 @@ export default function PublicMenuPage() {
                 setSearch("");
                 setVegFilter("all");
               }}
-              className="text-[11px] text-[#2d9e8f] font-bold flex items-center gap-1"
+              className="text-[11px] text-red-500 font-bold flex items-center gap-1"
             >
               <X size={10} /> Clear
             </button>
@@ -800,7 +797,7 @@ export default function PublicMenuPage() {
                 setActiveCategory("All");
                 setVegFilter("all");
               }}
-              className="bg-[#2d9e8f] text-white font-bold px-5 py-2.5 rounded-xl text-sm hover:bg-[#26887a] transition-colors"
+              className="bg-red-500 text-white font-bold px-5 py-2.5 rounded-xl text-sm hover:bg-[#26887a] transition-colors"
             >
               Clear filters
             </button>

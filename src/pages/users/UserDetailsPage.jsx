@@ -17,12 +17,12 @@ import PageHeader from "../../layout/PageHeader";
 import { useDispatch, useSelector } from "react-redux";
 import { useQueryParams } from "../../hooks/useQueryParams";
 import { fetchUserById } from "../../redux/slices/userSlice";
-import UserAvatar from "../../components/UserAvatar";
 import { formatDate } from "../../utils/dateFormatter";
 import StatCard from "../../components/StatCard";
 import { Link } from "react-router-dom";
 import LoadingOverlay from "../../components/LoadingOverlay";
 import NoDataFound from "../../layout/NoDataFound";
+import StatusBadge from "../../layout/StatusBadge";
 
 // ─── Card Component ────────────────────────────────────────────────────────────
 function Card({
@@ -156,19 +156,7 @@ export default function UserDetailsPage() {
       {/* Hero Section */}
       <Card className="border-0 bg-gradient-to-br from-primary-600 to-primary-700 shadow-lg">
         <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
-          {/* Avatar */}
-          <div className="relative w-24 h-24">
-            <UserAvatar
-              name={user?.name}
-              url={user?.avatarUrl}
-              className="w-full h-full border-4 border-white/20 shadow-lg"
-            />
-            <div
-              className={`absolute bottom-2 right-2 w-4 h-4 rounded-full border-4 border-white ${
-                user?.isActive ? "bg-emerald-500" : "bg-gray-400"
-              }`}
-            />
-          </div>
+
 
           {/* Info */}
           <div className="flex-1 min-w-0">
@@ -177,6 +165,7 @@ export default function UserDetailsPage() {
             </h1>
 
             <div className="flex flex-wrap items-center gap-3 mb-3">
+              <StatusBadge value={user?.isActive}/>
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 backdrop-blur text-white text-sm font-medium border border-white/20">
                 <Shield size={14} />
                 {user?.roles?.[0]?.name || "No role"}

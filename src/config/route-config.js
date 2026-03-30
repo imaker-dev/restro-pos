@@ -84,6 +84,7 @@ import BulkUploadSummaryPage from "../pages/items/BulkUploadSummaryPage";
 import MenuMediaPage from "../pages/items/MenuMediaPage";
 import QrCodesPage from "../pages/items/QrCodesPage";
 import VersionDetailsPage from "../pages/versions/VersionDetailsPage";
+import SupportChatPage from "../pages/support/SupportChatPage";
 
 const routeConfig = [
   // { path: "/", element: Dashboard, roles: [ROLES.SUPER_ADMIN] },
@@ -202,6 +203,7 @@ const routeConfig = [
   { path: "/settings/categories", element: SettingDetailsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN] },
   { path: "/tax-groups",element: AllTaxGroupsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN], },
   { path: "/tax-groups/details", element: TaxGroupDetailsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN], },
+  { path: "/support", element: SupportChatPage, roles: [ROLES.SUPER_ADMIN], },
 
   { path: "/versions", element: AllVersionsPage, roles: [ROLES.SUPER_ADMIN], },
   { path: "/versions/add", element: AddVersionPage, roles: [ROLES.SUPER_ADMIN], },

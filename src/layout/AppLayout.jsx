@@ -18,6 +18,11 @@ function AppLayout({ children }) {
       sidebar: false,
       header: false,
     },
+    "/support": {
+      sidebar: true,
+      header: false,
+      padding: false,
+    },
     "/guide": {
       sidebar: false,
       header: false,
@@ -31,12 +36,14 @@ function AppLayout({ children }) {
   const defaultLayout = {
     sidebar: true,
     header: true,
+    padding: true,
   };
 
   const currentLayout = layoutRules[location.pathname] || defaultLayout;
 
   let showSidebar = currentLayout.sidebar;
   let showHeader = currentLayout.header;
+  let showPadding = currentLayout.padding ?? true;
 
   /* -------- OPTIONAL USER ROLE CONTROL --------
   const { user } = useSelector((state) => state.auth);
@@ -101,7 +108,11 @@ function AppLayout({ children }) {
 
         {/* -------- MAIN -------- */}
         <main className="grow bg-gray-100">
-          <div className="p-4 sm:p-6 w-full container max-w-10xl mx-auto">
+          <div
+            className={`w-full container max-w-10xl mx-auto ${
+              showPadding ? "p-4 sm:p-6" : ""
+            }`}
+          >
             {children}
           </div>
         </main>

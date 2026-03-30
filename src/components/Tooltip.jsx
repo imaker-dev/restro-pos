@@ -27,9 +27,7 @@ const Tooltip = ({
       theme={theme}
       arrow={true}
     >
-      <span className={`inline-block ${className}`}>
-        {children}
-      </span>
+      <span className={`inline-flex  ${className}`}>{children}</span>
     </Tippy>
   );
 };
