@@ -93,26 +93,32 @@ const CONFIG = {
     },
   },
 
-  type: {
-    dine_in: {
-      bg: "bg-indigo-50",
-      text: "text-indigo-700",
-      dot: "bg-indigo-500",
-      label: "Dine In",
-    },
-    takeaway: {
-      bg: "bg-purple-50",
-      text: "text-purple-700",
-      dot: "bg-purple-500",
-      label: "Takeaway",
-    },
-    delivery: {
-      bg: "bg-cyan-50",
-      text: "text-cyan-700",
-      dot: "bg-cyan-500",
-      label: "Delivery",
-    },
+type: {
+  dine_in: {
+    bg: "bg-indigo-50",
+    text: "text-indigo-700",
+    dot: "bg-indigo-500",
+    label: "Dine In",
   },
+  takeaway: {
+    bg: "bg-teal-50",
+    text: "text-teal-700",
+    dot: "bg-teal-500",
+    label: "Takeaway",
+  },
+  zomato: {
+    bg: "bg-rose-50",
+    text: "text-rose-700",
+    dot: "bg-rose-500",
+    label: "Zomato",
+  },
+  swiggy: {
+    bg: "bg-orange-50",
+    text: "text-orange-700",
+    dot: "bg-orange-500",
+    label: "Swiggy",
+  },
+},
 };
 
 /**

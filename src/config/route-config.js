@@ -85,6 +85,7 @@ import MenuMediaPage from "../pages/items/MenuMediaPage";
 import QrCodesPage from "../pages/items/QrCodesPage";
 import VersionDetailsPage from "../pages/versions/VersionDetailsPage";
 import SupportChatPage from "../pages/support/SupportChatPage";
+import LiveOrdersPage from "../pages/orders/LiveOrdersPage";
 
 const routeConfig = [
   // { path: "/", element: Dashboard, roles: [ROLES.SUPER_ADMIN] },
@@ -152,6 +153,7 @@ const routeConfig = [
   { path: "/prep-recipes/details", element: ProductionRecipeDetailsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
 
 
+  { path: "/live-orders", element: LiveOrdersPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
   { path: "/running-orders", element: RunningOrdersPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
   { path: "/running-tables", element: RunningTablesPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
   { path: "/day-end-summary", element: DayEndSummaryPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },

@@ -1068,7 +1068,7 @@ export default function DayEndSummaryDetailsPage() {
               )}
             </>
           ) : (
-            <NoDataFound icon={UserCheck} title="No staff data available"/> 
+            <NoDataFound icon={UserCheck} title="No staff data available" className="bg-white"/> 
           )}
         </div>
       </div>

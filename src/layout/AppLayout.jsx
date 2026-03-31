@@ -26,6 +26,7 @@ function AppLayout({ children }) {
     "/guide": {
       sidebar: false,
       header: false,
+      padding: false,
     },
     "/unauthorized": {
       sidebar: false,

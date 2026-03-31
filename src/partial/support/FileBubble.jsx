@@ -2,7 +2,7 @@ import { Download } from "lucide-react";
 import { formatFileSize, getFileIcon } from "../../utils/fileUtils";
 
 // ─── File Bubble ──────────────────────────────────────────────────────────────
-export const FileBubble = ({ file, isOut }) => {
+export const FileBubble = ({ file, isOut,time, status  }) => {
   const isImage = file.type?.startsWith("image/");
   const icon = getFileIcon(file.name); // ✅ string path
 

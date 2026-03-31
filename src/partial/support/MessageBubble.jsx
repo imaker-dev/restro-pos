@@ -1,5 +1,6 @@
-import { Check, CheckCheck, Lock } from "lucide-react";
+import { Lock } from "lucide-react";
 import { FileBubble } from "./FileBubble";
+import { MessageStatus } from "./MessageStatus";
 
 // ─── Message Bubble ───────────────────────────────────────────────────────────
 export const MessageBubble = ({ msg, prevMsg }) => {
@@ -29,7 +30,12 @@ export const MessageBubble = ({ msg, prevMsg }) => {
             key={i}
             className={`flex ${isOut ? "justify-end" : "justify-start"}`}
           >
-            <FileBubble file={f} isOut={isOut} />
+            <FileBubble
+              file={f}
+              isOut={isOut}
+              time={msg.time}
+              status={msg.status}
+            />
           </div>
         ))}
 
@@ -45,19 +51,13 @@ export const MessageBubble = ({ msg, prevMsg }) => {
             <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">
               {msg.text}
             </p>
-            <div
-              className={`flex items-center justify-end gap-1 mt-1.5 ${isOut ? "text-primary-100" : "text-gray-400"}`}
-            >
-              <span className="text-[10px]">{msg.time}</span>
-              {isOut &&
-                (msg.status === "read" ? (
-                  <CheckCheck size={12} className="text-emerald-200" />
-                ) : msg.status === "delivered" ? (
-                  <CheckCheck size={12} />
-                ) : (
-                  <Check size={12} />
-                ))}
-            </div>
+
+            <MessageStatus
+              time={msg.time}
+              status={msg.status}
+              isOut={isOut}
+              variant="text"
+            />
           </div>
         )}
       </div>

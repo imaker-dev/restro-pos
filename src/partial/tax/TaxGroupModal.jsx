@@ -106,6 +106,7 @@ const TaxGroupModal = ({
                 <InputField
                   label="Tax Name"
                   name="name"
+                  required
                   placeholder="GST 5%"
                   value={formik.values.name}
                   onChange={formik.handleChange}
@@ -117,6 +118,7 @@ const TaxGroupModal = ({
                 <InputField
                   label="Tax Code"
                   name="code"
+                  required
                   placeholder="GST_5"
                   value={formik.values.code}
                   onChange={formik.handleChange}
@@ -130,6 +132,7 @@ const TaxGroupModal = ({
               <InputField
                 label="Description"
                 name="description"
+                required
                 placeholder="GST 5% (CGST 2.5% + SGST 2.5%)"
                 value={formik.values.description}
                 onChange={formik.handleChange}
@@ -141,6 +144,7 @@ const TaxGroupModal = ({
               <MultiSelectDropdownField
                 label="Tax Components"
                 name="componentIds"
+                required
                 options={taxComponents?.map((c) => ({
                   id: String(c.id),
                   label: `${c.name} (${c.rate}%)`,
