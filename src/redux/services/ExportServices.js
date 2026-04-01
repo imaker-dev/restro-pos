@@ -256,4 +256,26 @@ export default false
           responseType: "blob",
         });
       },
+      exportDiscountReportApi: ({
+        outletId,
+        dateRange,
+        search,
+        sortBy,
+        sortOrder,
+        discountType,
+      }) => {
+        const params = cleanParams({
+          startDate: dateRange?.startDate,
+          endDate: dateRange?.endDate,
+          search,
+          sortBy,
+          sortOrder,
+          discountType,
+        });
+
+        return Api.get(`/reports/discounts/${outletId}/export`, {
+          params,
+          responseType: "blob",
+        });
+      },
     };

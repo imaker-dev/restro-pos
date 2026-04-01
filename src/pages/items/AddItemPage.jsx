@@ -95,6 +95,7 @@ const AddItemPage = () => {
     itemType: "veg",
     basePrice: "",
     taxGroupId: "",
+    taxEnabled: false,
     hasVariants: false,
     hasAddons: false,
     allowSpecialNotes: true,
@@ -123,7 +124,8 @@ const AddItemPage = () => {
 
       basePrice: itemDetails.base_price || "",
 
-      taxGroupId: itemDetails.tax_group_id || "",
+      taxEnabled: Boolean(itemDetails.tax_enabled),
+      taxGroupId: itemDetails.tax_enabled ? itemDetails.tax_group_id || "" : "",
 
       hasVariants: Boolean(itemDetails.has_variants),
       hasAddons: Boolean(itemDetails.has_addons),
@@ -174,7 +176,14 @@ const AddItemPage = () => {
       otherwise: (schema) => schema.notRequired(),
     }),
 
-    taxGroupId: Yup.string().required("Tax group is required"),
+    taxGroupId: Yup.number().when("taxEnabled", {
+      is: true,
+      then: (schema) =>
+        schema
+          .typeError("Tax group is required")
+          .required("Tax group is required"),
+      otherwise: (schema) => schema.notRequired(),
+    }),
     kitchenStationId: Yup.string().required("Kitchen station is required"),
     // floorIds: Yup.array().min(1, "Select at least one floor"),
     // sectionIds: Yup.array().min(1, "Select at least one section"),
@@ -211,7 +220,8 @@ const AddItemPage = () => {
       basePrice: values.hasVariants
         ? Number(values.variants?.[0]?.price) || 0
         : Number(values.basePrice),
-      taxGroupId: Number(values.taxGroupId),
+      taxEnabled: Boolean(values.taxEnabled),
+      taxGroupId: values.taxEnabled ? Number(values.taxGroupId) : null,
 
       hasVariants: Boolean(values.hasVariants),
       hasAddons: Boolean(values.hasAddons),
@@ -251,7 +261,7 @@ const AddItemPage = () => {
       ? updateItem({ id: itemId, values: payload })
       : createItem(payload);
     await handleResponse(dispatch(action), () => {
-      navigate("/items");
+      navigate(-1);
     });
 
     // console.log("Final Payload:", payload);
@@ -418,21 +428,44 @@ const AddItemPage = () => {
             {/* PRICING & OPTIONS */}
             <AccordionSection title="Pricing & Options" icon={IndianRupee}>
               <div className="space-y-6">
-                {/* TAX */}
-                <SelectField
-                  label="Tax Group"
-                  name="taxGroupId"
-                  required
-                  loading={isFetchingTaxGroup}
-                  options={allTaxGroup?.map((t) => ({
-                    value: t.id,
-                    label: t.name,
-                  }))}
-                  value={formik.values.taxGroupId}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  error={formik.touched.taxGroupId && formik.errors.taxGroupId}
+                <ToggleField
+                  label="Enable Tax"
+                  description="Turn this on to apply tax to this item."
+                  checked={formik.values.taxEnabled}
+                  onChange={(value) => {
+                    formik.setFieldValue("taxEnabled", value);
+
+                    if (!value) {
+                      formik.setFieldValue("taxGroupId", "");
+                    } else if (
+                      !formik.values.taxGroupId &&
+                      allTaxGroup?.length
+                    ) {
+                      formik.setFieldValue("taxGroupId", allTaxGroup[0].id);
+                    }
+                  }}
+                  activeColorClass="bg-indigo-600"
                 />
+
+                {/* TAX */}
+                {formik.values.taxEnabled && (
+                  <SelectField
+                    label="Tax Group"
+                    name="taxGroupId"
+                    required
+                    loading={isFetchingTaxGroup}
+                    options={allTaxGroup?.map((t) => ({
+                      value: t.id,
+                      label: t.name,
+                    }))}
+                    value={formik.values.taxGroupId}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    error={
+                      formik.touched.taxGroupId && formik.errors.taxGroupId
+                    }
+                  />
+                )}
 
                 <ToggleField
                   label="Enable Size / Portion Variations"

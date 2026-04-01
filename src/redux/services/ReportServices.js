@@ -101,12 +101,12 @@ export default false
         return Api.get(`/reports/running-tables`, { params });
       },
 
-      getRunningOrderApi: (outletId) => {
-        const params = cleanParams({ outletId });
+      getRunningOrderApi: ({outletId,status}) => {
+        const params = cleanParams({ outletId,status });
 
         return Api.get(`/reports/running-orders`, { params });
       },
-      
+
       getSectionSalesReportApi: (outletId, dateRange = {}) => {
         const params = cleanParams({
           startDate: dateRange?.startDate,
@@ -145,7 +145,7 @@ export default false
 
         return Api.get(`/orders/reports/${outletId}/due`, { params });
       },
-      
+
       getNcReportApi: (outletId, dateRange = {}, page, limit, search) => {
         const params = cleanParams({
           page,
@@ -156,5 +156,28 @@ export default false
         });
 
         return Api.get(`/orders/reports/${outletId}/nc`, { params });
+      },
+      getDiscountReportApi: ({
+        outletId,
+        dateRange = {},
+        page,
+        limit,
+        search,
+        sortBy,
+        sortOrder,
+        discountType,
+      }) => {
+        const params = cleanParams({
+          page,
+          limit,
+          search,
+          startDate: dateRange?.startDate,
+          endDate: dateRange?.endDate,
+          sortBy,
+          sortOrder,
+          discountType,
+        });
+
+        return Api.get(`/reports/discounts/${outletId}/details`, { params });
       },
     };

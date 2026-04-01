@@ -223,6 +223,21 @@ export const exportNcReport = createAsyncThunk(
   },
 );
 
+export const exportDiscountReport = createAsyncThunk(
+  "/export/discount/report",
+  async ({ outletId, dateRange, search, sortBy, sortOrder, discountType }) => {
+    const res = await ExportServices.exportDiscountReportApi({
+      outletId,
+      dateRange,
+      search,
+      sortBy,
+      sortOrder,
+      discountType,
+    });
+    return res.data;
+  },
+);
+
 /* ───────────── SLICE ───────────── */
 
 const exportReportSlice = createSlice({
@@ -248,7 +263,8 @@ const exportReportSlice = createSlice({
     isExportingDayEndSummaryDetails: false,
     isExportingOrdersReport: false,
     isExportingDueReport: false,
-    isExportingNcReport:false,
+    isExportingNcReport: false,
+    isExportingDiscountReport: false,
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -487,7 +503,6 @@ const exportReportSlice = createSlice({
         toast.error(action.error.message);
       })
 
-
       .addCase(exportDueReport.pending, (state) => {
         state.isExportingDueReport = true;
       })
@@ -500,7 +515,6 @@ const exportReportSlice = createSlice({
         toast.error(action.error.message);
       })
 
-
       .addCase(exportNcReport.pending, (state) => {
         state.isExportingNcReport = true;
       })
@@ -512,6 +526,18 @@ const exportReportSlice = createSlice({
         state.isExportingNcReport = false;
         toast.error(action.error.message);
       })
+
+      .addCase(exportDiscountReport.pending, (state) => {
+        state.isExportingDiscountReport = true;
+      })
+      .addCase(exportDiscountReport.fulfilled, (state) => {
+        state.isExportingDiscountReport = false;
+        toast.success("Discount report exported successfully");
+      })
+      .addCase(exportDiscountReport.rejected, (state, action) => {
+        state.isExportingDiscountReport = false;
+        toast.error(action.error.message);
+      });
   },
 });
 

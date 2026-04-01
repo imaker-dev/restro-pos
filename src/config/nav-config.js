@@ -109,6 +109,12 @@ export const navConfig = [
             roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
           },
           {
+            name: "Discount Report",
+            path: "/discount-report",
+            icon: Percent,
+            roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
+          },
+          {
             name: "Service Type Breakdown",
             path: "/service-type-breakdown",
             icon: PieChart,

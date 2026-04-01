@@ -26,6 +26,8 @@ import {
   ReceiptText,
 } from "lucide-react";
 import PageHeader from "../../layout/PageHeader";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchRunningOrder } from "../../redux/slices/reportSlice";
 
 const MOCK_ORDERS = [
   {
@@ -657,7 +659,26 @@ const TABS = [
 ];
 
 export default function LiveOrdersPage() {
+  const dispatch = useDispatch();
+  const { outletId } = useSelector((state) => state.auth);
+
+  
   const [tab, setTab] = useState("dinein");
+
+  const fetchOrders = () => {
+    dispatch(fetchRunningOrder({outletId,status:tab}));
+  };
+
+  const {isFetchingRunningOrder,runningOrders} = useSelector((state) => state.report);
+
+  console.log(isFetchingRunningOrder,runningOrders)
+
+  useEffect(() => {
+    if (outletId) {
+      fetchOrders(outletId);
+    }
+  }, [outletId,tab]);
+
   const [selected, setSelected] = useState(null);
   const [, tick] = useState(0);
 

@@ -8,30 +8,20 @@ import {
   IndianRupee,
   TrendingUp,
   Users,
-  Banknote,
-  Smartphone,
-  CreditCard,
   BarChart2,
-  Eye,
-  ChevronRight,
   CalendarDays,
   Wallet,
   Tag,
   Download,
   RotateCcw,
-  ReceiptIndianRupee,
   CheckCircle,
   AlertCircle,
-  Utensils,
-  Package,
-  Truck,
   FileMinus,
   Gift,
 } from "lucide-react";
 import { formatNumber, num } from "../../utils/numberFormatter";
 import StatCard from "../../components/StatCard";
 import DailySalesCard from "../../partial/report/daily-sales-report/DailySalesCard";
-import LoadingOverlay from "../../components/LoadingOverlay";
 import MetricPanel from "../../partial/report/daily-sales-report/MetricPanel";
 import OrderTypeBar from "../../partial/report/daily-sales-report/OrderTypeBar";
 import PayRow from "../../partial/report/daily-sales-report/PayRow";
@@ -39,7 +29,7 @@ import NoDataFound from "../../layout/NoDataFound";
 import { handleResponse } from "../../utils/helpers";
 import { exportDailySalesReport } from "../../redux/slices/exportReportSlice";
 import { downloadBlob } from "../../utils/blob";
-import { formatDate, formatFileDate } from "../../utils/dateFormatter";
+import { formatFileDate } from "../../utils/dateFormatter";
 import DailySalesReportSkeleton from "../../partial/report/daily-sales-report/DailySalesReportSkeleton";
 
 const DailySalesReportPage = () => {

@@ -35,10 +35,10 @@ export const getOrderTableConfig = (navigate) => {
             </div>
 
             <div className="text-xs text-slate-500 truncate">
-              {row.invoiceNumber && (
+              {/* {row.invoiceNumber && (
                 <span className="text-indigo-600">{row.invoiceNumber}</span>
               )}
-              {row.invoiceNumber && " · "}
+              {row.invoiceNumber && " · "} */}
               {formatDate(row.createdAt, "longTime")}
             </div>
           </div>

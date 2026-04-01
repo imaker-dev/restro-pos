@@ -78,7 +78,10 @@ export const fetchTaxReportDetails = createAsyncThunk(
 export const fetchServiceTypeBreakdownReport = createAsyncThunk(
   "/fetch/service-type/breakdown/report",
   async ({ outletId, dateRange }) => {
-    const res = await ReportServices.getServiceTypeBreakdownReportApi(outletId, dateRange);
+    const res = await ReportServices.getServiceTypeBreakdownReportApi(
+      outletId,
+      dateRange,
+    );
     return res.data;
   },
 );
@@ -91,43 +94,81 @@ export const fetchRunningTable = createAsyncThunk(
 );
 export const fetchRunningOrder = createAsyncThunk(
   "/fetch/running/order",
-  async (outletId) => {
-    const res = await ReportServices.getRunningOrderApi(outletId);
+  async ({outletId,status}) => {
+    const res = await ReportServices.getRunningOrderApi({outletId,status});
     return res.data;
   },
 );
 export const fetchSectionSalesReport = createAsyncThunk(
   "/fetch/section-sales/report",
-  async ({outletId,dateRange}) => {
-    const res = await ReportServices.getSectionSalesReportApi(outletId,dateRange);
+  async ({ outletId, dateRange }) => {
+    const res = await ReportServices.getSectionSalesReportApi(
+      outletId,
+      dateRange,
+    );
     return res.data;
   },
 );
 export const fetchStationSalesReport = createAsyncThunk(
   "/fetch/station-sales/report",
-  async ({outletId,dateRange}) => {
-    const res = await ReportServices.getStationSalesReportApi(outletId,dateRange);
+  async ({ outletId, dateRange }) => {
+    const res = await ReportServices.getStationSalesReportApi(
+      outletId,
+      dateRange,
+    );
     return res.data;
   },
 );
 export const fetchCancellationReport = createAsyncThunk(
   "/fetch/canellation/report",
-  async ({outletId,dateRange}) => {
-    const res = await ReportServices.getCancellationReportApi(outletId,dateRange);
+  async ({ outletId, dateRange }) => {
+    const res = await ReportServices.getCancellationReportApi(
+      outletId,
+      dateRange,
+    );
     return res.data;
   },
 );
 export const fetchDueReport = createAsyncThunk(
   "/fetch/due/report",
-  async ({outletId,dateRange,page,limit,search}) => {
-    const res = await ReportServices.getDueReportApi(outletId,dateRange,page,limit,search);
+  async ({ outletId, dateRange, page, limit, search }) => {
+    const res = await ReportServices.getDueReportApi(
+      outletId,
+      dateRange,
+      page,
+      limit,
+      search,
+    );
     return res.data;
   },
 );
 export const fetchNcReport = createAsyncThunk(
   "/fetch/nc/report",
-  async ({outletId,dateRange,page,limit,search}) => {
-    const res = await ReportServices.getNcReportApi(outletId,dateRange,page,limit,search);
+  async ({ outletId, dateRange, page, limit, search }) => {
+    const res = await ReportServices.getNcReportApi(
+      outletId,
+      dateRange,
+      page,
+      limit,
+      search,
+    );
+    return res.data;
+  },
+);
+
+export const fetchDiscountReport = createAsyncThunk(
+  "/fetch/discount/report",
+  async ({ outletId, dateRange, page, limit, search, sortBy, sortOrder,discountType }) => {
+    const res = await ReportServices.getDiscountReportApi({
+      outletId,
+      dateRange,
+      page,
+      limit,
+      search,
+      sortBy,
+      sortOrder,
+      discountType
+    });
     return res.data;
   },
 );
@@ -155,29 +196,32 @@ const reportSlice = createSlice({
     taxReport: null,
     isFetchingTaxReport: false,
 
-    isFetchingTaxReportDetails:false,
-    taxReportDetails:null,
+    isFetchingTaxReportDetails: false,
+    taxReportDetails: null,
 
-    isFetchingRunningTable:false,
-    runningTables:null,
+    isFetchingRunningTable: false,
+    runningTables: null,
 
-    isFetchingRunningOrder:false,
-    runningOrders:null,
+    isFetchingRunningOrder: false,
+    runningOrders: null,
 
-    isFetchingSectionSalesReport:false,
-    sectionSalesReport:null,
+    isFetchingSectionSalesReport: false,
+    sectionSalesReport: null,
 
-    isFetchingStationSalesReport:false,
-    stationSalesReport:null,
+    isFetchingStationSalesReport: false,
+    stationSalesReport: null,
 
-    isFetchingCancellationReport:false,
-    cancellationReport:null,
+    isFetchingCancellationReport: false,
+    cancellationReport: null,
 
-    isFetchingDueReport:false,
-    dueReport:null,
+    isFetchingDueReport: false,
+    dueReport: null,
 
-    isFetchingNcReport:false,
-    ncReport:null,
+    isFetchingNcReport: false,
+    ncReport: null,
+
+    isFetchingDiscountReport: false,
+    discountReport: null,
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -358,6 +402,17 @@ const reportSlice = createSlice({
         state.isFetchingNcReport = false;
         toast.error(action.error.message);
       })
+      .addCase(fetchDiscountReport.pending, (state) => {
+        state.isFetchingDiscountReport = true;
+      })
+      .addCase(fetchDiscountReport.fulfilled, (state, action) => {
+        state.isFetchingDiscountReport = false;
+        state.discountReport = action.payload.data;
+      })
+      .addCase(fetchDiscountReport.rejected, (state, action) => {
+        state.isFetchingDiscountReport = false;
+        toast.error(action.error.message);
+      });
   },
 });
 
