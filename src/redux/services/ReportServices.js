@@ -101,8 +101,8 @@ export default false
         return Api.get(`/reports/running-tables`, { params });
       },
 
-      getRunningOrderApi: ({outletId,status}) => {
-        const params = cleanParams({ outletId,status });
+      getRunningOrderApi: ({outletId}) => {
+        const params = cleanParams({ outletId });
 
         return Api.get(`/reports/running-orders`, { params });
       },

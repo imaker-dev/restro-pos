@@ -94,8 +94,8 @@ export const fetchRunningTable = createAsyncThunk(
 );
 export const fetchRunningOrder = createAsyncThunk(
   "/fetch/running/order",
-  async ({outletId,status}) => {
-    const res = await ReportServices.getRunningOrderApi({outletId,status});
+  async ({outletId}) => {
+    const res = await ReportServices.getRunningOrderApi({outletId});
     return res.data;
   },
 );

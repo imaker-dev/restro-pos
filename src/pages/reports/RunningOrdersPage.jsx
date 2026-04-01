@@ -43,8 +43,9 @@ export default function RunningOrdersPage() {
   );
 
   const fetchOrders = () => {
-    dispatch(fetchRunningOrder(outletId));
+    dispatch(fetchRunningOrder({outletId}));
   };
+  
   useEffect(() => {
     if (outletId) {
       fetchOrders();
