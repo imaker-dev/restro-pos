@@ -5,6 +5,7 @@ import Transition from "../utils/Transition";
 import { useSelector } from "react-redux";
 import PermissionGuard from "../guard/PermissionGuard";
 import { ROLES } from "../constants";
+import UserAvatar from "../components/UserAvatar";
 
 function DropdownProfile({ align, onLogoutClick }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -49,9 +50,7 @@ function DropdownProfile({ align, onLogoutClick }) {
         aria-expanded={dropdownOpen}
       >
         {/* Avatar Circle with Initial */}
-        <div className="w-8 h-8 bg-primary-500 text-white flex items-center justify-center rounded-full font-semibold">
-          {meData?.name ? meData.name.charAt(0).toUpperCase() : "A"}
-        </div>
+        <UserAvatar name={meData?.name} size="sm" />
 
         <div className="flex items-center truncate">
           <span className="hidden md:block truncate ml-2 text-sm font-medium group-hover:text-slate-800">

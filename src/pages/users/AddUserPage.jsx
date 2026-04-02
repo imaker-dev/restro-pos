@@ -22,13 +22,13 @@ import { useQueryParams } from "../../hooks/useQueryParams";
 import InfoCard from "../../components/InfoCard";
 import ToggleField from "../../components/fields/ToggleField";
 import { ROLES } from "../../constants";
+import LoadingOverlay from "../../components/LoadingOverlay";
 
 const AddUserPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { userId } = useQueryParams();
 
-  
   const { outletId } = useSelector((state) => state.auth);
   const { userDetails, isFetchingUserDetails, isCreatingUser, isupdatingUser } =
     useSelector((state) => state.user);
@@ -151,14 +151,7 @@ const AddUserPage = () => {
 
   // Loading state
   if (isFetchingUserDetails && userId) {
-    return (
-      <div className="flex items-center justify-center h-[80dvh]">
-        <div className="text-center">
-          <RefreshCw className="w-12 h-12 text-primary-500 animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">Loading user details...</p>
-        </div>
-      </div>
-    );
+    return <LoadingOverlay text="Loading user details..." />;
   }
 
   return (

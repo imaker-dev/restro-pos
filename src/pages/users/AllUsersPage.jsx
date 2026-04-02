@@ -69,7 +69,7 @@ const AllUsersPage = () => {
       sortable: true,
       render: (row) => (
         <div className="flex items-center gap-3 max-w-[240px]">
-          <UserAvatar name={row.name} src={row.avatarUrl} className="w-9 h-9" />
+          <UserAvatar name={row.name} src={row.avatarUrl} className="sm" />
 
           <div className="flex flex-col min-w-0">
             <span className="text-slate-800 font-semibold truncate">
@@ -240,8 +240,8 @@ const AllUsersPage = () => {
         />
 
         <SmartTable
-          // title="Users"
-          // totalcount={allUsers?.length}
+          title="Users"
+          totalcount={pagination?.total}
           data={data}
           columns={columns}
           actions={rowActions}

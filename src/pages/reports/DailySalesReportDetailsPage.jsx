@@ -13,6 +13,8 @@ import {
   Wallet,
   CalendarDays,
   Download,
+  Receipt,
+  BarChart3,
 } from "lucide-react";
 import { formatDate, formatFileDate } from "../../utils/dateFormatter";
 import { formatNumber, num } from "../../utils/numberFormatter";
@@ -28,7 +30,6 @@ import { handleResponse } from "../../utils/helpers";
 import { exportDailySalesReportDetails } from "../../redux/slices/exportReportSlice";
 import { downloadBlob } from "../../utils/blob";
 import DailySalesDetailsPageSkeleton from "../../partial/report/daily-sales-report/DailySalesDetailsPageSkeleton";
-
 
 // ─── MAIN PAGE ────────────────────────────────────────────────────────────────
 const DailySalesReportDetailsPage = () => {
@@ -82,7 +83,13 @@ const DailySalesReportDetailsPage = () => {
       sub: "Before discounts",
       icon: IndianRupee,
       color: "slate",
-      dark: true,
+    },
+    {
+      label: "Discount",
+      value: formatNumber(summary?.totalDiscount, true),
+      sub: "Total discount given",
+      icon: Tag,
+      color: "orange",
     },
     {
       label: "Net Sales",
@@ -90,13 +97,14 @@ const DailySalesReportDetailsPage = () => {
       sub: "After discounts",
       icon: TrendingUp,
       color: "green",
+      highlight: true, // ⭐ important
     },
     {
-      label: "Total Tax",
+      label: "Tax",
       value: formatNumber(summary?.totalTax, true),
       sub: "Tax collected",
-      icon: Tag,
-      color: "orange",
+      icon: Receipt,
+      color: "amber",
     },
     {
       label: "Total Paid",
@@ -104,6 +112,13 @@ const DailySalesReportDetailsPage = () => {
       sub: "Payments received",
       icon: CheckCircle2,
       color: "blue",
+    },
+    {
+      label: "Avg Order",
+      value: formatNumber(summary?.averageOrderValue, true),
+      sub: "Per order",
+      icon: BarChart3,
+      color: "purple",
     },
   ];
 
@@ -146,15 +161,9 @@ const DailySalesReportDetailsPage = () => {
         showBackButton
       />
 
-      {/* ── UNIVERSAL HERO ── */}
-      <div
-        className="relative rounded-2xl overflow-hidden shadow-lg"
-        style={{
-          background:
-            "linear-gradient(135deg, var(--color-primary-600), var(--color-primary-700))",
-        }}
-      >
-        {/* Soft highlight line */}
+      {/* ── UNIVERSAL HERO (ORDER STYLE) ── */}
+      <div className="relative rounded-2xl overflow-hidden shadow-lg bg-primary-500">
+        {/* Top highlight */}
         <div
           className="absolute top-0 left-0 right-0 h-[1px]"
           style={{
@@ -163,97 +172,54 @@ const DailySalesReportDetailsPage = () => {
           }}
         />
 
-        {/* Soft radial glow */}
+        {/* Glow */}
         <div className="absolute -top-16 -right-16 w-56 h-56 rounded-full bg-white/10 pointer-events-none" />
 
-        <div className="relative z-10 px-5 py-4 text-white">
-          {/* Top Row */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            {/* Left */}
-            <div className="flex items-center gap-3 flex-1 min-w-0">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-white/15 border border-white/20 backdrop-blur">
-                <CalendarDays size={18} strokeWidth={1.8} />
-              </div>
+        <div className="relative z-10 px-6 py-5 text-white">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+            {/* LEFT SIDE */}
+            <div className="space-y-3 min-w-0">
+              <p className="flex items-center gap-1.5 text-xs text-white/70 font-medium">
+                <CalendarDays size={12} />
+                Daily Sales Report
+              </p>
 
-              <div className="min-w-0">
-                <p className="text-[9px] font-semibold text-white/70 uppercase tracking-wider">
-                  Daily Sales Report
-                </p>
+              <h1 className="text-[28px] sm:text-[32px] font-extrabold tracking-tight leading-none truncate">
+                {displayDate}
+              </h1>
 
-                <h1 className="text-[18px] font-bold leading-tight truncate">
-                  {displayDate}
-                </h1>
-
-                <p className="text-[11px] text-white/75 mt-1 truncate">
-                  {formatNumber(summary?.totalOrders)} orders ·{" "}
-                  {formatNumber(summary?.completedOrders)} completed ·{" "}
-                  {formatNumber(summary?.activeOrders)} active
-                </p>
+              {/* META ROW */}
+              <div className="flex flex-wrap gap-x-5 gap-y-1 text-xs text-white/70">
+                <span>Orders: {summary?.totalOrders || 0}</span>
+                <span>Completed: {summary?.completedOrders || 0}</span>
+                <span>Active: {summary?.activeOrders}</span>
+                {summary?.cancelledOrders > 0 && (
+                  <span>Cancelled: {summary?.cancelledOrders}</span>
+                )}
               </div>
             </div>
 
-            {/* Right */}
-            <div className="sm:text-right flex-shrink-0">
-              <p className="text-[9px] font-semibold text-white/70 uppercase tracking-wide">
+            {/* RIGHT SIDE (like Grand Total) */}
+            <div className="flex-shrink-0 lg:text-right">
+              <p className="text-[10px] font-semibold text-white/70 uppercase tracking-wider">
                 Net Sales
               </p>
 
-              <p className="text-[28px] font-bold tabular-nums leading-none">
+              <p className="text-[36px] font-bold tabular-nums leading-none">
                 {formatNumber(summary?.netSales, true)}
               </p>
 
               <p className="text-[11px] text-white/70 mt-1">
-                Gross {formatNumber(summary?.grossSales, true)}
+                Gross: {formatNumber(summary?.grossSales, true)}
               </p>
             </div>
-          </div>
-
-          {/* Metric Strip */}
-          <div className="grid grid-cols-3 gap-3 mt-4">
-            {[
-              {
-                icon: ShoppingBag,
-                label: "Orders",
-                value: formatNumber(summary?.totalOrders),
-                sub: `${formatNumber(summary?.cancelledOrders)} cancelled`,
-              },
-              {
-                icon: IndianRupee,
-                label: "Paid",
-                value: formatNumber(summary?.totalPaid, true),
-                sub: "Collected",
-              },
-              {
-                icon: TrendingUp,
-                label: "Avg",
-                value: formatNumber(summary?.averageOrderValue, true),
-                sub: "Per order",
-              },
-            ].map(({ icon: Icon, label, value, sub }) => (
-              <div
-                key={label}
-                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/10 border border-white/20 backdrop-blur-sm"
-              >
-                <Icon size={13} strokeWidth={2} />
-
-                <div className="min-w-0">
-                  <p className="text-[9px] font-semibold text-white/70 uppercase tracking-wide">
-                    {label}
-                  </p>
-                  <p className="text-[14px] font-bold tabular-nums leading-none">
-                    {value}
-                  </p>
-                  <p className="text-[9px] text-white/70 truncate">{sub}</p>
-                </div>
-              </div>
-            ))}
           </div>
         </div>
       </div>
 
       {/* ── 4 KPI TILES ── */}
       <div
-        className="grid grid-cols-2 lg:grid-cols-4 gap-3"
+        className="grid grid-cols-2 lg:grid-cols-6 gap-3"
         style={{ animationDelay: "80ms" }}
       >
         {kpiStats.map((stat, index) => (

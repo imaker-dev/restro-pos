@@ -147,7 +147,7 @@ const AllRecipePage = () => {
       <PageHeader title="All Recipes" actions={actions} />
 
       {/* ── Summary KPIs ── */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
         {stats.map((s) => (
           <StatCard
             key={s.title}

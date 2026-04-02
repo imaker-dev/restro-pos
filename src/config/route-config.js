@@ -87,6 +87,8 @@ import VersionDetailsPage from "../pages/versions/VersionDetailsPage";
 import SupportChatPage from "../pages/support/SupportChatPage";
 import LiveOrdersPage from "../pages/orders/LiveOrdersPage";
 import DiscountReportPage from "../pages/reports/DiscountReportPage";
+import AdjustmentReportPage from "../pages/reports/AdjustmentReportPage";
+import AllReportsPage from "../pages/reports/AllReportsPage";
 
 const routeConfig = [
   // { path: "/", element: Dashboard, roles: [ROLES.SUPER_ADMIN] },
@@ -104,6 +106,7 @@ const routeConfig = [
 
   { path: "/order-display", element: OrderDisplayPage, roles: [ROLES.BARTENDER, ROLES.KITCHEN] },
 
+  { path: "/reports", element: AllReportsPage, roles:  [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
   { path: "/daily-sales", element: DailySalesReportPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
   { path: "/daily-sales/details", element: DailySalesReportDetailsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
   { path: "/item-sales", element: ItemSalesReportPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
@@ -121,6 +124,7 @@ const routeConfig = [
   { path: "/nc-report", element: NcReportPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
   { path: "/cancellation-report", element: CancellationReport, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
   { path: "/discount-report", element: DiscountReportPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
+  { path: "/adjustment-report", element: AdjustmentReportPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
   { path: "/nc-reasons", element: AllNcReasonsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
 
 

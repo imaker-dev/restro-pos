@@ -233,6 +233,12 @@ const OrderDetailsPage = () => {
       value: num(t.taxAmount),
       cls: "text-sky-700",
     })),
+    data?.isAdjustment &&
+      num(data.adjustmentAmount) > 0 && {
+        label: "Adjustment",
+        value: num(data.adjustmentAmount),
+        cls: "text-red-600",
+      },
     data.roundOff != null && {
       label: "Round Off",
       value: num(data.roundOff),
@@ -262,13 +268,7 @@ const OrderDetailsPage = () => {
       <PageHeader title="Order Details" actions={actions} showBackButton />
 
       {/* ── ORDER HERO ── */}
-      <div
-        className="relative rounded-2xl overflow-hidden shadow-lg"
-        style={{
-          background:
-            "linear-gradient(135deg, var(--color-primary-600), var(--color-primary-700))",
-        }}
-      >
+      <div className="relative rounded-2xl overflow-hidden shadow-lg bg-primary-500">
         <div
           className="absolute top-0 left-0 right-0 h-[1px]"
           style={{
@@ -374,7 +374,8 @@ const OrderDetailsPage = () => {
             title={label}
             value={value}
             color={color}
-            variant="v9"
+            variant="v7"
+            mode={"solid"}
           />
         ))}
       </div>
@@ -450,6 +451,7 @@ const OrderDetailsPage = () => {
             <NoDataFound
               icon={UtensilsCrossed}
               title="No items in this order"
+              size="sm"
             />
           </div>
         ) : (
@@ -667,7 +669,7 @@ const OrderDetailsPage = () => {
           }
         >
           {splits.length === 0 && !data?.payments?.length ? (
-            <NoDataFound icon={CreditCard} title="No payment recorded" />
+            <NoDataFound icon={CreditCard} title="No payment recorded" size="sm" />
           ) : (
             <div className="space-y-2">
               {(splits.length > 0 ? splits : data?.payments || []).map(
@@ -727,6 +729,7 @@ const OrderDetailsPage = () => {
                 </span>
               </div>
             )}
+            
             {num(data?.balanceDue) === 0 && (
               <div className="flex items-center gap-1.5">
                 <BadgeCheck size={13} className="text-emerald-500" />
@@ -741,7 +744,7 @@ const OrderDetailsPage = () => {
         {/* Discounts */}
         <MetricPanel icon={Tag} title="Discounts">
           {discounts?.length === 0 ? (
-            <NoDataFound icon={Tag} title="No discounts applied" />
+            <NoDataFound icon={Tag} title="No discounts applied" size="sm"/>
           ) : (
             <div className="space-y-3">
               {discounts?.map((d) => (
@@ -797,25 +800,59 @@ const OrderDetailsPage = () => {
       </div>
 
       {/* ── PRICE BREAKUP ── */}
+
+      
+      
       <MetricPanel icon={ReceiptIndianRupee} title="Price Breakup" noPad>
         <div className="px-5 py-4 space-y-0 divide-y divide-slate-50">
           {breakupLines?.map(
             ({ label, value, cls = "text-slate-700", prefix }) => (
-              <div
-                key={label}
-                className="flex justify-between items-baseline gap-6 py-2.5"
-              >
-                <span className="text-xs text-slate-400 leading-relaxed">
-                  {label}
-                </span>
-                <span
+              // <div
+              //   key={label}
+              //   className="flex justify-between items-baseline gap-6 py-2.5"
+              // >
+              //   <span className="text-xs text-slate-400 leading-relaxed">
+              //     {label}
+              //   </span>
+              //   <span
+              //     className={`text-xs font-semibold tabular-nums shrink-0 ${cls}`}
+              //   >
+              //     {prefix
+              //       ? `${prefix} ${formatNumber(Math.abs(value), true)}`
+              //       : formatNumber(value, true)}
+              //   </span>
+              // </div>
+               <div
+          key={label}
+          className="group flex items-center py-2.5 transition-all duration-150 hover:bg-white/70 rounded-xl px-3 -mx-3"
+        >
+          
+          <span className="text-[12px] text-slate-500 font-medium ml-2 tracking-tight leading-relaxed">
+            {label}
+          </span>
+          {/* dot leader */}
+          <div className="flex-1 mx-3 overflow-hidden" style={{ marginBottom: "2px" }}>
+            <div className="w-full" style={{ borderBottom: "1.5px dashed rgba(148,163,184,0.18)" }} />
+          </div>
+          {/* <span
+            className={`text-[12px] font-bold tabular-nums shrink-0 tracking-tight ${
+              isDeduction ? "text-amber-600" : cls
+            }`}
+          >
+            {isDeduction
+              ? `− ₹${formatNumber(absVal, true)}`
+              : prefix
+              ? `${prefix} ₹${formatNumber(absVal, true)}`
+              : formatNumber(value, true)}
+          </span> */}
+          <span
                   className={`text-xs font-semibold tabular-nums shrink-0 ${cls}`}
                 >
                   {prefix
                     ? `${prefix} ${formatNumber(Math.abs(value), true)}`
                     : formatNumber(value, true)}
                 </span>
-              </div>
+        </div>
             ),
           )}
           {/* NC savings line in breakup */}

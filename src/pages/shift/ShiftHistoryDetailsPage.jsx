@@ -1,9 +1,11 @@
 import {
   ArrowLeft,
   ArrowRight,
+  Banknote,
   BarChart2,
   CalendarDays,
   CheckCircle2,
+  ChevronRight,
   Clock,
   Download,
   Eye,
@@ -14,6 +16,7 @@ import {
   Package,
   ReceiptIndianRupee,
   ShoppingBag,
+  Target,
   TrendingDown,
   TrendingUp,
   Truck,
@@ -47,6 +50,7 @@ import { handleResponse } from "../../utils/helpers";
 import { exportShiftHistoryDetails } from "../../redux/slices/exportReportSlice";
 import { downloadBlob } from "../../utils/blob";
 import ShiftHistoryDetailsPageSkeleton from "../../partial/report/shift-summary/ShiftHistoryDetailsPageSkeleton";
+import { getOrderTableConfig } from "../../columns/order.columns";
 
 function FieldRow({
   label,
@@ -82,6 +86,9 @@ const ShiftHistoryDetailsPage = () => {
   const { shiftHistoryDetails: shift, isFetchingShiftHistoryDetails } =
     useSelector((state) => state.shift);
 
+  const { columns: orderColumns, actions: orderActions } =
+    getOrderTableConfig(navigate);
+
   const {
     transactions = [],
     staffActivity = [],
@@ -89,6 +96,7 @@ const ShiftHistoryDetailsPage = () => {
     paymentBreakdown,
     paymentSummary,
     orders,
+    dueCollections,
   } = shift || {};
 
   const isOpen = shift?.status === "open";
@@ -334,145 +342,6 @@ const ShiftHistoryDetailsPage = () => {
           </div>
         </div>
       ),
-    },
-  ];
-
-  const orderColumns = [
-    {
-      key: "orderNumber",
-      label: "Order",
-      sortable: true,
-      sortKey: "createdAt",
-      render: (row) => (
-        <div className="leading-tight max-w-[160px]">
-          <div
-            className="font-semibold text-slate-800 truncate"
-            title={row.orderNumber}
-          >
-            {row.orderNumber}
-          </div>
-
-          <div className="text-xs text-slate-500">
-            {formatDate(row.createdAt, "longTime")}
-          </div>
-        </div>
-      ),
-    },
-
-    {
-      key: "orderType",
-      label: "Type",
-      sortable: true,
-      render: (row) => <OrderBadge type="type" value={row.orderType} />,
-    },
-
-    {
-      key: "table",
-      label: "Table",
-      sortable: true,
-      render: (row) => (
-        <div className="leading-tight max-w-[120px]">
-          <div className="font-medium text-slate-700">
-            {row.tableNumber || "—"}
-          </div>
-
-          <div className="text-xs text-slate-500">
-            {row.tableName || "No Table"}
-          </div>
-        </div>
-      ),
-    },
-
-    {
-      key: "items",
-      label: "Items",
-      sortable: false,
-      render: (row) => (
-        <div className="leading-tight max-w-[220px]">
-          <div className="text-sm text-slate-700 font-medium">
-            {row.items?.length || 0} items
-          </div>
-
-          <div
-            className="text-xs text-slate-500 truncate"
-            title={row.items?.map((i) => i.itemName).join(", ")}
-          >
-            {row.items
-              ?.slice(0, 2)
-              .map((i) => i.itemName)
-              .join(", ")}
-            {row.items?.length > 2 && " ..."}
-          </div>
-        </div>
-      ),
-    },
-
-    {
-      key: "status",
-      label: "Order Status",
-      sortable: true,
-      render: (row) => <OrderBadge type="status" value={row.status} />,
-    },
-
-    {
-      key: "paymentStatus",
-      label: "Payment",
-      sortable: true,
-      render: (row) => (
-        <div className="leading-tight">
-          <OrderBadge type="payment" value={row.paymentStatus} />
-
-          <div className="text-xs text-slate-500 mt-1">
-            {row.paymentMode || "—"}
-          </div>
-        </div>
-      ),
-    },
-
-    {
-      key: "amount",
-      label: "Amount",
-      sortable: true,
-      render: (row) => {
-        const due = row.totalAmount - row.paidAmount;
-
-        return (
-          <div className="leading-tight min-w-[120px]">
-            <div className="font-semibold text-slate-800">
-              {formatNumber(row.totalAmount, true)}
-            </div>
-
-            <div className="text-xs text-green-600">
-              Paid {formatNumber(row.paidAmount, true)}
-            </div>
-
-            {due > 0 && (
-              <div className="text-xs text-red-500">
-                Due {formatNumber(due, true)}
-              </div>
-            )}
-          </div>
-        );
-      },
-    },
-
-    {
-      key: "staff",
-      label: "Staff",
-      sortable: true,
-      render: (row) => (
-        <div className="text-sm text-slate-700 max-w-[140px] truncate">
-          {row.createdByName || "—"}
-        </div>
-      ),
-    },
-  ];
-
-  const orderActions = [
-    {
-      label: "View",
-      icon: Eye,
-      onClick: (row) => navigate(`/orders/details?orderId=${row.id}`),
     },
   ];
 
@@ -743,6 +612,92 @@ const ShiftHistoryDetailsPage = () => {
               ))}
             </div>
           </MetricPanel>
+
+          {/* ── DUE COLLECTIONS ── */}
+          {dueCollections?.orders?.length > 0 && (
+            <MetricPanel
+              icon={IndianRupee}
+              title="Due Collections"
+              desc="Payments collected against outstanding dues in this shift"
+              right={
+                <span className="text-xs font-bold text-slate-700">
+                  {dueCollections.count} collected ·{" "}
+                  {formatNumber(dueCollections.totalCollected, true)}
+                </span>
+              }
+            >
+              <div className="space-y-2">
+                {dueCollections.orders.map((due, idx) => (
+                  <button
+                    key={due.paymentId}
+                    onClick={() => navigate(`/orders/details?orderId=${due.orderId}`)}
+                    className="w-full text-left group flex items-center gap-3.5 px-4 py-3.5 rounded-xl border transition-all duration-150
+            bg-white border-slate-100 hover:border-slate-300 hover:shadow-sm active:scale-[0.99]"
+                  >
+                    {/* Index badge */}
+                    <div className="w-7 h-7 rounded-lg bg-slate-100 group-hover:bg-slate-200 flex items-center justify-center flex-shrink-0 transition-colors">
+                      <span className="text-[10px] font-black text-slate-500">
+                        {String(idx + 1).padStart(2, "0")}
+                      </span>
+                    </div>
+
+                    {/* Order + customer */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-0.5 flex-wrap">
+                        <span className="font-mono text-[11px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md leading-none">
+                          {due.orderNumber}
+                        </span>
+                        {due.customerName && (
+                          <span className="text-[12px] font-semibold text-slate-700 truncate leading-none">
+                            {due.customerName}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-3 mt-1">
+                        <span className="text-[10px] text-slate-400">
+                          Bill:{" "}
+                          <span className="font-semibold text-slate-600">
+                            {formatNumber(due.orderTotal, true)}
+                          </span>
+                        </span>
+                        <span className="w-1 h-1 rounded-full bg-slate-300 flex-shrink-0" />
+                        <span className="text-[10px] text-slate-400">
+                          {formatDate(due.createdAt, "longTime")}
+                        </span>
+                        <span className="w-1 h-1 rounded-full bg-slate-300 flex-shrink-0" />
+                        <span className="text-[10px] text-slate-400">
+                          {due.paymentMode}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Payment mode + amount */}
+                    <div className="flex items-center gap-3 flex-shrink-0">
+                      <div className="text-right">
+                        <p className="text-[14px] font-extrabold text-emerald-600 tabular-nums leading-none">
+                          +{formatNumber(due.collectedAmount, true)}
+                        </p>
+                      </div>
+                      <ChevronRight
+                        size={15}
+                        className="text-slate-300 group-hover:text-slate-500 group-hover:translate-x-0.5 transition-all"
+                      />
+                    </div>
+                  </button>
+                ))}
+              </div>
+
+              {/* Footer total strip */}
+              <div className="mt-3 flex items-center justify-between px-4 py-3 rounded-xl bg-emerald-50 border border-emerald-100">
+                <span className="text-[11px] font-bold text-emerald-700">
+                  Total Due Recovered
+                </span>
+                <span className="text-[14px] font-extrabold text-emerald-700 tabular-nums">
+                  {formatNumber(dueCollections.totalCollected, true)}
+                </span>
+              </div>
+            </MetricPanel>
+          )}
         </div>
 
         {/* ── RIGHT SIDEBAR ───────────────────────────────── */}
@@ -853,6 +808,40 @@ const ShiftHistoryDetailsPage = () => {
                   </div>
                 )}
               </div>
+            </MetricPanel>
+          )}
+
+          {/* Quick stats from orderStats */}
+          {orderStats && (
+            <MetricPanel
+              icon={BarChart2}
+              title="Order Performance"
+              desc="Key metrics from orderStats"
+            >
+              <FieldRow
+                label="Adjustments Made"
+                value={formatNumber(orderStats.adjustmentCount)}
+              />
+              <FieldRow
+                label="Adjustment Amount"
+                value={formatNumber(orderStats.adjustmentAmount, true)}
+                valueClass="text-red-600"
+              />
+              <FieldRow
+                label="NC Orders"
+                value={formatNumber(orderStats.ncOrders)}
+              />
+              <FieldRow
+                label="NC Amount Waived"
+                value={formatNumber(orderStats.ncAmount, true)}
+                valueClass="text-amber-600"
+              />
+              <FieldRow
+                label="Total Due Amount"
+                value={formatNumber(orderStats.totalDueAmount, true)}
+                valueClass="text-slate-800"
+                border={false}
+              />
             </MetricPanel>
           )}
         </div>

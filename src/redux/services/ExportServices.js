@@ -256,6 +256,7 @@ export default false
           responseType: "blob",
         });
       },
+
       exportDiscountReportApi: ({
         outletId,
         dateRange,
@@ -274,6 +275,21 @@ export default false
         });
 
         return Api.get(`/reports/discounts/${outletId}/export`, {
+          params,
+          responseType: "blob",
+        });
+      },
+
+      exportAdjustmentReportApi: ({
+        outletId,
+        dateRange,
+      }) => {
+        const params = cleanParams({
+          startDate: dateRange?.startDate,
+          endDate: dateRange?.endDate,
+        });
+
+        return Api.get(`/reports/adjustments/${outletId}/export`, {
           params,
           responseType: "blob",
         });

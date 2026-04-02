@@ -281,6 +281,7 @@ const TaxReportDetailsPage = () => {
   return (
     <div className="space-y-6">
       {/* ── Header ── */}
+      
       <PageHeader
         title={`Tax Report — ${formatDate(date, "long")}`}
         showBackButton
@@ -288,11 +289,7 @@ const TaxReportDetailsPage = () => {
 
       {/* ── Hero summary strip ── */}
       <div
-        className="relative rounded-2xl overflow-hidden shadow-xl"
-        style={{
-          background:
-            "linear-gradient(135deg, var(--color-primary-600), var(--color-primary-700))",
-        }}
+        className="relative rounded-2xl overflow-hidden shadow-xl bg-primary-500"
       >
         {/* highlight line */}
         <div

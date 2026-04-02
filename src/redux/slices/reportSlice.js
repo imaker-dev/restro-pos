@@ -172,6 +172,19 @@ export const fetchDiscountReport = createAsyncThunk(
     return res.data;
   },
 );
+export const fetchAdjustmentReport = createAsyncThunk(
+  "/fetch/adjustment/report",
+  async ({ outletId, dateRange, page, limit, search }) => {
+    const res = await ReportServices.getAdjustmentReportApi({
+      outletId,
+      dateRange,
+      page,
+      limit,
+      search,
+    });
+    return res.data;
+  },
+);
 
 const reportSlice = createSlice({
   name: "report",
@@ -222,6 +235,9 @@ const reportSlice = createSlice({
 
     isFetchingDiscountReport: false,
     discountReport: null,
+
+    isFetchingAdjustmentReport:false,
+    adjustmentReport:null,
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -412,7 +428,18 @@ const reportSlice = createSlice({
       .addCase(fetchDiscountReport.rejected, (state, action) => {
         state.isFetchingDiscountReport = false;
         toast.error(action.error.message);
-      });
+      })
+      .addCase(fetchAdjustmentReport.pending, (state) => {
+        state.isFetchingAdjustmentReport = true;
+      })
+      .addCase(fetchAdjustmentReport.fulfilled, (state, action) => {
+        state.isFetchingAdjustmentReport = false;
+        state.adjustmentReport = action.payload.data;
+      })
+      .addCase(fetchAdjustmentReport.rejected, (state, action) => {
+        state.isFetchingAdjustmentReport = false;
+        toast.error(action.error.message);
+      })
   },
 });
 

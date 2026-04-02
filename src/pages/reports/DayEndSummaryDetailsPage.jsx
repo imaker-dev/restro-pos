@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from "react";
 import {
-  ArrowLeft,
   TrendingUp,
   Users,
   ReceiptText,
@@ -8,31 +7,26 @@ import {
   Wallet,
   Smartphone,
   Tag,
-  AlertTriangle,
   Star,
   BarChart2,
-  Utensils,
   UserCheck,
   BadgePercent,
   ArrowUpRight,
   CircleDollarSign,
   Activity,
   Store,
-  Bike,
   Ban,
   CheckCircle2,
   XCircle,
-  Clock,
   Layers,
   ShoppingBag,
   TrendingDown,
-  Info,
   Hash,
-  Calendar,
-  ChevronDown,
-  ChevronUp,
   ArrowRight,
   Download,
+  SlidersHorizontal,
+  IndianRupee,
+  ChevronRight,
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { useQueryParams } from "../../hooks/useQueryParams";
@@ -53,8 +47,6 @@ import NoDataFound from "../../layout/NoDataFound";
 
 // ─── Utils ────────────────────────────────────────────────────────────────────
 const pct = (a, b) => (b ? +((a / b) * 100).toFixed(1) : 0);
-
-
 
 const BAR_COLORS = [
   "bg-violet-400",
@@ -226,7 +218,6 @@ function Empty({ icon: Icon, message }) {
     </div>
   );
 }
-
 
 // ═════════════════════════════════════════════════════════════════════════════
 // MAIN PAGE
@@ -521,7 +512,7 @@ export default function DayEndSummaryDetailsPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-5">
         {/* Sales Breakdown */}
         <div className="md:col-span-1 lg:col-span-4">
-          <MetricPanel icon={BarChart2} title={"Sales Breakdown"}>
+          <MetricPanel icon={BarChart2} title="Sales Breakdown">
             <div>
               {[
                 {
@@ -570,18 +561,40 @@ export default function DayEndSummaryDetailsPage() {
                 </div>
               ))}
             </div>
-            <div className="mt-3 flex items-center justify-between bg-emerald-50 rounded-xl px-4 py-3 ring-1 ring-emerald-100">
-              <div>
-                <p className="text-sm font-extrabold text-slate-900">
-                  Net Sales
-                </p>
-                <p className="text-[10px] text-emerald-600 font-semibold mt-0.5">
-                  after all deductions
+
+            {/* Net sales + Paid + Due summary */}
+            <div className="mt-3 space-y-2">
+              <div className="flex items-center justify-between bg-emerald-50 rounded-xl px-4 py-3 ring-1 ring-emerald-100">
+                <div>
+                  <p className="text-sm font-extrabold text-slate-900">
+                    Net Sales
+                  </p>
+                  <p className="text-[10px] text-emerald-600 font-semibold mt-0.5">
+                    after all deductions
+                  </p>
+                </div>
+                <p className="text-xl font-extrabold text-emerald-600 tabular-nums">
+                  {formatNumber(s?.netSales ?? 0, true)}
                 </p>
               </div>
-              <p className="text-xl font-extrabold text-emerald-600 tabular-nums">
-                {formatNumber(s?.netSales ?? 0, true)}
-              </p>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="flex flex-col px-3.5 py-2.5 rounded-xl bg-blue-50 ring-1 ring-blue-100">
+                  <span className="text-[10px] font-bold text-blue-500 uppercase tracking-wide mb-0.5">
+                    Collected
+                  </span>
+                  <span className="text-sm font-extrabold text-blue-700 tabular-nums">
+                    {formatNumber(s?.paidAmount ?? 0, true)}
+                  </span>
+                </div>
+                <div className="flex flex-col px-3.5 py-2.5 rounded-xl bg-amber-50 ring-1 ring-amber-100">
+                  <span className="text-[10px] font-bold text-amber-500 uppercase tracking-wide mb-0.5">
+                    Outstanding
+                  </span>
+                  <span className="text-sm font-extrabold text-amber-700 tabular-nums">
+                    {formatNumber(s?.dueAmount ?? 0, true)}
+                  </span>
+                </div>
+              </div>
             </div>
           </MetricPanel>
         </div>
@@ -769,16 +782,16 @@ export default function DayEndSummaryDetailsPage() {
                           {formatNumber(f.sales, true)}
                         </p>
                         <p className="text-[10px] text-slate-400 font-medium mt-0.5 tabular-nums">
-                          {pct(f.sales, s?.netSales ?? 1)}% of net
+                          {/* {pct(f.sales, s?.netSales ?? 1)}% of net */}
                         </p>
                       </div>
                     </div>
-                    <Bar
+                    {/* <Bar
                       value={f.sales}
                       max={s?.netSales ?? 1}
                       colorClass={i === 0 ? "bg-indigo-400" : "bg-orange-400"}
                       h="h-2"
-                    />
+                    /> */}
                   </div>
                 ))}
               </div>
@@ -786,6 +799,63 @@ export default function DayEndSummaryDetailsPage() {
               <NoDataFound icon={Store} title="No floor data available" />
             )}
           </MetricPanel>
+
+          {/* Adjustment & Due Summary */}
+          {s &&
+            (s.adjustmentCount > 0 || s.dueAmount > 0 || s.ncOrders > 0) && (
+              <MetricPanel icon={SlidersHorizontal} title="Adjustments & Dues">
+                <div className="space-y-0">
+                  {[
+                    s.adjustmentCount > 0 && {
+                      label: "Adjustments Made",
+                      value: s.adjustmentCount,
+                      cls: "text-slate-800",
+                    },
+                    s.adjustmentCount > 0 && {
+                      label: "Adjustment Amount",
+                      value: formatNumber(s.adjustmentAmount, true),
+                      cls: "text-red-600",
+                    },
+                    s.ncOrders > 0 && {
+                      label: "NC Orders",
+                      value: s.ncOrders,
+                      cls: "text-slate-800",
+                    },
+                    s.ncAmount > 0 && {
+                      label: "NC Amount Waived",
+                      value: formatNumber(s.ncAmount, true),
+                      cls: "text-amber-600",
+                    },
+                    s.dueAmount > 0 && {
+                      label: "Total Due Amount",
+                      value: formatNumber(s.dueAmount, true),
+                      cls: "text-red-700",
+                    },
+                    s.paidAmount > 0 && {
+                      label: "Total Paid Amount",
+                      value: formatNumber(s.paidAmount, true),
+                      cls: "text-emerald-700",
+                    },
+                  ]
+                    .filter(Boolean)
+                    .map(({ label, value, cls }, i, arr) => (
+                      <div
+                        key={label}
+                        className={`flex items-center justify-between py-2.5 ${i < arr.length - 1 ? "border-b border-slate-50" : ""}`}
+                      >
+                        <span className="text-[11.5px] text-slate-500 font-medium">
+                          {label}
+                        </span>
+                        <span
+                          className={`text-[12px] font-bold tabular-nums ${cls}`}
+                        >
+                          {value}
+                        </span>
+                      </div>
+                    ))}
+                </div>
+              </MetricPanel>
+            )}
         </div>
       </div>
 
@@ -869,13 +939,13 @@ export default function DayEndSummaryDetailsPage() {
                         </p>
 
                         <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-                          <span
+                          {/* <span
                             className={`hidden sm:inline text-[10px] font-semibold px-1.5 py-0.5 rounded-md ${
                               BADGE_STYLES[i % BADGE_STYLES.length]
                             }`}
                           >
                             {item.categoryName}
-                          </span>
+                          </span> */}
 
                           <span className="hidden sm:block text-[10px] text-slate-400 font-medium tabular-nums">
                             {item.quantitySold} sold
@@ -921,7 +991,6 @@ export default function DayEndSummaryDetailsPage() {
       {/* ── ROW 4: Staff Performance ─────────────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 ">
         <MetricPanel icon={BadgePercent} title={"Discounts Applied"}>
-
           {d?.discountsApplied?.length > 0 ? (
             <>
               <div className="space-y-2">
@@ -972,10 +1041,12 @@ export default function DayEndSummaryDetailsPage() {
             <>
               <div className="space-y-4">
                 {visibleStaff.map((staff) => (
-                  <div key={staff.userName} className="overflow-hidden bg-white rounded-2xl shadow">
+                  <div
+                    key={staff.userName}
+                    className="overflow-hidden bg-white rounded-2xl shadow"
+                  >
                     <div className="flex flex-wrap items-center justify-between gap-4 px-5 py-4 border-b border-slate-50">
                       <div className="flex items-center gap-4">
-                       
                         <div>
                           <p className="text-base font-extrabold text-slate-900">
                             {staff.userName ?? "Unknown"}
@@ -1068,10 +1139,106 @@ export default function DayEndSummaryDetailsPage() {
               )}
             </>
           ) : (
-            <NoDataFound icon={UserCheck} title="No staff data available" className="bg-white"/> 
+            <NoDataFound
+              icon={UserCheck}
+              title="No staff data available"
+              className="bg-white"
+            />
           )}
         </div>
       </div>
+
+      {d?.dueCollections?.orders?.length > 0 && (
+        <MetricPanel
+          icon={IndianRupee}
+          title="Due Collections"
+          desc="Payments collected against outstanding dues today"
+          right={
+            <div className="flex items-center gap-3">
+              <div className="flex flex-col items-end">
+                <span className="text-[9px] font-black uppercase tracking-[0.12em] text-slate-400 mb-0.5">
+                  Collected
+                </span>
+                <span className="text-[15px] font-extrabold text-emerald-600 tabular-nums leading-none">
+                  {formatNumber(d.dueCollections.totalCollected, true)}
+                </span>
+              </div>
+              <div className="w-px h-8 bg-slate-200" />
+              <div className="flex flex-col items-center">
+                <span className="text-[9px] font-black uppercase tracking-[0.12em] text-slate-400 mb-0.5">
+                  Orders
+                </span>
+                <span className="text-[15px] font-extrabold text-slate-700 tabular-nums leading-none">
+                  {d.dueCollections.count}
+                </span>
+              </div>
+            </div>
+          }
+        >
+          <div className="space-y-2">
+            {d.dueCollections.orders.map((due, idx) => (
+              <button
+                key={due.paymentId}
+                onClick={() =>
+                  navigate(`/orders/details?orderId=${due.orderId}`)
+                }
+                className="w-full text-left group flex items-center gap-3.5 px-4 py-3.5 rounded-xl border transition-all duration-150 bg-white border-slate-100 hover:border-slate-300 hover:shadow-sm active:scale-[0.99]"
+              >
+                <div className="w-7 h-7 rounded-lg bg-slate-100 group-hover:bg-slate-200 flex items-center justify-center flex-shrink-0 transition-colors">
+                  <span className="text-[10px] font-black text-slate-500">
+                    {String(idx + 1).padStart(2, "0")}
+                  </span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-0.5 flex-wrap">
+                    <span className="font-mono text-[11px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md leading-none">
+                      {due.orderNumber}
+                    </span>
+                    {due.customerName && (
+                      <span className="text-[12px] font-semibold text-slate-700 truncate leading-none">
+                        {due.customerName}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-3 mt-1">
+                    <span className="text-[10px] text-slate-400">
+                      Bill:{" "}
+                      <span className="font-semibold text-slate-600">
+                        {formatNumber(due.orderTotal, true)}
+                      </span>
+                    </span>
+                    <span className="w-1 h-1 rounded-full bg-slate-300 flex-shrink-0" />
+                    <span className="text-[10px] text-slate-400">
+                      {formatDate(due.createdAt, "longTime")}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 flex-shrink-0">
+                  <span className="text-[10px] font-bold uppercase tracking-wide px-2 py-1 rounded-md bg-slate-100 text-slate-500 capitalize">
+                    {due.paymentMode}
+                  </span>
+                  <p className="text-[14px] font-extrabold text-emerald-600 tabular-nums leading-none">
+                    +{formatNumber(due.collectedAmount, true)}
+                  </p>
+                  <ChevronRight
+                    size={15}
+                    className="text-slate-300 group-hover:text-slate-500 group-hover:translate-x-0.5 transition-all"
+                  />
+                </div>
+              </button>
+            ))}
+          </div>
+
+          <div className="mt-3 flex items-center justify-between px-4 py-3 rounded-xl bg-emerald-50 border border-emerald-100">
+            <span className="text-[11px] font-bold text-emerald-700">
+              Total Due Recovered Today
+            </span>
+            <span className="text-[14px] font-extrabold text-emerald-700 tabular-nums">
+              {formatNumber(d.dueCollections.totalCollected, true)}
+            </span>
+          </div>
+        </MetricPanel>
+      )}
 
       {/* ── ROW 5: Order Log ────────────────────────────────────────────── */}
       <div>

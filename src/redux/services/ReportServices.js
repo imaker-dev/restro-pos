@@ -157,7 +157,27 @@ export default false
 
         return Api.get(`/orders/reports/${outletId}/nc`, { params });
       },
+
       getDiscountReportApi: ({
+        outletId,
+        dateRange = {},
+        page,
+        limit,
+        search,
+      }) => {
+        const params = cleanParams({
+          page,
+          limit,
+          search,
+          startDate: dateRange?.startDate,
+          endDate: dateRange?.endDate,
+
+        });
+
+        return Api.get(`/reports/discounts/${outletId}/details`, { params });
+      },
+
+      getAdjustmentReportApi: ({
         outletId,
         dateRange = {},
         page,
@@ -178,6 +198,6 @@ export default false
           discountType,
         });
 
-        return Api.get(`/reports/discounts/${outletId}/details`, { params });
+        return Api.get(`/reports/adjustments/${outletId}`, { params });
       },
     };

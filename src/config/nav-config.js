@@ -9,7 +9,6 @@ import {
   ReceiptText,
   BarChart3,
   Settings,
-  Shield,
   Table,
   Truck,
   Percent,
@@ -17,7 +16,6 @@ import {
   Warehouse,
   Info,
   ReceiptIndianRupee,
-  Utensils,
   SlidersHorizontal,
   Monitor,
   Printer,
@@ -61,7 +59,7 @@ export const navConfig = [
       },
 
       {
-        name: "Dashboard",
+        name: "Kitchen Dashboard",
         icon: Home,
         path: "/",
         roles: [ROLES.KITCHEN, ROLES.BARTENDER],
@@ -97,55 +95,61 @@ export const navConfig = [
             roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
           },
           {
-            name: "Payments Report",
+            name: "Payments",
             path: "/payment-mode",
             icon: CreditCard,
             roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
           },
           {
-            name: "Tax Report",
+            name: "Tax",
             path: "/tax-report",
             icon: Percent,
             roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
           },
           {
-            name: "Discount Report",
+            name: "Discount",
             path: "/discount-report",
             icon: Percent,
             roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
           },
           {
-            name: "Service Type Breakdown",
+            name: "Adjustment",
+            path: "/adjustment-report",
+            icon: Percent,
+            roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
+          },
+          {
+            name: "Service Type",
             path: "/service-type-breakdown",
             icon: PieChart,
             roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
           },
           {
-            name: "Station Sales",
+            name: "Station",
             path: "/station-sales",
             icon: Monitor,
             roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
           },
           {
-            name: "Section Sales",
+            name: "Section",
             path: "/section-sales",
             icon: Layers,
             roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
           },
           {
-            name: "Due Report",
+            name: "Due",
             path: "/due-report",
             icon: BadgeIndianRupee,
             roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
           },
           {
-            name: "NC (No Charge) Report",
+            name: "No Charge",
             path: "/nc-report",
             icon: ReceiptIndianRupee,
             roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
           },
           {
-            name: "Cancellation Report",
+            name: "Cancellation",
             path: "/cancellation-report",
             icon: XCircle,
             roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
@@ -156,7 +160,7 @@ export const navConfig = [
   },
 
   {
-    title: "Daily Operations",
+    title: "Live Operations",
     roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
     items: [
       {
@@ -178,7 +182,7 @@ export const navConfig = [
         roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
       },
       {
-        name: "Day End Summary",
+        name: "Day Summary",
         icon: CalendarCheck,
         path: "/day-end-summary",
         roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
@@ -187,25 +191,86 @@ export const navConfig = [
   },
 
   {
-    title: "Organization",
-    roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN],
+    title: "Operations",
+    roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
     items: [
       {
-        name: "Outlets / Restaurants",
-        icon: Building2,
-        path: "/outlets",
-        roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN],
+        name: "Orders",
+        icon: ShoppingCart,
+        path: "/orders",
+        roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
       },
       {
-        name: "Outlet Logo",
-        path: "/outlet-logo",
-        icon: Image,
-        roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN],
-      },
-      {
-        name: "Users & Staff",
+        name: "Customers",
         icon: Users,
-        path: "/users",
+        path: "/customers",
+        roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
+      },
+      {
+        name: "Stations",
+        icon: Monitor,
+        path: "/stations",
+        roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
+      },
+      {
+        name: "Printers",
+        icon: Printer,
+        path: "/printers",
+        roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
+      },
+      {
+        name: "Tables & Floors",
+        icon: LayoutGrid,
+        path: "/floors",
+        roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
+      },
+      {
+        name: "Order Display",
+        icon: Monitor,
+        path: "/order-display",
+        roles: [ROLES.KITCHEN, ROLES.BARTENDER],
+      },
+    ],
+  },
+
+  {
+    title: "Menu Management",
+    roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
+    items: [
+      {
+        name: "Menu Categories",
+        icon: Layers,
+        path: "/categories",
+        roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
+      },
+      {
+        name: "Menu Items",
+        icon: UtensilsCrossed,
+        path: "/items",
+        roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
+      },
+      {
+        name: "Modifiers / Add-ons",
+        icon: SlidersHorizontal,
+        path: "/addons",
+        roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
+      },
+      {
+        name: "Tax Groups",
+        icon: Percent,
+        path: "/tax-groups",
+        roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN],
+      },
+      {
+        name: "NC (No Charge) Reasons",
+        icon: XCircle,
+        path: "/nc-reasons",
+        roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN],
+      },
+      {
+        name: "Menu Media",
+        icon: Image,
+        path: "/menu-media",
         roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
       },
     ],
@@ -225,7 +290,7 @@ export const navConfig = [
 
       // ─────────── OPERATIONS ───────────
       {
-        name: "Operations",
+        name: "Stock Operations",
         icon: BarChart3,
         roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
         children: [
@@ -313,87 +378,26 @@ export const navConfig = [
   },
 
   {
-    title: "Menu & Inventory",
-    roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
-    items: [
-      {
-        name: "Menu Categories",
-        icon: Layers,
-        path: "/categories",
-        roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
-      },
-      {
-        name: "Menu Items",
-        icon: UtensilsCrossed,
-        path: "/items",
-        roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
-      },
-      {
-        name: "Modifiers / Add-ons",
-        icon: SlidersHorizontal,
-        path: "/addons",
-        roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
-      },
-      {
-        name: "Tax Groups",
-        icon: Percent,
-        path: "/tax-groups",
-        roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN],
-      },
-      {
-        name: "NC (No Charge) Reasons",
-        icon: XCircle,
-        path: "/nc-reasons",
-        roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN],
-      },
-      {
-        name: "Menu Media",
-        icon: Image,
-        path: "/menu-media",
-        roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
-      },
-    ],
-  },
-
-  {
-    title: "Operations",
+    title: "Organization",
     roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN],
     items: [
       {
-        name: "Orders",
-        icon: ShoppingCart,
-        path: "/orders",
-        roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
+        name: "Outlets / Restaurants",
+        icon: Building2,
+        path: "/outlets",
+        roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN],
       },
       {
-        name: "Customers",
+        name: "Outlet Logo",
+        path: "/outlet-logo",
+        icon: Image,
+        roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN],
+      },
+      {
+        name: "Users & Staff",
         icon: Users,
-        path: "/customers",
+        path: "/users",
         roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
-      },
-      {
-        name: "Stations",
-        icon: Monitor,
-        path: "/stations",
-        roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
-      },
-      {
-        name: "Printers",
-        icon: Printer,
-        path: "/printers",
-        roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
-      },
-      {
-        name: "Tables & Floors",
-        icon: LayoutGrid,
-        path: "/floors",
-        roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
-      },
-      {
-        name: "Order Display",
-        icon: Monitor,
-        path: "/order-display",
-        roles: [ROLES.KITCHEN, ROLES.BARTENDER],
       },
     ],
   },
@@ -425,12 +429,13 @@ export const navConfig = [
         icon: Info,
         path: "/guide",
         public: true,
+        roles: null,
       },
       {
         name: "Support",
         icon: Headphones,
         path: "/support",
-        public: true,
+        roles: [ROLES.SUPER_ADMIN],
       },
     ],
   },

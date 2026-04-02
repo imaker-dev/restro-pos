@@ -72,9 +72,7 @@ const DragDropUploader = ({
   const validateFile = (file) => {
     if (typeof file === "string") return null;
     if (file.size > maxSize)
-      return `File ${file.name} is too large. Maximum size is ${
-        maxSize / (1024 * 1024)
-      }MB`;
+      return `File ${file.name} is too large. Maximum size is ${formatFileSize(maxSize)}`;
 
     if (accept) {
       const acceptedTypes = accept.split(",");

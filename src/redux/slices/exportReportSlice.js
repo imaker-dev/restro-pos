@@ -238,6 +238,16 @@ export const exportDiscountReport = createAsyncThunk(
   },
 );
 
+export const exportAdjustmentReport = createAsyncThunk(
+  "/export/adjustment/report",
+  async ({ outletId, dateRange }) => {
+    const res = await ExportServices.exportAdjustmentReportApi({
+      outletId,
+      dateRange,    });
+    return res.data;
+  },
+);
+
 /* ───────────── SLICE ───────────── */
 
 const exportReportSlice = createSlice({
@@ -265,6 +275,7 @@ const exportReportSlice = createSlice({
     isExportingDueReport: false,
     isExportingNcReport: false,
     isExportingDiscountReport: false,
+    isExportingAdjustmentReport: false,
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -537,7 +548,18 @@ const exportReportSlice = createSlice({
       .addCase(exportDiscountReport.rejected, (state, action) => {
         state.isExportingDiscountReport = false;
         toast.error(action.error.message);
-      });
+      })
+      .addCase(exportAdjustmentReport.pending, (state) => {
+        state.isExportingAdjustmentReport = true;
+      })
+      .addCase(exportAdjustmentReport.fulfilled, (state) => {
+        state.isExportingAdjustmentReport = false;
+        toast.success("Adjustment report exported successfully");
+      })
+      .addCase(exportAdjustmentReport.rejected, (state, action) => {
+        state.isExportingAdjustmentReport = false;
+        toast.error(action.error.message);
+      })
   },
 });
 
