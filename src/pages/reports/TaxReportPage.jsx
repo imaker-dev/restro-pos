@@ -14,6 +14,7 @@ import { useNavigate } from "react-router-dom";
 import { handleResponse } from "../../utils/helpers";
 import { exportTaxReport } from "../../redux/slices/exportReportSlice";
 import { downloadBlob } from "../../utils/blob";
+import { ROUTE_PATHS } from "../../config/paths";
 
 const TaxReportPage = () => {
   const dispatch = useDispatch();
@@ -286,7 +287,8 @@ const TaxReportPage = () => {
     {
       label: "View",
       icon: Eye,
-      onClick: (row) => navigate(`/tax-report/details?date=${row.report_date}`),
+      onClick: (row) =>
+        navigate(`${ROUTE_PATHS.REPORTS_TAX_DETAILS}?date=${row.report_date}`),
     },
   ];
 
@@ -331,6 +333,7 @@ const TaxReportPage = () => {
     <div className="space-y-6">
       <PageHeader
         title={"Tax Report"}
+        showBackButton
         rightContent={
           <CustomDateRangePicker
             value={dateRange}

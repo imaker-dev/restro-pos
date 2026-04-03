@@ -22,6 +22,7 @@ import FloorModal from "../../partial/floor/FloorModal";
 import { handleResponse } from "../../utils/helpers";
 import { formatDate } from "../../utils/dateFormatter";
 import StatusBadge from "../../layout/StatusBadge";
+import { ROUTE_PATHS } from "../../config/paths";
 
 const AllFloorsPage = () => {
   const dispatch = useDispatch();
@@ -163,7 +164,8 @@ const AllFloorsPage = () => {
     {
       label: "View",
       icon: Eye,
-      onClick: (row) => navigate(`/floors/tables?floorId=${row.id}`),
+      onClick: (row) =>
+        navigate(`${ROUTE_PATHS.FLOORS_TABLES}?floorId=${row.id}`),
     },
     {
       label: "Edit",

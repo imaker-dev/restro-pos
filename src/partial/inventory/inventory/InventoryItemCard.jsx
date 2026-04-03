@@ -14,6 +14,7 @@ import {
 import { formatDate } from "../../../utils/dateFormatter";
 import { useDispatch } from "react-redux";
 import InventoryBadge from "./InventoryBadge";
+import { ROUTE_PATHS } from "../../../config/paths";
 // import { adjustStock } from "../../../redux/slices/inventorySlice"; // ← wire up
 
 /* ─── Animated stock bar ──────────────────────────────────────────────────── */
@@ -249,7 +250,9 @@ export default function InventoryItemCard({ item, onAdjust, onWastage }) {
           {/* View Details */}
           <button
             onClick={() =>
-              navigate(`/inventory-items/details?itemId=${item.id}`)
+              navigate(
+                `${ROUTE_PATHS.INVENTORY_ITEMS_DETAILS}?itemId=${item.id}`,
+              )
             }
             className="flex flex-col items-center justify-center gap-1 py-3 text-[10px] font-bold text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition-all duration-150"
             title="View Details"
@@ -261,7 +264,9 @@ export default function InventoryItemCard({ item, onAdjust, onWastage }) {
           {/* List Batches */}
           <button
             onClick={() =>
-              navigate(`/inventory-items/batches?itemId=${item.id}`)
+              navigate(
+                `${ROUTE_PATHS.INVENTORY_ITEMS_BATCHES}?itemId=${item.id}`,
+              )
             }
             className="flex flex-col items-center justify-center gap-1 py-3 text-[10px] font-bold text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition-all duration-150"
             title="View Batches"
@@ -297,7 +302,9 @@ export default function InventoryItemCard({ item, onAdjust, onWastage }) {
 
           {/* Edit */}
           <button
-            onClick={() => navigate(`/inventory-items/add?itemId=${item.id}`)}
+            onClick={() =>
+              navigate(`${ROUTE_PATHS.INVENTORY_ITEMS_ADD}?itemId=${item.id}`)
+            }
             className="flex flex-col items-center justify-center gap-1 py-3 text-[10px] font-bold text-primary-600 hover:bg-primary-50 transition-all duration-150"
             title="Edit Item"
           >

@@ -15,6 +15,7 @@ import { formatDate } from "../../utils/dateFormatter";
 import { useEffect, useState } from "react";
 import { TrendingUp, TrendingDown } from "lucide-react";
 import Tooltip from "../../components/Tooltip";
+import { ROUTE_PATHS } from "../../config/paths";
 
 /* ─── Profit badge ────────────────────────────────────────────────────────── */
 function ProfitBadge({ profit }) {
@@ -96,7 +97,7 @@ export function RecipeCard({ recipe }) {
               </p> */}
               <p className="text-[11px] text-slate-500 font-semibold truncate mt-0.5">
                 <Link
-                  to={`/items/details?itemId=${recipe.menuItemId}`}
+                  to={`${ROUTE_PATHS.MENU_ITEMS_DETAILS}?itemId=${recipe.menuItemId}`}
                   onClick={(e) => e.stopPropagation()}
                   className="hover:text-primary-600 hover:underline transition-all duration-150"
                 >
@@ -226,14 +227,14 @@ export function RecipeCard({ recipe }) {
       {/* Action footer */}
       <div className="flex border-t border-slate-100">
         <Link
-          to={`/recipes/details?recipeId=${recipe.id}`}
+          to={`${ROUTE_PATHS.RECIPES_DETAILS}?recipeId=${recipe.id}`}
           className="flex-1 flex items-center justify-center gap-1.5 py-3 text-[11px] font-bold text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition-all duration-150 border-r border-slate-100"
         >
           View Details
           <ArrowUpRight size={11} strokeWidth={2.5} />
         </Link>
         <Link
-          to={`/recipes/add?recipeId=${recipe.id}`}
+          to={`${ROUTE_PATHS.RECIPES_ADD}?recipeId=${recipe.id}`}
           className="px-5 flex items-center justify-center gap-1.5 py-3 text-[11px] font-bold text-primary-600 hover:bg-primary-50 transition-all duration-150"
         >
           Edit

@@ -23,6 +23,7 @@ import { Link } from "react-router-dom";
 import LoadingOverlay from "../../components/LoadingOverlay";
 import NoDataFound from "../../layout/NoDataFound";
 import StatusBadge from "../../layout/StatusBadge";
+import { ROUTE_PATHS } from "../../config/paths";
 
 // ─── Card Component ────────────────────────────────────────────────────────────
 function Card({
@@ -115,10 +116,7 @@ export default function UserDetailsPage() {
   }
 
   if (!user) {
-    return (
-      <NoDataFound title="User Not Found"/>
-      
-    );
+    return <NoDataFound title="User Not Found" />;
   }
 
   const stats = [
@@ -156,8 +154,6 @@ export default function UserDetailsPage() {
       {/* Hero Section */}
       <Card className="border-0 bg-gradient-to-br from-primary-600 to-primary-700 shadow-lg">
         <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
-
-
           {/* Info */}
           <div className="flex-1 min-w-0">
             <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">
@@ -165,7 +161,7 @@ export default function UserDetailsPage() {
             </h1>
 
             <div className="flex flex-wrap items-center gap-3 mb-3">
-              <StatusBadge value={user?.isActive}/>
+              <StatusBadge value={user?.isActive} />
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 backdrop-blur text-white text-sm font-medium border border-white/20">
                 <Shield size={14} />
                 {user?.roles?.[0]?.name || "No role"}
@@ -197,7 +193,7 @@ export default function UserDetailsPage() {
           {/* Actions */}
           <div className="flex gap-2 w-full md:w-auto">
             <Link
-              to={`/users/add?userId=${user?.id}`}
+              to={`${ROUTE_PATHS.USER_ADD}?userId=${user?.id}`}
               className="flex-1 md:flex-initial btn bg-white hover:bg-gray-50 text-primary-700 px-5 py-2.5 rounded-lg font-medium shadow-sm flex items-center justify-center gap-2"
             >
               <Edit size={16} />

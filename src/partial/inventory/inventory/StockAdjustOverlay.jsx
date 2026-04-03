@@ -114,7 +114,6 @@ export default function StockAdjustOverlay({
       id={"inventory-adjustoment"}
       isOpen={isOpen}
       onClose={onClose}
-      size="md"
     >
       <div>
         {/* Header */}

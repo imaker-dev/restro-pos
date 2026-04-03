@@ -18,6 +18,7 @@ import {
 import RemoveStationFromUserModal from "../../partial/user/RemoveStationFromUserModal";
 import Pagination from "../../components/Pagination";
 import RoleBadge from "../../partial/user/RoleBadge";
+import { ROUTE_PATHS } from "../../config/paths";
 
 const AllUsersPage = () => {
   const dispatch = useDispatch();
@@ -164,14 +165,15 @@ const AllUsersPage = () => {
     {
       label: "View",
       icon: Eye,
-      onClick: (row) => navigate(`/users/details?userId=${row.id}`),
+      onClick: (row) =>
+        navigate(`${ROUTE_PATHS.USER_DETAILS}?userId=${row.id}`),
     },
 
     {
       label: "Edit",
       icon: Edit3,
       color: "blue",
-      onClick: (row) => navigate(`/users/add?userId=${row.id}`),
+      onClick: (row) => navigate(`${ROUTE_PATHS.USER_ADD}?userId=${row.id}`),
     },
 
     {
@@ -202,7 +204,7 @@ const AllUsersPage = () => {
       label: "Add New User",
       type: "primary",
       icon: Plus,
-      onClick: () => navigate(`/users/add`),
+      onClick: () => navigate(`${ROUTE_PATHS.USER_ADD}`),
     },
   ];
 
@@ -262,7 +264,7 @@ const AllUsersPage = () => {
           }}
         />
       </div>
-      
+
       <AssignStationToUserModal
         isOpen={showAssginStationModal}
         onClose={clearUserStates}

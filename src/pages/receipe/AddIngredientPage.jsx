@@ -19,6 +19,7 @@ import InfoCard from "../../components/InfoCard";
 import { useQueryParams } from "../../hooks/useQueryParams";
 import LoadingOverlay from "../../components/LoadingOverlay";
 import { SearchSelectField } from "../../components/fields/SearchSelectField";
+import { ROUTE_PATHS } from "../../config/paths";
 
 const AddIngredientPage = () => {
   const dispatch = useDispatch();
@@ -51,7 +52,7 @@ const AddIngredientPage = () => {
 
   const handleItemSearch = useCallback(
     (query) => {
-      console.log(query)
+      console.log(query);
       if (outletId) {
         dispatch(fetchAllInventoryItems({ outletId, search: query }));
       }
@@ -130,7 +131,9 @@ const AddIngredientPage = () => {
       ? updateIngredient({ id: ingredientId, values: payload })
       : createIngredient({ outletId, values: { items: values.items } });
 
-    await handleResponse(dispatch(action), () => navigate("/ingredients"));
+    await handleResponse(dispatch(action), () =>
+      navigate(ROUTE_PATHS.ALL_INVENTORY_INGREDIENTS),
+    );
   };
 
   if (isEditMode && isFetchingIngredientDetails) return <LoadingOverlay />;

@@ -19,6 +19,7 @@ import Pagination from "../../components/Pagination";
 import SearchBar from "../../components/SearchBar";
 import { SERVICE_TYPES } from "../../constants";
 import { formatText } from "../../utils/utils";
+import { ROUTE_PATHS } from "../../config/paths";
 
 const AllCategoriesPage = () => {
   const dispatch = useDispatch();
@@ -146,7 +147,8 @@ const AllCategoriesPage = () => {
     {
       label: "View",
       icon: Eye,
-      onClick: (row) => navigate(`/items?categoryId=${row.id}`),
+      onClick: (row) =>
+        navigate(`${ROUTE_PATHS.ALL_MENU_ITEMS}?categoryId=${row.id}`),
     },
     {
       label: "Update",

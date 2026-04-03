@@ -17,6 +17,7 @@ import { fetchAllCategories } from "../../redux/slices/categorySlice";
 import { SERVICE_TYPES } from "../../constants";
 import { formatText } from "../../utils/utils";
 import { FOOD_TYPE_OPTIONS } from "../../constants/selectOptions";
+import { ROUTE_PATHS } from "../../config/paths";
 
 const AllItemsPage = () => {
   const dispatch = useDispatch();
@@ -187,13 +188,15 @@ const AllItemsPage = () => {
     {
       label: "Eye",
       icon: Eye,
-      onClick: (row) => navigate(`/items/details?itemId=${row.id}`),
+      onClick: (row) =>
+        navigate(`${ROUTE_PATHS.MENU_ITEMS_DETAILS}?itemId=${row.id}`),
     },
     {
       label: "Update",
       icon: Edit2,
       color: "blue",
-      onClick: (row) => navigate(`/items/add?itemId=${row.id}`),
+      onClick: (row) =>
+        navigate(`${ROUTE_PATHS.MENU_ITEMS_ADD}?itemId=${row.id}`),
     },
   ];
 
@@ -202,13 +205,13 @@ const AllItemsPage = () => {
       label: "Add New Item",
       type: "primary",
       icon: Plus,
-      onClick: () => navigate(`/items/add`),
+      onClick: () => navigate(ROUTE_PATHS.MENU_ITEMS_ADD),
     },
     {
       label: "Add Bulk Items",
       type: "export",
       icon: Plus,
-      onClick: () => navigate(`/items/bulk-add`),
+      onClick: () => navigate(ROUTE_PATHS.MENU_ITEMS_BULK_ADD),
     },
     {
       label: "Refresh",

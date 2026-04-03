@@ -21,6 +21,7 @@ import { useNavigate } from "react-router-dom";
 import { useQueryParams } from "../../hooks/useQueryParams";
 import { handleResponse } from "../../utils/helpers";
 import LoadingOverlay from "../../components/LoadingOverlay";
+import { ROUTE_PATHS } from "../../config/paths";
 
 const AddVendorPage = () => {
   const dispatch = useDispatch();
@@ -43,41 +44,41 @@ const AddVendorPage = () => {
     }
   }, [dispatch, vendorId]);
 
-const initialValues = useMemo(() => {
-  if (!vendorId || !vendor) {
-    return {
-      name: "",
-      contactPerson: "",
-      phone: "",
-      email: "",
-      address: "",
-      city: "",
-      state: "",
-      pincode: "",
-      gstNumber: "",
-      panNumber: "",
-      paymentTerms: "",
-      creditDays: "",
-      notes: "",
-    };
-  }
+  const initialValues = useMemo(() => {
+    if (!vendorId || !vendor) {
+      return {
+        name: "",
+        contactPerson: "",
+        phone: "",
+        email: "",
+        address: "",
+        city: "",
+        state: "",
+        pincode: "",
+        gstNumber: "",
+        panNumber: "",
+        paymentTerms: "",
+        creditDays: "",
+        notes: "",
+      };
+    }
 
-  return {
-    name: vendor.name || "",
-    contactPerson: vendor.contactPerson || "",
-    phone: vendor.phone || "",
-    email: vendor.email || "",
-    address: vendor.address || "",
-    city: vendor.city || "",
-    state: vendor.state || "",
-    pincode: vendor.pincode || "",
-    gstNumber: vendor.gstNumber || "",
-    panNumber: vendor.panNumber || "",
-    paymentTerms: vendor.paymentTerms || "",
-    creditDays: vendor.creditDays || "",
-    notes: vendor.notes || "",
-  };
-}, [vendorId, vendor]);
+    return {
+      name: vendor.name || "",
+      contactPerson: vendor.contactPerson || "",
+      phone: vendor.phone || "",
+      email: vendor.email || "",
+      address: vendor.address || "",
+      city: vendor.city || "",
+      state: vendor.state || "",
+      pincode: vendor.pincode || "",
+      gstNumber: vendor.gstNumber || "",
+      panNumber: vendor.panNumber || "",
+      paymentTerms: vendor.paymentTerms || "",
+      creditDays: vendor.creditDays || "",
+      notes: vendor.notes || "",
+    };
+  }, [vendorId, vendor]);
   const validationSchema = Yup.object({
     name: Yup.string().required("Vendor name is required"),
   });
@@ -93,7 +94,7 @@ const initialValues = useMemo(() => {
       : createVendor({ outletId, values: payload });
 
     await handleResponse(dispatch(action), () => {
-      navigate("/inventory-vendors");
+      navigate(ROUTE_PATHS.ALL_VENDORS);
     });
   };
 

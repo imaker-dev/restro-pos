@@ -27,6 +27,7 @@ import { useQueryParams } from "../../hooks/useQueryParams";
 import LoadingOverlay from "../../components/LoadingOverlay";
 import { fetchMeData } from "../../redux/slices/authSlice";
 import ToggleField from "../../components/fields/ToggleField";
+import { ROUTE_PATHS } from "../../config/paths";
 
 const AddOutletPage = () => {
   const dispatch = useDispatch();
@@ -151,12 +152,8 @@ const AddOutletPage = () => {
     await handleResponse(dispatch(action), () => {
       dispatch(fetchMeData());
       resetForm();
-      navigate("/outlets");
+      navigate(ROUTE_PATHS.ALL_OUTLETS);
     });
-
-    // await handleResponse(dispatch(createOutlet(payload)), () => {
-    //   navigate(`/outlets`);
-    // });
 
     // console.log("Outlet Payload:", payload);
   };

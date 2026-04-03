@@ -17,8 +17,6 @@ import {
   ShieldCheck,
   ArrowUpRight,
   Pencil,
-  Star,
-  Zap,
 } from "lucide-react";
 import { formatDate } from "../../utils/dateFormatter";
 import { formatNumber, num } from "../../utils/numberFormatter";
@@ -27,6 +25,7 @@ import FoodTypeIcon from "../../partial/common/FoodTypeIcon";
 import PageHeader from "../../layout/PageHeader";
 import StatusBadge from "../../layout/StatusBadge";
 import LoadingOverlay from "../../components/LoadingOverlay";
+import { ROUTE_PATHS } from "../../config/paths";
 
 const fmt = (v) => formatNumber(v, true);
 
@@ -329,7 +328,9 @@ const ItemDetailsPage = () => {
                   <button
                     key={recipe?.id}
                     onClick={() =>
-                      navigate(`/recipes/details?recipeId=${recipe?.id}`)
+                      navigate(
+                        `${ROUTE_PATHS.RECIPES_DETAILS}?recipeId=${recipe?.id}`,
+                      )
                     }
                     className="group w-full text-left flex items-center gap-4 px-5 py-3.5 hover:bg-slate-50 transition-colors duration-100"
                   >
@@ -466,7 +467,9 @@ const ItemDetailsPage = () => {
 
           {/* Edit button */}
           <button
-            onClick={() => navigate(`/items/add?itemId=${item?.id}`)}
+            onClick={() =>
+              navigate(`${ROUTE_PATHS.MENU_ITEMS_ADD}?itemId=${item?.id}`)
+            }
             className="btn w-full flex items-center justify-center rounded-lg gap-2 py-2.5 text-[12px] bg-primary-500 text-white transition-all hover:bg-primary-600 hover:shadow-md hover:-translate-y-px"
           >
             <Pencil size={13} strokeWidth={2} />

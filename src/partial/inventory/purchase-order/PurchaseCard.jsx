@@ -12,6 +12,7 @@ import { formatNumber } from "../../../utils/numberFormatter";
 import { formatDate } from "../../../utils/dateFormatter";
 import { Link } from "react-router-dom";
 import InventoryBadge from "../inventory/InventoryBadge";
+import { ROUTE_PATHS } from "../../../config/paths";
 
 /* ─── Purchase card ───────────────────────────────────────────────────────── */
 export function PurchaseCard({ purchase, onPay, onCancel }) {
@@ -53,7 +54,7 @@ export function PurchaseCard({ purchase, onPay, onCancel }) {
               {formatNumber(purchase.totalAmount, true)}
             </p>
             <Link
-              to={`/purchase-orders/details?purchaseId=${purchase.id}`}
+              to={`${ROUTE_PATHS.PURCHASE_ORDERS_DETAILS}?purchaseId=${purchase.id}`}
               className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-400 hover:text-slate-700 hover:bg-slate-100 px-2 py-1 rounded-lg transition-all"
             >
               View <ArrowUpRight size={10} strokeWidth={2.5} />

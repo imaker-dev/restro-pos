@@ -201,6 +201,7 @@ const ServiceTypeBreakdownReportPage = () => {
       {/* Header */}
       <PageHeader
         title="Service Type Breakdown"
+        showBackButton
         rightContent={
           <CustomDateRangePicker
             value={dateRange}

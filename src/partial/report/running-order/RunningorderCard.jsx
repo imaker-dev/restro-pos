@@ -14,6 +14,7 @@ import OrderBadge from "../../order/OrderBadge";
 import { formatNumber } from "../../../utils/numberFormatter";
 import { Link } from "react-router-dom";
 import { formatDate } from "../../../utils/dateFormatter";
+import { ROUTE_PATHS } from "../../../config/paths";
 
 /* ─── Config ─────────────────────────────────────────────── */
 const STATUS_CFG = {
@@ -298,7 +299,7 @@ const RunningorderCard = ({ order }) => {
 
           {/* ── View Details Button ── */}
           <Link
-            to={`/orders/details?orderId=${order?.id}`}
+            to={`${ROUTE_PATHS.ORDER_DETAILS}?orderId=${order?.id}`}
             className="
               btn group flex-shrink-0 rounded-xl
               bg-primary-500 hover:bg-primary-600

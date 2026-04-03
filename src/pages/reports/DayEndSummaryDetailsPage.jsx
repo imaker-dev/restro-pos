@@ -44,6 +44,7 @@ import { exportDayEndSummaryDetails } from "../../redux/slices/exportReportSlice
 import { downloadBlob } from "../../utils/blob";
 import MetricPanel from "../../partial/report/daily-sales-report/MetricPanel";
 import NoDataFound from "../../layout/NoDataFound";
+import { ROUTE_PATHS } from "../../config/paths";
 
 // ─── Utils ────────────────────────────────────────────────────────────────────
 const pct = (a, b) => (b ? +((a / b) * 100).toFixed(1) : 0);
@@ -57,15 +58,6 @@ const BAR_COLORS = [
   "bg-orange-400",
   "bg-teal-400",
   "bg-pink-400",
-];
-
-const BADGE_STYLES = [
-  "bg-violet-50 text-violet-600 ring-1 ring-violet-100",
-  "bg-rose-50 text-rose-600 ring-1 ring-rose-100",
-  "bg-amber-50 text-amber-600 ring-1 ring-amber-100",
-  "bg-sky-50 text-sky-600 ring-1 ring-sky-100",
-  "bg-emerald-50 text-emerald-600 ring-1 ring-emerald-100",
-  "bg-orange-50 text-orange-600 ring-1 ring-orange-100",
 ];
 
 // ─── Animated Counter ─────────────────────────────────────────────────────────
@@ -93,7 +85,7 @@ function Counter({ to, prefix = "" }) {
 }
 
 // ─── Animated Bar ─────────────────────────────────────────────────────────────
-function Bar({ value, max, colorClass, h = "h-1.5" }) {
+function Bar({ value, max, h = "h-1.5" }) {
   const [w, setW] = useState(0);
 
   useEffect(() => {
@@ -104,7 +96,7 @@ function Bar({ value, max, colorClass, h = "h-1.5" }) {
   return (
     <div className={`w-full bg-slate-100 rounded-full ${h} overflow-hidden`}>
       <div
-        className={`${h} rounded-full ${colorClass} transition-all duration-1000 ease-out`}
+        className={`${h} rounded-full bg-primary-500 transition-all duration-1000 ease-out`}
         style={{ width: `${w}%` }}
       />
     </div>
@@ -315,13 +307,7 @@ export default function DayEndSummaryDetailsPage() {
       {/* ── ROW 1: Hero + Order Distribution ────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         {/* Hero */}
-        <div
-          className="lg:col-span-8 relative rounded-3xl overflow-hidden shadow-lg"
-          style={{
-            background:
-              "linear-gradient(135deg, var(--color-primary-600), var(--color-primary-700))",
-          }}
-        >
+        <div className="lg:col-span-8 bg-primary-500 relative rounded-3xl overflow-hidden shadow-lg">
           {/* highlight line */}
           <div
             className="absolute top-0 left-0 right-0 h-[1px]"
@@ -602,13 +588,7 @@ export default function DayEndSummaryDetailsPage() {
         {/* Payment Breakdown */}
         <div className="md:col-span-1 lg:col-span-4 overflow-hidden bg-white rounded-2xl shadow">
           {/* Header */}
-          <div
-            className="relative px-5 pt-5 pb-4 overflow-hidden"
-            style={{
-              background:
-                "linear-gradient(135deg, var(--color-primary-600), var(--color-primary-700))",
-            }}
-          >
+          <div className="relative bg-primary-500 px-5 pt-5 pb-4 overflow-hidden">
             {/* highlight line */}
             <div
               className="absolute top-0 left-0 right-0 h-[1px]"
@@ -871,11 +851,6 @@ export default function DayEndSummaryDetailsPage() {
                     key={cat.categoryName}
                     className="flex items-center gap-3"
                   >
-                    <div
-                      className={`w-7 h-7 rounded-lg flex-shrink-0 flex items-center justify-center text-[10px] font-extrabold text-white ${BAR_COLORS[i % BAR_COLORS.length]}`}
-                    >
-                      {i + 1}
-                    </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-1">
                         <p className="text-sm font-semibold text-slate-800 truncate pr-3">
@@ -903,7 +878,11 @@ export default function DayEndSummaryDetailsPage() {
               {d.categoryBreakdown.length > CAT_LIMIT && (
                 <ShowMoreBtn
                   expanded={showAllCats}
-                  onClick={() => navigate(`/category-sales?date=${date}`)}
+                  onClick={() =>
+                    navigate(
+                      `${ROUTE_PATHS.REPORTS_CATEGORY_SALES}?date=${date}`,
+                    )
+                  }
                   total={d.categoryBreakdown.length}
                   showing={CAT_LIMIT}
                 />
@@ -921,14 +900,6 @@ export default function DayEndSummaryDetailsPage() {
               <div className="space-y-4">
                 {visibleItems.map((item, i) => (
                   <div key={item.itemName} className="flex items-center gap-3">
-                    {/* Rank */}
-                    <div
-                      className={`w-7 h-7 rounded-lg flex-shrink-0 flex items-center justify-center text-[10px] font-extrabold text-white ${
-                        BAR_COLORS[i % BAR_COLORS.length]
-                      }`}
-                    >
-                      {i + 1}
-                    </div>
 
                     {/* Content */}
                     <div className="flex-1 min-w-0">
@@ -976,7 +947,9 @@ export default function DayEndSummaryDetailsPage() {
               {d.topSellingItems.length > ITEM_LIMIT && (
                 <ShowMoreBtn
                   expanded={showAllItems}
-                  onClick={() => navigate(`/item-sales?date=${date}`)}
+                  onClick={() =>
+                    navigate(`${ROUTE_PATHS.REPORTS_ITEM_SALES}?date=${date}`)
+                  }
                   total={d.topSellingItems.length}
                   showing={ITEM_LIMIT}
                 />
@@ -1132,7 +1105,9 @@ export default function DayEndSummaryDetailsPage() {
               {d.staffPerformance.length > STAFF_LIMIT && (
                 <ShowMoreBtn
                   expanded={showAllStaff}
-                  onClick={() => navigate(`/staff-sales?date=${date}`)}
+                  onClick={() =>
+                    navigate(`${ROUTE_PATHS.REPORTS_STAFF_SALES}?date=${date}`)
+                  }
                   total={d.staffPerformance.length}
                   showing={STAFF_LIMIT}
                 />
@@ -1180,7 +1155,9 @@ export default function DayEndSummaryDetailsPage() {
               <button
                 key={due.paymentId}
                 onClick={() =>
-                  navigate(`/orders/details?orderId=${due.orderId}`)
+                  navigate(
+                    `${ROUTE_PATHS.ORDER_DETAILS}?orderId=${due.orderId}`,
+                  )
                 }
                 className="w-full text-left group flex items-center gap-3.5 px-4 py-3.5 rounded-xl border transition-all duration-150 bg-white border-slate-100 hover:border-slate-300 hover:shadow-sm active:scale-[0.99]"
               >

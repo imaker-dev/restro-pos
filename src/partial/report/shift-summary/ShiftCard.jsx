@@ -19,6 +19,7 @@ import {
 } from "../../../utils/dateFormatter";
 import { formatNumber, num } from "../../../utils/numberFormatter";
 import StatusBadge from "../../../layout/StatusBadge";
+import { ROUTE_PATHS } from "../../../config/paths";
 
 // ─── Cash row ─────────────────────────────────────────────────────────────────
 function CashRow({ label, value, dim }) {
@@ -39,11 +40,14 @@ export default function ShiftCard({ shift }) {
   const isOpen = shift.status === "open";
   const duration = formatDurationBetween(shift.openingTime, shift.closingTime);
   const variance = num(shift.cashVariance);
-  const hasVariance = variance !== 0;
   const navigate = useNavigate();
   return (
     <div
-      onClick={() => navigate(`/shift-history/details?shiftId=${shift?.id}`)}
+      onClick={() =>
+        navigate(
+          `${ROUTE_PATHS.REPORTS_SHIFT_HISTORY_DETAILS}?shiftId=${shift?.id}`,
+        )
+      }
       className="group bg-white rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_32px_-4px_rgba(0,0,0,0.10)]"
       style={{
         border: "1px solid #e2e8f0",

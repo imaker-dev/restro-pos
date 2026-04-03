@@ -2,6 +2,7 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
+import { ROUTE_PATHS } from "../config/paths";
 
 const Breadcrumb = () => {
   const location = useLocation();
@@ -12,7 +13,7 @@ const Breadcrumb = () => {
     <nav className="flex items-center flex-wrap text-sm text-gray-500 gap-1">
       {/* Dashboard */}
       <Link
-        to="/"
+        to={ROUTE_PATHS.HOME}
         className="hover:text-primary-600 transition-colors font-medium"
       >
         Dashboard

@@ -32,6 +32,7 @@ import {
 } from "lucide-react";
 import PageHeader from "../../layout/PageHeader";
 import MetricPanel from "../../partial/report/daily-sales-report/MetricPanel";
+import { formatDate } from "../../utils/dateFormatter";
 
 // ─── constants ───────────────────────────────────────────────────────────────
 
@@ -111,28 +112,6 @@ const DEFAULT_CHANNEL = {
 
 const getPlatform = (key) => PLATFORM_META[key] ?? DEFAULT_PLATFORM;
 const getChannel = (key) => CHANNEL_META[key] ?? DEFAULT_CHANNEL;
-
-const fmtDate = (dateStr) => {
-  if (!dateStr) return null;
-  try {
-    const d = new Date(dateStr);
-    if (isNaN(d.getTime())) return null;
-    return {
-      date: d.toLocaleDateString("en-IN", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-      }),
-      time: d.toLocaleTimeString("en-IN", {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: true,
-      }),
-    };
-  } catch {
-    return null;
-  }
-};
 
 // ─── atoms ───────────────────────────────────────────────────────────────────
 
@@ -298,16 +277,19 @@ const UrlRow = ({ label, url, icon: Icon }) => {
 // ─── timestamp chip ──────────────────────────────────────────────────────────
 
 const TimestampChip = ({ label, dateStr }) => {
-  const d = fmtDate(dateStr);
   return (
     <div className="rounded-xl bg-gray-50 border border-gray-100 p-4">
       <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">
         {label}
       </p>
-      {d ? (
+      {dateStr ? (
         <>
-          <p className="text-sm font-bold text-gray-800">{d.date}</p>
-          <p className="text-xs text-gray-400 mt-0.5">{d.time}</p>
+          <p className="text-sm font-bold text-gray-800">
+            {formatDate(dateStr, "long")}
+          </p>
+          <p className="text-xs text-gray-400 mt-0.5">
+            {formatDate(dateStr, "time")}
+          </p>
         </>
       ) : (
         <p className="text-sm text-gray-300 italic">Not set</p>
@@ -321,7 +303,6 @@ const TimestampChip = ({ label, dateStr }) => {
 const VersionDetail = ({ v, onRetry }) => {
   const plat = getPlatform(v.platform);
   const chan = getChannel(v.channel);
-  const { Icon: PlatIcon } = plat;
 
   const platformUrls = [
     { label: "Android URL", url: v.android_url, icon: Smartphone },
@@ -338,16 +319,11 @@ const VersionDetail = ({ v, onRetry }) => {
       <PageHeader onlyBack backLabel="Back to Versions" />
       {/* ── hero banner ── */}
       <div
-        className={`rounded-2xl bg-gradient-to-br ${plat.gradient} p-6 text-white shadow-lg relative overflow-hidden`}
+        className={`rounded-2xl bg-primary-500 p-6 text-white shadow-lg relative overflow-hidden`}
       >
-        <div className="absolute -right-12 -top-12 w-52 h-52 rounded-full bg-white/5 pointer-events-none" />
-        <div className="absolute right-10 -bottom-8 w-32 h-32 rounded-full bg-white/5 pointer-events-none" />
+        <div className="absolute -right-12 -top-12 w-52 h-52 rounded-full bg-white/20 pointer-events-none" />
 
         <div className="relative flex flex-col sm:flex-row sm:items-center gap-5">
-          <div className="w-16 h-16 rounded-2xl bg-white/15 backdrop-blur-sm flex items-center justify-center shadow-inner flex-shrink-0">
-            <PlatIcon size={30} className="text-white" />
-          </div>
-
           <div className="flex-1 min-w-0">
             <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-2">
               <h1 className="text-3xl font-black tracking-tight leading-none">
@@ -387,17 +363,17 @@ const VersionDetail = ({ v, onRetry }) => {
               )}
             </div>
 
-            {fmtDate(v.release_date) && (
+            {v.release_date && (
               <p className="mt-3 text-sm text-white/60 flex items-center gap-1.5">
                 <Calendar size={12} />
-                Released {fmtDate(v.release_date)?.date} at{" "}
-                {fmtDate(v.release_date)?.time}
+                Released {formatDate(v.release_date, "long")} at{" "}
+                {formatDate(v.release_date, "time")}
               </p>
             )}
           </div>
 
           <div className="hidden sm:block text-right flex-shrink-0 select-none">
-            <p className="text-6xl font-black text-white/[0.07] tabular-nums leading-none">
+            <p className="text-6xl font-black text-white/60 tabular-nums leading-none">
               #{v.id}
             </p>
           </div>

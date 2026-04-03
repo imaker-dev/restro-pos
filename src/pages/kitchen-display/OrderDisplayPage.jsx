@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import {
-  Flame,
   CheckCircle2,
-  X,
   RefreshCw,
   Wifi,
   WifiOff,
@@ -25,7 +23,6 @@ import SearchBar from "../../components/SearchBar";
 import { ORDER_STATUSES } from "../../utils/orderStatusConfig";
 import { setKotTab } from "../../redux/slices/uiSlice";
 import { useNavigate } from "react-router-dom";
-import { formatText } from "../../utils/utils";
 
 export default function OrderDisplayPage() {
   const dispatch = useDispatch();

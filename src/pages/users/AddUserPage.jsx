@@ -23,6 +23,7 @@ import InfoCard from "../../components/InfoCard";
 import ToggleField from "../../components/fields/ToggleField";
 import { ROLES } from "../../constants";
 import LoadingOverlay from "../../components/LoadingOverlay";
+import { ROUTE_PATHS } from "../../config/paths";
 
 const AddUserPage = () => {
   const dispatch = useDispatch();
@@ -145,7 +146,7 @@ const AddUserPage = () => {
       : createUser(payload);
 
     await handleResponse(dispatch(action), () => {
-      navigate("/users");
+      navigate(ROUTE_PATHS.ALL_USERS);
     });
   };
 

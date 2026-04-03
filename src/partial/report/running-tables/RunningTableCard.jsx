@@ -11,6 +11,7 @@ import { Link } from "react-router-dom";
 import { formatDate } from "../../../utils/dateFormatter";
 import { formatNumber } from "../../../utils/numberFormatter";
 import OrderBadge from "../../order/OrderBadge";
+import { ROUTE_PATHS } from "../../../config/paths";
 
 /* ─── Config ─────────────────────────────────────────────── */
 const STATUS_CFG = {
@@ -192,7 +193,7 @@ const RunningTableCard = ({ table }) => {
 
           {/* View Order Details button */}
           <Link
-            to={`/orders/details?orderId=${table?.order?.id}`}
+            to={`${ROUTE_PATHS.ORDER_DETAILS}?orderId=${table?.order?.id}`}
             className="btn group w-full rounded-xl bg-primary-500 hover:bg-primary-600 text-white text-xs font-bold"
           >
             View Order Details

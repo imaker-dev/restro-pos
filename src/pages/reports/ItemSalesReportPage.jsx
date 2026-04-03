@@ -225,6 +225,7 @@ const stats = [
       {/* Header Section */}
       <PageHeader
         title={"Item Sales Report"}
+        showBackButton
         rightContent={
           <CustomDateRangePicker
             value={dateRange}

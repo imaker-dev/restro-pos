@@ -29,6 +29,7 @@ import { useNavigate } from "react-router-dom";
 import { handleResponse } from "../../utils/helpers";
 import { exportDayEndSummary } from "../../redux/slices/exportReportSlice";
 import { downloadBlob } from "../../utils/blob";
+import { ROUTE_PATHS } from "../../config/paths";
 
 const DayEndSummaryPage = () => {
   const dispatch = useDispatch();
@@ -228,7 +229,10 @@ const DayEndSummaryPage = () => {
     {
       label: "View",
       icon: Eye,
-      onClick: (row) => navigate(`/day-end-summary/details?date=${row.date}`),
+      onClick: (row) =>
+        navigate(
+          `${ROUTE_PATHS.REPORTS_DAY_END_SUMMARY_DETAILS}?date=${row.date}`,
+        ),
     },
   ];
 

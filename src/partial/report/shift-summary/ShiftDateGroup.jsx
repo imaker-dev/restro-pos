@@ -4,7 +4,7 @@ import { formatNumber, num } from "../../../utils/numberFormatter";
 import ShiftCard from "./ShiftCard";
 
 // ─── Date group ───────────────────────────────────────────────────────────────
-export default function ShiftDateGroup({ dateStr, shifts, navigate }) {
+export default function ShiftDateGroup({ dateStr, shifts }) {
   const sales = shifts.reduce((a, s) => a + num(s.totalSales), 0);
   const orders = shifts.reduce((a, s) => a + num(s.totalOrders), 0);
   const openCount = shifts.filter((s) => s.status === "open").length;
@@ -44,8 +44,6 @@ export default function ShiftDateGroup({ dateStr, shifts, navigate }) {
           <ShiftCard
             key={shift.id}
             shift={shift}
-            navigate={navigate}
-            delay={i * 60}
           />
         ))}
       </div>

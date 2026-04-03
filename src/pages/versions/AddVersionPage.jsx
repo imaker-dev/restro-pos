@@ -42,6 +42,7 @@ import { handleResponse } from "../../utils/helpers";
 import LoadingOverlay from "../../components/LoadingOverlay";
 import InfoCard from "../../components/InfoCard";
 import MetricPanel from "../../partial/report/daily-sales-report/MetricPanel";
+import { ROUTE_PATHS } from "../../config/paths";
 
 // ─── Platform Config ──────────────────────────────────────────────────────────
 const PLATFORMS = [
@@ -532,7 +533,9 @@ const AddVersionPage = () => {
       ? updateVersion({ id: versionId, values: payload })
       : createVersion(payload);
 
-    await handleResponse(dispatch(action), () => navigate("/versions"));
+    await handleResponse(dispatch(action), () =>
+      navigate(ROUTE_PATHS.ALL_VERSIONS),
+    );
   };
 
   if (isFetchingVersionDetails && versionId) return <LoadingOverlay />;

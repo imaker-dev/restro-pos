@@ -150,6 +150,7 @@ const DueReportPage = () => {
     <div className="space-y-6">
       <PageHeader
         title="Due Reports"
+        showBackButton
         rightContent={
           <CustomDateRangePicker value={dateRange} onChange={setDateRange} />
         }

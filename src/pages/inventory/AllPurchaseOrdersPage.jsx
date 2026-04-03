@@ -46,6 +46,7 @@ import PurchaseCardSkeleton from "../../partial/inventory/purchase-order/Purchas
 import SearchBar from "../../components/SearchBar";
 import CustomDateRangePicker from "../../components/CustomDateRangePicker";
 import Pagination from "../../components/Pagination";
+import { ROUTE_PATHS } from "../../config/paths";
 
 /* ═══════════════════════════════════════════════════════════════════════════
    MAIN PAGE
@@ -123,7 +124,7 @@ const AllPurchaseOrdersPage = () => {
       label: "Create Purchase Order",
       type: "primary",
       icon: Plus,
-      onClick: () => navigate("/purchase-orders/add"),
+      onClick: () => navigate(ROUTE_PATHS.PURCHASE_ORDERS_ADD),
     },
   ];
 

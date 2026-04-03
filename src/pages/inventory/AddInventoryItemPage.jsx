@@ -22,6 +22,7 @@ import {
 
 import { fetchAllUnits } from "../../redux/slices/unitSlice";
 import LoadingOverlay from "../../components/LoadingOverlay";
+import { ROUTE_PATHS } from "../../config/paths";
 
 const AddInventoryItemPage = () => {
   const dispatch = useDispatch();
@@ -122,7 +123,7 @@ const AddInventoryItemPage = () => {
       : createInventoryItem({ outletId, values: payload });
 
     await handleResponse(dispatch(action), () => {
-      navigate("/inventory-items");
+      navigate(ROUTE_PATHS.ALL_INVENTORY_ITEMS);
     });
   };
 

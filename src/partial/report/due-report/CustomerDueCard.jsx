@@ -16,6 +16,7 @@ import { formatNumber } from "../../../utils/numberFormatter";
 import { formatDate } from "../../../utils/dateFormatter";
 import { Link } from "react-router-dom";
 import CustomerDueDrawer from "./CustomerDueDrawer";
+import { ROUTE_PATHS } from "../../../config/paths";
 
 // ─── Due Badge ────────────────────────────────────────────────────────────────
 function DueBadge({ amount }) {
@@ -180,7 +181,7 @@ export function CustomerDueCard({ customer }) {
         {/* Footer actions */}
         <div className="flex border-t border-gray-100">
           <Link
-            to={`/customers/details?customerId=${customer.id}`}
+            to={`${ROUTE_PATHS.CUSTOMER_DETAILS}?customerId=${customer.id}`}
             className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-[11px] font-bold text-gray-500 hover:text-primary-600 hover:bg-primary-50 transition-all"
           >
             <Users size={12} />

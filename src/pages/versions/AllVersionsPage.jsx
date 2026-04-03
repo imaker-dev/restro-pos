@@ -14,6 +14,7 @@ import { formatDate } from "../../utils/dateFormatter";
 import ModalAction from "../../components/ModalAction";
 import { handleResponse } from "../../utils/helpers";
 import VersionModal from "../../partial/version/VersionModal";
+import { ROUTE_PATHS } from "../../config/paths";
 
 const AllVersionsPage = () => {
   const dispatch = useDispatch();
@@ -38,7 +39,7 @@ const AllVersionsPage = () => {
       label: "Add New Version",
       type: "primary",
       icon: Plus,
-      onClick: () => navigate(`/versions/add`),
+      onClick: () => navigate(`${ROUTE_PATHS.VENDORS_ADD}`),
     },
   ];
 
@@ -153,7 +154,7 @@ const AllVersionsPage = () => {
     {
       label: "View",
       icon: Eye,
-      onClick: (row) => navigate(`/versions/details?versionId=${row.id}`),
+      onClick: (row) => navigate(`${ROUTE_PATHS.VERSION_DETAILS}?versionId=${row.id}`),
     },
     {
       label: "Edit",

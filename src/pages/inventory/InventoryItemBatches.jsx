@@ -9,6 +9,7 @@ import SmartTable from "../../components/SmartTable";
 import { Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Pagination from "../../components/Pagination";
+import { ROUTE_PATHS } from "../../config/paths";
 
 const InventoryItemBatches = () => {
   const dispatch = useDispatch();
@@ -146,7 +147,7 @@ const InventoryItemBatches = () => {
       label: "Eye",
       icon: Eye,
       onClick: (row) =>
-        navigate(`/purchase-orders/details?purchaseId=${row.id}`),
+        navigate(`${ROUTE_PATHS.PURCHASE_ORDERS_DETAILS}?purchaseId=${row.id}`),
     },
   ];
 

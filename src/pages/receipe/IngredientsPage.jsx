@@ -1,16 +1,27 @@
 import React, { useEffect, useState } from "react";
 import PageHeader from "../../layout/PageHeader";
-import { AlertTriangle, CheckCircle, Database, Edit3, Eye, Link, Package, Plus, Unlink, XCircle } from "lucide-react";
+import {
+  AlertTriangle,
+  CheckCircle,
+  Database,
+  Edit3,
+  Eye,
+  Link,
+  Package,
+  Plus,
+  Unlink,
+  XCircle,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllIngredients } from "../../redux/slices/ingredientSlice";
-import { formatDate } from "../../utils/dateFormatter";
 import { formatNumber } from "../../utils/numberFormatter";
 import SmartTable from "../../components/SmartTable";
 import SearchBar from "../../components/SearchBar";
 import Pagination from "../../components/Pagination";
 import InventoryBadge from "../../partial/inventory/inventory/InventoryBadge";
 import StatCard from "../../components/StatCard";
+import { ROUTE_PATHS } from "../../config/paths";
 
 const IngredientsPage = () => {
   const dispatch = useDispatch();
@@ -24,7 +35,7 @@ const IngredientsPage = () => {
   const { allIngredients, isFetchingIngredients } = useSelector(
     (state) => state.ingredient,
   );
-  const { ingredients, pagination,summary } = allIngredients || {};
+  const { ingredients, pagination, summary } = allIngredients || {};
 
   useEffect(() => {
     if (!outletId) return;
@@ -43,7 +54,7 @@ const IngredientsPage = () => {
       label: "Add New Ingredient",
       type: "primary",
       icon: Plus,
-      onClick: () => navigate(`/ingredients/add`),
+      onClick: () => navigate(`${ROUTE_PATHS.INVENTORY_INGREDIENTS_ADD}`),
     },
   ];
 
@@ -148,87 +159,90 @@ const IngredientsPage = () => {
       label: "View",
       icon: Edit3,
       color: "blue",
-      onClick: (row) => navigate(`/ingredients/add?ingredientId=${row.id}`),
+      onClick: (row) =>
+        navigate(
+          `${ROUTE_PATHS.INVENTORY_INGREDIENTS_ADD}?ingredientId=${row.id}`,
+        ),
     },
   ];
 
   const stats = [
-  // Overview
-  {
-    title: "Total Ingredients",
-    value: formatNumber(summary?.totalIngredients),
-    subtitle: "All ingredients",
-    icon: Package,
-    color: "slate",
-  },
+    // Overview
+    {
+      title: "Total Ingredients",
+      value: formatNumber(summary?.totalIngredients),
+      subtitle: "All ingredients",
+      icon: Package,
+      color: "slate",
+    },
 
-  // Status
-  {
-    title: "Active Ingredients",
-    value: formatNumber(summary?.activeIngredients),
-    subtitle: "Currently in use",
-    icon: CheckCircle,
-    color: "green",
-  },
-  {
-    title: "Inactive Ingredients",
-    value: formatNumber(summary?.inactiveIngredients),
-    subtitle: "Not in use",
-    icon: XCircle,
-    color: "red",
-  },
+    // Status
+    {
+      title: "Active Ingredients",
+      value: formatNumber(summary?.activeIngredients),
+      subtitle: "Currently in use",
+      icon: CheckCircle,
+      color: "green",
+    },
+    {
+      title: "Inactive Ingredients",
+      value: formatNumber(summary?.inactiveIngredients),
+      subtitle: "Not in use",
+      icon: XCircle,
+      color: "red",
+    },
 
-  // Recipe Linking
-  {
-    title: "Linked to Recipes",
-    value: formatNumber(summary?.linkedToRecipes),
-    subtitle: "Used in recipes",
-    icon: Link,
-    color: "blue",
-  },
-  {
-    title: "Not Linked to Recipes",
-    value: formatNumber(summary?.notLinkedToRecipes),
-    subtitle: "Unused in recipes",
-    icon: Unlink,
-    color: "orange",
-  },
+    // Recipe Linking
+    {
+      title: "Linked to Recipes",
+      value: formatNumber(summary?.linkedToRecipes),
+      subtitle: "Used in recipes",
+      icon: Link,
+      color: "blue",
+    },
+    {
+      title: "Not Linked to Recipes",
+      value: formatNumber(summary?.notLinkedToRecipes),
+      subtitle: "Unused in recipes",
+      icon: Unlink,
+      color: "orange",
+    },
 
-  // Inventory Mapping
-  {
-    title: "Mapped to Inventory",
-    value: formatNumber(summary?.mappedToInventory),
-    subtitle: "Inventory connected",
-    icon: Database,
-    color: "green",
-  },
-  {
-    title: "Unmapped to Inventory",
-    value: formatNumber(summary?.unmappedToInventory),
-    subtitle: "Not mapped",
-    icon: AlertTriangle,
-    color: "red",
-  },
-];
+    // Inventory Mapping
+    {
+      title: "Mapped to Inventory",
+      value: formatNumber(summary?.mappedToInventory),
+      subtitle: "Inventory connected",
+      icon: Database,
+      color: "green",
+    },
+    {
+      title: "Unmapped to Inventory",
+      value: formatNumber(summary?.unmappedToInventory),
+      subtitle: "Not mapped",
+      icon: AlertTriangle,
+      color: "red",
+    },
+  ];
 
   return (
     <div className="space-y-6">
       <PageHeader title={"All Ingredient"} actions={actions} />
-            {/* ── Summary KPIs ── */}
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-3">
-              {stats.map((s) => (
-                <StatCard
-                  key={s.title}
-                  icon={s.icon}
-                  title={s.title}
-                  value={s.value}
-                  subtitle={s.subtitle}
-                  color={s.color}
-                  variant="v9"
-                  loading={isFetchingIngredients}
-                />
-              ))}
-            </div>
+      {/* ── Summary KPIs ── */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-3">
+        {stats.map((s) => (
+          <StatCard
+            key={s.title}
+            icon={s.icon}
+            title={s.title}
+            value={s.value}
+            subtitle={s.subtitle}
+            color={s.color}
+            variant="v9"
+            loading={isFetchingIngredients}
+          />
+        ))}
+      </div>
       <SearchBar onSearch={(v) => setSearchTerm(v)} />
 
       <SmartTable

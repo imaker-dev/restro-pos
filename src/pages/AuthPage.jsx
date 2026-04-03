@@ -8,6 +8,7 @@ import { signIn } from "../redux/slices/authSlice";
 import { useNavigate } from "react-router-dom";
 import { InputField } from "../components/fields/InputField";
 import { CheckboxField } from "../components/fields/CheckboxField";
+import { ROUTE_PATHS } from "../config/paths";
 
 // ─── Illustration Panel ─────────────────────────────────────
 function IllustrationPanel() {
@@ -42,7 +43,7 @@ export default function AuthPage() {
     validationSchema,
     onSubmit: async (values) => {
       await handleResponse(dispatch(signIn(values)), () => {
-        navigate("/");
+        navigate(ROUTE_PATHS.HOME);
       });
     },
   });

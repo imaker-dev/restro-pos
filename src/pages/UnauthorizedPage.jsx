@@ -1,6 +1,7 @@
 import React from "react";
 import { ShieldOff, ArrowLeft, Home } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { ROUTE_PATHS } from "../config/paths";
 
 const UnauthorizedPage = () => {
   const navigate = useNavigate();
@@ -36,7 +37,7 @@ const UnauthorizedPage = () => {
           </button>
 
           <button
-            onClick={() => navigate("/")}
+            onClick={() => navigate(ROUTE_PATHS.HOME)}
             className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium
             rounded-lg bg-primary-500 text-white hover:bg-primary-600 transition"
           >

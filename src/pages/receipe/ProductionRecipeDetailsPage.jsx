@@ -23,6 +23,7 @@ import { formatNumber, num } from "../../utils/numberFormatter";
 import PageHeader from "../../layout/PageHeader";
 import MetricPanel from "../../partial/report/daily-sales-report/MetricPanel";
 import StatCard from "../../components/StatCard";
+import { ROUTE_PATHS } from "../../config/paths";
 
 const fmt = (v) => formatNumber(v, true);
 
@@ -448,7 +449,9 @@ const ProductionRecipeDetailsPage = () => {
               {/* Edit CTA */}
               <button
                 onClick={() =>
-                  navigate(`/prep-recipes/add?recipeId=${recipe.id}`)
+                  navigate(
+                    `${ROUTE_PATHS.PREP_RECIPES_ADD}?recipeId=${recipe.id}`,
+                  )
                 }
                 className="btn w-full bg-primary-500 hover:bg-primary-600 text-white transition-all hover:shadow-md hover:-translate-y-px"
               >

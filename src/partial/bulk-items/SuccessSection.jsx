@@ -15,6 +15,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { ROUTE_PATHS } from "../../config/paths";
 
 export default function SuccessSection({ uploadResult, onReset }) {
   const created = uploadResult?.created || {};
@@ -267,7 +268,10 @@ export default function SuccessSection({ uploadResult, onReset }) {
         >
           <RefreshCw size={14} /> Import More
         </button>
-        <Link to={'/items'} className="flex items-center gap-2 text-[13px] font-bold bg-primary-600 text-white px-5 py-2.5 rounded-xl hover:opacity-90">
+        <Link
+          to={ROUTE_PATHS.ALL_MENU_ITEMS}
+          className="flex items-center gap-2 text-[13px] font-bold bg-primary-600 text-white px-5 py-2.5 rounded-xl hover:opacity-90"
+        >
           <Eye size={14} /> View All Products <ChevronRight size={13} />
         </Link>
       </div>

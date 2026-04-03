@@ -22,6 +22,7 @@ import { formatNumber } from "../../utils/numberFormatter";
 import { formatDate } from "../../utils/dateFormatter";
 import StatusBadge from "../../layout/StatusBadge";
 import StatCard from "../../components/StatCard";
+import { ROUTE_PATHS } from "../../config/paths";
 
 const AllVendorsPage = () => {
   const dispatch = useDispatch();
@@ -44,7 +45,7 @@ const AllVendorsPage = () => {
       label: "Add New Vendor",
       type: "primary",
       icon: Plus,
-      onClick: () => navigate(`/inventory-vendors/add`),
+      onClick: () => navigate(ROUTE_PATHS.VENDORS_ADD),
     },
   ];
 
@@ -188,14 +189,16 @@ const AllVendorsPage = () => {
       icon: Eye,
       onClick: (row) =>
         navigate(
-          `/inventory-vendors/details?vendorId=${row.id ?? row.orderId}`,
+          `${ROUTE_PATHS.VENDORS_DETAILS}?vendorId=${row.id ?? row.orderId}`,
         ),
     },
     {
       label: "Update",
       icon: Edit3,
       onClick: (row) =>
-        navigate(`/inventory-vendors/add?vendorId=${row.id ?? row.orderId}`),
+        navigate(
+          `${ROUTE_PATHS.VENDORS_ADD}?vendorId=${row.id ?? row.orderId}`,
+        ),
       color: "blue",
     },
   ];

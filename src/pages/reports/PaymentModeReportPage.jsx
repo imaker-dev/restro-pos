@@ -211,6 +211,7 @@ const PaymentModeReportPage = () => {
       <div className="flex flex-col md:flex-row md:items-center md:justify-between">
         <PageHeader
           title={"Payment Mode Report"}
+          showBackButton
           rightContent={
             <CustomDateRangePicker
               value={dateRange}

@@ -22,6 +22,7 @@ import { RecipeCard } from "../../partial/recipe/RecipeCard";
 import SearchBar from "../../components/SearchBar";
 import { RecipeCardSkeleton } from "../../partial/recipe/RecipeCardSkeleton";
 import Pagination from "../../components/Pagination";
+import { ROUTE_PATHS } from "../../config/paths";
 
 /* ═══════════════════════════════════════════════════════════════════════════
    MAIN PAGE
@@ -62,7 +63,7 @@ const AllRecipePage = () => {
       label: "Add New Recipe",
       type: "primary",
       icon: Plus,
-      onClick: () => navigate("/recipes/add"),
+      onClick: () => navigate(ROUTE_PATHS.RECIPES_ADD),
     },
   ];
 

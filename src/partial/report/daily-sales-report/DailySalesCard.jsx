@@ -11,6 +11,7 @@ import {
   Smartphone,
   Wallet,
 } from "lucide-react";
+import { ROUTE_PATHS } from "../../../config/paths";
 
 const ORDER_PILL = {
   "Dine-In": { color: "#4f46e5", bg: "#ede9fe" },
@@ -123,7 +124,7 @@ export default function DailySalesCard({ day }) {
             </div>
 
             <Link
-              to={`/daily-sales/details?date=${day.report_date}`}
+              to={`${ROUTE_PATHS.REPORTS_DAILY_SALES_DETAILS}?date=${day.report_date}`}
               className="flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-[11px] font-bold text-slate-600 bg-slate-100 border border-slate-200 hover:bg-slate-200 transition-colors duration-150"
             >
               Details

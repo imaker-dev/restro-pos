@@ -157,6 +157,7 @@ const CancellationReport = () => {
     <div className="space-y-6">
       <PageHeader
         title={"Cancellation Report"}
+        showBackButton
         rightContent={
           <CustomDateRangePicker
             value={dateRange}

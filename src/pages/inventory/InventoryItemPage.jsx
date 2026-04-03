@@ -26,6 +26,7 @@ import InventoryItemWastageoverlay from "../../partial/inventory/inventory/Inven
 import { handleResponse } from "../../utils/helpers";
 import InventoryItemCardSkeleton from "../../partial/inventory/inventory/InventoryItemCardSkeleton";
 import Pagination from "../../components/Pagination";
+import { ROUTE_PATHS } from "../../config/paths";
 
 /* ═══════════════════════════════════════════════════════════════════════════
    MAIN PAGE
@@ -41,7 +42,7 @@ const InventoryItemPage = () => {
     isCreatingAdjustment,
     isCreatingWastage,
   } = useSelector((state) => state.inventory);
-  
+
   const { items = [], pagination, summary } = allItemsData || {};
 
   const [showAdjust, setShowAdjust] = useState(false);
@@ -74,7 +75,7 @@ const InventoryItemPage = () => {
       label: "Add New Item",
       type: "primary",
       icon: Plus,
-      onClick: () => navigate("/inventory-items/add"),
+      onClick: () => navigate(ROUTE_PATHS.INVENTORY_ITEMS_ADD),
     },
   ];
 

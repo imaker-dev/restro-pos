@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import MetricPanel from "../../partial/report/daily-sales-report/MetricPanel";
 import ExpiryBadge from "../../layout/ExpiryBadge";
+import { ROUTE_PATHS } from "../../config/paths";
 
 /* ─── Animated progress bar ──────────────────────────────────────────────── */
 function Bar({ value, max, colorClass = "bg-emerald-500", h = "h-2" }) {
@@ -276,7 +277,9 @@ const InventoryItemDetailsPage = () => {
             )}
             {/* Edit button */}
             <button
-              onClick={() => navigate(`/inventory-items/add?itemId=${d.id}`)}
+              onClick={() =>
+                navigate(`${ROUTE_PATHS.INVENTORY_ITEMS_ADD}?itemId=${d.id}`)
+              }
               className="inline-flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-white text-[11px] font-bold px-3 py-1.5 rounded-xl transition-all duration-150 hover:-translate-y-0.5 shadow-sm"
             >
               <Pencil size={11} strokeWidth={2.5} />

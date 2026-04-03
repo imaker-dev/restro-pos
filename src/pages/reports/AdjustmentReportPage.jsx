@@ -21,6 +21,7 @@ import SmartTable from "../../components/SmartTable";
 import OrderBadge from "../../partial/order/OrderBadge";
 import StatCard from "../../components/StatCard";
 import { useNavigate } from "react-router-dom";
+import { ROUTE_PATHS } from "../../config/paths";
 
 const AdjustmentReportPage = () => {
   const dispatch = useDispatch();
@@ -231,7 +232,8 @@ const AdjustmentReportPage = () => {
     {
       label: "Eye",
       icon: Eye,
-      onClick: (row) => navigate(`/orders/details?orderId=${row.orderId}`),
+      onClick: (row) =>
+        navigate(`${ROUTE_PATHS.ORDER_DETAILS}?orderId=${row.orderId}`),
     },
   ];
 
@@ -274,6 +276,7 @@ const AdjustmentReportPage = () => {
     <div className="space-y-6">
       <PageHeader
         title={"Adjustment Report"}
+        showBackButton
         actions={actions}
         rightContent={
           <CustomDateRangePicker value={dateRange} onChange={setDateRange} />

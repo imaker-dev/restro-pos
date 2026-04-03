@@ -302,12 +302,11 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllSettingsCategories } from "../../redux/slices/settingSlice";
-import StatusBadge from "../../layout/StatusBadge";
 import SmartTable from "../../components/SmartTable";
-import { formatDate } from "../../utils/dateFormatter";
 import { Eye, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import PageHeader from "../../layout/PageHeader";
+import { ROUTE_PATHS } from "../../config/paths";
 
 const AllSettingsPage = () => {
   const dispatch = useDispatch();
@@ -367,7 +366,8 @@ const AllSettingsPage = () => {
     {
       label: "View",
       icon: Eye,
-      onClick: (row) => navigate(`/settings/categories?category=${row.name}`),
+      onClick: (row) =>
+        navigate(`${ROUTE_PATHS.SETTING_DETAILS}?category=${row.name}`),
     },
   ];
 

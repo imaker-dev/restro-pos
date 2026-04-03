@@ -89,11 +89,11 @@ import LiveOrdersPage from "../pages/orders/LiveOrdersPage";
 import DiscountReportPage from "../pages/reports/DiscountReportPage";
 import AdjustmentReportPage from "../pages/reports/AdjustmentReportPage";
 import AllReportsPage from "../pages/reports/AllReportsPage";
+import { ROUTE_PATHS } from "./paths";
 
 const routeConfig = [
-  // { path: "/", element: Dashboard, roles: [ROLES.SUPER_ADMIN] },
   {
-    path: "/",
+    path: ROUTE_PATHS.HOME,
     elements: {
       [ROLES.SUPER_ADMIN]: Dashboard,
       [ROLES.ADMIN]: Dashboard,
@@ -101,122 +101,115 @@ const routeConfig = [
       [ROLES.KITCHEN]: OrderDashboard,
       [ROLES.BARTENDER]: OrderDashboard,
     },
-    roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER, ROLES.KITCHEN, ROLES.BARTENDER],
+    roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER, ROLES.KITCHEN, ROLES.BARTENDER],
   },
 
-  { path: "/order-display", element: OrderDisplayPage, roles: [ROLES.BARTENDER, ROLES.KITCHEN] },
+  { path: ROUTE_PATHS.ORDER_DISPLAY, element: OrderDisplayPage, roles: [ROLES.BARTENDER, ROLES.KITCHEN] },
 
-  { path: "/reports", element: AllReportsPage, roles:  [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
-  { path: "/daily-sales", element: DailySalesReportPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
-  { path: "/daily-sales/details", element: DailySalesReportDetailsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
-  { path: "/item-sales", element: ItemSalesReportPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
-  { path: "/category-sales", element: CategorySalesReportPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
-  { path: "/section-sales", element: SectionSalesPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
-  { path: "/station-sales", element: StationSalesPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
-  { path: "/staff-sales", element: StaffSalesReportPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
-  { path: "/payment-mode", element: PaymentModeReportPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
-  { path: "/tax-report", element: TaxReportPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
-  { path: "/tax-report/details", element: TaxReportDetailsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
-  { path: "/service-type-breakdown", element: ServiceTypeBreakdownReportPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
-  { path: "/shift-history", element: ShiftHistoryPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
-  { path: "/shift-history/details", element: ShiftHistoryDetailsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
-  { path: "/due-report", element: DueReportPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
-  { path: "/nc-report", element: NcReportPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
-  { path: "/cancellation-report", element: CancellationReport, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
-  { path: "/discount-report", element: DiscountReportPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
-  { path: "/adjustment-report", element: AdjustmentReportPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
-  { path: "/nc-reasons", element: AllNcReasonsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
+  // Reports
+  { path: ROUTE_PATHS.ALL_REPORTS, element: AllReportsPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.REPORTS_DAILY_SALES, element: DailySalesReportPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.REPORTS_DAILY_SALES_DETAILS, element: DailySalesReportDetailsPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.REPORTS_ITEM_SALES, element: ItemSalesReportPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.REPORTS_CATEGORY_SALES, element: CategorySalesReportPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.REPORTS_SECTION_SALES, element: SectionSalesPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.REPORTS_STATION_SALES, element: StationSalesPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.REPORTS_STAFF_SALES, element: StaffSalesReportPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.REPORTS_PAYMENT_MODE, element: PaymentModeReportPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.REPORTS_TAX, element: TaxReportPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.REPORTS_TAX_DETAILS, element: TaxReportDetailsPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.REPORTS_SERVICE_TYPE_BREAKDOWN, element: ServiceTypeBreakdownReportPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.REPORTS_SHIFT_HISTORY, element: ShiftHistoryPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.REPORTS_SHIFT_HISTORY_DETAILS, element: ShiftHistoryDetailsPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.REPORTS_DUE, element: DueReportPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.REPORTS_NC, element: NcReportPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.REPORTS_CANCELLATION, element: CancellationReport, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.REPORTS_DISCOUNT, element: DiscountReportPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.REPORTS_ADJUSTMENT, element: AdjustmentReportPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.REPORTS_RUNNING_ORDERS, element: RunningOrdersPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.REPORTS_RUNNING_TABLES, element: RunningTablesPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.REPORTS_DAY_END_SUMMARY, element: DayEndSummaryPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.REPORTS_DAY_END_SUMMARY_DETAILS, element: DayEndSummaryDetailsPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.REPORTS_LIVE_ORDERS, element: LiveOrdersPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
 
+  // NC Reasons
+  { path: ROUTE_PATHS.ALL_NC_REASONS, element: AllNcReasonsPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
 
+  // Inventory
+  { path: ROUTE_PATHS.INVENTORY_SUMMARY, element: inventorySummaryPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.ALL_INVENTORY_UNITS, element: AllUnitsPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.ALL_VENDORS, element: AllVendorsPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.VENDORS_ADD, element: AddVendorPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.VENDORS_DETAILS, element: VendorDetailsPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.ALL_INVENTORY_CATEGORIES, element: InventoryCategoryPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.ALL_INVENTORY_ITEMS, element: InventoryItemPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.INVENTORY_ITEMS_ADD, element: AddInventoryItemPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.INVENTORY_ITEMS_DETAILS, element: InventoryItemDetailsPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.INVENTORY_ITEMS_BATCHES, element: InventoryItemBatches, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.ALL_INVENTORY_MOVEMENTS, element: InventoryMovementsPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.ALL_INVENTORY_WASTAGE, element: InventoryWastagePage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.ALL_PURCHASE_ORDERS, element: AllPurchaseOrdersPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.PURCHASE_ORDERS_DETAILS, element: PurchaseOrderDetailsPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.PURCHASE_ORDERS_ADD, element: AddPurchaseOrdersPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.ALL_INVENTORY_INGREDIENTS, element: IngredientsPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.INVENTORY_INGREDIENTS_ADD, element: AddIngredientPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
 
-  { path: "/inventory", element: inventorySummaryPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
-  { path: "/inventory/units", element: AllUnitsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
-  { path: "/inventory-vendors", element: AllVendorsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
-  { path: "/inventory-vendors/add", element: AddVendorPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
-  { path: "/inventory-vendors/details", element: VendorDetailsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
-  { path: "/inventory-categories", element: InventoryCategoryPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
+  // Recipes
+  { path: ROUTE_PATHS.ALL_RECIPES, element: AllRecipePage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.RECIPES_ADD, element: AddRecipePage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.RECIPES_DETAILS, element: RecipeDetailsPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.ALL_PREP_RECIPES, element: AllProductionRecipePage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.PREP_RECIPES_ADD, element: AddProductionRecipePage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.PREP_RECIPES_DETAILS, element: ProductionRecipeDetailsPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
 
-  { path: "/inventory-items", element: InventoryItemPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
-  { path: "/inventory-items/add", element: AddInventoryItemPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
-  { path: "/inventory-items/details", element: InventoryItemDetailsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
-  { path: "/inventory-items/batches", element: InventoryItemBatches, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
-  { path: "/inventory-movements", element: InventoryMovementsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
-  { path: "/inventory-wastage", element: InventoryWastagePage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
+  // Organization
+  { path: ROUTE_PATHS.ALL_OUTLETS, element: AllOutletsPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN] },
+  { path: ROUTE_PATHS.OUTLET_LOGO, element: OutletLogoPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN] },
+  { path: ROUTE_PATHS.OUTLET_DETAILS, element: OutletDetails, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN] },
+  { path: ROUTE_PATHS.OUTLET_ADD, element: AddOutletPage, roles: [ROLES.SUPER_ADMIN] },
+  { path: ROUTE_PATHS.OUTLET_DELETE, element: OutletDeletePage, roles: [ROLES.SUPER_ADMIN] },
 
-  { path: "/purchase-orders", element: AllPurchaseOrdersPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
-  { path: "/purchase-orders/details", element: PurchaseOrderDetailsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
-  { path: "/purchase-orders/add", element: AddPurchaseOrdersPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
+  // Menu Management
+  { path: ROUTE_PATHS.ALL_MENU_CATEGORIES, element: AllCategoriesPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.MENU_MEDIA, element: MenuMediaPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.MENU_MEDIA_QR_CODES, element: QrCodesPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.ALL_MENU_ITEMS, element: AllItemsPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.MENU_ITEMS_DETAILS, element: ItemDetailsPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.MENU_ITEMS_ADD, element: AddItemPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.MENU_ITEMS_BULK_ADD, element: AddBulkItemPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.MENU_ITEMS_BULK_ADD_SUMMARY, element: BulkUploadSummaryPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.ALL_ADDONS_GROUPS, element: AllAddonsGroup, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.ALL_ADDONS_ITEMS, element: AllAddonItemsPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.ALL_TAX_GROUPS, element: AllTaxGroupsPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN] },
+  { path: ROUTE_PATHS.TAX_GROUPS_DETAILS, element: TaxGroupDetailsPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN] },
 
+  // Operations
+  { path: ROUTE_PATHS.ALL_STATIONS, element: AllStationsPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.ALL_PRINTERS, element: AllPrintersPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.ALL_FLOORS, element: AllFloorsPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.FLOORS_TABLES, element: AllTablesPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.FLOORS_SECTIONS_TABLES, element: AllTablesPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.ALL_USERS, element: AllUsersPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.USER_DETAILS, element: UserDetailsPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.USER_ADD, element: AddUserPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.ALL_ORDERS, element: AllOrdersPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.ORDER_DETAILS, element: OrderDetailsPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.TABLE_HISTORY, element: TableHistoryPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.TABLE_REPORT, element: TableReportPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.TABLE_KOT, element: TableKotPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.ALL_CUSTOMERS, element: AllCustomersPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.CUSTOMER_DETAILS, element: CustomerDetailsPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
 
-  { path: "/ingredients", element: IngredientsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
-  { path: "/ingredients/add", element: AddIngredientPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
-  { path: "/recipes", element: AllRecipePage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
-  { path: "/recipes/add", element: AddRecipePage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
-  { path: "/recipes/details", element: RecipeDetailsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
-  { path: "/prep-recipes", element: AllProductionRecipePage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
-  { path: "/prep-recipes/add", element: AddProductionRecipePage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
-  { path: "/prep-recipes/details", element: ProductionRecipeDetailsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
+  // System
+  { path: ROUTE_PATHS.ALL_SETTINGS, element: AllSettingsPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN] },
+  { path: ROUTE_PATHS.SETTING_DETAILS, element: SettingDetailsPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN] },
+  { path: ROUTE_PATHS.SUPPORT_CHAT, element: SupportChatPage, roles: [ROLES.SUPER_ADMIN] },
+  { path: ROUTE_PATHS.ALL_VERSIONS, element: AllVersionsPage, roles: [ROLES.SUPER_ADMIN] },
+  { path: ROUTE_PATHS.VERSION_ADD, element: AddVersionPage, roles: [ROLES.SUPER_ADMIN] },
+  { path: ROUTE_PATHS.VERSION_DETAILS, element: VersionDetailsPage, roles: [ROLES.SUPER_ADMIN] },
 
-
-  { path: "/live-orders", element: LiveOrdersPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
-  { path: "/running-orders", element: RunningOrdersPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
-  { path: "/running-tables", element: RunningTablesPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
-  { path: "/day-end-summary", element: DayEndSummaryPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
-  { path: "/day-end-summary/details", element: DayEndSummaryDetailsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER] },
-  
-  { path: "/outlets", element: AllOutletsPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN] },
-  { path: "/outlet-logo", element: OutletLogoPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN] },
-  { path: "/outlets/details", element: OutletDetails, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN] },
-  { path: "/outlets/add", element: AddOutletPage, roles: [ROLES.SUPER_ADMIN] },
-  { path: "/outlets/delete", element: OutletDeletePage, roles: [ROLES.SUPER_ADMIN] },
-
-  { path: "/categories", element: AllCategoriesPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN, ROLES.MANAGER,] },
-  { path: "/menu-media", element: MenuMediaPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN,ROLES.MANAGER] },
-  { path: "/menu-media/qr-codes", element: QrCodesPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN,ROLES.MANAGER] },
-  { path: "/items", element: AllItemsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN,ROLES.MANAGER] },
-  { path: "/items/details", element: ItemDetailsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN,ROLES.MANAGER] },
-  { path: "/items/add", element: AddItemPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN,ROLES.MANAGER] },
-  { path: "/items/bulk-add", element: AddBulkItemPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN,ROLES.MANAGER] },
-  { path: "/items/bulk-add/summary", element: BulkUploadSummaryPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN,ROLES.MANAGER] },
-  
-  { path: "/stations", element: AllStationsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN,ROLES.MANAGER] },
-  { path: "/printers", element: AllPrintersPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN,ROLES.MANAGER] },
-  
-  { path: "/floors", element: AllFloorsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN,ROLES.MANAGER] },
-  { path: "/floors/tables", element: AllTablesPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN,ROLES.MANAGER] },
-  { path: "/floors/sections/tables", element: AllTablesPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN,ROLES.MANAGER] },
-
-  { path: "/addons", element: AllAddonsGroup, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN,ROLES.MANAGER] },
-  { path: "/addons/item", element: AllAddonItemsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN,ROLES.MANAGER] },
-
-  { path: "/users", element: AllUsersPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN,ROLES.MANAGER] },
-  { path: "/users/details", element: UserDetailsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN,ROLES.MANAGER] },
-  { path: "/users/add", element: AddUserPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN,ROLES.MANAGER] },
-
-
-  { path: "/orders", element: AllOrdersPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN,ROLES.MANAGER] },
-  { path: "/orders/details", element: OrderDetailsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN,ROLES.MANAGER] },
-
-  { path: "/floors/sections/tables/history", element: TableHistoryPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN,ROLES.MANAGER] },
-  { path: "/floors/sections/tables/report", element: TableReportPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN,ROLES.MANAGER] },
-  { path: "/floors/sections/tables/kot", element: TableKotPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN,ROLES.MANAGER] },
-
-
-  { path: "/customers", element: AllCustomersPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN,ROLES.MANAGER] },
-  { path: "/customers/details", element: CustomerDetailsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN,ROLES.MANAGER] },
-
-
-  { path: "/settings", element: AllSettingsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN] },
-  { path: "/settings/categories", element: SettingDetailsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN] },
-  { path: "/tax-groups",element: AllTaxGroupsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN], },
-  { path: "/tax-groups/details", element: TaxGroupDetailsPage, roles: [ROLES.SUPER_ADMIN,ROLES.ADMIN], },
-  { path: "/support", element: SupportChatPage, roles: [ROLES.SUPER_ADMIN], },
-
-  { path: "/versions", element: AllVersionsPage, roles: [ROLES.SUPER_ADMIN], },
-  { path: "/versions/add", element: AddVersionPage, roles: [ROLES.SUPER_ADMIN], },
-  { path: "/versions/details", element: VersionDetailsPage, roles: [ROLES.SUPER_ADMIN], },
-
-  { path: "/guide", element: SetupGuide, public:true, },
+  // Public
+  { path: ROUTE_PATHS.GUIDE, element: SetupGuide, public: true },
 ];
 
 export default routeConfig;

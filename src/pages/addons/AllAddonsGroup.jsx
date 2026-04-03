@@ -14,6 +14,7 @@ import { formatDate } from "../../utils/dateFormatter";
 import AddonGroupModal from "../../partial/addons/AddonGroupModal";
 import { handleResponse } from "../../utils/helpers";
 import StatusBadge from "../../layout/StatusBadge";
+import { ROUTE_PATHS } from "../../config/paths";
 
 const AllAddonsGroup = () => {
   const dispatch = useDispatch();
@@ -152,7 +153,8 @@ const AllAddonsGroup = () => {
       label: "View",
       icon: Eye,
       color: "slate",
-      onClick: (row) => navigate(`/addons/item?addonId=${row?.id}`),
+      onClick: (row) =>
+        navigate(`${ROUTE_PATHS.ALL_ADDONS_ITEMS}?addonId=${row?.id}`),
     },
     {
       label: "Update",

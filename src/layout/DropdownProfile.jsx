@@ -6,6 +6,7 @@ import { useSelector } from "react-redux";
 import PermissionGuard from "../guard/PermissionGuard";
 import { ROLES } from "../constants";
 import UserAvatar from "../components/UserAvatar";
+import { ROUTE_PATHS } from "../config/paths";
 
 function DropdownProfile({ align, onLogoutClick }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -101,7 +102,7 @@ function DropdownProfile({ align, onLogoutClick }) {
               <li>
                 <Link
                   className="font-medium text-sm text-primary hover:text-primary-600  flex items-center py-1 px-3"
-                  to="/settings"
+                  to={ROUTE_PATHS.ALL_SETTINGS}
                   onClick={() => setDropdownOpen(!dropdownOpen)}
                 >
                   Settings

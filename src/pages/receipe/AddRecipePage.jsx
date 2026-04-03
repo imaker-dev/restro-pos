@@ -31,6 +31,7 @@ import {
   updateRecipe,
 } from "../../redux/slices/recipeSlice";
 import { useQueryParams } from "../../hooks/useQueryParams";
+import { ROUTE_PATHS } from "../../config/paths";
 
 /* ─── Ingredient row ──────────────────────────────────────────────────────── */
 function IngredientRow({
@@ -312,7 +313,9 @@ const AddRecipePage = () => {
       ? updateRecipe({ id: recipeId, outletId, values: payload })
       : createRecipe({ outletId, values: payload });
 
-    await handleResponse(dispatch(action), () => navigate("/recipes"));
+    await handleResponse(dispatch(action), () =>
+      navigate(ROUTE_PATHS.ALL_RECIPES),
+    );
   };
 
   if (recipeId && isFetchingRecipeDetails) {

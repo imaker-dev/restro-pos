@@ -13,6 +13,7 @@ import { ProductionOverlay } from "../../partial/recipe/production-receipe/Produ
 import SearchBar from "../../components/SearchBar";
 import { ProductionRecipeCardSkeleton } from "../../partial/recipe/production-receipe/ProductionRecipeCardSkeleton";
 import NoDataFound from "../../layout/NoDataFound";
+import { ROUTE_PATHS } from "../../config/paths";
 
 // ─── MAIN PAGE ────────────────────────────────────────────────────────────────
 const AllProductionRecipePage = () => {
@@ -54,7 +55,7 @@ const AllProductionRecipePage = () => {
       label: "Add Recipe",
       type: "primary",
       icon: Plus,
-      onClick: () => navigate("/prep-recipes/add"),
+      onClick: () => navigate(ROUTE_PATHS.PREP_RECIPES_ADD),
     },
   ];
 

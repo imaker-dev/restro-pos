@@ -9,6 +9,7 @@ import { Box, Eye, ReceiptIndianRupee, Users } from "lucide-react";
 import StatCard from "../../components/StatCard";
 import { useNavigate } from "react-router-dom";
 import StatusBadge from "../../layout/StatusBadge";
+import { ROUTE_PATHS } from "../../config/paths";
 
 const AllCustomersPage = () => {
   const dispatch = useDispatch();
@@ -96,7 +97,8 @@ const AllCustomersPage = () => {
     {
       label: "View",
       icon: Eye,
-      onClick: (row) => navigate(`/customers/details?customerId=${row.id}`),
+      onClick: (row) =>
+        navigate(`${ROUTE_PATHS.CUSTOMER_DETAILS}?customerId=${row.id}`),
     },
   ];
 

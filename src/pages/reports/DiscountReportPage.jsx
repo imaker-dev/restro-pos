@@ -28,6 +28,7 @@ import { exportDiscountReport } from "../../redux/slices/exportReportSlice";
 import { handleResponse } from "../../utils/helpers";
 import { downloadBlob } from "../../utils/blob";
 import SearchBar from "../../components/SearchBar";
+import { ROUTE_PATHS } from "../../config/paths";
 
 // ─── MAIN PAGE ────────────────────────────────────────────────────────────────
 const DiscountReportPage = () => {
@@ -249,7 +250,7 @@ const DiscountReportPage = () => {
     {
       label: "View Order",
       icon: ChevronRight,
-      onClick: (row) => navigate(`/orders/details?orderId=${row.orderId}`),
+      onClick: (row) => navigate(`${ROUTE_PATHS.ORDER_DETAILS}?orderId=${row.orderId}`),
     },
   ];
 
@@ -316,6 +317,7 @@ const DiscountReportPage = () => {
     <div className="space-y-5">
       <PageHeader
         title="Discount Report"
+        showBackButton
         actions={actions}
         rightContent={
           <CustomDateRangePicker value={dateRange} onChange={setDateRange} />

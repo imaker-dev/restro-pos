@@ -4,6 +4,7 @@ import { formatNumber } from "../../../utils/numberFormatter";
 import { Calendar, ExternalLink, TrendingDown, Users } from "lucide-react";
 import { formatDate } from "../../../utils/dateFormatter";
 import { Link } from "react-router-dom";
+import { ROUTE_PATHS } from "../../../config/paths";
 
 // ─── Order Row (inside drawer) ────────────────────────────────────────────────
 function OrderRow({ order }) {
@@ -93,7 +94,7 @@ function OrderRow({ order }) {
       {/* View order link */}
       <div className="px-4 py-2.5 border-t border-gray-100 bg-gray-50/60">
         <Link
-          to={`/orders/details?orderId=${order.orderId}`}
+          to={`${ROUTE_PATHS.ORDER_DETAILS}?orderId=${order.orderId}`}
           className="flex items-center gap-1.5 text-[11px] font-bold text-gray-500 hover:text-primary-600 transition-colors w-fit"
         >
           <ExternalLink size={11} />
@@ -140,7 +141,7 @@ const CustomerDueDrawer = ({ isOpen, onClose, customer, totalDue }) => {
             </p>
           </div>
           <Link
-            to={`/customers/details?customerId=${customer.id}`}
+            to={`${ROUTE_PATHS.CUSTOMER_DETAILS}?customerId=${customer.id}`}
             onClick={() => onClose()}
             className="flex items-center gap-2 text-xs font-bold text-white bg-primary-500 hover:bg-primary-600 px-4 py-2.5 rounded-xl transition-colors shadow-sm shadow-primary-200"
           >

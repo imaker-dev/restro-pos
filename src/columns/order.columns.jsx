@@ -3,6 +3,7 @@ import { Eye } from "lucide-react";
 import { formatDate } from "../utils/dateFormatter";
 import { formatNumber } from "../utils/numberFormatter";
 import OrderBadge from "../partial/order/OrderBadge";
+import { ROUTE_PATHS } from "../config/paths";
 
 export const getOrderTableConfig = (navigate) => {
   const columns = [
@@ -181,7 +182,9 @@ export const getOrderTableConfig = (navigate) => {
       label: "View",
       icon: Eye,
       onClick: (row) =>
-        navigate(`/orders/details?orderId=${row.id ?? row.orderId}`),
+        navigate(
+          `${ROUTE_PATHS.ORDER_DETAILS}?orderId=${row.id ?? row.orderId}`,
+        ),
     },
   ];
 

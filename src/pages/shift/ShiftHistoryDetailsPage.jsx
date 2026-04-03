@@ -51,6 +51,7 @@ import { exportShiftHistoryDetails } from "../../redux/slices/exportReportSlice"
 import { downloadBlob } from "../../utils/blob";
 import ShiftHistoryDetailsPageSkeleton from "../../partial/report/shift-summary/ShiftHistoryDetailsPageSkeleton";
 import { getOrderTableConfig } from "../../columns/order.columns";
+import { ROUTE_PATHS } from "../../config/paths";
 
 function FieldRow({
   label,
@@ -630,9 +631,12 @@ const ShiftHistoryDetailsPage = () => {
                 {dueCollections.orders.map((due, idx) => (
                   <button
                     key={due.paymentId}
-                    onClick={() => navigate(`/orders/details?orderId=${due.orderId}`)}
-                    className="w-full text-left group flex items-center gap-3.5 px-4 py-3.5 rounded-xl border transition-all duration-150
-            bg-white border-slate-100 hover:border-slate-300 hover:shadow-sm active:scale-[0.99]"
+                    onClick={() =>
+                      navigate(
+                        `${ROUTE_PATHS.ORDER_DETAILS}?orderId=${due.orderId}`,
+                      )
+                    }
+                    className="w-full text-left group flex items-center gap-3.5 px-4 py-3.5 rounded-xl border transition-all duration-150 bg-white border-slate-100 hover:border-slate-300 hover:shadow-sm active:scale-[0.99]"
                   >
                     {/* Index badge */}
                     <div className="w-7 h-7 rounded-lg bg-slate-100 group-hover:bg-slate-200 flex items-center justify-center flex-shrink-0 transition-colors">

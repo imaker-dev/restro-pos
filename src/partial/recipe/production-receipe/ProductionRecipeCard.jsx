@@ -8,6 +8,7 @@ import {
   Pencil,
   Play,
 } from "lucide-react";
+import { ROUTE_PATHS } from "../../../config/paths";
 
 // ─── Recipe card ──────────────────────────────────────────────────────────────
 export function ProductionRecipeCard({ recipe, onProduce, navigate, delay }) {
@@ -86,7 +87,9 @@ export function ProductionRecipeCard({ recipe, onProduce, navigate, delay }) {
         <div className="flex items-center gap-1.5 pt-1 border-t border-slate-100">
           <button
             onClick={() =>
-              navigate(`/prep-recipes/details?recipeId=${recipe.id}`)
+              navigate(
+                `${ROUTE_PATHS.PREP_RECIPES_DETAILS}?recipeId=${recipe.id}`,
+              )
             }
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold text-slate-600 border border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-all duration-150"
           >
@@ -94,7 +97,9 @@ export function ProductionRecipeCard({ recipe, onProduce, navigate, delay }) {
             View
           </button>
           <button
-            onClick={() => navigate(`/prep-recipes/add?recipeId=${recipe.id}`)}
+            onClick={() =>
+              navigate(`${ROUTE_PATHS.PREP_RECIPES_ADD}?recipeId=${recipe.id}`)
+            }
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold text-slate-600 border border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-all duration-150"
           >
             <Pencil size={11} strokeWidth={2} />

@@ -14,6 +14,7 @@ import { handleResponse } from "../../utils/helpers";
 import ModalAction from "../../components/ModalAction";
 import LoadingOverlay from "../../components/LoadingOverlay";
 import { useNavigate } from "react-router-dom";
+import { ROUTE_PATHS } from "../../config/paths";
 
 /* ─────────────────────────────────────────
    PREVIEW MODAL
@@ -145,8 +146,10 @@ const MediaCard = ({ item, onToggle, onDelete, onPreview }) => {
         <div className="absolute top-3 right-3">
           <StatusBadge value={item.is_active} />
         </div>
-                {/* Menu Type Badge - Bottom Left */}
-        <div className={`absolute bottom-3 left-3 px-3 py-1.5 rounded-lg bg-primary-500 text-white text-xs font-semibold uppercase tracking-tight capitalize shadow-sm`}>
+        {/* Menu Type Badge - Bottom Left */}
+        <div
+          className={`absolute bottom-3 left-3 px-3 py-1.5 rounded-lg bg-primary-500 text-white text-xs font-semibold uppercase tracking-tight capitalize shadow-sm`}
+        >
           {item.menu_type}
         </div>
       </div>
@@ -287,7 +290,7 @@ const MenuMediaPage = () => {
       label: "View QR Codes",
       type: "secondary",
       icon: Eye,
-      onClick: () => navigate('/menu-media/qr-codes'),
+      onClick: () => navigate(ROUTE_PATHS.MENU_MEDIA_QR_CODES),
     },
   ];
 

@@ -121,6 +121,7 @@ const SectionSalesPage = () => {
     <div className="space-y-6">
       <PageHeader
         title={"Section Sales"}
+        showBackButton
         rightContent={
           <CustomDateRangePicker
             value={dateRange}

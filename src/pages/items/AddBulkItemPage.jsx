@@ -17,6 +17,7 @@ import SuccessSection from "../../partial/bulk-items/SuccessSection";
 import StepIndicator from "../../partial/bulk-items/StepIndicator";
 import { Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { ROUTE_PATHS } from "../../config/paths";
 
 // ─── Prevent accidental page leave ───────────────────────────────────────────
 function usePreventNavigation(active) {
@@ -108,7 +109,7 @@ const AddBulkItemPage = () => {
       label: "View Summary",
       type: "primary",
       icon: Eye,
-      onClick: () => navigate(`/items/bulk-add/summary`),
+      onClick: () => navigate(ROUTE_PATHS.MENU_ITEMS_BULK_ADD_SUMMARY),
     },
   ];
 

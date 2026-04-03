@@ -770,6 +770,7 @@ const NcReportPage = () => {
     <div className="space-y-6">
       <PageHeader
         title="NC (No Charge) Report"
+        showBackButton
         rightContent={
           <CustomDateRangePicker value={dateRange} onChange={setDateRange} />
         }

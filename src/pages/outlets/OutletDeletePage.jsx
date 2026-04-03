@@ -37,6 +37,7 @@ import { useNavigate } from "react-router-dom";
 import { handleResponse } from "../../utils/helpers";
 import NoDataFound from "../../layout/NoDataFound";
 import { fetchMeData } from "../../redux/slices/authSlice";
+import { ROUTE_PATHS } from "../../config/paths";
 
 // ─── Table icon + color map ───────────────────────────────────────────────────
 const TABLE_META = {
@@ -170,8 +171,8 @@ const OutletDeletePage = () => {
     await handleResponse(
       dispatch(hardDeleteOutlet({ outletId, confirmationCode })),
       () => {
-        dispatch(fetchMeData())
-        navigate(`/outlets`);
+        dispatch(fetchMeData());
+        navigate(ROUTE_PATHS.ALL_OUTLETS);
       },
     );
   };

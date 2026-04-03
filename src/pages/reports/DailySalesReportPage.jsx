@@ -226,11 +226,12 @@ const DailySalesReportPage = () => {
       {/* Header */}
       <PageHeader
         title="Daily Sales Report"
-        description="Performance metrics broken down day by day"
+        // description="Performance metrics broken down day by day"
         rightContent={
           <CustomDateRangePicker value={dateRange} onChange={setDateRange} />
         }
         actions={actions}
+        showBackButton
       />
 
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
