@@ -1,140 +1,197 @@
-import React, { useEffect, useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
-  BarChart3,
-  Clock,
+  ShoppingBag,
+  RotateCcw,
+  CreditCard,
+  Banknote,
+  Smartphone,
+  XCircle,
   Users,
-  DollarSign,
-  ShoppingCart,
   IndianRupee,
-  Table,
-  Wine,
-  ChefHat,
-  Wallet,
-  Activity,
+  Truck,
 } from "lucide-react";
-// import StatCard from "../../partial/dashboard/StatCard";
-import WelcomeBanner from "../../partial/dashboard/WelcomeBanner";
-import TopItems from "../../partial/dashboard/TopItems";
-import StaffPerformance from "../../partial/dashboard/StaffPerformance";
-import FloorAnalytics from "../../partial/dashboard/FloorAnalytics";
-import PeakHours from "../../partial/dashboard/PeakHours";
-import WeeklyOrdersAnalytics from "../../partial/dashboard/WeeklyOrdersAnalytics";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchAllDahboardStats } from "../../redux/slices/dashboardSlice";
-import CustomDateRangePicker from "../../components/CustomDateRangePicker";
-import StatCard from "../../components/StatCard";
-import { formatNumber } from "../../utils/numberFormatter";
 
-export default function Page() {
+import CustomDateRangePicker from "../../components/CustomDateRangePicker";
+import { useDispatch, useSelector } from "react-redux";
+import PageHeader from "../../layout/PageHeader";
+import { fetchAllDahboardStats } from "../../redux/slices/dashboardSlice";
+import { formatNumber } from "../../utils/numberFormatter";
+import StatCard from "../../components/StatCard";
+import PaymentBifurcation from "../../partial/dashboard/PaymentBifurcation";
+import SalesChart from "../../partial/dashboard/SalesChart";
+
+// ─── MAIN DASHBOARD ───────────────────────────────────────────────────────────
+export default function Dashboard() {
   const dispatch = useDispatch();
+  const [dateRange, setDateRange] = useState(null);
+
   const { outletId } = useSelector((state) => state.auth);
-  const [dateRange, setDateRange] = useState();
+
+  const { dahbordStats, isfetchingDashboardStats } = useSelector(
+    (state) => state.dashboard,
+  );
+
+  const { summary, sales, payments } = dahbordStats || {};
+
+  const fetchStats = () => {
+    if (!outletId || !dateRange?.startDate || !dateRange?.endDate) return;
+    dispatch(fetchAllDahboardStats({ outletId, dateRange }));
+  };
 
   useEffect(() => {
-    dispatch(fetchAllDahboardStats({ outletId, dateRange }));
-}, [dateRange,outletId]);
+    fetchStats();
+  }, [outletId, dateRange]);
 
-  const { dahbordStats,isfetchingDashboardStats } = useSelector((state) => state.dashboard);
+  // Build chart data
+  const chartData = useMemo(() => {
+    if (!sales?.length) return [];
 
-  const { sales, activeTables, pendingKots, paymentBreakdown } =
-    dahbordStats || {};
+    return sales.map((item) => ({
+      label: item.label,
+      dineIn: item.dine_in || 0,
+      pickup: item.takeaway || 0,
+      delivery: item.delivery || 0,
+    }));
+  }, [sales]);
+
+  const actions = [
+    {
+      label: "Refresh",
+      type: "refresh",
+      icon: RotateCcw,
+      onClick: fetchStats,
+      loading: isfetchingDashboardStats,
+      loadingText: "Refreshing...",
+    },
+  ];
 
   const stats = [
     {
-      title: "Orders",
-      value: sales?.total_orders,
-      icon: ShoppingCart,
-      color: "blue",
+      title: "Total Sales",
+      value: formatNumber(summary?.totalSales, true),
+      subtitle: `${formatNumber(summary?.orderCount)} orders`,
+      icon: IndianRupee,
+      color: "green",
     },
     {
-      title: "Active",
-      value: sales?.active_orders,
-      icon: Activity,
-      color: "amber",
-    },
-    {
-      title: "Guests",
-      value: sales?.total_guests,
+      title: "Dine-in",
+      value: formatNumber(
+        summary?.channels?.find((c) => c.type === "dine_in")?.amount,
+        true,
+      ),
+      subtitle: `${formatNumber(
+        summary?.channels?.find((c) => c.type === "dine_in")?.count,
+      )} orders`,
       icon: Users,
       color: "purple",
     },
     {
-      title: "Net Sales",
-      value: `${formatNumber(sales?.net_sales, true)}`,
-      icon: IndianRupee,
-      color: "emerald",
+      title: "Takeaway",
+      value: formatNumber(
+        summary?.channels?.find((c) => c.type === "takeaway")?.amount,
+        true,
+      ),
+      subtitle: `${formatNumber(
+        summary?.channels?.find((c) => c.type === "takeaway")?.count,
+      )} orders`,
+      icon: ShoppingBag,
+      color: "amber",
     },
     {
-      title: "Tables",
-      value: activeTables,
-      icon: Table,
+      title: "Delivery",
+      value: formatNumber(
+        summary?.channels?.find((c) => c.type === "delivery")?.amount,
+        true,
+      ),
+      subtitle: `${formatNumber(
+        summary?.channels?.find((c) => c.type === "delivery")?.count,
+      )} orders`,
+      icon: Truck,
       color: "indigo",
-    },
-    {
-      title: "Kitchen KOT",
-      value: pendingKots?.kitchen,
-      icon: ChefHat,
-      color: "rose",
-    },
-    {
-      title: "Bar KOT",
-      value: pendingKots?.bar,
-      icon: Wine,
-      color: "pink",
-    },
-    {
-      title: "Cash",
-      value: `${formatNumber(paymentBreakdown?.cash, true)}`,
-      icon: Wallet,
-      color: "green",
     },
   ];
 
+  const PAYMENTS = payments?.map((item) => {
+    let icon;
+    let color;
+
+    switch (item.name) {
+      case "Cash":
+        icon = Banknote;
+        color = "#f59e0b";
+        break;
+      case "Card":
+        icon = CreditCard;
+        color = "#14b8a6";
+        break;
+      case "UPI":
+        icon = Smartphone;
+        color = "#6366f1";
+        break;
+      case "Unpaid":
+        icon = XCircle;
+        color = "#e2e8f0";
+        break;
+      default:
+        icon = Smartphone;
+        color = "#94a3b8"; // fallback
+    }
+
+    return {
+      ...item,
+      icon,
+      color,
+    };
+  });
+
   return (
     <div className="space-y-6">
-      <WelcomeBanner />
+      <PageHeader
+        title={"Dashboard"}
+        description="Overview of sales, orders, and performance."
+        rightContent={
+          <CustomDateRangePicker
+            value={dateRange}
+            onChange={(newRange) => setDateRange(newRange)}
+          />
+        }
+        actions={actions}
+      />
 
-      <div className="flex justify-end">
-        <CustomDateRangePicker
-          value={dateRange}
-          onChange={(newRange) => {
-            setDateRange(newRange);
-          }}
-          defaultRange={"Last 7 Days"}
-        />
-      </div>
-
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      {/* ── Stat Cards ── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {stats.map((stat, index) => (
           <StatCard
             key={index}
-            icon={stat.icon}
             title={stat.title}
             value={stat.value}
+            subtitle={stat.subtitle}
+            icon={stat.icon}
             color={stat.color}
-            variant="v1"
-            mode="solid"
+            variant="v6"
+            // mode="solid"
             loading={isfetchingDashboardStats}
           />
         ))}
       </div>
 
-      {/* Charts Section */}
-      {/* <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        <WeeklyOrdersAnalytics />
-        <PeakHours />
-      </div> */}
+      {/* ── Chart ── */}
+      <SalesChart
+        chartData={chartData}
+        dateRange={dateRange}
+        loading={isfetchingDashboardStats}
+      />
 
-      {/* Analytics Section */}
-        {/* <FloorAnalytics /> */}
-      {/* <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        <TopItems />
-        <StaffPerformance />
-      </div> */}
+      {/* ── Bottom row ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="lg:col-span-2">
+          <PaymentBifurcation
+            data={PAYMENTS}
+            loading={isfetchingDashboardStats}
+          />
+        </div>
 
-      {/* Staff & Satisfaction */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        {/* <CustomerSatisfaction /> */}
+        {/* <QuickStats summary={summary} dateRange={dateRange} /> */}
       </div>
     </div>
   );

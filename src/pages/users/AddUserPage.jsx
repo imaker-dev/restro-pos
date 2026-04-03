@@ -55,6 +55,7 @@ const AddUserPage = () => {
       return {
         name: "",
         email: "",
+        phone: "",
         employeeCode: "",
         password: "",
         pin: "",
@@ -69,6 +70,7 @@ const AddUserPage = () => {
     return {
       name: userDetails.name || "",
       email: userDetails.email || "",
+      phone: userDetails.phone || "",
       employeeCode: userDetails.employeeCode || "",
       password: "",
       pin: "",
@@ -83,6 +85,10 @@ const AddUserPage = () => {
     return Yup.object({
       name: Yup.string().required("Name required"),
       email: Yup.string().email("Invalid email").required("Email required"),
+      phone: Yup.string().test("len", "Phone must be 10 digits", (val) => {
+        if (!val) return true;
+        return val.length === 10;
+      }),
       employeeCode: Yup.string().required("Employee code required"),
       outletId: Yup.string().required("Outlet required"),
       roleId: Yup.string().required("Role required"),
@@ -111,6 +117,8 @@ const AddUserPage = () => {
       email: values.email?.trim(),
       employeeCode: values.employeeCode?.trim(),
       isActive: Boolean(values.isActive),
+
+      ...(values.phone?.trim() && { phone: values.phone.trim() }),
 
       roles: [
         {
@@ -193,11 +201,12 @@ const AddUserPage = () => {
             <Form className="space-y-8" autoComplete="off">
               {/* BASIC INFO */}
               <AccordionSection title="Basic Info" icon={User}>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                   {/* NAME */}
                   <InputField
                     label="Full Name"
                     name="name"
+                    required
                     placeholder="Enter Full Name"
                     icon={User2}
                     value={formik.values.name}
@@ -210,6 +219,7 @@ const AddUserPage = () => {
                   <InputField
                     label="Email"
                     name="email"
+                    required
                     placeholder="Enter Email Address"
                     type="email"
                     icon={Mail}
@@ -218,12 +228,27 @@ const AddUserPage = () => {
                     onBlur={formik.handleBlur}
                     error={formik.touched.email && formik.errors.email}
                   />
+                  <InputField
+                    label="Phone Number (Optional)"
+                    name="phone"
+                    placeholder="Enter Phone Number"
+                    value={formik.values.phone}
+                    onChange={(e) => {
+                      const val = e.target.value
+                        .replace(/\D/g, "")
+                        .slice(0, 10);
+                      formik.setFieldValue("phone", val);
+                    }}
+                    onBlur={formik.handleBlur}
+                    error={formik.touched.phone && formik.errors.phone}
+                  />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   {/* EMPLOYEE CODE */}
                   <InputField
                     label="Employee Code"
                     name="employeeCode"
+                    required
                     placeholder="EMP001"
                     value={formik.values.employeeCode}
                     onChange={formik.handleChange}
@@ -238,6 +263,7 @@ const AddUserPage = () => {
                     label={userId ? "Password (Optional)" : "Password"}
                     name="password"
                     type="password"
+                    required
                     value={formik.values.password}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
@@ -255,6 +281,7 @@ const AddUserPage = () => {
                   <InputField
                     label="PIN"
                     name="pin"
+                    required
                     type="password"
                     placeholder="4 digit pin"
                     value={formik.values.pin}
@@ -282,6 +309,7 @@ const AddUserPage = () => {
                   <SelectField
                     label="Role"
                     name="roleId"
+                    required
                     options={roles?.map((r) => ({
                       value: r.id,
                       label: r.name,

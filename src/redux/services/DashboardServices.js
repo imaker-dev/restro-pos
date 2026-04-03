@@ -6,14 +6,14 @@ export default false
       message: "You are Offline. Please turn on the internet",
     }
   : {
-      getDashboardStatsApi: (outletId, dateRange = {}) => {
+      getDashboardStatsApi: ({ outletId, dateRange = {} }) => {
         const params = cleanParams({
           outletId,
-          start_date: dateRange?.startDate, // mapping handled here
-          end_date: dateRange?.endDate,
+          startDate: dateRange?.startDate,
+          endDate: dateRange?.endDate,
         });
 
-        return Api.get(`/reports/dashboard`, { params });
+        return Api.get(`/reports/running-dashboard`, { params });
       },
 
       getDailyEndSummaryApi: (outletId, dateRange = {}) => {

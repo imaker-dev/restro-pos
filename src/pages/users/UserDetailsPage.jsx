@@ -24,6 +24,8 @@ import LoadingOverlay from "../../components/LoadingOverlay";
 import NoDataFound from "../../layout/NoDataFound";
 import StatusBadge from "../../layout/StatusBadge";
 import { ROUTE_PATHS } from "../../config/paths";
+import MetricPanel from "../../partial/report/daily-sales-report/MetricPanel";
+import RoleBadge from "../../partial/user/RoleBadge";
 
 // ─── Card Component ────────────────────────────────────────────────────────────
 function Card({
@@ -162,14 +164,7 @@ export default function UserDetailsPage() {
 
             <div className="flex flex-wrap items-center gap-3 mb-3">
               <StatusBadge value={user?.isActive} />
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 backdrop-blur text-white text-sm font-medium border border-white/20">
-                <Shield size={14} />
-                {user?.roles?.[0]?.name || "No role"}
-              </span>
-              <span className="text-white/60">•</span>
-              <span className="text-white/90 text-sm font-medium">
-                {user?.roles?.[0]?.outletName || "No outlet"}
-              </span>
+              <RoleBadge role={user?.roles?.[0]?.name} />
             </div>
 
             <div className="flex flex-wrap gap-3">
@@ -221,9 +216,9 @@ export default function UserDetailsPage() {
         {/* Left Column */}
         <div className="lg:col-span-2 space-y-6">
           {/* Basic Info */}
-          <Card
+          <MetricPanel
             title="Basic Information"
-            subtitle="Personal details and contact"
+            desc="Personal details and contact"
             icon={User}
           >
             <div className="space-y-0">
@@ -237,14 +232,14 @@ export default function UserDetailsPage() {
                 mono
               />
             </div>
-          </Card>
+          </MetricPanel>
 
           {/* Floors */}
-          <Card
+          <MetricPanel
             title="Floor Assignments"
-            subtitle="Assigned floors and primary access"
+            desc="Assigned floors and primary access"
             icon={MapPin}
-            badge={`${user?.assignedFloors?.length || 0} Floor${user?.assignedFloors?.length !== 1 ? "s" : ""}`}
+            count={`${user?.assignedFloors?.length || 0} Floor${user?.assignedFloors?.length !== 1 ? "s" : ""}`}
           >
             {user?.assignedFloors?.length > 0 ? (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -295,14 +290,14 @@ export default function UserDetailsPage() {
                 <p>No floor assignments</p>
               </div>
             )}
-          </Card>
+          </MetricPanel>
 
           {/* Sections */}
-          <Card
+          <MetricPanel
             title="Section Assignments"
-            subtitle="Assigned sections and areas"
+            desc="Assigned sections and areas"
             icon={Grid3x3}
-            badge={`${user?.assignedSections?.length || 0} Section${user?.assignedSections?.length !== 1 ? "s" : ""}`}
+            count={`${user?.assignedSections?.length || 0} Section${user?.assignedSections?.length !== 1 ? "s" : ""}`}
           >
             {user?.assignedSections?.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -321,17 +316,17 @@ export default function UserDetailsPage() {
                 <p>No section assignments</p>
               </div>
             )}
-          </Card>
+          </MetricPanel>
         </div>
 
         {/* Right Column */}
         <div className="space-y-6">
           {/* Roles */}
-          <Card
+          <MetricPanel
             title="Roles & Outlet Assignments"
-            subtitle="Active role assignments across outlets"
+            desc="Active role assignments across outlets"
             icon={Shield}
-            badge={`${user?.roles?.length || 0} Active`}
+            count={`${user?.roles?.length || 0} Active`}
           >
             {user?.roles?.length > 0 ? (
               <div className="grid grid-cols-1 gap-4">
@@ -341,9 +336,6 @@ export default function UserDetailsPage() {
                     className="p-5 rounded-lg border border-gray-200 hover:border-primary-300 hover:shadow-md transition-all"
                   >
                     <div className="flex items-start gap-3 mb-4">
-                      <div className="w-10 h-10 rounded-lg bg-primary-100 flex items-center justify-center flex-shrink-0">
-                        <Shield size={18} className="text-primary-600" />
-                      </div>
                       <div className="flex-1 min-w-0">
                         <h4 className="font-semibold text-gray-900 mb-1">
                           {role?.name}
@@ -397,14 +389,14 @@ export default function UserDetailsPage() {
                 <p>No roles assigned to this user</p>
               </div>
             )}
-          </Card>
+          </MetricPanel>
 
           {/* Station */}
-          <Card
+          <MetricPanel
             title="Station Assignment"
-            subtitle="Assigned station configuration"
+            desc="Assigned station configuration"
             icon={MapPin}
-            badge={assignedStation ? "1 Station" : "No Station"}
+            count={assignedStation ? "1 Station" : "No Station"}
           >
             {assignedStation ? (
               <div className="relative p-5 rounded-lg border border-gray-200 hover:border-primary-300 hover:shadow-md transition-all">
@@ -470,10 +462,10 @@ export default function UserDetailsPage() {
                 <p>No station assigned</p>
               </div>
             )}
-          </Card>
+          </MetricPanel>
 
           {/* Activity */}
-          <Card title="Recent Activity" icon={Clock}>
+          <MetricPanel title="Recent Activity" icon={Clock}>
             <div className="space-y-4">
               <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-100">
                 <p className="text-xs font-semibold text-emerald-700 uppercase tracking-wide mb-1">
@@ -493,7 +485,7 @@ export default function UserDetailsPage() {
                 </p>
               </div>
             </div>
-          </Card>
+          </MetricPanel>
         </div>
       </div>
     </div>

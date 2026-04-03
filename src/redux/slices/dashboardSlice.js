@@ -3,7 +3,7 @@ import toast from "react-hot-toast";
 import DashboardServices from "../services/DashboardServices";
 
 export const fetchAllDahboardStats = createAsyncThunk("/fetch/dashboard/stats", async ({outletId,dateRange}) => {
-  const res = await DashboardServices.getDashboardStatsApi(outletId,dateRange);
+  const res = await DashboardServices.getDashboardStatsApi({outletId,dateRange});
   return res.data;
 });
 export const fetchDailyEndSummary = createAsyncThunk("/fetch/daily-end/summary", async ({outletId,dateRange}) => {
