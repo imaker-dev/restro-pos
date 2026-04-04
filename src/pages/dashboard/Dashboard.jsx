@@ -168,8 +168,8 @@ export default function Dashboard() {
             subtitle={stat.subtitle}
             icon={stat.icon}
             color={stat.color}
-            variant="v6"
-            // mode="solid"
+            variant="v9"
+            mode="solid"
             loading={isfetchingDashboardStats}
           />
         ))}

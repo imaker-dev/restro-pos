@@ -93,3 +93,19 @@ button:focus {
 .accent-radio {
   accent-color: #ff5722;
 }
+
+
+/* Remove mobile tap + focus outline everywhere in charts */
+.recharts-wrapper,
+.recharts-surface {
+  outline: none !important;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.recharts-wrapper *:focus {
+  outline: none !important;
+}
+
+.recharts-wrapper * {
+  user-select: none;
+}

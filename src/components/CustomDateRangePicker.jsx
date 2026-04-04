@@ -7,7 +7,6 @@ import { Calendar, X } from "lucide-react";
 import { formatDate } from "../utils/dateFormatter";
 import { DEFAULT_DATE_RANGE, PREDEFINED_RANGES } from "../constants";
 
-
 // ---------- Helpers ----------
 const startOfDay = (d) => new Date(new Date(d).setHours(0, 0, 0, 0));
 const endOfDay = (d) => new Date(new Date(d).setHours(23, 59, 59, 999));
@@ -37,7 +36,7 @@ function RangeList({ activeRange, onSelect, isMobile }) {
           className={`w-full text-left px-3 py-2 text-sm font-medium transition-colors
             ${
               activeRange === range
-                ? "bg-orange-400 text-white shadow-sm"
+                ? "bg-primary-500 text-white shadow-sm"
                 : "hover:bg-gray-100 text-gray-700"
             }`}
         >
@@ -274,32 +273,32 @@ export default function CustomDateRangePicker({
   }, []); // Only run on mount
 
   useEffect(() => {
-  if (!value?.startDate || !value?.endDate) return;
+    if (!value?.startDate || !value?.endDate) return;
 
-  const valueStart = value.startDate;
-  const valueEnd = value.endDate;
+    const valueStart = value.startDate;
+    const valueEnd = value.endDate;
 
-  const matchedRange = PREDEFINED_RANGES.find((range) => {
-    const preset = getDateRange(range);
-    return (
-      toISODate(preset.startDate) === valueStart &&
-      toISODate(preset.endDate) === valueEnd
-    );
-  });
+    const matchedRange = PREDEFINED_RANGES.find((range) => {
+      const preset = getDateRange(range);
+      return (
+        toISODate(preset.startDate) === valueStart &&
+        toISODate(preset.endDate) === valueEnd
+      );
+    });
 
-  if (matchedRange) {
-    setActiveRange(matchedRange);
-  } else {
-    setActiveRange("Custom Range");
-  }
-}, [value, getDateRange]);
+    if (matchedRange) {
+      setActiveRange(matchedRange);
+    } else {
+      setActiveRange("Custom Range");
+    }
+  }, [value, getDateRange]);
 
   return (
     <div ref={containerRef} className={`relative inline-block ${className}`}>
       {/* BUTTON */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="form-input flex items-center gap-2 hover:border-orange-400 transition-colors bg-white"
+        className="form-input flex items-center gap-2 hover:border-primary-400 transition-colors bg-white"
       >
         <Calendar className="w-4 h-4 text-gray-500 flex-shrink-0" />
         <span className="text-sm text-gray-700 whitespace-nowrap overflow-hidden text-ellipsis">
@@ -402,13 +401,13 @@ export default function CustomDateRangePicker({
                   <div className="flex gap-2 flex-shrink-0">
                     <button
                       onClick={handleCancel}
-                      className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                      className="btn-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 "
                     >
                       Cancel
                     </button>
                     <button
                       onClick={handleApply}
-                      className="px-3 py-1.5 text-sm font-medium text-white bg-orange-400 rounded-lg hover:bg-orange-500 transition-colors shadow-sm"
+                      className="btn-sm font-medium text-white bg-primary-500 hover:bg-primary-600"
                     >
                       Apply
                     </button>
