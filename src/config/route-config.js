@@ -90,6 +90,7 @@ import DiscountReportPage from "../pages/reports/DiscountReportPage";
 import AdjustmentReportPage from "../pages/reports/AdjustmentReportPage";
 import AllReportsPage from "../pages/reports/AllReportsPage";
 import { ROUTE_PATHS } from "./paths";
+import LiveOperationsPage from "../pages/orders/LiveOperationsPage";
 
 const routeConfig = [
   {
@@ -131,6 +132,7 @@ const routeConfig = [
   { path: ROUTE_PATHS.REPORTS_DAY_END_SUMMARY, element: DayEndSummaryPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
   { path: ROUTE_PATHS.REPORTS_DAY_END_SUMMARY_DETAILS, element: DayEndSummaryDetailsPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
   { path: ROUTE_PATHS.REPORTS_LIVE_ORDERS, element: LiveOrdersPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.REPORTS_LIVE_OPERATIONS, element: LiveOperationsPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
 
   // NC Reasons
   { path: ROUTE_PATHS.ALL_NC_REASONS, element: AllNcReasonsPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },

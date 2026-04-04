@@ -35,4 +35,7 @@ export default false
 
         return Api.get(`/reports/day-end-summary/detail`, { params });
       },
+      getLiveOperationStatsApi:(outletId) => {
+        return Api.get(`/dashboard/realtime/${outletId}`)
+      }
     };

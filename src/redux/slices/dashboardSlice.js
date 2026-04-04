@@ -14,6 +14,10 @@ export const fetchDailyEndSummaryDetails = createAsyncThunk("/fetch/daily-end/su
   const res = await DashboardServices.getDailyEndSummaryDetailsApi(outletId,date);
   return res.data;
 });
+export const fetchLiveOperations = createAsyncThunk("/fetch/live/operations", async ({outletId}) => {
+  const res = await DashboardServices.getLiveOperationStatsApi(outletId);
+  return res.data;
+});
 
 
 const dashboardSlice = createSlice({
@@ -27,6 +31,9 @@ const dashboardSlice = createSlice({
     dailyEndSummary:null,
     isFetchingDailyEndSummaryDetails:false,
     dailyEndSummaryDetails:null,
+
+    isFetchingLiveOperations:false,
+    liveOperationData:null,
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -62,6 +69,17 @@ const dashboardSlice = createSlice({
       })
       .addCase(fetchDailyEndSummaryDetails.rejected, (state, action) => {
         state.isFetchingDailyEndSummaryDetails = false;
+        toast.error(action.error.message);
+      })
+      .addCase(fetchLiveOperations.pending, (state) => {
+        state.isFetchingLiveOperations = true;
+      })
+      .addCase(fetchLiveOperations.fulfilled, (state, action) => {
+        state.isFetchingLiveOperations = false;
+        state.liveOperationData = action.payload.data;
+      })
+      .addCase(fetchLiveOperations.rejected, (state, action) => {
+        state.isFetchingLiveOperations = false;
         toast.error(action.error.message);
       })
   },

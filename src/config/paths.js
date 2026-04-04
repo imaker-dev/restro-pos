@@ -29,6 +29,7 @@ export const ROUTE_PATHS = {
   REPORTS_DAY_END_SUMMARY: "/day-end-summary",
   REPORTS_DAY_END_SUMMARY_DETAILS: "/day-end-summary/details",
   REPORTS_LIVE_ORDERS: "/live-orders",
+  REPORTS_LIVE_OPERATIONS: "/live-operations",
 
   // NC Reasons
   ALL_NC_REASONS: "/nc-reasons",

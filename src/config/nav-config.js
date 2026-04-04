@@ -70,17 +70,23 @@ export const navConfig = [
       //   roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
       // },
       {
-        name: "Running Orders",
-        icon: ShoppingCart,
-        path: ROUTE_PATHS.REPORTS_RUNNING_ORDERS,
+        name: "Live Operations",
+        icon: Activity,
+        path: ROUTE_PATHS.REPORTS_LIVE_OPERATIONS,
         roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
       },
-      {
-        name: "Running Tables",
-        icon: Table,
-        path: ROUTE_PATHS.REPORTS_RUNNING_TABLES,
-        roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
-      },
+      // {
+      //   name: "Running Orders",
+      //   icon: ShoppingCart,
+      //   path: ROUTE_PATHS.REPORTS_RUNNING_ORDERS,
+      //   roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
+      // },
+      // {
+      //   name: "Running Tables",
+      //   icon: Table,
+      //   path: ROUTE_PATHS.REPORTS_RUNNING_TABLES,
+      //   roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
+      // },
       {
         name: "Shift History",
         icon: Clock,
