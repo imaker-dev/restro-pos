@@ -1,8 +1,8 @@
-import { Clock, MapPin, Users } from "lucide-react";
+import { Clock, Eye, MapPin, Users } from "lucide-react";
 import { formatNumber } from "../../utils/numberFormatter";
 import OrderBadge from "./OrderBadge";
 
-function RunningTableCard({ table, STATUS_CFG }) {
+function RunningTableCard({ table, STATUS_CFG,onView }) {
   const cfg = STATUS_CFG[table?.orderStatus] || STATUS_CFG.unknown;
 
   function elapsed(d) {
@@ -73,6 +73,16 @@ function RunningTableCard({ table, STATUS_CFG }) {
             <span className="text-[10px] sm:text-xs font-bold">{min}m</span>
           </div>
         </div>
+        <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onView(table);
+            }}
+            className="mt-2.5 w-full flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-primary-500 text-white text-[10px] font-bold hover:bg-primary-600"
+          >
+            <Eye size={10} />
+            View Order
+          </button>
       </div>
     </div>
   );

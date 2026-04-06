@@ -11,13 +11,14 @@ import LiveOperationSummaryBanner from "./LiveOperationSummaryBanner";
 import { formatNumber } from "../../utils/numberFormatter";
 
 function RunningOrderSection({ summary, orders }) {
+  const { dineIn, pending, takeaway, delivery } = orders || {};
   const orderCards = [
     // ─── Channels ─────────────────────
     {
       title: "Dine In",
-      count: orders?.dineIn?.count,
-      countLabel: `Orders / KOTs · ${orders?.dineIn?.kots} active`,
-      amount: orders?.dineIn?.amount,
+      count: dineIn?.count,
+      countLabel: `Orders / KOTs · ${dineIn?.kots} active`,
+      amount: dineIn?.amount,
       accentBar: "bg-green-400",
       icon: UtensilsCrossed,
       iconBg: "bg-green-50",
@@ -25,9 +26,9 @@ function RunningOrderSection({ summary, orders }) {
     },
     {
       title: "Takeaway",
-      count: orders?.pickup?.count,
+      count: takeaway?.count,
       countLabel: "Orders",
-      amount: orders?.pickup?.amount,
+      amount: takeaway?.amount,
       accentBar: "bg-amber-400",
       icon: ShoppingBag,
       iconBg: "bg-amber-50",
@@ -35,9 +36,9 @@ function RunningOrderSection({ summary, orders }) {
     },
     {
       title: "Delivery",
-      count: orders?.delivery?.count,
+      count: delivery?.count || 0,
       countLabel: "Orders",
-      amount: orders?.delivery?.amount,
+      amount: delivery?.amount || 0,
       accentBar: "bg-blue-400",
       icon: Bike,
       iconBg: "bg-blue-50",
@@ -47,9 +48,9 @@ function RunningOrderSection({ summary, orders }) {
     // ─── Pending ─────────────────────
     {
       title: "Not Marked Ready",
-      count: orders?.pending?.notReady?.count,
+      count: pending?.notReady?.count,
       countLabel: "Orders",
-      amount: orders?.pending?.notReady?.amount,
+      amount: pending?.notReady?.amount,
       accentBar: "bg-rose-400",
       icon: AlertTriangle,
       iconBg: "bg-rose-50",
@@ -57,9 +58,9 @@ function RunningOrderSection({ summary, orders }) {
     },
     {
       title: "Not Picked Up",
-      count: orders?.pending?.notPickedUp?.count,
+      count: pending?.notPickedUp?.count,
       countLabel: "Orders",
-      amount: orders?.pending?.notPickedUp?.amount,
+      amount: pending?.notPickedUp?.amount,
       accentBar: "bg-teal-400",
       icon: PackageCheck,
       iconBg: "bg-teal-50",
@@ -67,9 +68,9 @@ function RunningOrderSection({ summary, orders }) {
     },
     {
       title: "Not Delivered",
-      count: orders?.pending?.notDelivered?.count,
+      count: pending?.notDelivered?.count || 0,
       countLabel: "Orders",
-      amount: orders?.pending?.notDelivered?.amount,
+      amount: pending?.notDelivered?.amount || 0,
       accentBar: "bg-orange-400",
       icon: PackageX,
       iconBg: "bg-orange-50",
