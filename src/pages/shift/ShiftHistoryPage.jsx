@@ -10,7 +10,7 @@ import { formatFileDate } from "../../utils/dateFormatter";
 import { handleResponse } from "../../utils/helpers";
 import { downloadBlob } from "../../utils/blob";
 import { exportShiftHistory } from "../../redux/slices/exportReportSlice";
-import ShiftHistoryPageSkeleton from "../../partial/report/shift-summary/ShiftHistoryPageSkeleton";
+import ShiftDateGroupSkeleton from "../../partial/report/shift-summary/ShiftDateGroupSkeleton";
 
 const groupByDate = (shifts = []) => {
   if (!Array.isArray(shifts)) return [];
@@ -52,9 +52,6 @@ const ShiftHistoryPage = () => {
 
   const grouped = groupByDate(shifts);
 
-  if (isFetchingShiftHistory) {
-    return <ShiftHistoryPageSkeleton />;
-  }
 
   const handleExportShiftSummaryReport = async () => {
     if (!dateRange?.startDate || !dateRange?.endDate) return;
@@ -108,23 +105,31 @@ const ShiftHistoryPage = () => {
         actions={actions}
       />
       <div className="space-y-8">
-        {grouped.length > 0
-          ? grouped.map(([dateStr, dayShifts]) => (
-              <ShiftDateGroup
-                key={dateStr}
-                dateStr={dateStr}
-                shifts={dayShifts}
-              />
-            ))
-          : dateRange?.startDate &&
-            dateRange?.endDate && (
-              <NoDataFound
-                icon={Layers}
-                title="No shifts found"
-                description="No shift records available for the selected date range."
-              />
-            )}
-      </div>{" "}
+        {isFetchingShiftHistory ? (
+          <>
+            {Array.from({ length: 2 }).map((_, i) => (
+              <ShiftDateGroupSkeleton key={i} />
+            ))}
+          </>
+        ) : grouped.length > 0 ? (
+          grouped.map(([dateStr, dayShifts]) => (
+            <ShiftDateGroup
+              key={dateStr}
+              dateStr={dateStr}
+              shifts={dayShifts}
+            />
+          ))
+        ) : (
+          dateRange?.startDate &&
+          dateRange?.endDate && (
+            <NoDataFound
+              icon={Layers}
+              title="No shifts found"
+              description="No shift records available for the selected date range."
+            />
+          )
+        )}
+      </div>
     </div>
   );
 };

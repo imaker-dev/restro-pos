@@ -19,6 +19,7 @@ import { formatNumber } from "../../utils/numberFormatter";
 import StatCard from "../../components/StatCard";
 import PaymentBifurcation from "../../partial/dashboard/PaymentBifurcation";
 import SalesChart from "../../partial/dashboard/SalesChart";
+import { DATE_RANGES } from "../../constants";
 
 // ─── MAIN DASHBOARD ───────────────────────────────────────────────────────────
 export default function Dashboard() {
@@ -153,6 +154,7 @@ export default function Dashboard() {
           <CustomDateRangePicker
             value={dateRange}
             onChange={(newRange) => setDateRange(newRange)}
+            defaultRange={DATE_RANGES.TODAY}
           />
         }
         actions={actions}

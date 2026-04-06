@@ -219,8 +219,6 @@ const DailySalesReportPage = () => {
     },
   ];
 
-  
-
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -290,9 +288,7 @@ const DailySalesReportPage = () => {
               />
             </>
           ) : (
-            <div className="text-sm text-slate-400 text-center py-6">
-              No collection data found
-            </div>
+            <NoDataFound title="No collection data found" size="sm" />
           )}
         </MetricPanel>
 
@@ -333,9 +329,7 @@ const DailySalesReportPage = () => {
               />
             </>
           ) : (
-            <div className="text-sm text-slate-400 text-center py-6">
-              No order data found
-            </div>
+            <NoDataFound title="No order data found" size="sm" />
           )}
         </MetricPanel>
       </div>

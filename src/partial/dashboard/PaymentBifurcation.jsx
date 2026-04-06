@@ -40,7 +40,7 @@ function PaymentBifurcationSkeleton() {
 }
 
 const PaymentBifurcation = ({ data, loading = false }) => {
-  const total = data?.reduce((s, p) => s + p?.amount, 0) || 1;
+  const total = data?.reduce((s, p) => s + p?.amount, 0) || 0;
   if (loading) return <PaymentBifurcationSkeleton />;
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
