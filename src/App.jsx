@@ -3,23 +3,40 @@ import { Route, Routes, Navigate } from "react-router-dom";
 import AuthenticatedRoutes from "./components/AuthenticatedRoutes";
 import AuthPage from "./pages/AuthPage";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchMeData } from "./redux/slices/authSlice";
+import { fetchMeData, setLoginFromToken } from "./redux/slices/authSlice";
 import AppLayoutSkeleton from "./layout/AppLayoutSkeleton";
 import { usePreventNumberInputScroll, useScrollToTop } from "./hooks/useScroll";
 import { useSocket } from "./hooks/useSocket";
 import NetworkStatusBanner from "./components/NetworkStatusBanner";
 import PublicMenuPage from "./pages/items/PublicMenuPage";
+import { useQueryParams } from "./hooks/useQueryParams";
+import { TOKEN_KEYS } from "./constants";
 
 const App = () => {
   const dispatch = useDispatch();
-  const { logIn, loading, meData,outletId } = useSelector((state) => state.auth);
+  const { token } = useQueryParams();
+
+  const { logIn, loading, meData, outletId } = useSelector(
+    (state) => state.auth,
+  );
+
   useSocket();
 
   useEffect(() => {
-    if (logIn) {
+    if (token) {
+      localStorage.setItem(TOKEN_KEYS.ACCESS, token);
+
+      dispatch(setLoginFromToken());
+
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, [token]);
+
+  useEffect(() => {
+    if (logIn && !meData) {
       dispatch(fetchMeData());
     }
-  }, [logIn,]);
+  }, [logIn,meData]);
 
   useScrollToTop();
   usePreventNumberInputScroll();
@@ -32,7 +49,7 @@ const App = () => {
     <Suspense fallback={<div>Loading...</div>}>
       <NetworkStatusBanner />
       <Routes>
-          <Route path="/menu" element={<PublicMenuPage />} />
+        <Route path="/menu" element={<PublicMenuPage />} />
 
         {/* AUTH */}
         {!logIn && <Route path="/auth" element={<AuthPage />} />}
@@ -40,10 +57,7 @@ const App = () => {
 
         {/* PROTECTED */}
         {logIn && meData && (
-          <Route
-            path="/*"
-            element={<AuthenticatedRoutes />}
-          />
+          <Route path="/*" element={<AuthenticatedRoutes />} />
         )}
 
         {/* NOT LOGGED IN */}

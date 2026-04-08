@@ -66,6 +66,9 @@ const authSlice = createSlice({
       state.outletId = id;
       localStorage.setItem(TOKEN_KEYS.OUTLET_ID, String(id));
     },
+    setLoginFromToken: (state) => {
+      state.logIn = true;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -113,7 +116,8 @@ const authSlice = createSlice({
 });
 
 // Export actions
-export const { clearLoginState, setOutletId } = authSlice.actions;
+export const { clearLoginState, setOutletId, setLoginFromToken } =
+  authSlice.actions;
 
 // Export reducer
 const { reducer } = authSlice;
