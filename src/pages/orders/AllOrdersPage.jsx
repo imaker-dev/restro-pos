@@ -283,13 +283,12 @@ const AllOrdersPage = () => {
               onChange={(newRange) => {
                 setDateRange(newRange);
               }}
-              // defaultRange=""
             />
           }
         />
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+      {/* <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
         {orderCards.map((card, i) => (
           <StatCard
             key={i}
@@ -301,9 +300,9 @@ const AllOrdersPage = () => {
             loading={loading}
           />
         ))}
-      </div>
+      </div> */}
 
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+      <div className="flex items-center gap-4">
         {/* Search Bar */}
         <SearchBar
           placeholder="Search by order details..."

@@ -138,16 +138,16 @@ export default function DailySalesCard({ day }) {
           {/* ── Row 2: Key metrics ── */}
           <div className="grid grid-cols-3 sm:flex sm:items-center gap-y-3 sm:gap-y-0">
             {[
-              {
-                label: "Gross Sales",
-                value: `${formatNumber(day.gross_sales, true)}`,
-                green: false,
-              },
-              {
-                label: "Net Sales",
-                value: `${formatNumber(day.net_sales, true)}`,
-                green: false,
-              },
+              // {
+              //   label: "Gross Sales",
+              //   value: `${formatNumber(day.gross_sales, true)}`,
+              //   green: false,
+              // },
+              // {
+              //   label: "Net Sales",
+              //   value: `${formatNumber(day.net_sales, true)}`,
+              //   green: false,
+              // },
               {
                 label: "Collected",
                 value: `${formatNumber(day.total_collection, true)}`,

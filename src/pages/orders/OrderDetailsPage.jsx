@@ -634,7 +634,7 @@ const OrderDetailsPage = () => {
                           strokeWidth={2.5}
                           className="text-amber-500"
                         />
-                        No-charge savings
+                        No-charge Amount
                       </div>
                     </td>
                     <td className="pl-3 pr-5 py-2.5 text-right text-[13px] font-extrabold text-amber-600 tabular-nums">

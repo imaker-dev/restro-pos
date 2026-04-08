@@ -6,6 +6,12 @@ import {
   WifiOff,
   ChevronLeft,
   Loader2,
+  ClipboardList,
+  Clock,
+  ChefHat,
+  Search,
+  XCircle,
+  ArrowLeft,
 } from "lucide-react";
 import KotOrderCard from "../../partial/kot/KotOrderCard";
 import { useDispatch, useSelector } from "react-redux";
@@ -23,6 +29,7 @@ import SearchBar from "../../components/SearchBar";
 import { ORDER_STATUSES } from "../../utils/orderStatusConfig";
 import { setKotTab } from "../../redux/slices/uiSlice";
 import { useNavigate } from "react-router-dom";
+import Tooltip from "../../components/Tooltip";
 
 export default function OrderDisplayPage() {
   const dispatch = useDispatch();
@@ -36,6 +43,8 @@ export default function OrderDisplayPage() {
   const { connected, connecting } = useSelector((state) => state.socket);
   const { kots, stats } = allOrdersKot || {};
   const [lastFetchedAt, setLastFetchedAt] = useState(null);
+  const [activeTab, setActiveTab] = useState("all");
+  const [search, setSearch] = useState("");
 
   const ACTION_MAP = {
     preparing: prepareOrderKot,
@@ -135,146 +144,163 @@ export default function OrderDisplayPage() {
     emptyMessage: `No orders at the moment.`,
   };
 
+  const TABS = [
+    {
+      key: "",
+      label: "All Orders",
+      icon: ClipboardList,
+      activeClass: "bg-[#374151] text-white",
+      count: stats?.total_count,
+    },
+    {
+      key: "pending",
+      label: "Pending",
+      icon: Clock,
+      activeClass: "bg-[#FFA80B] text-white", // updated
+      count: stats?.pending_count,
+    },
+    {
+      key: "preparing",
+      label: "Preparing",
+      icon: ChefHat,
+      activeClass: "bg-[#3B82F6] text-white",
+      count: stats?.preparing_count,
+    },
+    {
+      key: "ready",
+      label: "Ready",
+      icon: CheckCircle2,
+      activeClass: "bg-[#14B51D] text-white", // updated
+      count: stats?.ready_count,
+    },
+    {
+      key: "cancelled",
+      label: "Cancelled",
+      icon: XCircle,
+      activeClass: "bg-[#FF3636] text-white", // added
+      count: stats?.cancelled_count,
+    },
+  ];
+
   return (
     <div>
       <div className="space-y-6">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div className="flex items-center gap-3">
+        {/* ── Top Nav ── */}
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          {/* Title */}
+          <div className="flex items-center gap-2 mr-2 flex-shrink-0">
             <button
-              onClick={() => navigate(-1)}
-              className="p-2.5 bg-primary-500 hover:bg-primary-600 rounded-lg"
+              onClick={() => navigate(-1)} // go back
+              className="w-8 h-8 flex items-center justify-center rounded-full border border-gray-200 bg-white hover:bg-gray-100 transition"
             >
-              <ChevronLeft className="w-6 h-6 text-white" />
+              <ArrowLeft size={16} className="text-gray-700" />
             </button>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                {stationName}
-              </h1>
 
-              <p className="text-sm text-gray-500">{outletName}</p>
-            </div>
-          </div>
+            <h1 className="text-2xl font-black text-gray-900 tracking-tight">
+              Kitchen
+            </h1>
 
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-            {/* STATUS LEGEND */}
-            <div className="flex items-center">
-              {Object.entries(ORDER_STATUSES).map(([key, status]) => (
-                <div key={key} className={`flex items-center gap-2 px-2 py-1 `}>
-                  <span
-                    className={`w-2 h-2 rounded-full shadow-sm ${status.dotColor}`}
-                  />
-
-                  <span className={`text-xs font-medium ${status.color}`}>
-                    {status.label}
-                  </span>
-                </div>
-              ))}
-            </div>
-
-            {/* SYNC CONTROL */}
-            <button
-              onClick={fetchOrder}
-              className="inline-flex items-center gap-2 px-3 py-1.5
-              text-xs font-medium rounded-lg
-              border border-gray-200 bg-white hover:bg-gray-50 transition"
-              title="Refresh orders"
-            >
-              <RefreshCw className="w-3.5 h-3.5" />
-
-              <span className="text-gray-600">
-                {lastFetchedAt
-                  ? `Updated ${formatDate(lastFetchedAt, "time")}`
-                  : "Sync"}
-              </span>
-            </button>
-            <div
-              title={
+            <Tooltip
+              content={
                 connecting
                   ? "Connecting to live updates..."
                   : connected
                     ? "Real-time updates active"
                     : "No live connection"
               }
-              className={`
-                inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium
-                transition border
-                ${
-                  connecting
-                    ? "bg-yellow-50 text-yellow-700 border-yellow-200 hover:bg-yellow-100"
-                    : connected
-                      ? "bg-green-50 text-green-700 border-green-200 hover:bg-green-100"
-                      : "bg-red-50 text-red-700 border-red-200 hover:bg-red-100"
-                }
-              `}
+              position="bottom"
             >
-              {/* Dot Indicator */}
-              <span
+              <div
                 className={`
-                  w-2 h-2 rounded-full
+                  w-7 h-7 flex items-center justify-center rounded-full border transition
                   ${
                     connecting
-                      ? "bg-yellow-500 animate-pulse"
+                      ? "bg-yellow-50 border-yellow-200"
                       : connected
-                        ? "bg-green-500 animate-pulse"
-                        : "bg-red-500"
+                        ? "bg-green-50 border-green-200"
+                        : "bg-red-50 border-red-200"
                   }
                 `}
-              />
+              >
+                {/* Icon */}
+                {connecting ? (
+                  <Loader2 className="w-4 h-4 text-yellow-600 animate-spin" />
+                ) : connected ? (
+                  <Wifi className="w-4 h-4 text-green-600" />
+                ) : (
+                  <WifiOff className="w-4 h-4 text-red-600" />
+                )}
+              </div>
+            </Tooltip>
 
-              {/* Icon */}
-              {connecting ? (
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-              ) : connected ? (
-                <Wifi className="w-3.5 h-3.5" />
-              ) : (
-                <WifiOff className="w-3.5 h-3.5" />
-              )}
-
-              {/* Text */}
-              <span>
-                {connecting ? "Connecting" : connected ? "Online" : "Offline"}
-              </span>
-            </div>
+            {/* SYNC CONTROL */}
+            <Tooltip
+              content={
+                lastFetchedAt
+                  ? `Last updated at ${formatDate(lastFetchedAt, "time")}`
+                  : "Sync orders"
+              }
+            >
+              <button
+                onClick={fetchOrder}
+                disabled={loading}
+                className="w-7 h-7 flex items-center justify-center rounded-full  hover:bg-gray-100 text-gray-500 transition-colors"
+              >
+                <RefreshCw
+                  size={15}
+                  className={loading ? "animate-spin" : ""}
+                />
+              </button>
+            </Tooltip>
           </div>
-        </div>
 
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <SearchBar width="w-full" />
-          <div className="flex gap-2">
-            {tabs?.map((tab) => {
-              const isActive = kotTab === tab.id;
+          <div className="flex gap-2 flex-wrap">
+            {TABS.map((t) => {
+              const Icon = t.icon;
+              const isActive = kotTab === t.key;
 
               return (
                 <button
-                  key={tab.id}
-                  onClick={() => dispatch(setKotTab(tab.id))}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
-                  inline-flex items-center gap-2
-                  ${
-                    isActive
-                      ? "bg-primary-500 text-white"
-                      : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-200"
-                  }`}
+                  key={t.key}
+                  onClick={() => dispatch(setKotTab(t.key))}
+                  className={`flex items-center gap-1.5 px-[14px] py-[7px] rounded-full border text-[13px] font-semibold
+                    transition-all
+                    ${
+                      isActive
+                        ? `${t.activeClass} text-white border-transparent shadow-sm`
+                        : "bg-white text-gray-600 border-gray-200 hover:border-gray-300"
+                    }`}
                 >
-                  {tab.label}
+                  {/* ICON */}
+                  <span
+                    className={`flex items-center justify-center w-5 h-5 rounded-full ${
+                      isActive ? "bg-white/20" : t.activeClass
+                    }`}
+                  >
+                    <Icon
+                      size={12}
+                      className={`${isActive ? "text-white" : "text-white"}`}
+                    />
+                  </span>
 
-                  {/* BADGE */}
-                  {typeof tab.badgeCount === "number" && tab.badgeCount > 0 && (
-                    <span
-                      className={`min-w-[20px] h-5 px-1.5 text-xs rounded-full flex items-center justify-center
-                      ${
-                        isActive
-                          ? "bg-white text-primary-600"
-                          : "bg-primary-200 text-primary-700"
-                      }`}
-                    >
-                      {tab.badgeCount}
-                    </span>
+                  {/* LABEL */}
+                  <span>{t.label}</span>
+
+                  {/* COUNT */}
+                  {t.count > 0 && (
+                    <span className="font-black ml-1">{t.count}</span>
                   )}
                 </button>
               );
             })}
+          </div>
+
+          {/* Search */}
+          <div className="relative flex-shrink-0">
+            <SearchBar
+              className="py-[7px] rounded-full border border-gray-300 text-[13px] text-gray-700 bg-gray-50 outline-none focus:border-gray-400 w-full lg:w-52"
+              onSearch={(value) => setSearch(value)}
+            />
           </div>
         </div>
 

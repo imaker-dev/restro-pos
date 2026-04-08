@@ -1,12 +1,9 @@
 import {
-  AlertCircle,
+  BadgeInfo,
   CheckCircle,
+  ChefHat,
   ChevronDown,
   Loader2,
-  Package,
-  ShoppingBag,
-  Truck,
-  Utensils,
 } from "lucide-react";
 import React, { useState } from "react";
 import FoodTypeIcon from "../common/FoodTypeIcon";
@@ -45,27 +42,54 @@ const KotOrderCard = ({
     : order?.items.slice(0, ITEMS_TO_SHOW);
   const hasMoreItems = order?.items.length > ITEMS_TO_SHOW;
 
-  // const liveTimeAgo = useTimeAgo(order?.createdAt, 1000);
+  const liveTimeAgo = useTimeAgo(order?.createdAt, 100000);
+
+  const STATUS_HEADER = {
+    pending: "bg-[#FFA80B]",
+    preparing: "bg-[#3B82F6]",
+    ready: "bg-[#14B51D]",
+    cancelled: "bg-[#FF3636]",
+  };
 
   return (
     <div>
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
-        {/* Card Header */}
-        <div className="p-4 border-b border-gray-100">
-          <div>
-            <h3 className="font-bold text-gray-900">{order?.kotNumber}</h3>
-            <p className="text-sm text-gray-500">
-              {order?.tableNumber
-                ? `Table No: ${order.tableNumber}`
-                : "Takeaway"}{" "}
-              • {formatDate(order?.createdAt, "timeAgo")}
-              {/* {liveTimeAgo} */}
+      <div className="bg-white rounded-md border border-gray-200 overflow-hidden hover:shadow transition-shadow">
+        {/* Header */}
+        <div
+          className={`${STATUS_HEADER[order.status]} px-4 py-3 flex items-center gap-3`}
+        >
+          <div className="w-[38px] h-[38px] rounded-full bg-white flex items-center justify-center flex-shrink-0">
+            <ChefHat size={18} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-bold text-white truncate leading-tight">
+              {order.customer || "Walk in Customer"}
+            </p>
+            <p className="text-xs text-white/80 mt-0.5">
+              {order.tableNumber ? "Dine In" : "Takeaway"}
             </p>
           </div>
+          <span className="bg-white/90 text-gray-800 text-xs font-bold px-2.5 py-1.5 rounded-lg flex-shrink-0">
+            #{order.kotNumber}
+          </span>
+        </div>
+
+        {/* Meta */}
+        <div className="px-4 py-2.5 flex justify-between items-center border-b border-gray-100">
+          <span className="text-[12.5px] text-gray-500">
+            Table No :{" "}
+            <strong className="text-gray-900 font-bold">
+              {order.tableNumber}
+            </strong>
+          </span>
+          <span className="text-xs text-gray-400">
+            {formatDate(order.createdAt, "time")} ·{" "}
+            <span className="font-bold text-gray-800">{liveTimeAgo}</span>
+          </span>
         </div>
 
         {/* Items List */}
-        <div className="p-4 space-y-2 min-h-[150px]">
+        <div className="p-4 space-y- min-h-[150px] divide-y divide-dashed divide-gray-200">
           {displayItems && displayItems?.length > 0 ? (
             displayItems?.map((item) => {
               const canMarkReady =
@@ -74,13 +98,12 @@ const KotOrderCard = ({
                 item?.status !== "cancelled";
 
               return (
-                <div key={item.id}>
-                  <div className="flex items-center w-full">
+                <div key={item.id} className="py-2">
+                  <div className="flex items-center justify-between w-full">
                     <div className="flex items-center gap-2 min-w-0">
                       <div
                         className={`w-2 h-2 rounded-full ${
-                          ORDER_STATUSES[item?.status]?.dotColor ||
-                          "bg-gray-400"
+                          STATUS_HEADER[item?.status] || "bg-gray-400"
                         } flex-shrink-0`}
                       />
 
@@ -104,7 +127,7 @@ const KotOrderCard = ({
                       </p>
                     </div>
                     {/* Dashed Line */}
-                    <div className="flex-1 border-b border-dashed border-gray-300 mx-2"></div>
+                    {/* <div className="flex-1 border-b border-dashed border-gray-300 mx-2"></div> */}
 
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-medium text-gray-900 whitespace-nowrap">
@@ -152,8 +175,8 @@ const KotOrderCard = ({
                   )}
 
                   {item?.specialInstructions && (
-                    <div className="flex items-center gap-1 mt-1 bg-[#F8F8F8] text-slate-900 rounded-md p-1">
-                      <AlertCircle className="w-3 h-3 flex-shrink-0" />
+                    <div className="flex items-center gap-1 mt-1 bg-[#F8F8F8] text-slate-950 rounded-md p-1">
+                      <BadgeInfo className="w-3 h-3 flex-shrink-0" />
                       <p className="text-xs">
                         Notes: {item?.specialInstructions}
                       </p>

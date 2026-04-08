@@ -89,7 +89,7 @@ const PageHeader = ({
           )}
 
           {actions.length > 0 && (
-            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
               {actions.map((action, index) => {
                 const variantClass =
                   buttonVariants[action.type] || buttonVariants.secondary;

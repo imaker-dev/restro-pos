@@ -6,13 +6,22 @@ export default false
       message: "You are Offline. Please turn on the internet",
     }
   : {
+      // getDailySalesReportApi: ({ outletId, dateRange }) => {
+      //   const params = cleanParams({
+      //     startDate: dateRange?.startDate,
+      //     endDate: dateRange?.endDate,
+      //   });
+
+      //   return Api.get(`/orders/reports/${outletId}/daily-sales`, { params });
+      // },
       getDailySalesReportApi: ({ outletId, dateRange }) => {
         const params = cleanParams({
+          outletId,
           startDate: dateRange?.startDate,
           endDate: dateRange?.endDate,
         });
 
-        return Api.get(`/orders/reports/${outletId}/daily-sales`, { params });
+        return Api.get(`/reports/accurate-dsr`, { params });
       },
 
       getDailyReportDetailsApi: (outletId, date, page, limit) => {

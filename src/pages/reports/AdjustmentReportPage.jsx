@@ -40,12 +40,14 @@ const AdjustmentReportPage = () => {
   const { summary, items, pagination } = adjustmentReport || {};
 
   const fetchReport = () => {
-    dispatch(fetchAdjustmentReport({ outletId }));
+    if (!outletId || !dateRange?.startDate || !dateRange?.endDate) return;
+
+    dispatch(fetchAdjustmentReport({ outletId,dateRange }));
   };
 
   useEffect(() => {
     fetchReport();
-  }, [outletId]);
+  }, [outletId,dateRange]);
 
   const handleExport = async () => {
     if (!dateRange?.startDate || !dateRange?.endDate) return;

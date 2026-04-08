@@ -6,6 +6,15 @@ export default false
       message: "You are Offline. Please turn on the internet",
     }
   : {
+      // getDashboardStatsApi: ({ outletId, dateRange = {} }) => {
+      //   const params = cleanParams({
+      //     outletId,
+      //     startDate: dateRange?.startDate,
+      //     endDate: dateRange?.endDate,
+      //   });
+
+      //   return Api.get(`/reports/running-dashboard`, { params });
+      // },
       getDashboardStatsApi: ({ outletId, dateRange = {} }) => {
         const params = cleanParams({
           outletId,
@@ -13,9 +22,18 @@ export default false
           endDate: dateRange?.endDate,
         });
 
-        return Api.get(`/reports/running-dashboard`, { params });
+        return Api.get(`/reports/accurate-running-dashboard`, { params });
       },
 
+      // getDailyEndSummaryApi: (outletId, dateRange = {}) => {
+      //   const params = cleanParams({
+      //     outletId,
+      //     startDate: dateRange?.startDate,
+      //     endDate: dateRange?.endDate,
+      //   });
+
+      //   return Api.get(`/reports/day-end-summary`, { params });
+      // },
       getDailyEndSummaryApi: (outletId, dateRange = {}) => {
         const params = cleanParams({
           outletId,
@@ -23,7 +41,7 @@ export default false
           endDate: dateRange?.endDate,
         });
 
-        return Api.get(`/reports/day-end-summary`, { params });
+        return Api.get(`/reports/accurate-day-end-summary`, { params });
       },
 
       getDailyEndSummaryDetailsApi: (outletId, date) => {
@@ -35,7 +53,7 @@ export default false
 
         return Api.get(`/reports/day-end-summary/detail`, { params });
       },
-      getLiveOperationStatsApi:(outletId) => {
-        return Api.get(`/dashboard/realtime/${outletId}`)
-      }
+      getLiveOperationStatsApi: (outletId) => {
+        return Api.get(`/dashboard/realtime/${outletId}`);
+      },
     };

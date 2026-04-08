@@ -2,8 +2,10 @@ import { useState } from "react";
 import {
   Users, Zap, Layers, Grid3X3, Table2, Receipt, Tag, PlusCircle,
   ShoppingBag, ClipboardList, CreditCard, Package, BarChart3, Settings,
-  ChevronRight, CheckCircle2, ArrowRight, BookOpen, Star, Menu, X
+  ChevronRight, CheckCircle2, ArrowRight, BookOpen, Star, Menu, X,
+  ChevronLeft
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const steps = [
   {
@@ -321,6 +323,7 @@ function StepCard({ step, isActive, onClick }) {
 }
 
 function Sidebar({ activeStep, setActiveStep, sidebarOpen, setSidebarOpen }) {
+  const navigate = useNavigate();
   return (
     <>
       {/* Mobile overlay */}
@@ -339,9 +342,9 @@ function Sidebar({ activeStep, setActiveStep, sidebarOpen, setSidebarOpen }) {
         {/* Logo */}
         <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-orange-400 to-rose-500 flex items-center justify-center shadow">
-              <BookOpen size={17} className="text-white" />
-            </div>
+            <button onClick={() => navigate(-1)} className="w-9 h-9 rounded-xl bg-gradient-to-br from-orange-400 to-rose-500 flex items-center justify-center shadow">
+              <ChevronLeft size={17} className="text-white" />
+            </button>
             <div>
               <div className="text-[13px] font-black text-slate-900 tracking-tight">Setup Guide</div>
               <div className="text-[10px] text-slate-400 font-medium">Restaurant Management</div>

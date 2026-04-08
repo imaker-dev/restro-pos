@@ -98,12 +98,12 @@ const GROUPS = [
         icon: BarChart3,
         desc: "Manual price adjustments",
       },
-      {
-        name: "Day End Summary",
-        path: ROUTE_PATHS.REPORTS_DAY_END_SUMMARY,
-        icon: FileText,
-        desc: "End of day financial summary",
-      },
+      // {
+      //   name: "Day End Summary",
+      //   path: ROUTE_PATHS.REPORTS_DAY_END_SUMMARY,
+      //   icon: FileText,
+      //   desc: "End of day financial summary",
+      // },
     ],
   },
   {

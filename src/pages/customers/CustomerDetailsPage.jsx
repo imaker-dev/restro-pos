@@ -154,11 +154,7 @@ const CustomerDetailsPage = () => {
 
       {/* ── CUSTOMER HERO (UNIVERSAL STYLE) ── */}
       <div
-        className="relative rounded-3xl overflow-hidden shadow-lg"
-        style={{
-          background:
-            "linear-gradient(135deg, var(--color-primary-600), var(--color-primary-700))",
-        }}
+        className="relative rounded-3xl overflow-hidden shadow-lg bg-primary-500"
       >
         {/* highlight line */}
         <div

@@ -60,7 +60,7 @@ const DailySalesReportDetailsPage = () => {
           limit: itemsPerPage,
         }),
       );
-  }, [outletId, date, currentPage]);
+  }, [outletId, date, itemsPerPage,currentPage]);
 
   const totalPay = Object.values(summary?.paymentModeBreakdown || {}).reduce(
     (s, v) => s + num(v),
@@ -218,7 +218,7 @@ const DailySalesReportDetailsPage = () => {
       </div>
 
       {/* ── 4 KPI TILES ── */}
-      <div
+      {/* <div
         className="grid grid-cols-2 lg:grid-cols-6 gap-3"
         style={{ animationDelay: "80ms" }}
       >
@@ -235,7 +235,7 @@ const DailySalesReportDetailsPage = () => {
             variant="v9"
           />
         ))}
-      </div>
+      </div> */}
 
       {/* ── PAYMENT + ORDER TYPE ── */}
       <div className=" grid grid-cols-1 md:grid-cols-2 gap-4">

@@ -53,38 +53,36 @@ export const navConfig = [
   },
 
   {
-  title: "Reports",
-  roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
-  items: [
+    title: "Reports",
+    roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
+    items: [
+      {
+        name: "Live Operations",
+        icon: Activity,
+        path: ROUTE_PATHS.REPORTS_LIVE_OPERATIONS,
+        roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
+      },
 
-    {
-      name: "Live Operations",
-      icon: Activity,
-      path: ROUTE_PATHS.REPORTS_LIVE_OPERATIONS,
-      roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
-    },
-    
-    {
-      name: "Shift History",
-      icon: Clock,
-      path: ROUTE_PATHS.REPORTS_SHIFT_HISTORY,
-      roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
-    },
-    {
-      name: "Day End Summary",
-      icon: CalendarCheck,
-      path: ROUTE_PATHS.REPORTS_DAY_END_SUMMARY,
-      roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
-    },
-        {
-      name: "All Reports",
-      icon: BarChart3,
-      path: ROUTE_PATHS.ALL_REPORTS,
-      roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
-    },
-  ],
-},
-
+      {
+        name: "Shift History",
+        icon: Clock,
+        path: ROUTE_PATHS.REPORTS_SHIFT_HISTORY,
+        roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
+      },
+      {
+        name: "Day End Summary",
+        icon: CalendarCheck,
+        path: ROUTE_PATHS.REPORTS_DAY_END_SUMMARY,
+        roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
+      },
+      {
+        name: "Other Reports",
+        icon: BarChart3,
+        path: ROUTE_PATHS.ALL_REPORTS,
+        roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
+      },
+    ],
+  },
 
   {
     title: "Operations",

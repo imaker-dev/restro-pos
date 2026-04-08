@@ -9,6 +9,8 @@ import {
   Users,
   IndianRupee,
   Truck,
+  AlertTriangle,
+  SlidersHorizontal,
 } from "lucide-react";
 
 import CustomDateRangePicker from "../../components/CustomDateRangePicker";
@@ -32,7 +34,7 @@ export default function Dashboard() {
     (state) => state.dashboard,
   );
 
-  const { summary, sales, payments } = dahbordStats || {};
+  const { summary, sales, payments, collection } = dahbordStats || {};
 
   const fetchStats = () => {
     if (!outletId || !dateRange?.startDate || !dateRange?.endDate) return;
@@ -69,8 +71,8 @@ export default function Dashboard() {
   const stats = [
     {
       title: "Total Sales",
-      value: formatNumber(summary?.totalSales, true),
-      subtitle: `${formatNumber(summary?.orderCount)} orders`,
+      value: formatNumber(summary?.total_sale, true),
+      subtitle: `${formatNumber(summary?.total_orders)} orders`,
       icon: IndianRupee,
       color: "green",
     },
@@ -121,18 +123,33 @@ export default function Dashboard() {
         icon = Banknote;
         color = "#f59e0b";
         break;
+
       case "Card":
         icon = CreditCard;
         color = "#14b8a6";
         break;
+
       case "UPI":
         icon = Smartphone;
         color = "#6366f1";
         break;
+
       case "Unpaid":
         icon = XCircle;
         color = "#e2e8f0";
         break;
+
+      // ✅ NEW
+      case "Due":
+        icon = AlertTriangle;
+        color = "#ef4444"; // red
+        break;
+
+      case "Adjustment":
+        icon = SlidersHorizontal;
+        color = "#f59e0b"; // amber
+        break;
+
       default:
         icon = Smartphone;
         color = "#94a3b8"; // fallback

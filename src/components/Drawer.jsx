@@ -51,6 +51,24 @@ export default function Drawer({
     return () => document.removeEventListener("keydown", handler);
   }, [isOpen, onClose]);
 
+  useEffect(() => {
+    if (!isOpen) return;
+
+    // Always push a new entry when opening
+    window.history.pushState(null, "");
+
+    const handlePopState = () => {
+      // Close drawer instead of navigating
+      onClose();
+    };
+
+    window.addEventListener("popstate", handlePopState);
+
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, [isOpen, onClose]);
+
   const slideFrom =
     side === "right"
       ? { enter: "translate-x-full", base: "right-0" }
