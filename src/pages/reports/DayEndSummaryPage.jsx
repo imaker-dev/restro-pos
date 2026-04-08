@@ -23,25 +23,14 @@ import CustomDateRangePicker from "../../components/CustomDateRangePicker";
 import StatCard from "../../components/StatCard";
 import DayEndCard from "../../partial/report/day-end-summary-report/DayEndCard";
 import DayEndCollectionSummaryCard from "../../partial/report/day-end-summary-report/DayEndCollectionSummaryCard";
+import StatusPill from "../../components/StatusPill";
+import DayEndSummarySkeleton from "../../partial/report/day-end-summary-report/DayEndSummarySkeleton";
+import NoDataFound from "../../layout/NoDataFound";
 
 /* ─── helpers ─── */
 const fmt = (n) =>
   "₹" + Number(n || 0).toLocaleString("en-IN", { maximumFractionDigits: 0 });
 const fmtN = (n) => Number(n || 0).toLocaleString("en-IN");
-
-/* ─── sub-components ─── */
-
-function OrderTypePill({ icon: Icon, label, count, color }) {
-  return (
-    <div
-      className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl ${color}`}
-    >
-      <Icon size={11} />
-      <span className="text-xs font-medium">{label}</span>
-      <span className="text-xs font-bold">{count}</span>
-    </div>
-  );
-}
 
 /* ─── main page ─── */
 const DayEndSummaryPage = () => {
@@ -144,28 +133,13 @@ const DayEndSummaryPage = () => {
 
       {/* Body */}
       {!dailyEndSummary && !isFetchingDailyEndSummary ? (
-        /* empty state */
-        <div className="flex flex-col items-center justify-center py-24 gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-gray-100 flex items-center justify-center">
-            <Calendar size={20} className="text-gray-400" />
-          </div>
-          <p className="text-sm font-medium text-gray-500">
-            Select a date range to get started
-          </p>
-          <p className="text-xs text-gray-400">
-            Your day end summary will appear here
-          </p>
-        </div>
+        <NoDataFound
+          icon={Calendar}
+          title=" Select a date range to get started"
+          description=" Select a date range to get started"
+        />
       ) : isFetchingDailyEndSummary ? (
-        /* skeleton */
-        <div className="px-4 md:px-6 py-6 space-y-4 max-w-5xl mx-auto">
-          {[...Array(5)].map((_, i) => (
-            <div
-              key={i}
-              className="h-16 bg-white border border-gray-100 rounded-2xl animate-pulse"
-            />
-          ))}
-        </div>
+        <DayEndSummarySkeleton />
       ) : (
         <div className="space-y-6">
           {/* ── Grand Total stats ── */}
@@ -190,30 +164,33 @@ const DayEndSummaryPage = () => {
                 <span className="text-xs font-medium text-gray-400 mr-1">
                   Order types
                 </span>
-                <OrderTypePill
+                <StatusPill
                   icon={UtensilsCrossed}
                   label="Dine-in"
                   count={grandTotal.ordersByType.dine_in}
-                  color="bg-blue-50 text-blue-600"
+                  color="blue"
                 />
-                <OrderTypePill
+
+                <StatusPill
                   icon={ShoppingBag}
                   label="Takeaway"
                   count={grandTotal.ordersByType.takeaway}
-                  color="bg-violet-50 text-violet-600"
+                  color="violet"
                 />
-                <OrderTypePill
+
+                <StatusPill
                   icon={Bike}
                   label="Delivery"
                   count={grandTotal.ordersByType.delivery}
-                  color="bg-orange-50 text-orange-500"
+                  color="orange"
                 />
+
                 {grandTotal.nc_orders > 0 && (
-                  <OrderTypePill
+                  <StatusPill
                     icon={AlertCircle}
                     label="NC"
                     count={grandTotal.nc_orders}
-                    color="bg-amber-50 text-amber-500"
+                    color="amber"
                   />
                 )}
               </div>

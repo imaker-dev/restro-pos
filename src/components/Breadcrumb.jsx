@@ -1,7 +1,7 @@
 // Breadcrumb.jsx
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Home } from "lucide-react";
 import { ROUTE_PATHS } from "../config/paths";
 
 const Breadcrumb = () => {
@@ -14,9 +14,13 @@ const Breadcrumb = () => {
       {/* Dashboard */}
       <Link
         to={ROUTE_PATHS.HOME}
-        className="hover:text-primary-600 transition-colors font-medium"
+        className="flex items-center hover:text-primary-600 transition-colors"
       >
-        Dashboard
+        {paths.length > 0 ? (
+          <Home size={16} />
+        ) : (
+          <span className="font-medium">Dashboard</span>
+        )}
       </Link>
 
       {paths.map((segment, index) => {
@@ -24,8 +28,7 @@ const Breadcrumb = () => {
         const isLast = index === paths.length - 1;
 
         const label =
-          segment.charAt(0).toUpperCase() +
-          segment.slice(1).replace(/-/g, " ");
+          segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, " ");
 
         return (
           <React.Fragment key={routeTo}>

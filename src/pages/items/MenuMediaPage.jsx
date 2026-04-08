@@ -7,7 +7,7 @@ import {
   toggleMenuMediaActive,
   uploadMenuMedia,
 } from "../../redux/slices/menuMediaSlice";
-import { FileText, Clock, Plus, X, Eye } from "lucide-react";
+import { FileText, Clock, Plus, X, Eye, ImageOff } from "lucide-react";
 import StatusBadge from "../../layout/StatusBadge";
 import MenuMediaModal from "../../partial/items/MenuMediaModal";
 import { handleResponse } from "../../utils/helpers";
@@ -15,6 +15,7 @@ import ModalAction from "../../components/ModalAction";
 import LoadingOverlay from "../../components/LoadingOverlay";
 import { useNavigate } from "react-router-dom";
 import { ROUTE_PATHS } from "../../config/paths";
+import NoDataFound from "../../layout/NoDataFound";
 
 /* ─────────────────────────────────────────
    PREVIEW MODAL
@@ -304,15 +305,24 @@ const MenuMediaPage = () => {
         <PageHeader title="Menu Media" actions={actions} showBackButton />
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {mediaList?.map((item) => (
-            <MediaCard
-              key={item.id}
-              item={item}
-              onToggle={handleToggle}
-              onDelete={handleDelete}
-              onPreview={setPreviewItem}
+          {mediaList?.length > 0 ? (
+            mediaList.map((item) => (
+              <MediaCard
+                key={item.id}
+                item={item}
+                onToggle={handleToggle}
+                onDelete={handleDelete}
+                onPreview={setPreviewItem}
+              />
+            ))
+          ) : (
+            <NoDataFound
+              icon={ImageOff}
+              title="No media found"
+              description="Upload media to see it here"
+              className="col-span-full"
             />
-          ))}
+          )}
         </div>
       </div>
 

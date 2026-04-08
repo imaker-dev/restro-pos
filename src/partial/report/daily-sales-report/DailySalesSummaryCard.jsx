@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { formatNumber } from "../../../utils/numberFormatter";
+import StatusPill from "../../../components/StatusPill";
 
 const shortDate = (d) =>
   new Date(d).toLocaleDateString("en-IN", { day: "2-digit", month: "short" });
@@ -27,19 +28,6 @@ function PayStatusRow({ icon: Icon, label, count, color }) {
       <Icon size={12} className="shrink-0" />
       <span className="text-xs font-medium flex-1">{label}</span>
       <span className="text-xs font-bold">{formatNumber(count)}</span>
-    </div>
-  );
-}
-
-/* ── OrderTypePill ── */
-function Pill({ icon: Icon, label, count, color }) {
-  return (
-    <div
-      className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl ${color}`}
-    >
-      <Icon size={11} />
-      <span className="text-xs font-medium">{label}</span>
-      <span className="text-xs font-bold">{count}</span>
     </div>
   );
 }
@@ -150,24 +138,26 @@ function DailySalesSummaryCard({ day }) {
       >
         {/* order type pills */}
         <div className="flex items-center gap-1.5 flex-wrap">
-          <Pill
+          <StatusPill
             icon={UtensilsCrossed}
             label="Dine-in"
             count={dine_in_orders}
-            color="bg-blue-50 text-blue-600"
+            color="blue"
           />
-          <Pill
+
+          <StatusPill
             icon={ShoppingBag}
             label="Takeaway"
             count={takeaway_orders}
-            color="bg-violet-50 text-violet-600"
+            color="violet"
           />
+
           {delivery_orders > 0 && (
-            <Pill
+            <StatusPill
               icon={Bike}
               label="Delivery"
               count={delivery_orders}
-              color="bg-orange-50 text-orange-500"
+              color="orange"
             />
           )}
         </div>

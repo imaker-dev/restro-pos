@@ -67,13 +67,13 @@ function Header({ sidebarOpen, setSidebarOpen }) {
               {/* <ThemeToggle /> */}
 
               {/* Notifications */}
-              <button
+              {/* <button
                 onClick={() => navigate("/notifications")}
                 className="w-8 h-8 flex items-center justify-center bg-slate-100 hover:bg-slate-200 rounded-full ml-2"
               >
                 <span className="sr-only">Notifications</span>
                 <Bell className="w-4 h-4 text-slate-500" />
-              </button>
+              </button> */}
 
               <OutletSwitcher />
 

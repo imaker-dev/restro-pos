@@ -139,20 +139,19 @@ export default function Dashboard() {
         color = "#e2e8f0";
         break;
 
-      // ✅ NEW
       case "Due":
         icon = AlertTriangle;
-        color = "#ef4444"; // red
+        color = "#ef4444";
         break;
 
       case "Adjustment":
         icon = SlidersHorizontal;
-        color = "#f59e0b"; // amber
+        color = "#84cc16";
         break;
 
       default:
         icon = Smartphone;
-        color = "#94a3b8"; // fallback
+        color = "#94a3b8";
     }
 
     return {

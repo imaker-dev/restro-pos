@@ -2,6 +2,7 @@ export const TOKEN_KEYS = {
   ACCESS: "_k_e7c1fa92",
   REFRESH: "_k_91bd04ce",
   OUTLET_ID: "_k_a19f3c77",
+  LOGIN_SOURCE: "_k_ls_72ac91",
 };
 
 export const ROLES = {
@@ -36,7 +37,6 @@ export const PREDEFINED_RANGES = Object.values(DATE_RANGES);
 
 export const DEFAULT_DATE_RANGE = DATE_RANGES.LAST_7_DAYS;
 
-
 export const SECTION_TYPES = {
   DINE_IN: "dine_in",
   TAKEAWAY: "takeaway",
@@ -62,8 +62,6 @@ export const STATION_TYPES = {
   MOCKTAIL: "mocktail",
   OTHER: "other",
 };
-
-
 
 // Order statuses
 export const ORDER_STATUSES = {

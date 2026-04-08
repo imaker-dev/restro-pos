@@ -1,140 +1,3 @@
-// import React, { useEffect, useState } from "react";
-// import { useDispatch, useSelector } from "react-redux";
-// import { fetchDailySalesReport } from "../../redux/slices/reportSlice";
-// import PageHeader from "../../layout/PageHeader";
-// import CustomDateRangePicker from "../../components/CustomDateRangePicker";
-// import { CalendarDays, Download, RotateCcw } from "lucide-react";
-// import DailySalesCard from "../../partial/report/daily-sales-report/DailySalesCard";
-// import NoDataFound from "../../layout/NoDataFound";
-// import { handleResponse } from "../../utils/helpers";
-// import { exportDailySalesReport } from "../../redux/slices/exportReportSlice";
-// import { downloadBlob } from "../../utils/blob";
-// import { formatFileDate } from "../../utils/dateFormatter";
-// import CollectionBreakup from "../../partial/report/CollectionBreakup";
-// import DailySalesCardSkeleton from "../../partial/report/daily-sales-report/DailySalesCardSkeleton";
-
-// const DailySalesReportPage = () => {
-//   const dispatch = useDispatch();
-
-//   const { outletId } = useSelector((s) => s.auth);
-//   const { dailySalesReport, isFetchingDailyReports } = useSelector(
-//     (s) => s.report,
-//   );
-//   const { isExportingDailySalesReport } = useSelector(
-//     (state) => state.exportReport,
-//   );
-//   const [dateRange, setDateRange] = useState();
-
-//   const fetchReport = () => {
-//     if (!outletId || !dateRange?.startDate || !dateRange?.endDate) return;
-
-//     dispatch(fetchDailySalesReport({ outletId, dateRange }));
-//   };
-
-//   useEffect(() => {
-//     fetchReport();
-//   }, [dateRange, outletId]);
-
-//   const report = dailySalesReport?.data || dailySalesReport || {};
-//   const { daily = [], summary } = report;
-
-//   const handleExportDailySalesReport = async () => {
-//     if (!dateRange?.startDate || !dateRange?.endDate) return;
-
-//     const fileName = `Daily-Sales-Report_${formatFileDate(
-//       dateRange.startDate,
-//     )}_to_${formatFileDate(dateRange.endDate)}`;
-
-//     await handleResponse(
-//       dispatch(exportDailySalesReport({ outletId, dateRange })),
-//       (res) => {
-//         downloadBlob({
-//           data: res.payload,
-//           fileName,
-//         });
-//       },
-//     );
-//   };
-
-//   const actions = [
-//     {
-//       label: "Export",
-//       type: "export",
-//       icon: Download,
-//       onClick: () => handleExportDailySalesReport(),
-//       loading: isExportingDailySalesReport,
-//       loadingText: "Exporting...",
-//     },
-//     {
-//       label: "Refresh",
-//       type: "refresh",
-//       icon: RotateCcw,
-//       onClick: fetchReport,
-//       loading: isFetchingDailyReports,
-//       loadingText: "Refreshing...",
-//     },
-//   ];
-
-//   return (
-//     <div className="space-y-6">
-//       {/* Header */}
-//       <PageHeader
-//         title="Daily Sales Report"
-//         // description="Performance metrics broken down day by day"
-//         rightContent={
-//           <CustomDateRangePicker value={dateRange} onChange={setDateRange} />
-//         }
-//         actions={actions}
-//         showBackButton
-//       />
-
-//       <CollectionBreakup
-//         collection={summary?.collection}
-//         loading={isFetchingDailyReports}
-//       />
-
-//       {/* ── Daily rows ── */}
-//       <div>
-//         <div className="flex items-center justify-between mb-3">
-//           <div className="flex items-center gap-2.5">
-//             <div className="w-7 h-7 rounded-lg bg-slate-900 flex items-center justify-center">
-//               <CalendarDays size={13} className="text-white" strokeWidth={2} />
-//             </div>
-//             <h2 className="text-[13px] font-black text-slate-800">
-//               Daily Breakdown
-//             </h2>
-//           </div>
-//           <span className="text-[10px] font-bold text-slate-400 bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-full">
-//             {daily?.length} day{daily?.length !== 1 ? "s" : ""}
-//           </span>
-//         </div>
-
-//         {isFetchingDailyReports ? (
-//           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-//             {Array.from({ length: 4 }).map((_, i) => (
-//               <DailySalesCardSkeleton key={i} />
-//             ))}
-//           </div>
-//         ) : daily && daily.length > 0 ? (
-//           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-//             {daily.map((day) => (
-//               <DailySalesCard key={day.report_date} day={day} />
-//             ))}
-//           </div>
-//         ) : (
-//           <NoDataFound
-//             icon={CalendarDays}
-//             title="No daily data"
-//             description="No sales found for the selected range"
-//             className="bg-white rounded-2xl border border-dashed border-slate-200 py-20"
-//           />
-//         )}
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default DailySalesReportPage;
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchDailySalesReport } from "../../redux/slices/reportSlice";
@@ -163,23 +26,13 @@ import { formatNumber } from "../../utils/numberFormatter";
 import StatCard from "../../components/StatCard";
 import DailySalesSummaryBreakup from "../../partial/report/daily-sales-report/DailySalesSummaryBreakup";
 import DailySalesSummaryCard from "../../partial/report/daily-sales-report/DailySalesSummaryCard";
+import StatusPill from "../../components/StatusPill";
+import DailySalesReportSkeleton from "../../partial/report/daily-sales-report/DailySalesReportSkeleton";
+import NoDataFound from "../../layout/NoDataFound";
 
 /* ── helpers ── */
 const fmt = (n) => formatNumber(n, true);
 const fmtN = (n) => Number(n || 0).toLocaleString("en-IN");
-
-/* ── OrderTypePill ── */
-function Pill({ icon: Icon, label, count, color }) {
-  return (
-    <div
-      className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl ${color}`}
-    >
-      <Icon size={11} />
-      <span className="text-xs font-medium">{label}</span>
-      <span className="text-xs font-bold">{count}</span>
-    </div>
-  );
-}
 
 /* ── PaymentStatusRow ── */
 function PayStatusRow({ icon: Icon, label, count, color }) {
@@ -279,7 +132,6 @@ const DailySalesReportPage = () => {
     },
   ];
 
-  
   return (
     <div className="space-y-6">
       <PageHeader
@@ -298,26 +150,13 @@ const DailySalesReportPage = () => {
 
       {/* body */}
       {!dailySalesReport && !isFetchingDailyReports ? (
-        <div className="flex flex-col items-center justify-center py-24 gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-gray-100 flex items-center justify-center">
-            <Calendar size={20} className="text-gray-400" />
-          </div>
-          <p className="text-sm font-medium text-gray-500">
-            Select a date range to get started
-          </p>
-          <p className="text-xs text-gray-400">
-            Your daily sales report will appear here
-          </p>
-        </div>
+        <NoDataFound
+          icon={Calendar}
+          title="Select a date range to get started"
+          description="Your daily sales report will appear here"
+        />
       ) : isFetchingDailyReports ? (
-        <div className="px-4 md:px-6 py-6 space-y-4 max-w-5xl mx-auto">
-          {[...Array(4)].map((_, i) => (
-            <div
-              key={i}
-              className="h-16 bg-white border border-gray-100 rounded-2xl animate-pulse"
-            />
-          ))}
-        </div>
+        <DailySalesReportSkeleton />
       ) : (
         <div className="space-y-6">
           {/* ── Summary stats ── */}
@@ -342,26 +181,31 @@ const DailySalesReportPage = () => {
                 <span className="text-xs font-medium text-gray-400 mr-1">
                   Order types
                 </span>
-                <Pill
+                <StatusPill
                   icon={UtensilsCrossed}
                   label="Dine-in"
                   count={summary.dine_in_orders}
-                  color="bg-blue-50 text-blue-600"
+                  color="blue"
                 />
-                <Pill
+
+                <StatusPill
                   icon={ShoppingBag}
                   label="Takeaway"
                   count={summary.takeaway_orders}
-                  color="bg-violet-50 text-violet-600"
+                  color="violet"
                 />
+
                 {summary.delivery_orders > 0 && (
-                  <Pill
+                  <StatusPill
                     icon={Bike}
                     label="Delivery"
                     count={summary.delivery_orders}
-                    color="bg-orange-50 text-orange-500"
+                    color="orange"
                   />
                 )}
+
+                
+
                 <div className="ml-auto flex items-center gap-2">
                   <PayStatusRow
                     icon={CheckCircle}

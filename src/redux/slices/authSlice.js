@@ -53,6 +53,7 @@ const authSlice = createSlice({
     meData: null,
     outlets: [],
     outletId: storedOutlet ? Number(storedOutlet) : null,
+    loginSource: localStorage.getItem(TOKEN_KEYS.LOGIN_SOURCE) || "web",
   },
   reducers: {
     clearLoginState: (state) => {
@@ -68,6 +69,20 @@ const authSlice = createSlice({
     },
     setLoginFromToken: (state) => {
       state.logIn = true;
+    },
+    setLoginFromTokenWithSource: (state, action) => {
+      const { token, source } = action.payload;
+
+      // save token
+      localStorage.setItem(TOKEN_KEYS.ACCESS, token);
+
+      // save source
+      const loginSource = source || "web";
+      localStorage.setItem(TOKEN_KEYS.LOGIN_SOURCE, loginSource);
+
+      // update state
+      state.logIn = true;
+      state.loginSource = loginSource;
     },
   },
   extraReducers: (builder) => {
@@ -116,8 +131,12 @@ const authSlice = createSlice({
 });
 
 // Export actions
-export const { clearLoginState, setOutletId, setLoginFromToken } =
-  authSlice.actions;
+export const {
+  clearLoginState,
+  setOutletId,
+  setLoginFromToken,
+  setLoginFromTokenWithSource,
+} = authSlice.actions;
 
 // Export reducer
 const { reducer } = authSlice;

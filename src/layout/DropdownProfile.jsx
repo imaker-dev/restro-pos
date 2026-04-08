@@ -11,7 +11,7 @@ import { ROUTE_PATHS } from "../config/paths";
 function DropdownProfile({ align, onLogoutClick }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  const { meData } = useSelector((state) => state.auth);
+  const { meData, loginSource } = useSelector((state) => state.auth);
   const trigger = useRef(null);
   const dropdown = useRef(null);
 
@@ -109,17 +109,18 @@ function DropdownProfile({ align, onLogoutClick }) {
                 </Link>
               </li>
             </PermissionGuard>
-
-            <li>
-              <button
-                className="font-medium text-sm text-red-500 hover:text-red-600  flex items-center py-1 px-3"
-                onClick={(e) => {
-                  (e.stopPropagation(), onLogoutClick());
-                }}
-              >
-                Sign Out
-              </button>
-            </li>
+            {loginSource != "mobile" && (
+              <li>
+                <button
+                  className="font-medium text-sm text-red-500 hover:text-red-600  flex items-center py-1 px-3"
+                  onClick={(e) => {
+                    (e.stopPropagation(), onLogoutClick());
+                  }}
+                >
+                  Sign Out
+                </button>
+              </li>
+            )}
           </ul>
         </div>
       </Transition>

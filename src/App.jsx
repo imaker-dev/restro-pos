@@ -3,7 +3,10 @@ import { Route, Routes, Navigate } from "react-router-dom";
 import AuthenticatedRoutes from "./components/AuthenticatedRoutes";
 import AuthPage from "./pages/AuthPage";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchMeData, setLoginFromToken } from "./redux/slices/authSlice";
+import {
+  fetchMeData,
+  setLoginFromTokenWithSource,
+} from "./redux/slices/authSlice";
 import AppLayoutSkeleton from "./layout/AppLayoutSkeleton";
 import { usePreventNumberInputScroll, useScrollToTop } from "./hooks/useScroll";
 import { useSocket } from "./hooks/useSocket";
@@ -24,19 +27,22 @@ const App = () => {
 
   useEffect(() => {
     if (token) {
-      localStorage.setItem(TOKEN_KEYS.ACCESS, token);
-
-      dispatch(setLoginFromToken());
+      dispatch(
+        setLoginFromTokenWithSource({
+          token,
+          source: "mobile",
+        }),
+      );
 
       window.history.replaceState({}, document.title, window.location.pathname);
     }
-  }, [token]);
+  }, [token,dispatch]);
 
   useEffect(() => {
     if (logIn && !meData) {
       dispatch(fetchMeData());
     }
-  }, [logIn,meData]);
+  }, [logIn, meData]);
 
   useScrollToTop();
   usePreventNumberInputScroll();
