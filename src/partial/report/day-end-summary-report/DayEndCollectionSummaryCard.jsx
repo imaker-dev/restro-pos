@@ -52,7 +52,7 @@ function PaymentBar({
   );
 }
 
-function DayEndCollectionSummaryCard({ grandTotal }) {
+function DayEndCollectionSummaryCard({ grandTotal, outsideCollections }) {
   const {
     total_collection,
     paid_amount,
@@ -66,6 +66,7 @@ function DayEndCollectionSummaryCard({ grandTotal }) {
     ordersByType,
   } = grandTotal;
   const paymentBreakdown = grandTotal.paymentBreakdown || {};
+
   const cash = paymentBreakdown.cash || 0;
   const card = paymentBreakdown.card || 0;
   const upi = paymentBreakdown.upi || 0;
@@ -115,10 +116,14 @@ function DayEndCollectionSummaryCard({ grandTotal }) {
           <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3">
             Collection
           </p>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
             {[
               { label: "Total", value: formatNumber(total_collection, true) },
               { label: "Paid", value: formatNumber(paid_amount, true) },
+              {
+                label: "Outside Collection",
+                value: formatNumber(outsideCollections.total, true),
+              },
               {
                 label: "Due",
                 value: formatNumber(due_amount, true),
