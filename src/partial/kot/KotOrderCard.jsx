@@ -77,11 +77,18 @@ const KotOrderCard = ({
         {/* Meta */}
         <div className="px-4 py-2.5 flex justify-between items-center border-b border-gray-100">
           <span className="text-[12.5px] text-gray-500">
-            Table No :{" "}
-            <strong className="text-gray-900 font-bold">
-              {order.tableNumber}
-            </strong>
+            {order.tableNumber ? (
+              <>
+                Table No :{" "}
+                <strong className="text-gray-900 font-bold">
+                  {order.tableNumber}
+                </strong>
+              </>
+            ) : (
+              <strong className="text-gray-900 font-bold">Takeaway</strong>
+            )}
           </span>
+
           <span className="text-xs text-gray-400">
             {formatDate(order.createdAt, "time")} ·{" "}
             <span className="font-bold text-gray-800">{liveTimeAgo}</span>

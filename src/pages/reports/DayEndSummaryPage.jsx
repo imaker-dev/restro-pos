@@ -145,7 +145,7 @@ const DayEndSummaryPage = () => {
           {/* ── Grand Total stats ── */}
           {grandTotal && (
             <div className="space-y-4">
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {/* <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {stats?.map((stat, index) => (
                   <StatCard
                     key={index}
@@ -157,43 +157,7 @@ const DayEndSummaryPage = () => {
                     variant="v9"
                   />
                 ))}
-              </div>
-
-              {/* order type strip */}
-              <div className="bg-white border border-gray-100 rounded-2xl px-5 py-3.5 flex items-center gap-2 flex-wrap">
-                <span className="text-xs font-medium text-gray-400 mr-1">
-                  Order types
-                </span>
-                <StatusPill
-                  icon={UtensilsCrossed}
-                  label="Dine-in"
-                  count={grandTotal.ordersByType.dine_in}
-                  color="blue"
-                />
-
-                <StatusPill
-                  icon={ShoppingBag}
-                  label="Takeaway"
-                  count={grandTotal.ordersByType.takeaway}
-                  color="violet"
-                />
-
-                <StatusPill
-                  icon={Bike}
-                  label="Delivery"
-                  count={grandTotal.ordersByType.delivery}
-                  color="orange"
-                />
-
-                {grandTotal.nc_orders > 0 && (
-                  <StatusPill
-                    icon={AlertCircle}
-                    label="NC"
-                    count={grandTotal.nc_orders}
-                    color="amber"
-                  />
-                )}
-              </div>
+              </div> */}
 
               {/* price breakup accordion */}
               <DayEndCollectionSummaryCard grandTotal={grandTotal} />

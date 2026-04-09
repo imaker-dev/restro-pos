@@ -21,17 +21,6 @@ const shortDate = (d) =>
 const weekday = (d) =>
   new Date(d).toLocaleDateString("en-IN", { weekday: "short" });
 
-/* ── PaymentStatusRow ── */
-function PayStatusRow({ icon: Icon, label, count, color }) {
-  return (
-    <div className={`flex items-center gap-2 px-3 py-2 rounded-xl ${color}`}>
-      <Icon size={12} className="shrink-0" />
-      <span className="text-xs font-medium flex-1">{label}</span>
-      <span className="text-xs font-bold">{formatNumber(count)}</span>
-    </div>
-  );
-}
-
 /* ── DayCard ── */
 function DailySalesSummaryCard({ day }) {
   const {
@@ -303,26 +292,28 @@ function DailySalesSummaryCard({ day }) {
           ))}
         </div>
 
-        {/* payment status row */}
+        {/* payment status */}
         <div className="grid grid-cols-3 gap-2">
-          <PayStatusRow
+          <StatusPill
             icon={CheckCircle}
             label="Paid"
             count={fully_paid_orders}
-            color="bg-emerald-50 text-emerald-600"
+            color="emerald"
           />
-          <PayStatusRow
+          <StatusPill
             icon={Clock}
             label="Partial"
             count={partial_paid_orders}
-            color="bg-amber-50 text-amber-600"
+            color="amber"
           />
-          <PayStatusRow
-            icon={XCircle}
-            label="Unpaid"
-            count={unpaid_orders}
-            color="bg-red-50 text-red-500"
-          />
+          {unpaid_orders > 0 && (
+            <StatusPill
+              icon={XCircle}
+              label="Unpaid"
+              count={unpaid_orders}
+              color="red"
+            />
+          )}
         </div>
       </div>
     </div>

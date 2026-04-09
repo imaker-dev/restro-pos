@@ -1,27 +1,20 @@
 import {
   AlertCircle,
   AlertTriangle,
+  Bike,
   CheckCircle,
   ChevronDown,
   Clock,
   ReceiptIndianRupee,
+  ShoppingBag,
   SlidersHorizontal,
   Tag,
+  UtensilsCrossed,
   XCircle,
 } from "lucide-react";
 import { useState } from "react";
 import { formatNumber } from "../../../utils/numberFormatter";
-
-/* ── PaymentStatusRow ── */
-function PayStatusRow({ icon: Icon, label, count, color }) {
-  return (
-    <div className={`flex items-center gap-2 px-3 py-2 rounded-xl ${color}`}>
-      <Icon size={12} className="shrink-0" />
-      <span className="text-xs font-medium flex-1">{label}</span>
-      <span className="text-xs font-bold">{formatNumber(count)}</span>
-    </div>
-  );
-}
+import StatusPill from "../../../components/StatusPill";
 
 /* ── Summary Deductions Card ── */
 function DailySalesSummaryBreakup({ summary }) {
@@ -71,8 +64,6 @@ function DailySalesSummaryBreakup({ summary }) {
         </div>
       </button>
 
-      {/* {open && ( */}
-      {/* <div className="border-t border-gray-100"> */}
       <div
         className={`border-t border-gray-100 transition-all duration-300 ease-in-out overflow-hidden ${
           open ? "max-h-[700px] opacity-100" : "max-h-0 opacity-0"
@@ -104,26 +95,35 @@ function DailySalesSummaryBreakup({ summary }) {
             ))}
           </div>
 
-          {/* payment status */}
-          <div className="grid grid-cols-3 gap-2">
-            <PayStatusRow
-              icon={CheckCircle}
-              label="Paid"
-              count={fully_paid_orders}
-              color="bg-emerald-50 text-emerald-600"
-            />
-            <PayStatusRow
-              icon={Clock}
-              label="Partial"
-              count={partial_paid_orders}
-              color="bg-amber-50 text-amber-600"
-            />
-            <PayStatusRow
-              icon={XCircle}
-              label="Unpaid"
-              count={unpaid_orders}
-              color="bg-red-50 text-red-500"
-            />
+          <div className=" border-b border-gray-50">
+            <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3">
+              Order types
+            </p>
+
+            <div className="flex items-center gap-2 flex-wrap">
+              <StatusPill
+                icon={UtensilsCrossed}
+                label="Dine-in"
+                count={summary.dine_in_orders}
+                color="blue"
+              />
+
+              <StatusPill
+                icon={ShoppingBag}
+                label="Takeaway"
+                count={summary.takeaway_orders}
+                color="violet"
+              />
+
+              {summary.delivery_orders > 0 && (
+                <StatusPill
+                  icon={Bike}
+                  label="Delivery"
+                  count={summary.delivery_orders}
+                  color="orange"
+                />
+              )}
+            </div>
           </div>
         </div>
 
@@ -184,9 +184,31 @@ function DailySalesSummaryBreakup({ summary }) {
               </span>
             </div>
           )} */}
+          {/* payment status */}
+          <div className="grid grid-cols-3 gap-2">
+            <StatusPill
+              icon={CheckCircle}
+              label="Paid"
+              count={summary.fully_paid_orders}
+              color="emerald"
+            />
+            <StatusPill
+              icon={Clock}
+              label="Partial"
+              count={summary.partial_paid_orders}
+              color="amber"
+            />
+            {summary.unpaid_orders > 0 && (
+              <StatusPill
+                icon={XCircle}
+                label="Unpaid"
+                count={summary.unpaid_orders}
+                color="red"
+              />
+            )}
+          </div>
         </div>
       </div>
-      {/* )} */}
     </div>
   );
 }

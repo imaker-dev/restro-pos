@@ -3,15 +3,19 @@ import {
   AlertCircle,
   AlertTriangle,
   Banknote,
+  Bike,
   ChevronDown,
   CreditCard,
   Layers,
   Receipt,
   ReceiptIndianRupee,
+  ShoppingBag,
   SlidersHorizontal,
   Tag,
+  UtensilsCrossed,
 } from "lucide-react";
 import { formatNumber } from "../../../utils/numberFormatter";
+import StatusPill from "../../../components/StatusPill";
 
 function PaymentBar({
   label,
@@ -59,6 +63,7 @@ function DayEndCollectionSummaryCard({ grandTotal }) {
     adjustment_count,
     adjustment_amount,
     tax_amount,
+    ordersByType,
   } = grandTotal;
   const paymentBreakdown = grandTotal.paymentBreakdown || {};
   const cash = paymentBreakdown.cash || 0;
@@ -110,7 +115,7 @@ function DayEndCollectionSummaryCard({ grandTotal }) {
           <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3">
             Collection
           </p>
-          <div className="grid grid-cols-3 gap-2 mb-4">
+          <div className="grid grid-cols-3 gap-2">
             {[
               { label: "Total", value: formatNumber(total_collection, true) },
               { label: "Paid", value: formatNumber(paid_amount, true) },
@@ -130,6 +135,7 @@ function DayEndCollectionSummaryCard({ grandTotal }) {
               </div>
             ))}
           </div>
+
           {/* <PaymentBar
               icon={Banknote}
               label="Cash"
@@ -157,6 +163,44 @@ function DayEndCollectionSummaryCard({ grandTotal }) {
               textColor="text-blue-600"
               bgColor="bg-blue-50"
             /> */}
+        </div>
+
+        <div className="px-5 py-4 border-b border-gray-50">
+          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3">
+            Order types
+          </p>
+          {/* order type strip */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <StatusPill
+              icon={UtensilsCrossed}
+              label="Dine-in"
+              count={ordersByType.dine_in}
+              color="blue"
+            />
+
+            <StatusPill
+              icon={ShoppingBag}
+              label="Takeaway"
+              count={ordersByType.takeaway}
+              color="violet"
+            />
+
+            <StatusPill
+              icon={Bike}
+              label="Delivery"
+              count={ordersByType.delivery}
+              color="orange"
+            />
+
+            {grandTotal.nc_orders > 0 && (
+              <StatusPill
+                icon={AlertCircle}
+                label="NC"
+                count={grandTotal.nc_orders}
+                color="amber"
+              />
+            )}
+          </div>
         </div>
 
         {/* Deductions */}

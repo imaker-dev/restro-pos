@@ -91,6 +91,7 @@ import AdjustmentReportPage from "../pages/reports/AdjustmentReportPage";
 import AllReportsPage from "../pages/reports/AllReportsPage";
 import { ROUTE_PATHS } from "./paths";
 import LiveOperationsPage from "../pages/orders/LiveOperationsPage";
+import OutsideCollectionReportPage from "../pages/reports/OutsideCollectionReportPage";
 
 const routeConfig = [
   {
@@ -120,6 +121,7 @@ const routeConfig = [
   { path: ROUTE_PATHS.REPORTS_TAX, element: TaxReportPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
   { path: ROUTE_PATHS.REPORTS_TAX_DETAILS, element: TaxReportDetailsPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
   { path: ROUTE_PATHS.REPORTS_SERVICE_TYPE_BREAKDOWN, element: ServiceTypeBreakdownReportPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
+  { path: ROUTE_PATHS.REPORTS_OUTSIDE_COLLECTION, element: OutsideCollectionReportPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
   { path: ROUTE_PATHS.REPORTS_SHIFT_HISTORY, element: ShiftHistoryPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
   { path: ROUTE_PATHS.REPORTS_SHIFT_HISTORY_DETAILS, element: ShiftHistoryDetailsPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },
   { path: ROUTE_PATHS.REPORTS_DUE, element: DueReportPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },

@@ -22,6 +22,7 @@ import {
   Package,
   ExternalLink,
   Download,
+  Wallet,
 } from "lucide-react";
 import PageHeader from "../../layout/PageHeader";
 import OrderBadge from "../../partial/order/OrderBadge";
@@ -36,6 +37,10 @@ import { downloadBlob } from "../../utils/blob";
 import { formatNumber } from "../../utils/numberFormatter";
 import UserAvatar from "../../components/UserAvatar";
 import RoleBadge from "../../partial/user/RoleBadge";
+import PayRow from "../../partial/report/daily-sales-report/PayRow";
+import PaymentBar from "../../partial/report/PaymentBreakdownBar";
+import StatusPill from "../../components/StatusPill";
+import PaymentTypeBadge from "../../partial/order/PaymentTypeBadge";
 
 /* ── helpers ── */
 const fmt = (n) => formatNumber(n, true);
@@ -748,7 +753,7 @@ const ShiftHistoryDetailsPage = () => {
             {/* totals */}
             <div className="bg-white border border-gray-100 rounded-2xl p-4">
               <Label>Collection summary</Label>
-              <div className="grid grid-cols-3 gap-2 mb-4">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
                 <StatChip
                   label="Total"
                   value={fmt(collection.totalMoneyReceived)}
@@ -760,49 +765,170 @@ const ShiftHistoryDetailsPage = () => {
                   accent="blue"
                 />
                 <StatChip
+                  label="Outside"
+                  value={fmt(collection.outsideCollection)}
+                  accent="violet"
+                />
+                <StatChip
                   label="From dues"
                   value={fmt(collection.dueCollection)}
                   accent="violet"
                 />
               </div>
-              <Label>Payment modes</Label>
-              {paymentBreakdown?.map((p) => {
-                const icons = {
-                  cash: {
-                    icon: Banknote,
-                    bar: "bg-emerald-400",
-                    bg: "bg-emerald-50",
-                    col: "text-emerald-600",
-                  },
-                  card: {
-                    icon: CreditCard,
-                    bar: "bg-blue-400",
-                    bg: "bg-blue-50",
-                    col: "text-blue-600",
-                  },
-                  upi: {
-                    icon: Layers,
-                    bar: "bg-violet-400",
-                    bg: "bg-violet-50",
-                    col: "text-violet-600",
-                  },
-                };
-                const s = icons[p.mode] || icons.cash;
+
+              {Object.entries(collection.paymentBreakdown)
+                .filter(([, amount]) => amount > 0)
+                .map(([mode, amount]) => {
+                  return (
+                    <PaymentBar
+                      key={mode}
+                      type={mode}
+                      amount={amount}
+                      total={collection?.totalMoneyReceived}
+                    />
+                  );
+                })}
+              {/* {paymentBreakdown?.map((p) => {
                 return (
-                  <PayBar
+                  <PaymentBar
                     key={p.mode}
-                    icon={s.icon}
-                    label={p.mode.charAt(0).toUpperCase() + p.mode.slice(1)}
+                    type={p.mode}
                     amount={p.total}
                     count={p.count}
-                    total={collection.totalMoneyReceived}
-                    barColor={s.bar}
-                    iconBg={s.bg}
-                    iconColor={s.col}
+                    total={collection?.totalMoneyReceived}
                   />
                 );
-              })}
+              })} */}
             </div>
+
+            {/* outside collections */}
+            {d.outsideCollections?.count > 0 && (
+              <div className="bg-white border border-gray-100 rounded-2xl overflow-hidden">
+                <div className="flex items-center justify-between px-4 py-3 border-b border-gray-50">
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-xl bg-violet-50 border border-violet-100 flex items-center justify-center">
+                      <ArrowDownLeft size={13} className="text-violet-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-gray-800">
+                        Outside collections
+                      </p>
+                      <p className="text-xs text-gray-400">
+                        {d.outsideCollections.count} entries
+                      </p>
+                    </div>
+                  </div>
+                  <p className="text-base font-bold text-gray-900">
+                    {fmt(d.outsideCollections.total)}
+                  </p>
+                </div>
+
+                {/* outside payment breakdown pills */}
+                <div className="flex items-center gap-2 px-4 py-2.5 border-b border-gray-50 flex-wrap">
+                  {Object.entries(d.outsideCollections.paymentBreakdown)
+                    .filter(([, amount]) => amount > 0)
+                    .map(([mode, amount]) => {
+                      const cfg = {
+                        cash: {
+                          color: "emerald",
+                          icon: Banknote,
+                          label: "Cash",
+                        },
+                        card: {
+                          color: "blue",
+                          icon: CreditCard,
+                          label: "Card",
+                        },
+                        upi: { color: "violet", icon: Layers, label: "UPI" },
+                        other: { color: "slate", icon: Wallet, label: "Other" },
+                      }[mode] || {
+                        color: "slate",
+                        icon: Wallet,
+                        label: "Other",
+                      };
+
+                      const Icon = cfg.icon;
+
+                      console.log(amount);
+                      return (
+                        <StatusPill
+                          key={mode}
+                          icon={Icon}
+                          label={cfg.label}
+                          count={fmt(amount)}
+                          color={cfg.color}
+                        />
+                      );
+                    })}
+                </div>
+
+                {/* items */}
+                <div className="divide-y divide-gray-50">
+                  {[...d.outsideCollections.items]
+                    .sort(
+                      (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
+                    )
+                    .map((item) => {
+                      const isCancelled = item.status === "cancelled";
+
+                      return (
+                        <div
+                          key={item.id}
+                          className={`px-4 py-3 ${isCancelled ? "bg-red-50/40" : ""}`}
+                        >
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex items-start gap-2.5 min-w-0">
+                              <div className="min-w-0">
+                                <p
+                                  className={`text-xs font-semibold ${isCancelled ? "text-red-400 line-through" : "text-gray-800"}`}
+                                >
+                                  {item.reason}
+                                </p>
+                                {item.description && (
+                                  <p className="text-[10px] text-gray-400 mt-0.5">
+                                    {item.description}
+                                  </p>
+                                )}
+                                <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                                  <PaymentTypeBadge
+                                    type={item?.paymentMode}
+                                    size="sm"
+                                  />
+
+                                  {isCancelled && (
+                                    <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-red-50 text-red-500 border border-red-100">
+                                      Cancelled
+                                    </span>
+                                  )}
+                                  <span className="text-[10px] text-gray-400">
+                                    by {item.collectedByName}
+                                  </span>
+                                  <span className="text-[10px] text-gray-400">
+                                    ·
+                                  </span>
+                                  <span className="text-[10px] text-gray-400">
+                                    {formatDate(item.createdAt, "longTime")}
+                                  </span>
+                                </div>
+                                {isCancelled && item.cancelReason && (
+                                  <p className="text-[10px] text-red-400 mt-1">
+                                    Reason: {item.cancelReason}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                            <p
+                              className={`text-sm font-bold shrink-0 ${isCancelled ? "text-red-400 line-through" : "text-gray-900"}`}
+                            >
+                              {fmt(item.amount)}
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                </div>
+              </div>
+            )}
 
             {/* deductions */}
             <div className="bg-white border border-gray-100 rounded-2xl p-4">
@@ -916,10 +1042,7 @@ const ShiftHistoryDetailsPage = () => {
                 .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
                 .map((o) => <OrderCard key={o.id} order={o} />)
             ) : (
-              <div className="flex flex-col items-center py-16 gap-2">
-                <Receipt size={24} className="text-gray-300" />
-                <p className="text-sm text-gray-400">No orders found</p>
-              </div>
+              <NoDataFound icon={Receipt} title="No orders found" />
             )}
           </div>
         )}

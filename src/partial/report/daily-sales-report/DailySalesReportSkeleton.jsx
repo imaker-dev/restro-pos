@@ -4,37 +4,6 @@ import Shimmer from "../../../layout/Shimmer";
 export default function DailySalesReportSkeleton() {
   return (
     <div className="space-y-6">
-      {/* ── Stat Cards ── */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {[...Array(4)].map((_, i) => (
-          <div
-            key={i}
-            className="bg-white border border-gray-100 rounded-2xl p-4 space-y-3"
-          >
-            <Shimmer width="28px" height="28px" rounded="lg" />
-            <Shimmer width="60%" height="10px" />
-            <Shimmer width="80%" height="14px" />
-          </div>
-        ))}
-      </div>
-
-      {/* ── Order Type + Payment Row ── */}
-      <div className="bg-white border border-gray-100 rounded-2xl px-5 py-3.5 flex items-center gap-2 flex-wrap">
-        <Shimmer width="80px" height="12px" />
-
-        {/* pills */}
-        {[...Array(3)].map((_, i) => (
-          <Shimmer key={i} width="90px" height="26px" rounded="full" />
-        ))}
-
-        {/* right side payment pills */}
-        <div className="ml-auto flex gap-2">
-          {[...Array(2)].map((_, i) => (
-            <Shimmer key={i} width="80px" height="28px" rounded="lg" />
-          ))}
-        </div>
-      </div>
-
       {/* ── Summary Card ── */}
       <div className="bg-white border border-gray-100 rounded-2xl p-5 space-y-4">
         <div className="flex justify-between items-center">

@@ -6,22 +6,18 @@ import {
   Banknote,
   Bike,
   ChevronDown,
-  CreditCard,
-  Layers,
-  ReceiptIndianRupee,
   ShoppingBag,
   SlidersHorizontal,
   Tag,
   UtensilsCrossed,
 } from "lucide-react";
+import PaymentBar from "../PaymentBreakdownBar";
 
 const weekday = (d) =>
   new Date(d).toLocaleDateString("en-IN", { weekday: "short" });
 
 const shortDate = (d) =>
   new Date(d).toLocaleDateString("en-IN", { day: "2-digit", month: "short" });
-
-const pct = (v, t) => (t ? Math.round((v / t) * 100) : 0);
 
 function OrderTypePill({ icon: Icon, label, count, color }) {
   return (
@@ -31,40 +27,6 @@ function OrderTypePill({ icon: Icon, label, count, color }) {
       <Icon size={11} />
       <span className="text-xs font-medium">{label}</span>
       <span className="text-xs font-bold">{count}</span>
-    </div>
-  );
-}
-
-function PaymentBar({
-  label,
-  icon: Icon,
-  amount,
-  total,
-  barColor,
-  textColor,
-  bgColor,
-}) {
-  const ratio = pct(amount, total);
-  return (
-    <div className="flex items-center gap-3 py-2.5 border-b border-gray-50 last:border-0">
-      <div
-        className={`w-6 h-6 rounded-lg flex items-center justify-center ${bgColor}`}
-      >
-        <Icon size={12} className={textColor} />
-      </div>
-      <span className="text-xs text-gray-600 w-9 shrink-0">{label}</span>
-      <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-        <div
-          className={`h-full rounded-full ${barColor} transition-all duration-700`}
-          style={{ width: `${ratio}%` }}
-        />
-      </div>
-      <span className="text-xs text-gray-400 w-7 text-right shrink-0">
-        {ratio}%
-      </span>
-      <span className="text-xs font-semibold text-gray-800 w-[72px] text-right shrink-0">
-        {formatNumber(amount, true)}
-      </span>
     </div>
   );
 }
@@ -89,9 +51,6 @@ function DayEndCard({ day }) {
   } = day;
 
   const [open, setOpen] = useState(false);
-  const cash = paymentBreakdown?.cash || 0;
-  const card = paymentBreakdown?.card || 0;
-  const upi = paymentBreakdown?.upi || 0;
 
   return (
     <div className="bg-white border border-gray-100 rounded-2xl overflow-hidden">
@@ -179,33 +138,18 @@ function DayEndCard({ day }) {
 
         {/* payment bars */}
         <div className="bg-gray-50 rounded-xl px-3 py-2">
-          <PaymentBar
-            icon={Banknote}
-            label="Cash"
-            amount={cash}
-            total={total_collection}
-            barColor="bg-emerald-400"
-            textColor="text-emerald-600"
-            bgColor="bg-white"
-          />
-          <PaymentBar
-            icon={Layers}
-            label="UPI"
-            amount={upi}
-            total={total_collection}
-            barColor="bg-violet-400"
-            textColor="text-violet-600"
-            bgColor="bg-white"
-          />
-          <PaymentBar
-            icon={CreditCard}
-            label="Card"
-            amount={card}
-            total={total_collection}
-            barColor="bg-blue-400"
-            textColor="text-blue-600"
-            bgColor="bg-white"
-          />
+          {Object.entries(paymentBreakdown)
+            .filter(([, amount]) => amount > 0)
+            .map(([mode, amount]) => {
+              return (
+                <PaymentBar
+                  key={mode}
+                  type={mode}
+                  amount={amount}
+                  total={total_collection}
+                />
+              );
+            })}
         </div>
 
         {/* deductions row */}

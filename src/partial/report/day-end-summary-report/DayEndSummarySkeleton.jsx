@@ -4,32 +4,6 @@ import Shimmer from "../../../layout/Shimmer";
 export default function DayEndSummarySkeleton() {
   return (
     <div className="space-y-6">
-      {/* ── Stat Cards ── */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {[...Array(4)].map((_, i) => (
-          <div
-            key={i}
-            className="bg-white border border-gray-100 rounded-2xl p-4 space-y-3"
-          >
-            <Shimmer width="28px" height="28px" rounded="lg" />
-            <Shimmer width="60%" height="10px" />
-            <Shimmer width="80%" height="14px" />
-          </div>
-        ))}
-      </div>
-
-      {/* ── Order Type Pills ── */}
-      <div className="bg-white border border-gray-100 rounded-2xl px-5 py-3.5 flex items-center gap-2 flex-wrap">
-        <Shimmer width="80px" height="12px" />
-        {[...Array(4)].map((_, i) => (
-          <Shimmer
-            key={i}
-            width="90px"
-            height="26px"
-            rounded="full"
-          />
-        ))}
-      </div>
 
       {/* ── Collection Summary Card ── */}
       <div className="bg-white border border-gray-100 rounded-2xl p-5 space-y-4">

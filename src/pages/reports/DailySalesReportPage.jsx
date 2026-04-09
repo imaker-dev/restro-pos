@@ -32,18 +32,7 @@ import NoDataFound from "../../layout/NoDataFound";
 
 /* ── helpers ── */
 const fmt = (n) => formatNumber(n, true);
-const fmtN = (n) => Number(n || 0).toLocaleString("en-IN");
-
-/* ── PaymentStatusRow ── */
-function PayStatusRow({ icon: Icon, label, count, color }) {
-  return (
-    <div className={`flex items-center gap-2 px-3 py-2 rounded-xl ${color}`}>
-      <Icon size={12} className="shrink-0" />
-      <span className="text-xs font-medium flex-1">{label}</span>
-      <span className="text-xs font-bold">{fmtN(count)}</span>
-    </div>
-  );
-}
+const fmtN = (n) => formatNumber(n);
 
 /* ── Main Page ── */
 const DailySalesReportPage = () => {
@@ -162,7 +151,7 @@ const DailySalesReportPage = () => {
           {/* ── Summary stats ── */}
           {summary && (
             <div className="space-y-4">
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {/* <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {stats?.map((stat, index) => (
                   <StatCard
                     key={index}
@@ -174,61 +163,7 @@ const DailySalesReportPage = () => {
                     variant="v9"
                   />
                 ))}
-              </div>
-
-              {/* order types strip */}
-              <div className="bg-white border border-gray-100 rounded-2xl px-5 py-3.5 flex items-center gap-2 flex-wrap">
-                <span className="text-xs font-medium text-gray-400 mr-1">
-                  Order types
-                </span>
-                <StatusPill
-                  icon={UtensilsCrossed}
-                  label="Dine-in"
-                  count={summary.dine_in_orders}
-                  color="blue"
-                />
-
-                <StatusPill
-                  icon={ShoppingBag}
-                  label="Takeaway"
-                  count={summary.takeaway_orders}
-                  color="violet"
-                />
-
-                {summary.delivery_orders > 0 && (
-                  <StatusPill
-                    icon={Bike}
-                    label="Delivery"
-                    count={summary.delivery_orders}
-                    color="orange"
-                  />
-                )}
-
-                
-
-                <div className="ml-auto flex items-center gap-2">
-                  <PayStatusRow
-                    icon={CheckCircle}
-                    label="Paid"
-                    count={summary.fully_paid_orders}
-                    color="bg-emerald-50 text-emerald-600"
-                  />
-                  <PayStatusRow
-                    icon={Clock}
-                    label="Partial"
-                    count={summary.partial_paid_orders}
-                    color="bg-amber-50 text-amber-600"
-                  />
-                  {summary.unpaid_orders > 0 && (
-                    <PayStatusRow
-                      icon={XCircle}
-                      label="Unpaid"
-                      count={summary.unpaid_orders}
-                      color="bg-red-50 text-red-500"
-                    />
-                  )}
-                </div>
-              </div>
+              </div> */}
 
               {/* price breakup accordion */}
               <DailySalesSummaryBreakup summary={summary} />

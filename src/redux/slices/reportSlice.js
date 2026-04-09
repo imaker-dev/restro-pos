@@ -27,7 +27,7 @@ export const fetchDailySalesReportByDate = createAsyncThunk(
 export const fetchItemSalesReport = createAsyncThunk(
   "/fetch/item/sales/report",
   async ({ outletId, dateRange }) => {
-    const res = await ReportServices.getItemSalesReportApi(outletId, dateRange);
+    const res = await ReportServices.getItemSalesReportApi({outletId, dateRange});
     return res.data;
   },
 );

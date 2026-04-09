@@ -40,28 +40,21 @@ export default function StatusPill({
     <div
       className={`flex items-center rounded-xl ${sizeClass} ${colorClass} ${className}`}
     >
-      {/* ICON */}
-      {Icon && <Icon size={size === "lg" ? 14 : 12} />}
+      {/* LEFT SIDE */}
+      <div className="flex items-center gap-2">
+        {Icon && <Icon size={size === "lg" ? 14 : 12} />}
 
-      {/* LABEL */}
-      <span className="font-medium capitalize">
-        {label || value?.replace("_", " ") || "Unknown"}
-      </span>
-
-      {/* COUNT (simple like your original) */}
-      {count !== undefined && (
-        <span className="font-bold tabular-nums">
-          {count}
+        <span className="font-medium capitalize">
+          {label || value?.replace("_", " ") || "Unknown"}
         </span>
+      </div>
+
+      {/* RIGHT SIDE (COUNT) */}
+      {count !== undefined && (
+        <span className="ml-auto font-bold tabular-nums">{count}</span>
       )}
     </div>
   );
 
-  return tooltip ? (
-    <Tooltip content={tooltip}>
-      {content}
-    </Tooltip>
-  ) : (
-    content
-  );
+  return tooltip ? <Tooltip content={tooltip}>{content}</Tooltip> : content;
 }

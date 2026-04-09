@@ -98,7 +98,7 @@ function DropdownProfile({ align, onLogoutClick }) {
             )}
           </div>
           <ul>
-            <PermissionGuard roles={[ROLES.SUPER_ADMIN]}>
+            <PermissionGuard roles={[ROLES.SUPER_ADMIN,ROLES.ADMIN]}>
               <li>
                 <Link
                   className="font-medium text-sm text-primary hover:text-primary-600  flex items-center py-1 px-3"

@@ -1,1002 +1,739 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { useQueryParams } from "../../hooks/useQueryParams";
+import { fetchOrderByIdApi } from "../../redux/slices/orderSlice";
 import {
-  downloadOrderInvoice,
-  fetchOrderByIdApi,
-} from "../../redux/slices/orderSlice";
-import {
-  UtensilsCrossed,
-  Store,
   User,
-  CreditCard,
-  Banknote,
-  Smartphone,
+  Building2,
+  Receipt,
   Tag,
-  Table2,
-  Users,
-  BadgeCheck,
-  Hash,
-  CalendarDays,
-  ReceiptIndianRupee,
-  Download,
-  ShieldOff,
+  AlertCircle,
+  SlidersHorizontal,
   AlertTriangle,
-  CheckCircle2,
+  Banknote,
+  CreditCard,
+  Layers,
+  Package,
+  FileText,
+  Percent,
+  ArrowLeft,
+  Star,
   Info,
+  Wallet,
+  ReceiptIndianRupee,
 } from "lucide-react";
-import PageHeader from "../../layout/PageHeader";
 import OrderBadge from "../../partial/order/OrderBadge";
-import { formatNumber, num } from "../../utils/numberFormatter";
-import StatCard from "../../components/StatCard";
-import MetricPanel from "../../partial/report/daily-sales-report/MetricPanel";
+import StatusPill from "../../components/StatusPill";
+import FoodTypeIcon from "../../partial/common/FoodTypeIcon";
+import { formatNumber } from "../../utils/numberFormatter";
 import { formatDate } from "../../utils/dateFormatter";
+import OrderDetailsSkeleton from "../../partial/order/OrderDetailsSkeleton";
 import NoDataFound from "../../layout/NoDataFound";
-import LoadingOverlay from "../../components/LoadingOverlay";
-import { handleResponse } from "../../utils/helpers";
-import { downloadBlob } from "../../utils/blob";
 
-// ─────────────────────── CONFIG ───────────────────────────────────────────────
+/* ── helpers ── */
+const fmt = (n) => formatNumber(n, true);
 
-const PAY_METHOD = {
-  cash: {
-    label: "Cash",
-    icon: Banknote,
-    bg: "bg-emerald-50",
-    text: "text-emerald-700",
-    border: "border-emerald-200",
-  },
-  upi: {
-    label: "UPI",
-    icon: Smartphone,
-    bg: "bg-blue-50",
-    text: "text-blue-700",
-    border: "border-blue-200",
-  },
-  card: {
-    label: "Card",
-    icon: CreditCard,
-    bg: "bg-indigo-50",
-    text: "text-indigo-700",
-    border: "border-indigo-200",
-  },
+const fmtN = (n) => formatNumber(n);
+
+const payIcon = {
+  cash: Banknote,
+  card: CreditCard,
+  upi: Layers,
+  wallet: Wallet,
 };
 
-// ─────────────────────── ATOMS ────────────────────────────────────────────────
+const Section = ({
+  title,
+  icon: Icon,
+  iconBg = "bg-gray-100 border-gray-200",
+  iconColor = "text-gray-500",
+  children,
+  noPad = false,
+}) => (
+  <div className="bg-white border border-gray-100 rounded-2xl overflow-hidden">
+    <div className="flex items-center gap-2.5 px-4 py-3.5 border-b border-gray-50">
+      <div
+        className={`w-7 h-7 rounded-xl flex items-center justify-center border ${iconBg}`}
+      >
+        <Icon size={13} className={iconColor} />
+      </div>
+      <p className="text-sm font-semibold text-gray-800">{title}</p>
+    </div>
+    <div className={noPad ? "" : "px-4 py-3"}>{children}</div>
+  </div>
+);
 
-const Row = ({ label, value, mono = false, cls = "", href }) => {
-  if (value === null || value === undefined || value === "") return null;
-  const valEl = href ? (
-    <a
-      href={href}
-      className="text-xs font-semibold text-blue-600 hover:underline text-right"
-    >
-      {value}
-    </a>
-  ) : (
+const InfoRow = ({
+  label,
+  value,
+  valueClass = "text-gray-800",
+  mono = false,
+}) => (
+  <div className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
+    <span className="text-xs text-gray-400">{label}</span>
     <span
-      className={`text-xs font-semibold text-right text-slate-700 ${mono ? "font-mono text-slate-500" : ""} ${cls}`}
+      className={`text-xs font-medium ${valueClass} ${mono ? "font-mono" : ""}`}
     >
-      {value}
+      {value || "—"}
     </span>
-  );
-  return (
-    <div className="flex items-baseline justify-between gap-6 py-2.5 border-b border-slate-50 last:border-0">
-      <span className="text-xs text-slate-400 shrink-0">{label}</span>
-      {valEl}
-    </div>
-  );
-};
+  </div>
+);
 
-// ─────────────────────── NC BANNER ────────────────────────────────────────────
-
-/* Full-order NC — shown when data.isNC is true */
-function OrderNCBanner({ data }) {
-  if (!data?.isNC) return null;
-
-  const isFullNC = num(data.totalAmount) === 0;
-  const ncItems = (data.items || []).filter((i) => i.isNC);
-  const chargedItems = (data.items || []).filter((i) => !i.isNC);
-
-  return (
-    <div className="rounded-2xl overflow-hidden border border-amber-200 bg-amber-50">
-      {/* Header */}
-      <div className="flex items-center gap-3 px-5 py-4 border-b border-amber-200/60">
-        <div className="w-9 h-9 rounded-xl bg-amber-500 flex items-center justify-center flex-shrink-0">
-          <ShieldOff size={16} className="text-white" strokeWidth={2.5} />
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-extrabold text-amber-900 leading-none">
-            {isFullNC ? "Full No-Charge Order" : "Partial No-Charge Order"}
-          </p>
-          <p className="text-xs text-amber-600 font-medium mt-0.5">
-            {isFullNC
-              ? "This entire order has been marked as no-charge — the customer was not billed."
-              : `${ncItems.length} of ${data.items?.length} item${ncItems.length !== 1 ? "s" : ""} marked no-charge · remaining items billed normally.`}
-          </p>
-        </div>
-        <div className="text-right flex-shrink-0">
-          <p className="text-xl font-extrabold text-amber-700 tabular-nums">
-            {formatNumber(data.ncAmount, true)}
-          </p>
-          <p className="text-[10px] font-bold text-amber-500 uppercase tracking-wide">
-            NC Amount
-          </p>
-        </div>
-      </div>
-
-      {/* Detail row */}
-      <div className="px-5 py-3.5 flex flex-wrap items-center gap-x-6 gap-y-2">
-        {data.ncReason && (
-          <div className="flex items-center gap-1.5">
-            <Tag size={12} className="text-amber-500" strokeWidth={2} />
-            <span className="text-xs font-bold text-amber-800">Reason: </span>
-            <span className="text-xs font-semibold text-amber-700">
-              {data.ncReason}
-            </span>
-          </div>
-        )}
-        {isFullNC && (
-          <div className="flex items-center gap-1.5">
-            <CheckCircle2
-              size={12}
-              className="text-amber-500"
-              strokeWidth={2}
-            />
-            <span className="text-xs font-semibold text-amber-700">
-              Grand total waived — ₹0 billed to customer
-            </span>
-          </div>
-        )}
-        {!isFullNC && chargedItems.length > 0 && (
-          <div className="flex items-center gap-1.5">
-            <AlertTriangle
-              size={12}
-              className="text-amber-500"
-              strokeWidth={2}
-            />
-            <span className="text-xs font-semibold text-amber-700">
-              {chargedItems.length} item{chargedItems.length !== 1 ? "s" : ""}{" "}
-              still charged:{" "}
-              {formatNumber(
-                chargedItems.reduce((s, i) => s + num(i.totalPrice), 0),
-                true,
-              )}
-            </span>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-// ─────────────────────── MAIN ─────────────────────────────────────────────────
-
+/* ── main page ── */
 const OrderDetailsPage = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { orderId } = useQueryParams();
-  const {
-    orderDetails: data,
-    isFetchingOrderDetails,
-    isDownloadingInvoice,
-  } = useSelector((s) => s.order);
+  const { orderDetails: d, isFetchingOrderDetails } = useSelector(
+    (s) => s.order,
+  );
 
   useEffect(() => {
     if (orderId) dispatch(fetchOrderByIdApi(orderId));
   }, [orderId]);
 
-  if (isFetchingOrderDetails)
-    return <LoadingOverlay text="Loading Order Details..." />;
+  /* loading */
+  if (isFetchingOrderDetails && !d) return <OrderDetailsSkeleton />;
 
-  if (!data && !isFetchingOrderDetails)
+  if (!d)
     return (
       <NoDataFound
         icon={ReceiptIndianRupee}
-        title="Select an order to view its details."
+        title="Order not found"
+        description=""
       />
     );
 
-  // ── derived ──
-  const inv = data.invoice || {};
-  const isDineIn = data?.orderType === "dine_in";
-  const items = data?.items || [];
-  const discounts = data?.discounts || [];
-  const splits = data?.payments?.[0]?.splitBreakdown || [];
-  const taxRows = Object.values(data?.taxBreakup || {}).filter(
-    (t) => num(t.taxAmount) > 0,
-  );
-
-  const breakupLines = [
-    { label: "Subtotal", value: num(data.subtotal), cls: "text-slate-700" },
-    num(data.discountAmount) > 0 && {
-      label: discounts[0]?.discountName
-        ? `Discount — ${discounts[0].discountName}`
-        : "Discount",
-      value: -num(data.discountAmount),
-      cls: "text-amber-600",
-      prefix: "−",
-    },
-    num(data.serviceCharge) > 0 && {
-      label: "Service Charge",
-      value: num(data.serviceCharge),
-    },
-    num(data.packagingCharge) > 0 && {
-      label: "Packaging Charge",
-      value: num(data.packagingCharge),
-    },
-    num(data.deliveryCharge) > 0 && {
-      label: "Delivery Charge",
-      value: num(data.deliveryCharge),
-    },
-    ...taxRows.map((t) => ({
-      label: `${t.name} (${t.rate}%)`,
-      value: num(t.taxAmount),
-      cls: "text-sky-700",
-    })),
-    data?.isAdjustment &&
-      num(data.adjustmentAmount) > 0 && {
-        label: "Adjustment",
-        value: num(data.adjustmentAmount),
-        cls: "text-red-600",
-      },
-    data.roundOff != null && {
-      label: "Round Off",
-      value: num(data.roundOff),
-      cls: "text-slate-500",
-    },
-  ].filter(Boolean);
-
-  const handleDownloadInvoice = async () => {
-    await handleResponse(dispatch(downloadOrderInvoice(orderId)), (res) => {
-      downloadBlob({ data: res.payload, fileName: `${inv.invoiceNumber}` });
-    });
-  };
-
-  const actions = [
-    {
-      label: "Download Invoice",
-      type: "export",
-      icon: Download,
-      onClick: handleDownloadInvoice,
-      loading: isDownloadingInvoice,
-      loadingText: "Downloading...",
-    },
-  ];
+  const isCancelled = d?.status === "cancelled";
+  const hasDiscount = d?.discountAmount > 0;
+  const hasNC = d?.isNC || d?.ncAmount > 0 || d?.items?.some((i) => i.isNC);
+  const hasDue = d?.dueAmount > 0;
+  const hasAdj = d?.isAdjustment && d?.adjustmentAmount > 0;
 
   return (
-    <div className="space-y-5">
-      <PageHeader title="Order Details" actions={actions} showBackButton />
-
-      {/* ── ORDER HERO ── */}
-      <div className="relative rounded-2xl overflow-hidden shadow-lg bg-primary-500">
-        <div
-          className="absolute top-0 left-0 right-0 h-[1px]"
-          style={{
-            background:
-              "linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)",
-          }}
-        />
-        <div className="absolute -top-16 -right-16 w-56 h-56 rounded-full bg-white/10 pointer-events-none" />
-
-        <div className="relative z-10 px-6 py-5 text-white">
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-            <div className="space-y-3 min-w-0">
-              <p className="flex items-center gap-1.5 text-xs text-white/70 font-medium">
-                <CalendarDays size={12} />
-                {formatDate(data?.createdAt, "longTime")}
+    <div className="space-y-3">
+      {/* ── Hero ── */}
+      <div
+        className={`border-b px-4 md:px-6 py-5 rounded-lg ${isCancelled ? "bg-red-50/40 border-red-100" : "bg-white border-gray-100"}`}
+      >
+        {/* back + order number row */}
+        <div className="flex items-center gap-3 mb-4">
+          <button
+            onClick={() => navigate(-1)}
+            className="w-8 h-8 rounded-xl bg-white border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors shrink-0"
+          >
+            <ArrowLeft size={14} className="text-gray-500" />
+          </button>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <p className="text-base font-bold text-gray-900 font-mono">
+                {d.orderNumber}
               </p>
-              <h1 className="text-[28px] sm:text-[32px] font-extrabold tracking-tight leading-none truncate">
-                {data?.orderNumber}
-              </h1>
-              <div className="flex flex-wrap gap-2">
-                <OrderBadge type="status" value={data?.status} size="sm" />
-                <OrderBadge type="type" value={data?.orderType} size="sm" />
-                <OrderBadge
-                  type="payment"
-                  value={data?.paymentStatus}
+              {d.isPriority && (
+                <StatusPill
+                  icon={Star}
+                  label={"Priority"}
+                  color="amber"
                   size="sm"
                 />
-                {/* NC indicator in hero */}
-                {data?.isNC && (
-                  <span className="inline-flex items-center gap-1.5 bg-amber-400/20 border border-amber-300/40 text-amber-200 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide">
-                    <ShieldOff size={10} strokeWidth={2.5} />
-                    No Charge
-                  </span>
-                )}
-              </div>
-              <div className="flex flex-wrap gap-x-5 gap-y-1 text-xs text-white/70">
-                {data?.guestCount != null && (
-                  <span className="flex items-center gap-1">
-                    <Users size={11} />
-                    {data?.guestCount}{" "}
-                    {data?.guestCount === 1 ? "Guest" : "Guests"}
-                  </span>
-                )}
-                {data?.createdBy?.name && (
-                  <span className="flex items-center gap-1">
-                    <Hash size={11} />
-                    {data?.createdBy.name}
-                  </span>
-                )}
-              </div>
-            </div>
-
-            <div className="flex-shrink-0 lg:text-right">
-              <p className="text-[10px] font-semibold text-white/70 uppercase tracking-wider">
-                Grand Total
-              </p>
-              <p className="text-[36px] font-bold tabular-nums leading-none">
-                {formatNumber(data?.totalAmount, true)}
-              </p>
-              <p className="text-[11px] text-white/70 mt-1">
-                Paid: {formatNumber(data?.paidAmount, true)}
-              </p>
-              {/* NC amount sub-line in hero */}
-              {data?.isNC && num(data.ncAmount) > 0 && (
-                <p className="text-[11px] text-amber-300 mt-0.5 font-semibold">
-                  NC: {formatNumber(data.ncAmount, true)} waived
-                </p>
               )}
             </div>
+            <p className="text-xs text-gray-400 mt-0.5">
+              {formatDate(d.createdAt, "long")}
+            </p>
+          </div>
+          <div className="text-right shrink-0">
+            <p className="text-2xl font-bold text-gray-900">
+              {fmt(d.totalAmount)}
+            </p>
+            {d.roundOff !== 0 && (
+              <p className="text-[10px] text-gray-400">
+                incl. {d.roundOff > 0 ? "+" : ""}
+                {d.roundOff?.toFixed(2)} round off
+              </p>
+            )}
           </div>
         </div>
-      </div>
 
-      {/* ── NC BANNER (shown when order has NC) ── */}
-      <OrderNCBanner data={data} />
+        {/* status + type row */}
+        <div className="flex items-center gap-2 flex-wrap mb-4">
+          <OrderBadge type="type" value={d.orderType} />
+          <OrderBadge type="status" value={d.status} />
+          <OrderBadge type="payment" value={d.paymentStatus} />
 
-      {/* ── STAT TILES ── */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {[
-          {
-            label: "Grand Total",
-            value: formatNumber(data?.totalAmount, true),
-            color: "slate",
-          },
-          {
-            label: "Amount Paid",
-            value: formatNumber(data?.paidAmount, true),
-            color: "emerald",
-          },
-          {
-            label: "Tax Collected",
-            value: formatNumber(data?.totalTax, true),
-            color: "sky",
-          },
-          {
-            label: "Total Discount",
-            value: formatNumber(data?.discountAmount, true),
-            color: "amber",
-          },
-        ].map(({ label, value, color }) => (
-          <StatCard
-            key={label}
-            title={label}
-            value={value}
-            color={color}
-            variant="v7"
-            mode={"solid"}
-          />
-        ))}
-      </div>
-
-      {/* ── TABLE & SEATING ── */}
-      {isDineIn && (
-        <MetricPanel
-          icon={Table2}
-          title="Table & Seating"
-          right={
-            <span className="text-xs font-bold text-orange-700 bg-orange-50 border border-orange-200 px-2.5 py-1 rounded-full">
-              {data?.tableName}
-            </span>
-          }
-        >
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {[
-              { label: "Table", value: data?.tableName },
-              { label: "Floor", value: data?.floorName },
-              { label: "Section", value: data?.sectionName },
-              {
-                label: "Capacity",
-                value:
-                  data?.tableCapacity != null
-                    ? `${data?.tableCapacity} seats`
-                    : null,
-              },
-            ]
-              .filter((r) => r.value)
-              .map(({ label, value }) => (
-                <div
-                  key={label}
-                  className="bg-slate-50 rounded-xl px-3.5 py-3 border border-slate-100"
-                >
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">
-                    {label}
-                  </p>
-                  <p className="text-sm font-bold text-slate-800">{value}</p>
-                </div>
-              ))}
-          </div>
-        </MetricPanel>
-      )}
-
-      {/* ── ORDERED ITEMS ── */}
-      <MetricPanel
-        icon={UtensilsCrossed}
-        title="Ordered Items"
-        noPad
-        right={
-          <div className="flex items-center gap-2">
-            {items.some((i) => i.isOpenItem) && (
-              <span className="text-[10px] font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-full flex items-center gap-1">
-                <Info size={10} strokeWidth={2.5} />
-                {items.filter((i) => i.isOpenItem).length} Open
-              </span>
-            )}
-            {/* show NC item count badge if any items are NC */}
-            {items.some((i) => i.isNC) && (
-              <span className="text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full flex items-center gap-1">
-                <ShieldOff size={10} strokeWidth={2.5} />
-                {items.filter((i) => i.isNC).length} NC
-              </span>
-            )}
-            <span className="text-xs font-semibold text-slate-500 bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-full">
-              {items?.length} {items?.length === 1 ? "item" : "items"}
-            </span>
-          </div>
-        }
-      >
-        {items?.length === 0 ? (
-          <div className="p-5">
-            <NoDataFound
-              icon={UtensilsCrossed}
-              title="No items in this order"
+          {d.tableName && (
+            <StatusPill
+              label={`${d.floorName} · ${d.tableName}`}
+              color="blue"
               size="sm"
             />
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[640px]">
-              <thead>
-                <tr className="border-b border-slate-200 bg-slate-50/60">
-                  {[
-                    "#",
-                    "Item",
-                    "Category",
-                    "Station",
-                    "Qty",
-                    "Rate",
-                    "Total",
-                  ].map((h, i) => (
-                    <th
-                      key={h}
-                      className={`py-3 text-[10px] font-bold uppercase tracking-wider text-slate-400
-                        ${i === 0 ? "pl-5 pr-2 text-left w-8" : i <= 3 ? "px-3 text-left" : i === 6 ? "pl-3 pr-5 text-right" : "px-3 text-right"}`}
-                    >
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {items?.map((item, idx) => {
-                  const isItemNC = item.isNC && num(item.ncAmount) > 0;
-                  return (
-                    <tr
-                      key={item?.id}
-                      className={`border-b border-slate-50 last:border-0 transition-colors
-                        ${isItemNC ? "bg-amber-50/40 hover:bg-amber-50/70" : "hover:bg-slate-50/60"}`}
-                    >
-                      <td className="pl-5 pr-2 py-3.5 text-xs text-slate-300 tabular-nums">
-                        {idx + 1}
-                      </td>
-
-                      <td className="px-3 py-3.5">
-                        <div className="flex items-start gap-2">
-                          {/* FSSAI dot */}
-                          <div
-                            className={`mt-0.5 w-3.5 h-3.5 rounded-sm border-2 flex items-center justify-center shrink-0
-                            ${item?.itemType === "veg" ? "border-emerald-600" : "border-red-600"}`}
-                          >
-                            <div
-                              className={`w-1.5 h-1.5 rounded-full ${item?.itemType === "veg" ? "bg-emerald-600" : "bg-red-600"}`}
-                            />
-                          </div>
-                          <div>
-                            <p className="text-[13px] font-semibold text-slate-800 leading-tight">
-                              {item?.itemName}
-                            </p>
-                            {item?.variantName && (
-                              <span className="inline-block mt-0.5 text-[10px] font-medium text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">
-                                {item?.variantName}
-                              </span>
-                            )}
-                            {item?.specialInstructions && (
-                              <p className="mt-0.5 text-[10px] italic text-amber-600">
-                                "{item?.specialInstructions}"
-                              </p>
-                            )}
-                            {/* ── Item-level NC indicator ── */}
-                            {isItemNC && (
-                              <div className="mt-1.5 flex items-center gap-1.5 bg-amber-100 border border-amber-200 rounded-md px-2 py-1 w-fit">
-                                <ShieldOff
-                                  size={10}
-                                  className="text-amber-600"
-                                  strokeWidth={2.5}
-                                />
-                                <span className="text-[10px] font-bold text-amber-700 uppercase tracking-wide">
-                                  No Charge
-                                </span>
-                                {item.ncReason && (
-                                  <>
-                                    <span className="text-amber-400 text-[10px]">
-                                      ·
-                                    </span>
-                                    <span className="text-[10px] font-semibold text-amber-600">
-                                      {item.ncReason}
-                                    </span>
-                                  </>
-                                )}
-                              </div>
-                            )}
-                            {/* ── Item-level Open Item indicator ── */}
-                            {item.isOpenItem && (
-                              <div className="mt-1.5 flex items-center gap-1.5 bg-blue-50 border border-blue-200 rounded-md px-2 py-1 w-fit">
-                                <Info
-                                  size={10}
-                                  className="text-blue-500"
-                                  strokeWidth={2.5}
-                                />
-                                <span className="text-[10px] font-bold text-blue-700 uppercase tracking-wide">
-                                  Open Item
-                                </span>
-                                <span className="text-blue-400 text-[10px]">
-                                  ·
-                                </span>
-                                <span className="text-[10px] font-semibold text-blue-600">
-                                  Custom
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </td>
-
-                      <td className="px-3 py-3.5">
-                        <span className="text-xs text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md font-medium whitespace-nowrap">
-                          {item?.categoryName || "—"}
-                        </span>
-                      </td>
-
-                      <td className="px-3 py-3.5">
-                        <span className="text-xs font-semibold text-orange-700 bg-orange-50 border border-orange-100 px-2 py-0.5 rounded-md whitespace-nowrap">
-                          {item?.stationName || "—"}
-                        </span>
-                      </td>
-
-                      <td className="px-3 py-3.5 text-right text-sm font-bold text-slate-800 tabular-nums">
-                        {parseFloat(item?.quantity || 0).toFixed(0)}
-                      </td>
-
-                      <td className="px-3 py-3.5 text-right text-sm text-slate-500 tabular-nums">
-                        {formatNumber(item?.unitPrice, true)}
-                      </td>
-
-                      {/* Total cell — strikethrough + ₹0 for NC items */}
-                      <td className="pl-3 pr-5 py-3.5 text-right">
-                        {isItemNC ? (
-                          <div>
-                            <p className="text-[11px] text-slate-400 line-through tabular-nums">
-                              {formatNumber(item?.totalPrice, true)}
-                            </p>
-                            <p className="text-[13px] font-bold text-amber-600 tabular-nums">
-                              ₹0
-                            </p>
-                          </div>
-                        ) : (
-                          <span className="text-[13px] font-bold text-slate-900 tabular-nums">
-                            {formatNumber(item?.totalPrice, true)}
-                          </span>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-              <tfoot>
-                <tr className="bg-slate-50 border-t-2 border-slate-200">
-                  <td
-                    colSpan={4}
-                    className="pl-5 py-3 text-xs font-bold text-slate-500 uppercase tracking-wide"
-                  >
-                    Subtotal
-                  </td>
-                  <td className="px-3 py-3 text-right text-xs font-bold text-slate-700 tabular-nums">
-                    {items
-                      .reduce((s, i) => s + parseFloat(i?.quantity || 0), 0)
-                      .toFixed(0)}
-                  </td>
-                  <td className="px-3 py-3" />
-                  <td className="pl-3 pr-5 py-3 text-right text-[15px] font-extrabold text-slate-900 tabular-nums">
-                    {formatNumber(data?.subtotal, true)}
-                  </td>
-                </tr>
-                {/* NC savings row — shown only when NC items exist */}
-                {items.some((i) => i.isNC) && (
-                  <tr className="bg-amber-50 border-t border-amber-100">
-                    <td
-                      colSpan={6}
-                      className="pl-5 py-2.5 text-xs font-bold text-amber-700"
-                    >
-                      <div className="flex items-center gap-1.5">
-                        <ShieldOff
-                          size={11}
-                          strokeWidth={2.5}
-                          className="text-amber-500"
-                        />
-                        No-charge Amount
-                      </div>
-                    </td>
-                    <td className="pl-3 pr-5 py-2.5 text-right text-[13px] font-extrabold text-amber-600 tabular-nums">
-                      −{" "}
-                      {formatNumber(
-                        items
-                          .filter((i) => i.isNC)
-                          .reduce((s, i) => s + num(i.ncAmount), 0),
-                        true,
-                      )}
-                    </td>
-                  </tr>
-                )}
-              </tfoot>
-            </table>
-          </div>
-        )}
-      </MetricPanel>
-
-      {/* ── PAYMENT + DISCOUNTS ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-        {/* Payment */}
-        <MetricPanel
-          icon={CreditCard}
-          title="Payment"
-          right={
-            data?.payments?.[0]?.paymentMode === "split" ? (
-              <span className="text-[10px] font-bold uppercase tracking-wide text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
-                Split
-              </span>
-            ) : null
-          }
-        >
-          {splits.length === 0 && !data?.payments?.length ? (
-            <NoDataFound icon={CreditCard} title="No payment recorded" size="sm" />
-          ) : (
-            <div className="space-y-2">
-              {(splits.length > 0 ? splits : data?.payments || []).map(
-                (p, i) => {
-                  const cfg = PAY_METHOD[p.paymentMode] || {
-                    label: p.paymentMode,
-                    icon: CreditCard,
-                    bg: "bg-slate-50",
-                    text: "text-slate-600",
-                    border: "border-slate-200",
-                  };
-                  const Icon = cfg?.icon;
-                  return (
-                    <div
-                      key={p.id || i}
-                      className={`flex items-center gap-3 px-3.5 py-3 rounded-xl border ${cfg?.bg} ${cfg?.border}`}
-                    >
-                      <Icon size={15} className={cfg?.text} />
-                      <span
-                        className={`text-sm font-semibold flex-1 ${cfg?.text}`}
-                      >
-                        {cfg?.label}
-                      </span>
-                      <span className="text-sm font-bold text-slate-900 tabular-nums">
-                        {formatNumber(p?.amount, true)}
-                      </span>
-                    </div>
-                  );
-                },
-              )}
-            </div>
           )}
-          <div className="mt-4 pt-4 border-t border-dashed border-slate-200 space-y-2.5">
-            <div className="flex justify-between items-center">
-              <span className="text-xs text-slate-500">Total Paid</span>
-              <span className="text-sm font-bold text-emerald-600 tabular-nums">
-                {formatNumber(data?.paidAmount, true)}
-              </span>
-            </div>
-            {num(data?.balanceDue) > 0 && (
-              <div className="flex justify-between items-center">
-                <span className="text-xs text-slate-500">Balance Due</span>
-                <span className="text-sm font-bold text-red-600 tabular-nums">
-                  {formatNumber(data?.balanceDue, true)}
-                </span>
-              </div>
-            )}
-            {/* NC waived row */}
-            {data?.isNC && num(data.ncAmount) > 0 && (
-              <div className="flex justify-between items-center">
-                <span className="text-xs text-amber-600 font-semibold flex items-center gap-1">
-                  <ShieldOff size={11} strokeWidth={2} />
-                  NC Waived
-                </span>
-                <span className="text-sm font-bold text-amber-600 tabular-nums">
-                  − {formatNumber(data.ncAmount, true)}
-                </span>
-              </div>
-            )}
-            
-            {num(data?.balanceDue) === 0 && (
-              <div className="flex items-center gap-1.5">
-                <BadgeCheck size={13} className="text-emerald-500" />
-                <span className="text-xs font-semibold text-emerald-600">
-                  Fully settled
-                </span>
-              </div>
-            )}
-          </div>
-        </MetricPanel>
-
-        {/* Discounts */}
-        <MetricPanel icon={Tag} title="Discounts">
-          {discounts?.length === 0 ? (
-            <NoDataFound icon={Tag} title="No discounts applied" size="sm"/>
-          ) : (
-            <div className="space-y-3">
-              {discounts?.map((d) => (
-                <div
-                  key={d?.id}
-                  className="rounded-xl border border-amber-100 bg-amber-50/50 p-4"
-                >
-                  <div className="flex items-start justify-between gap-2 mb-3">
-                    <p className="text-sm font-bold text-amber-900 leading-snug">
-                      {d?.discountName || "Discount"}
-                    </p>
-                    <span className="text-xs font-extrabold text-amber-700 bg-white border border-amber-200 px-2 py-0.5 rounded-full shrink-0">
-                      {d?.discountType === "percentage"
-                        ? `${d?.discountValue}%`
-                        : formatNumber(d?.discountValue, true)}
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-x-4 gap-y-1.5">
-                    {[
-                      { l: "Applied on", v: d?.appliedOn?.replace(/_/g, " ") },
-                      {
-                        l: "Amount saved",
-                        v: formatNumber(d?.discountAmount, true),
-                      },
-                      { l: "Issued by", v: d?.createdByName || "—" },
-                      { l: "Time", v: formatDate(d?.createdAt, "time") },
-                    ]
-                      .filter((r) => r.v)
-                      .map(({ l, v }) => (
-                        <div key={l}>
-                          <p className="text-[10px] text-slate-400 mb-0.5">
-                            {l}
-                          </p>
-                          <p className="text-xs font-semibold text-slate-700 capitalize">
-                            {v}
-                          </p>
-                        </div>
-                      ))}
-                  </div>
-                </div>
-              ))}
-            </div>
+          {hasNC && (
+            <StatusPill icon={AlertCircle} label="NC" color="amber" size="sm" />
           )}
-          {discounts.length > 0 && (
-            <div className="mt-4 pt-4 border-t border-dashed border-slate-200 flex justify-between items-center">
-              <span className="text-xs text-slate-500">Total Saved</span>
-              <span className="text-sm font-bold text-amber-600 tabular-nums">
-                − {formatNumber(data.totalDiscount, true)}
-              </span>
-            </div>
+          {hasDue && (
+            <StatusPill icon={AlertCircle} label="Due" color="red" size="sm" />
           )}
-        </MetricPanel>
-      </div>
-
-      {/* ── PRICE BREAKUP ── */}
-
-      
-      
-      <MetricPanel icon={ReceiptIndianRupee} title="Price Breakup" noPad>
-        <div className="px-5 py-4 space-y-0 divide-y divide-slate-50">
-          {breakupLines?.map(
-            ({ label, value, cls = "text-slate-700", prefix }) => (
-              // <div
-              //   key={label}
-              //   className="flex justify-between items-baseline gap-6 py-2.5"
-              // >
-              //   <span className="text-xs text-slate-400 leading-relaxed">
-              //     {label}
-              //   </span>
-              //   <span
-              //     className={`text-xs font-semibold tabular-nums shrink-0 ${cls}`}
-              //   >
-              //     {prefix
-              //       ? `${prefix} ${formatNumber(Math.abs(value), true)}`
-              //       : formatNumber(value, true)}
-              //   </span>
-              // </div>
-               <div
-          key={label}
-          className="group flex items-center py-2.5 transition-all duration-150 hover:bg-white/70 rounded-xl px-3 -mx-3"
-        >
-          
-          <span className="text-[12px] text-slate-500 font-medium ml-2 tracking-tight leading-relaxed">
-            {label}
-          </span>
-          {/* dot leader */}
-          <div className="flex-1 mx-3 overflow-hidden" style={{ marginBottom: "2px" }}>
-            <div className="w-full" style={{ borderBottom: "1.5px dashed rgba(148,163,184,0.18)" }} />
-          </div>
-          {/* <span
-            className={`text-[12px] font-bold tabular-nums shrink-0 tracking-tight ${
-              isDeduction ? "text-amber-600" : cls
-            }`}
-          >
-            {isDeduction
-              ? `− ₹${formatNumber(absVal, true)}`
-              : prefix
-              ? `${prefix} ₹${formatNumber(absVal, true)}`
-              : formatNumber(value, true)}
-          </span> */}
-          <span
-                  className={`text-xs font-semibold tabular-nums shrink-0 ${cls}`}
-                >
-                  {prefix
-                    ? `${prefix} ${formatNumber(Math.abs(value), true)}`
-                    : formatNumber(value, true)}
-                </span>
-        </div>
-            ),
-          )}
-          {/* NC savings line in breakup */}
-          {data?.isNC && num(data.ncAmount) > 0 && (
-            <div className="flex justify-between items-baseline gap-6 py-2.5">
-              <span className="text-xs text-amber-600 font-semibold flex items-center gap-1.5">
-                <ShieldOff
-                  size={11}
-                  strokeWidth={2}
-                  className="text-amber-500"
-                />
-                No Charge Waived
-              </span>
-              <span className="text-xs font-semibold tabular-nums text-amber-600">
-                − {formatNumber(data.ncAmount, true)}
-              </span>
-            </div>
-          )}
-        </div>
-
-        {/* Footer strip */}
-        <div className="bg-slate-900 px-6 py-5 flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1">
-              Total Payable
-            </p>
-            {inv.amountInWords && (
-              <p className="text-xs text-slate-500 italic leading-relaxed max-w-sm">
-                {inv.amountInWords}
-              </p>
-            )}
-          </div>
-          <div className="flex items-center gap-8">
-            <div className="text-right">
-              <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-1">
-                Paid
-              </p>
-              <p className="text-base font-bold text-emerald-400 tabular-nums">
-                {formatNumber(data.paidAmount, true)}
-              </p>
-            </div>
-            {num(data.ncAmount) > 0 && (
-              <div className="text-right">
-                <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-1">
-                  NC Waived
-                </p>
-                <p className="text-base font-bold text-amber-400 tabular-nums">
-                  − {formatNumber(data.ncAmount, true)}
-                </p>
-              </div>
-            )}
-            {num(data.balanceDue) > 0 && (
-              <div className="text-right">
-                <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-1">
-                  Due
-                </p>
-                <p className="text-base font-bold text-red-400 tabular-nums">
-                  {formatNumber(data.balanceDue, true)}
-                </p>
-              </div>
-            )}
-            <div className="text-right border-l border-slate-700 pl-8">
-              <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-1">
-                Grand Total
-              </p>
-              <p className="text-3xl font-extrabold text-white tabular-nums leading-none">
-                {formatNumber(data.totalAmount, true)}
-              </p>
-            </div>
-          </div>
-        </div>
-      </MetricPanel>
-
-      {/* ── OUTLET + CUSTOMER ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-        <MetricPanel icon={Store} title="Outlet">
-          <Row
-            label="Name"
-            value={data?.outletName}
-            cls="text-slate-900 font-bold"
-          />
-          <Row
-            label="Address"
-            value={[data?.outletAddress, data?.outletCity, data?.outletState]
-              .filter(Boolean)
-              .join(", ")}
-          />
-          <Row label="GSTIN" value={data?.outletGstin} mono />
-          <Row label="FSSAI" value={data?.outletFssai} mono />
-        </MetricPanel>
-
-        <MetricPanel icon={User} title="Customer">
-          {data?.customerName ? (
-            <>
-              <Row
-                label="Name"
-                value={data?.customerName}
-                cls="text-slate-900 font-bold"
-              />
-              <Row
-                label="Phone"
-                value={data?.customerPhone}
-                href={data?.customerPhone ? `tel:${data?.customerPhone}` : null}
-              />
-              <Row
-                label="Email"
-                value={data?.customerEmail}
-                href={
-                  data?.customerEmail ? `mailto:${data?.customerEmail}` : null
-                }
-              />
-              <Row label="Company" value={data?.customer_company_name} />
-              <Row label="GSTIN" value={data?.customerGstin} mono />
-              <Row
-                label="GST State"
-                value={
-                  data?.customer_gst_state
-                    ? `${data?.customer_gst_state}${data?.customer_gst_state_code ? ` (${data?.customer_gst_state_code})` : ""}`
-                    : null
-                }
-              />
-            </>
-          ) : (
-            <NoDataFound
-              icon={User}
-              title="No customer linked — walk-in order"
+          {hasAdj && (
+            <StatusPill
+              icon={SlidersHorizontal}
+              label="Adj"
+              color="blue"
+              size="sm"
             />
           )}
-        </MetricPanel>
+          {hasDiscount && (
+            <StatusPill icon={Tag} label="Discount" color="emerald" size="sm" />
+          )}
+        </div>
+
+        {/* quick stat chips */}
+        <div className="grid grid-cols-4 gap-2">
+          {[
+            {
+              label: "Items",
+              value: `${d.itemCount} (qty ${d.totalQuantity})`,
+            },
+            { label: "Guests", value: fmtN(d.guestCount) },
+            {
+              label: "Paid",
+              value: fmt(d.paidAmount),
+              red: d.paidAmount === 0 && d.totalAmount > 0,
+            },
+            { label: "Due", value: fmt(d.dueAmount), red: d.dueAmount > 0 },
+          ].map(({ label, value, red }) => (
+            <div
+              key={label}
+              className="bg-white border border-gray-100 rounded-xl px-3 py-2.5 text-center"
+            >
+              <p className="text-[10px] text-gray-400 mb-0.5">{label}</p>
+              <p
+                className={`text-xs font-bold ${red ? "text-red-500" : "text-gray-900"}`}
+              >
+                {value}
+              </p>
+            </div>
+          ))}
+        </div>
       </div>
 
-      {/* ── FOOTER ── */}
-      <div className="text-center py-4 border-t border-slate-200 space-y-1">
-        <p className="text-sm font-bold text-slate-600">{data?.outletName}</p>
-        <p className="text-xs text-slate-400">
-          {[data?.outletAddress, data?.outletCity, data?.outletState]
-            .filter(Boolean)
-            .join(" · ")}
-        </p>
-        {data?.outletGstin && (
-          <p className="text-[10px] font-mono text-slate-300">
-            GSTIN: {data?.outletGstin}
-          </p>
+      {/* ── Content ── */}
+      <div className="space-y-3">
+        {/* ── Items ── */}
+        <Section
+          title={`Order items (${d.itemCount})`}
+          icon={Package}
+          iconBg="bg-violet-50 border-violet-100"
+          iconColor="text-violet-600"
+          noPad
+        >
+          <div className="divide-y divide-gray-50">
+            {d.items && d.items.length > 0 ? (
+              d.items.map((item) => (
+                <div
+                  key={item.id}
+                  className={`px-4 py-3 ${item.isNC ? "bg-amber-50/40" : ""}`}
+                >
+                  <div className="flex items-start gap-2.5">
+                    <FoodTypeIcon type={item.itemType} />
+
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0">
+                          <p className="text-sm font-semibold text-gray-800 leading-tight">
+                            {item.itemName || "—"}
+                          </p>
+
+                          <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                            {item.variantName && (
+                              <span className="text-[10px] text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-full">
+                                {item.variantName}
+                              </span>
+                            )}
+
+                            {item.categoryName && (
+                              <span className="text-[10px] text-gray-400">
+                                {item.categoryName}
+                              </span>
+                            )}
+
+                            {item.stationName && (
+                              <span className="text-[10px] text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-full">
+                                {item.stationName}
+                              </span>
+                            )}
+
+                            {item.isNC && (
+                              <StatusPill
+                                icon={AlertCircle}
+                                label={" NC"}
+                                color="amber"
+                                size="sm"
+                              />
+                            )}
+
+                            {item.status === "served" && (
+                              <span className="text-[10px] text-emerald-600 bg-emerald-50 border border-emerald-100 px-1.5 py-0.5 rounded-full">
+                                Served
+                              </span>
+                            )}
+                          </div>
+
+                          {item.specialInstructions && (
+                            <p className="text-[10px] text-blue-500 mt-1 italic">
+                              "{item.specialInstructions}"
+                            </p>
+                          )}
+                        </div>
+
+                        <div className="text-right shrink-0">
+                          <p className="text-sm font-bold text-gray-900">
+                            {fmt(item.totalPrice || 0)}
+                          </p>
+                          <p className="text-[10px] text-gray-400">
+                            {fmt(item.unitPrice || 0)} × {item.quantity || 0}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* item tax */}
+                      {item.taxAmount > 0 && (
+                        <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+                          {(item.taxDetails || []).map((t) => (
+                            <span
+                              key={t.componentCode}
+                              className="text-[9px] text-gray-400 bg-gray-50 border border-gray-100 px-1.5 py-0.5 rounded-full"
+                            >
+                              {t.componentName}: {fmt(t.amount)}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <NoDataFound title="No items found" description="" size="sm" />
+            )}
+          </div>
+        </Section>
+
+        {/* ── Bill breakdown ── */}
+        <Section
+          title="Bill breakdown"
+          icon={ReceiptIndianRupee}
+          iconBg="bg-blue-50 border-blue-100"
+          iconColor="text-blue-600"
+        >
+          <InfoRow label="Subtotal" value={fmt(d.subtotal)} />
+          {hasDiscount && (
+            <InfoRow
+              label="Discount"
+              value={`− ${fmt(d.discountAmount)}`}
+              valueClass="text-red-500"
+            />
+          )}
+          {d.taxAmount > 0 && (
+            <InfoRow
+              label="Tax"
+              value={`+ ${fmt(d.taxAmount)}`}
+              valueClass="text-gray-600"
+            />
+          )}
+          {d.serviceCharge > 0 && (
+            <InfoRow
+              label="Service charge"
+              value={`+ ${fmt(d.serviceCharge)}`}
+            />
+          )}
+          {d.packagingCharge > 0 && (
+            <InfoRow label="Packaging" value={`+ ${fmt(d.packagingCharge)}`} />
+          )}
+          {d.deliveryCharge > 0 && (
+            <InfoRow
+              label="Delivery charge"
+              value={`+ ${fmt(d.deliveryCharge)}`}
+            />
+          )}
+          {d.roundOff !== 0 && (
+            <InfoRow
+              label="Round off"
+              value={(d.roundOff > 0 ? "+" : "") + fmt(d.roundOff)}
+              valueClass="text-gray-400"
+            />
+          )}
+          {hasNC && d.ncAmount > 0 && (
+            <InfoRow
+              label="NC amount"
+              value={`− ${fmt(d.ncAmount)}`}
+              valueClass="text-amber-500"
+            />
+          )}
+          {hasAdj && (
+            <InfoRow
+              label="Adjustment"
+              value={`− ${fmt(d.adjustmentAmount)}`}
+              valueClass="text-blue-500"
+            />
+          )}
+          <div className="flex items-center justify-between pt-2.5 mt-1 border-t border-gray-100">
+            <span className="text-sm font-bold text-gray-900">Total</span>
+            <span className="text-base font-bold text-gray-900">
+              {fmt(d.totalAmount)}
+            </span>
+          </div>
+          <div className="flex items-center justify-between py-1.5">
+            <span className="text-xs text-gray-500">Paid</span>
+            <span className="text-xs font-semibold text-emerald-600">
+              {fmt(d.paidAmount)}
+            </span>
+          </div>
+          {hasDue && (
+            <div className="flex items-center justify-between py-1.5">
+              <span className="text-xs text-gray-500">Balance due</span>
+              <span className="text-xs font-bold text-red-500">
+                {fmt(d.dueAmount)}
+              </span>
+            </div>
+          )}
+          {hasDue && (
+            <div className="mt-2 flex items-center gap-2 bg-red-50 border border-red-100 rounded-xl px-3 py-2">
+              <AlertTriangle size={12} className="text-red-400 shrink-0" />
+              <span className="text-xs text-red-500 font-medium">
+                {fmt(d.dueAmount)} pending collection
+              </span>
+            </div>
+          )}
+        </Section>
+
+        {/* ── Tax breakup ── */}
+        {d.taxBreakup && Object.keys(d.taxBreakup).length > 0 && (
+          <Section
+            title="Tax breakup"
+            icon={Percent}
+            iconBg="bg-gray-100 border-gray-200"
+            iconColor="text-gray-500"
+          >
+            {Object.entries(d.taxBreakup).map(([key, t]) => (
+              <div
+                key={key}
+                className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0"
+              >
+                <div>
+                  <p className="text-xs text-gray-700 font-medium">{t.name}</p>
+                  <p className="text-[10px] text-gray-400">
+                    Taxable: {fmt(t.taxableAmount)} @ {t.rate}%
+                  </p>
+                </div>
+                <span className="text-xs font-semibold text-gray-800">
+                  {fmt(t.taxAmount)}
+                </span>
+              </div>
+            ))}
+            <div className="flex items-center justify-between pt-2 mt-1 border-t border-gray-100">
+              <span className="text-xs font-semibold text-gray-700">
+                Total tax
+              </span>
+              <span className="text-xs font-bold text-gray-900">
+                {fmt(d.totalTax)}
+              </span>
+            </div>
+          </Section>
         )}
+
+        {/* ── Discounts ── */}
+        {d.discounts?.length > 0 && (
+          <Section
+            title="Discounts applied"
+            icon={Tag}
+            iconBg="bg-emerald-50 border-emerald-100"
+            iconColor="text-emerald-600"
+          >
+            {d.discounts.map((disc) => (
+              <div
+                key={disc.id}
+                className="flex items-start justify-between py-2.5 border-b border-gray-50 last:border-0"
+              >
+                <div>
+                  <p className="text-xs font-semibold text-gray-800">
+                    {disc.discountName}
+                  </p>
+                  <p className="text-[10px] text-gray-400 mt-0.5 capitalize">
+                    {disc.discountType === "percentage"
+                      ? `${disc.discountValue}% on ${disc.appliedOn}`
+                      : `Flat ${fmt(disc.discountValue)}`}
+                    {disc.createdByName && ` · by ${disc.createdByName}`}
+                  </p>
+                  {disc.approvedByName && (
+                    <p className="text-[10px] text-emerald-600 mt-0.5">
+                      Approved by {disc.approvedByName}
+                    </p>
+                  )}
+                </div>
+                <span className="text-xs font-bold text-red-500 shrink-0 ml-3">
+                  − {fmt(disc.discountAmount)}
+                </span>
+              </div>
+            ))}
+          </Section>
+        )}
+
+        {/* ── NC details ── */}
+        {hasNC && (
+          <Section
+            title="No charge details"
+            icon={AlertCircle}
+            iconBg="bg-amber-50 border-amber-100"
+            iconColor="text-amber-600"
+          >
+            {d.isNC && (
+              <div className="bg-amber-50 border border-amber-100 rounded-xl px-3 py-2.5 mb-3">
+                <p className="text-xs font-semibold text-amber-700">
+                  Full order marked as NC
+                </p>
+                {d.ncReason && (
+                  <p className="text-xs text-amber-600 mt-0.5">{d.ncReason}</p>
+                )}
+                <p className="text-xs font-bold text-amber-700 mt-1">
+                  Amount: {fmt(d.ncAmount)}
+                </p>
+              </div>
+            )}
+            {d.items
+              ?.filter((i) => i.isNC)
+              .map((item) => (
+                <div
+                  key={item.id}
+                  className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0"
+                >
+                  <div className="flex items-center gap-2">
+                    <FoodTypeIcon type={item.itemType} />
+                    <div>
+                      <p className="text-xs font-medium text-gray-800">
+                        {item.itemName}
+                      </p>
+                      {item.ncReason && (
+                        <p className="text-[10px] text-amber-500">
+                          {item.ncReason}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <span className="text-xs font-semibold text-amber-500">
+                    − {fmt(item.ncAmount)}
+                  </span>
+                </div>
+              ))}
+          </Section>
+        )}
+
+        {/* ── Payments ── */}
+        {d.payments?.length > 0 && (
+          <Section
+            title="Payments"
+            icon={Banknote}
+            iconBg="bg-emerald-50 border-emerald-100"
+            iconColor="text-emerald-600"
+          >
+            {d.payments.map((p) => {
+              const PayIcon = payIcon[p.paymentMode] || Banknote;
+              return (
+                <div
+                  key={p.id}
+                  className="flex items-center justify-between py-2.5 border-b border-gray-50 last:border-0"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center shrink-0">
+                      <PayIcon size={13} className="text-gray-500" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-gray-800 capitalize">
+                        {p.paymentMode}
+                      </p>
+                      <p className="text-[10px] text-gray-400">
+                        {formatDate(p.createdAt, "long")}
+                        {p.receivedByName && ` · ${p.receivedByName}`}
+                        {p.isDueCollection && " · due collection"}
+                      </p>
+                      {p.referenceNumber && (
+                        <p className="text-[10px] text-gray-400 font-mono">
+                          Ref: {p.referenceNumber}
+                        </p>
+                      )}
+                      {p.transactionId && (
+                        <p className="text-[10px] text-gray-400 font-mono">
+                          TxnID: {p.transactionId}
+                        </p>
+                      )}
+                      {p.upiId && (
+                        <p className="text-[10px] text-gray-400">
+                          UPI: {p.upiId}
+                        </p>
+                      )}
+                      {p.cardLastFour && (
+                        <p className="text-[10px] text-gray-400">
+                          {p.cardType} ···{p.cardLastFour}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <p
+                      className={`text-sm font-bold ${p.amount > 0 ? "text-emerald-600" : "text-gray-400"}`}
+                    >
+                      {fmt(p.amount)}
+                    </p>
+                    <OrderBadge type="payment" value={p.status} size="sm" />
+                  </div>
+                </div>
+              );
+            })}
+          </Section>
+        )}
+
+        {/* ── KOTs ── */}
+        {d.kots?.length > 0 && (
+          <Section
+            title={`KOTs (${d.kots.length})`}
+            icon={FileText}
+            iconBg="bg-gray-100 border-gray-200"
+            iconColor="text-gray-500"
+          >
+            {d.kots.map((kot) => {
+              return (
+                <div
+                  key={kot.id}
+                  className="flex items-center justify-between py-2.5 border-b border-gray-50 last:border-0"
+                >
+                  <div>
+                    <p className="text-xs font-semibold text-gray-800 font-mono">
+                      {kot.kotNumber}
+                    </p>
+                    <p className="text-[10px] text-gray-400">
+                      {kot.stationName} · {formatDate(kot.createdAt, "long")}
+                    </p>
+                  </div>
+                  <OrderBadge type="status" value={kot.status} size="sm" />
+                </div>
+              );
+            })}
+          </Section>
+        )}
+
+        {/* ── Invoice ── */}
+        {d.invoice && (
+          <Section
+            title="Invoice"
+            icon={ReceiptIndianRupee}
+            iconBg="bg-blue-50 border-blue-100"
+            iconColor="text-blue-600"
+          >
+            <InfoRow
+              label="Invoice number"
+              value={d.invoice.invoiceNumber}
+              mono
+            />
+            <InfoRow
+              label="Invoice date"
+              value={`${d.invoice.invoiceDate} ${d.invoice.invoiceTime}`}
+            />
+            <InfoRow label="Generated by" value={d.invoice.generatedByName} />
+            <InfoRow
+              label="Payment status"
+              value={
+                <OrderBadge type="payment" value={d.paymentStatus} size="sm" />
+              }
+              valueClass={d.paymentStatus}
+            />
+            {d.invoice.amountInWords && (
+              <div className="mt-2 bg-gray-50 rounded-xl px-3 py-2">
+                <p className="text-[10px] text-gray-400 mb-0.5">
+                  Amount in words
+                </p>
+                <p className="text-xs text-gray-700 italic">
+                  {d.invoice.amountInWords}
+                </p>
+              </div>
+            )}
+            {d.invoice.notes && (
+              <div className="mt-2 bg-blue-50 border border-blue-100 rounded-xl px-3 py-2">
+                <p className="text-xs text-blue-700">{d.invoice.notes}</p>
+              </div>
+            )}
+          </Section>
+        )}
+
+        {/* ── Customer & outlet ── */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {/* customer */}
+          {(d.customerName || d.customerPhone) && (
+            <Section
+              title="Customer"
+              icon={User}
+              iconBg="bg-gray-100 border-gray-200"
+              iconColor="text-gray-500"
+            >
+              {d.customerName && (
+                <InfoRow label="Name" value={d.customerName} />
+              )}
+              {d.customerPhone && (
+                <InfoRow label="Phone" value={d.customerPhone} mono />
+              )}
+              {d.customerEmail && (
+                <InfoRow label="Email" value={d.customerEmail} />
+              )}
+              {d.customerGstin && (
+                <InfoRow label="GSTIN" value={d.customerGstin} mono />
+              )}
+            </Section>
+          )}
+
+          {/* outlet */}
+          <Section
+            title="Outlet"
+            icon={Building2}
+            iconBg="bg-gray-100 border-gray-200"
+            iconColor="text-gray-500"
+          >
+            <InfoRow label="Name" value={d.outletName} />
+            {d.outletGstin && (
+              <InfoRow label="GSTIN" value={d.outletGstin} mono />
+            )}
+            {d.outletAddress && (
+              <InfoRow
+                label="Address"
+                value={`${d.outletAddress}, ${d.outletCity} ${d.outletState}`}
+              />
+            )}
+          </Section>
+        </div>
+
+        {/* ── Order info ── */}
+        <Section
+          title="Order info"
+          icon={Info}
+          iconBg="bg-gray-100 border-gray-200"
+          iconColor="text-gray-500"
+        >
+          <InfoRow label="Order ID" value={`#${d.id}`} mono />
+          <InfoRow label="Created by" value={d.createdBy?.name} />
+          <InfoRow label="Created at" value={formatDate(d.createdAt, "long")} />
+          <InfoRow label="Updated at" value={formatDate(d.updatedAt, "long")} />
+          <InfoRow label="Floor" value={d.floorName} />
+          {d.sectionName && <InfoRow label="Section" value={d.sectionName} />}
+          {d.tableName && (
+            <InfoRow
+              label="Table"
+              value={`${d.tableName} (cap. ${d.tableCapacity})`}
+            />
+          )}
+        </Section>
+
+        <p className="text-center text-[10px] text-gray-300 pb-4">
+          {d.orderNumber} · {d.outletName}
+        </p>
       </div>
     </div>
   );

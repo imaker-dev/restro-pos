@@ -17,6 +17,7 @@ export const ROUTE_PATHS = {
   REPORTS_TAX: "/reports/tax-report",
   REPORTS_TAX_DETAILS: "/reports/tax-report/details",
   REPORTS_SERVICE_TYPE_BREAKDOWN: "/reports/service-type-breakdown",
+  REPORTS_OUTSIDE_COLLECTION: "/reports/outside-collections",
   REPORTS_SHIFT_HISTORY: "/shift-history",
   REPORTS_SHIFT_HISTORY_DETAILS: "/shift-history/details",
   REPORTS_DUE: "/reports/due-report",

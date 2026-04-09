@@ -16,11 +16,7 @@ import {
   ArrowUpRight,
   Search,
   ChevronRight,
-  Table,
-  Activity,
-  History,
-  FileText,
-  Clock,
+  Wallet,
 } from "lucide-react";
 import PageHeader from "../../layout/PageHeader";
 import SearchBar from "../../components/SearchBar";
@@ -98,12 +94,12 @@ const GROUPS = [
         icon: BarChart3,
         desc: "Manual price adjustments",
       },
-      // {
-      //   name: "Day End Summary",
-      //   path: ROUTE_PATHS.REPORTS_DAY_END_SUMMARY,
-      //   icon: FileText,
-      //   desc: "End of day financial summary",
-      // },
+      {
+        name: "Outside Collection",
+        path: ROUTE_PATHS.REPORTS_OUTSIDE_COLLECTION,
+        icon: Wallet,
+        desc: "Payments collected outside restaurant",
+      },
     ],
   },
   {
