@@ -87,6 +87,7 @@ const DailySalesReportPage = () => {
     dateRange: dr,
     orders,
     crossVerification,
+    outsideCollections
   } = dailySalesReport || {};
 
   const dayCount = daily?.length || 0;
@@ -166,7 +167,7 @@ const DailySalesReportPage = () => {
               </div> */}
 
               {/* price breakup accordion */}
-              <DailySalesSummaryBreakup summary={summary} />
+              <DailySalesSummaryBreakup summary={summary} outsideCollections={outsideCollections} />
             </div>
           )}
 

@@ -17,7 +17,7 @@ import { formatNumber } from "../../../utils/numberFormatter";
 import StatusPill from "../../../components/StatusPill";
 
 /* ── Summary Deductions Card ── */
-function DailySalesSummaryBreakup({ summary }) {
+function DailySalesSummaryBreakup({ summary, outsideCollections }) {
   const [open, setOpen] = useState(false);
   const {
     total_collection,
@@ -74,10 +74,14 @@ function DailySalesSummaryBreakup({ summary }) {
           <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3">
             Collection
           </p>
-          <div className="grid grid-cols-3 gap-2 mb-4">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 mb-4">
             {[
               { label: "Total", value: formatNumber(total_collection, true) },
               { label: "Paid", value: formatNumber(total_paid_amount, true) },
+              {
+                label: "Outside Collection",
+                value: formatNumber(outsideCollections.total, true),
+              },
               {
                 label: "Due",
                 value: formatNumber(total_due_amount, true),

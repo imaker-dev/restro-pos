@@ -43,6 +43,7 @@ function DailySalesSummaryCard({ day }) {
     total_due_amount,
     components,
     total_guests,
+    outside_collection,
   } = day;
 
   const [open, setOpen] = useState(false);
@@ -160,6 +161,11 @@ function DailySalesSummaryCard({ day }) {
             {
               label: "Subtotal",
               value: formatNumber(subtotal, true),
+              bold: false,
+            },
+            {
+              label: "Outside Collection",
+              value: formatNumber(outside_collection, true),
               bold: false,
             },
             {

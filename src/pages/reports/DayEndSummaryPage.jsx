@@ -42,7 +42,7 @@ const DayEndSummaryPage = () => {
   const { dailyEndSummary, isFetchingDailyEndSummary } = useSelector(
     (state) => state.dashboard,
   );
-  const { grandTotal, days, dateRange, dayCount } = dailyEndSummary || {};
+  const { grandTotal, days, dateRange, dayCount,outsideCollections } = dailyEndSummary || {};
 
   const [dateRangeState, setDateRangeState] = useState(null);
 
@@ -160,7 +160,7 @@ const DayEndSummaryPage = () => {
               </div> */}
 
               {/* price breakup accordion */}
-              <DayEndCollectionSummaryCard grandTotal={grandTotal} />
+              <DayEndCollectionSummaryCard grandTotal={grandTotal} outsideCollections={outsideCollections} />
             </div>
           )}
 

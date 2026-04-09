@@ -6,6 +6,7 @@ import {
   Banknote,
   Bike,
   ChevronDown,
+  ReceiptIndianRupee,
   ShoppingBag,
   SlidersHorizontal,
   Tag,
@@ -39,6 +40,7 @@ function DayEndCard({ day }) {
     total_collection,
     ordersByType,
     discount_amount,
+    outside_collection,
     tax_amount,
     nc_orders,
     nc_amount,
@@ -155,6 +157,12 @@ function DayEndCard({ day }) {
         {/* deductions row */}
         <div className="grid grid-cols-2 gap-2">
           {[
+            {
+              label: "Outside Collection",
+              value: formatNumber(outside_collection, true),
+              icon: ReceiptIndianRupee,
+              cls: "text-gray-600",
+            },
             // {
             //   label: "Tax",
             //   value: formatNumber(tax_amount, true),
