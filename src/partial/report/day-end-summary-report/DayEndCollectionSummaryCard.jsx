@@ -283,16 +283,6 @@ function DayEndCollectionSummaryCard({
                 count: ordersByType.delivery,
                 cls: "bg-orange-50 text-orange-500",
               },
-              ...(nc_orders > 0
-                ? [
-                    {
-                      icon: AlertCircle,
-                      label: "NC",
-                      count: nc_orders,
-                      cls: "bg-amber-50 text-amber-500",
-                    },
-                  ]
-                : []),
             ].map(({ icon: Icon, label, count, cls }) => (
               <div
                 key={label}

@@ -324,7 +324,7 @@ function DailySalesSummaryCard({ day }) {
           )}
 
           {/* ── PAYMENT STATUS ── */}
-          <div className="grid grid-cols-3 gap-2">
+          {/* <div className="grid grid-cols-3 gap-2">
             <StatusPill
               icon={CheckCircle}
               label="Paid"
@@ -345,7 +345,7 @@ function DailySalesSummaryCard({ day }) {
                 color="red"
               />
             )}
-          </div>
+          </div> */}
 
           <div className="flex justify-end pt-1">
             <button
