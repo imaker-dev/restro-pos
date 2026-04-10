@@ -22,7 +22,7 @@ function PaymentBar({ type, amount, count, total }) {
   const Icon = meta.icon;
 
   return (
-    <div className="flex items-center gap-3 py-2.5 border-b border-gray-50 last:border-0">
+    <div className="flex items-center gap-3 py-1 lg:py-2 border-b border-gray-50 last:border-0">
       {/* Icon */}
       <div
         className="w-6 h-6 rounded-lg flex items-center justify-center shrink-0"

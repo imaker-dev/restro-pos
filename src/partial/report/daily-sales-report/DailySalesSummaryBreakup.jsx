@@ -2,9 +2,11 @@ import {
   AlertCircle,
   AlertTriangle,
   Bike,
+  Check,
   CheckCircle,
   ChevronDown,
   Clock,
+  Copy,
   ReceiptIndianRupee,
   ShoppingBag,
   SlidersHorizontal,
@@ -15,10 +17,13 @@ import {
 import { useState } from "react";
 import { formatNumber } from "../../../utils/numberFormatter";
 import StatusPill from "../../../components/StatusPill";
+import { copyToClipboard } from "../../../utils/copyToClipboard";
 
 /* ── Summary Deductions Card ── */
 function DailySalesSummaryBreakup({ summary, outsideCollections }) {
   const [open, setOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+
   const {
     total_collection,
     total_paid_amount,
@@ -33,6 +38,49 @@ function DailySalesSummaryBreakup({ summary, outsideCollections }) {
     unpaid_orders,
   } = summary;
 
+  const buildCopyText = () => {
+    const dashed = "-".repeat(14);
+
+    const lines = [
+      `*Collection Summary*`,
+      dashed,
+      ``,
+
+      `*COLLECTION*`,
+      ``,
+
+      `Paid: ${formatNumber(total_paid_amount, true)}`,
+    ];
+
+    if (outsideCollections.total > 0) {
+      lines.push(
+        `Outside Collection: ${formatNumber(outsideCollections.total, true)}`,
+      );
+    }
+
+    if (total_due_amount > 0) {
+      lines.push(`Pending (Due): ${formatNumber(total_due_amount, true)}`);
+    }
+
+    lines.push(
+      ``,
+      dashed,
+      `*Total Collection: ${formatNumber(total_collection, true)}*`,
+    );
+
+    return lines.join("\n");
+  };
+
+  const handleCopy = async (e) => {
+    e.stopPropagation();
+
+    const success = await copyToClipboard(buildCopyText());
+
+    if (success) {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
   return (
     <div className="bg-white border border-gray-100 rounded-2xl overflow-hidden">
       <button
@@ -69,148 +117,140 @@ function DailySalesSummaryBreakup({ summary, outsideCollections }) {
           open ? "max-h-[700px] opacity-100" : "max-h-0 opacity-0"
         }`}
       >
-        {/* collection pills */}
-        <div className="px-5 py-4 border-b border-gray-50">
-          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3">
+        <div className="px-5 py-4 border-b border-gray-50 space-y-2">
+          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">
             Collection
           </p>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 mb-4">
-            {[
-              { label: "Total", value: formatNumber(total_collection, true) },
-              { label: "Paid", value: formatNumber(total_paid_amount, true) },
-              {
-                label: "Outside Collection",
-                value: formatNumber(outsideCollections.total, true),
-              },
-              {
-                label: "Due",
-                value: formatNumber(total_due_amount, true),
-                red: total_due_amount > 0,
-              },
-            ].map(({ label, value, red }) => (
-              <div key={label} className="bg-gray-50 rounded-xl px-3 py-2.5">
-                <p className="text-[10px] text-gray-400 mb-0.5">{label}</p>
-                <p
-                  className={`text-xs font-bold ${red ? "text-red-500" : "text-gray-900"}`}
-                >
-                  {value}
-                </p>
-              </div>
-            ))}
-          </div>
 
-          <div className=" border-b border-gray-50">
-            <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3">
-              Order types
-            </p>
-
-            <div className="flex items-center gap-2 flex-wrap">
-              <StatusPill
-                icon={UtensilsCrossed}
-                label="Dine-in"
-                count={summary.dine_in_orders}
-                color="blue"
-              />
-
-              <StatusPill
-                icon={ShoppingBag}
-                label="Takeaway"
-                count={summary.takeaway_orders}
-                color="violet"
-              />
-
-              {summary.delivery_orders > 0 && (
-                <StatusPill
-                  icon={Bike}
-                  label="Delivery"
-                  count={summary.delivery_orders}
-                  color="orange"
-                />
-              )}
+          <div className="bg-gray-50 rounded-xl px-3 py-2.5 space-y-2">
+            {/* Paid */}
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-gray-500">Paid</span>
+              <span className="text-xs font-bold text-emerald-600">
+                {formatNumber(total_paid_amount, true)}
+              </span>
             </div>
+
+            {/* Outside */}
+            {outsideCollections.total > 0 && (
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-gray-500">
+                  Outside collection
+                </span>
+                <span className="text-xs font-semibold text-blue-600">
+                  {formatNumber(outsideCollections.total, true)}
+                </span>
+              </div>
+            )}
+
+            {/* Due */}
+            {total_due_amount > 0 && (
+              <>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1">
+                    <AlertTriangle size={10} className="text-red-400" />
+                    <span className="text-xs text-red-400">Due (pending)</span>
+                  </div>
+                  <span className="text-xs font-bold text-red-500">
+                    {formatNumber(total_due_amount, true)}
+                  </span>
+                </div>
+              </>
+            )}
+
+            {/* Total */}
+            <div className="border-t border-dashed border-gray-200" />
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium text-gray-600">
+                Total collection
+              </span>
+              <span className="text-xs font-bold text-gray-900">
+                {formatNumber(total_collection, true)}
+              </span>
+            </div>
+
+            {/* Explanation line (optional but ) */}
+            {/* <p className="text-[10px] text-gray-400">
+      = Paid {formatNumber(total_paid_amount, true)}
+      {outsideCollections.total > 0 &&
+        ` + Outside ${formatNumber(outsideCollections.total, true)}`}
+      {total_due_amount > 0 &&
+        ` + Due ${formatNumber(total_due_amount, true)}`}
+    </p> */}
           </div>
         </div>
 
-        {/* deductions */}
-        <div className="px-5 py-4">
-          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3">
-            Deductions & exceptions
-          </p>
-          {[
-            {
-              icon: Tag,
-              label: "Discount",
-              value: `− ${formatNumber(discount_amount, true)}`,
-              cls: "text-red-500",
-              sub: null,
-            },
-            {
-              icon: AlertCircle,
-              label: "NC amount",
-              value: `− ${formatNumber(nc_amount, true)}`,
-              cls: "text-amber-500",
-              sub: `${nc_order_count} orders`,
-            },
-            {
-              icon: SlidersHorizontal,
-              label: "Adjustments",
-              value: `− ${formatNumber(adjustment_amount, true)}`,
-              cls: "text-red-400",
-              sub: `${adjustment_order_count} entries`,
-            },
-          ].map(({ icon: Icon, label, value, cls, sub }) => (
-            <div
-              key={label}
-              className="flex items-center justify-between py-2.5 border-b border-gray-50 last:border-0"
-            >
-              <div className="flex items-center gap-2">
-                <Icon size={13} className="text-gray-400 shrink-0" />
-                <span className="text-xs text-gray-600">{label}</span>
-                {sub && (
-                  <span className="text-[10px] text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-full">
-                    {sub}
-                  </span>
-                )}
-              </div>
-              <span className={`text-xs font-semibold ${cls}`}>{value}</span>
+        {/* ── GIVEN AWAY ── */}
+        {(discount_amount > 0 || nc_amount > 0 || adjustment_amount > 0) && (
+          <div className="px-5 py-4">
+            <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-2">
+              Given Away
+            </p>
+
+            <div className="bg-gray-50 rounded-xl px-3 py-2.5 space-y-0 divide-y divide-gray-100">
+              {[
+                discount_amount > 0 && {
+                  icon: Tag,
+                  label: "Discount",
+                  value: formatNumber(discount_amount, true),
+                  sub: null,
+                },
+                nc_amount > 0 && {
+                  icon: AlertCircle,
+                  label: "No charge",
+                  value: formatNumber(nc_amount, true),
+                  sub: `${nc_order_count} orders`,
+                },
+                adjustment_amount > 0 && {
+                  icon: SlidersHorizontal,
+                  label: "Adjustments",
+                  value: formatNumber(adjustment_amount, true),
+                  sub: `${adjustment_order_count} entries`,
+                },
+              ]
+                .filter(Boolean)
+                .map(({ icon: Icon, label, value, sub }) => (
+                  <div
+                    key={label}
+                    className="flex items-center justify-between py-2"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Icon size={12} className="text-gray-400 shrink-0" />
+                      <span className="text-xs text-gray-500">{label}</span>
+
+                      {sub && (
+                        <span className="text-[10px] text-gray-400 bg-gray-200 px-1.5 py-0.5 rounded-full">
+                          {sub}
+                        </span>
+                      )}
+                    </div>
+
+                    <span className="text-xs font-semibold text-gray-700">
+                      {value}
+                    </span>
+                  </div>
+                ))}
             </div>
-          ))}
-          {/* {total_due_amount > 0 && (
-            <div className="mt-3 flex items-center justify-between rounded-xl bg-red-50 border border-red-100 px-3.5 py-2.5">
-              <div className="flex items-center gap-2">
-                <AlertTriangle size={13} className="text-red-400 shrink-0" />
-                <span className="text-xs text-red-500 font-medium">
-                  Due Amount
-                </span>
-              </div>
-              <span className="text-xs font-bold text-red-600">
-                {formatNumber(total_due_amount, true)}
-              </span>
-            </div>
-          )} */}
-          {/* payment status */}
-          <div className="grid grid-cols-3 gap-2">
-            <StatusPill
-              icon={CheckCircle}
-              label="Paid"
-              count={summary.fully_paid_orders}
-              color="emerald"
-            />
-            <StatusPill
-              icon={Clock}
-              label="Partial"
-              count={summary.partial_paid_orders}
-              color="amber"
-            />
-            {summary.unpaid_orders > 0 && (
-              <StatusPill
-                icon={XCircle}
-                label="Unpaid"
-                count={summary.unpaid_orders}
-                color="red"
-              />
-            )}
           </div>
+        )}
+
+        <div className="flex justify-end px-5 pb-4">
+          <button
+            onClick={handleCopy}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 transition text-[11px] font-medium text-gray-500"
+          >
+            {copied ? (
+              <>
+                <Check size={11} className="text-emerald-500" />
+                <span className="text-emerald-600">Copied!</span>
+              </>
+            ) : (
+              <>
+                <Copy size={11} />
+                Copy Summary
+              </>
+            )}
+          </button>
         </div>
       </div>
     </div>

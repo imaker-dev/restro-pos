@@ -10,23 +10,15 @@ import {
   Receipt,
   Users,
   ArrowUpRight,
-  UtensilsCrossed,
-  ShoppingBag,
-  Bike,
   Calendar,
-  CheckCircle,
-  Clock,
-  XCircle,
 } from "lucide-react";
 import { formatDate, formatFileDate } from "../../utils/dateFormatter";
 import { handleResponse } from "../../utils/helpers";
 import { exportDailySalesReport } from "../../redux/slices/exportReportSlice";
 import { downloadBlob } from "../../utils/blob";
 import { formatNumber } from "../../utils/numberFormatter";
-import StatCard from "../../components/StatCard";
 import DailySalesSummaryBreakup from "../../partial/report/daily-sales-report/DailySalesSummaryBreakup";
 import DailySalesSummaryCard from "../../partial/report/daily-sales-report/DailySalesSummaryCard";
-import StatusPill from "../../components/StatusPill";
 import DailySalesReportSkeleton from "../../partial/report/daily-sales-report/DailySalesReportSkeleton";
 import NoDataFound from "../../layout/NoDataFound";
 
@@ -87,40 +79,10 @@ const DailySalesReportPage = () => {
     dateRange: dr,
     orders,
     crossVerification,
-    outsideCollections
+    outsideCollections,
   } = dailySalesReport || {};
 
   const dayCount = daily?.length || 0;
-
-  const stats = [
-    {
-      icon: TrendingUp,
-      label: "Total sales",
-      value: fmt(summary?.total_sale),
-      sub: `avg ${fmt(summary?.average_order_value)} / order`,
-      accent: "green",
-    },
-    {
-      icon: Receipt,
-      label: "Total orders",
-      value: fmtN(summary?.total_orders),
-      sub: `${dayCount} days`,
-      accent: "blue",
-    },
-    {
-      icon: Users,
-      label: "Total guests",
-      value: fmtN(summary?.total_guests),
-      accent: "violet",
-    },
-    {
-      icon: ArrowUpRight,
-      label: "Avg / day",
-      value: fmt(summary?.total_sale / (dayCount || 1)),
-      sub: "daily average",
-      accent: "amber",
-    },
-  ];
 
   return (
     <div className="space-y-6">
@@ -152,22 +114,11 @@ const DailySalesReportPage = () => {
           {/* ── Summary stats ── */}
           {summary && (
             <div className="space-y-4">
-              {/* <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                {stats?.map((stat, index) => (
-                  <StatCard
-                    key={index}
-                    icon={stat?.icon}
-                    title={stat?.label}
-                    value={stat?.value}
-                    subtitle={stat?.sub}
-                    color={stat?.accent}
-                    variant="v9"
-                  />
-                ))}
-              </div> */}
-
               {/* price breakup accordion */}
-              <DailySalesSummaryBreakup summary={summary} outsideCollections={outsideCollections} />
+              <DailySalesSummaryBreakup
+                summary={summary}
+                outsideCollections={outsideCollections}
+              />
             </div>
           )}
 

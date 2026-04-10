@@ -1,58 +1,45 @@
 import React, { useState } from "react";
 import {
   AlertCircle,
-  AlertTriangle,
-  Banknote,
   Bike,
+  Check,
   ChevronDown,
-  CreditCard,
-  Layers,
-  Receipt,
+  Copy,
   ReceiptIndianRupee,
   ShoppingBag,
-  SlidersHorizontal,
   Tag,
+  SlidersHorizontal,
   UtensilsCrossed,
+  AlertTriangle,
 } from "lucide-react";
 import { formatNumber } from "../../../utils/numberFormatter";
-import StatusPill from "../../../components/StatusPill";
+import PaymentBar from "../PaymentBreakdownBar";
+import { formatDate } from "../../../utils/dateFormatter";
+import { copyToClipboard } from "../../../utils/copyToClipboard";
 
-function PaymentBar({
-  label,
-  icon: Icon,
-  amount,
-  total,
-  barColor,
-  textColor,
-  bgColor,
-}) {
-  const pct = (v, t) => (t ? Math.round((v / t) * 100) : 0);
-  const ratio = pct(amount, total);
+const fmt = (n) => formatNumber(n, true);
+
+function SectionHeading({ children }) {
   return (
-    <div className="flex items-center gap-3 py-2.5 border-b border-gray-50 last:border-0">
-      <div
-        className={`w-6 h-6 rounded-lg flex items-center justify-center ${bgColor}`}
-      >
-        <Icon size={12} className={textColor} />
-      </div>
-      <span className="text-xs text-gray-600 w-9 shrink-0">{label}</span>
-      <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-        <div
-          className={`h-full rounded-full ${barColor} transition-all duration-700`}
-          style={{ width: `${ratio}%` }}
-        />
-      </div>
-      <span className="text-xs text-gray-400 w-7 text-right shrink-0">
-        {ratio}%
-      </span>
-      <span className="text-xs font-semibold text-gray-800 w-[72px] text-right shrink-0">
-        {formatNumber(amount, true)}
-      </span>
-    </div>
+    <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3">
+      {children}
+    </p>
   );
 }
 
-function DayEndCollectionSummaryCard({ grandTotal, outsideCollections }) {
+function Divider({ dashed = false }) {
+  return (
+    <div
+      className={`border-t my-2 ${dashed ? "border-dashed border-gray-200" : "border-gray-100"}`}
+    />
+  );
+}
+
+function DayEndCollectionSummaryCard({
+  grandTotal,
+  outsideCollections,
+  dateRange,
+}) {
   const {
     total_collection,
     paid_amount,
@@ -62,26 +49,92 @@ function DayEndCollectionSummaryCard({ grandTotal, outsideCollections }) {
     nc_orders,
     adjustment_count,
     adjustment_amount,
-    tax_amount,
     ordersByType,
+    paymentBreakdown,
+    outside_collection,
+    outside_collection_count,
+    total_orders,
+    average_order_value,
   } = grandTotal;
-  const paymentBreakdown = grandTotal.paymentBreakdown || {};
 
-  const cash = paymentBreakdown.cash || 0;
-  const card = paymentBreakdown.card || 0;
-  const upi = paymentBreakdown.upi || 0;
+  const outside = outside_collection ?? outsideCollections?.total ?? 0;
+  const collected = paid_amount + outside;
 
   const [open, setOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const getDateLabel = () => {
+    if (!dateRange) return "Day End Summary";
+
+    const start = formatDate(dateRange.start, "long");
+    const end = formatDate(dateRange.end, "long");
+
+    return start === end
+      ? `Day End Summary — ${start}`
+      : `Summary — ${start} to ${end}`;
+  };
+
+  const buildCopyText = () => {
+    const title = getDateLabel();
+
+    const lines = [
+      `*${title}*`,
+      `${"-".repeat(27)}`,
+      ``,
+      `*COLLECTION*`,
+      ``,
+      `Total Paid: ${fmt(paid_amount)}`,
+      `Outside Collection: ${fmt(outside)}`,
+    ];
+
+    if (due_amount > 0) {
+      lines.push(`Pending Amount: ${fmt(due_amount)}`);
+    }
+
+    //  Payment Breakdown
+    const payments = Object.entries(paymentBreakdown).filter(([, v]) => v > 0);
+
+    if (payments.length > 0) {
+      lines.push(``, `${"-".repeat(27)}`, `*PAYMENT MODES*`, ``);
+
+      payments.forEach(([mode, amount]) => {
+        const label = mode.toUpperCase();
+        lines.push(`${label}: ${fmt(amount)}`);
+      });
+    }
+
+    lines.push(
+      ``,
+      `${"-".repeat(27)}`,
+      `*Total Sale: ${fmt(total_collection)}*`,
+    );
+
+    return lines.join("\n");
+  };
+
+  const handleCopy = async (e) => {
+    e.stopPropagation();
+
+    const success = await copyToClipboard(buildCopyText());
+
+    if (success) {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } else {
+      alert("Copy failed. Please copy manually.");
+    }
+  };
 
   return (
-    <div className="bg-white border border-gray-100 rounded-2xl overflow-hidden">
+    <div className="bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm">
+      {/* Header */}
       <button
         onClick={() => setOpen((p) => !p)}
-        className="w-full flex items-center justify-between px-3 py-4 hover:bg-gray-50/60 transition-colors"
+        className="w-full flex items-center justify-between px-4 py-4 hover:bg-gray-50/60 transition-colors"
       >
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center">
-            <ReceiptIndianRupee size={14} className="text-emerald-600" />
+          <div className="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center shrink-0">
+            <ReceiptIndianRupee size={15} className="text-emerald-600" />
           </div>
           <div className="text-left">
             <p className="text-sm font-semibold text-gray-900">
@@ -93,9 +146,13 @@ function DayEndCollectionSummaryCard({ grandTotal, outsideCollections }) {
         <div className="flex items-center gap-3">
           <div className="text-right">
             <p className="text-base font-bold text-gray-900">
-              {formatNumber(total_collection, true)}
+              {fmt(total_collection)}
             </p>
-            <p className="text-xs text-gray-400">total collected</p>
+            {due_amount > 0 && (
+              <p className="text-[10px] text-red-400 font-medium">
+                {fmt(due_amount)} due
+              </p>
+            )}
           </div>
           <ChevronDown
             size={14}
@@ -104,180 +161,226 @@ function DayEndCollectionSummaryCard({ grandTotal, outsideCollections }) {
         </div>
       </button>
 
-      {/* {open && ( */}
-      {/* <div className="border-t border-gray-100"> */}
+      {/* Body */}
       <div
         className={`border-t border-gray-100 transition-all duration-300 ease-in-out overflow-hidden ${
-          open ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
+          open ? "max-h-[900px] opacity-100" : "max-h-0 opacity-0"
         }`}
       >
-        {/* Collection pills */}
-        <div className="px-5 py-4 border-b border-gray-50">
-          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3">
-            Collection
-          </p>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
-            {[
-              { label: "Total", value: formatNumber(total_collection, true) },
-              { label: "Paid", value: formatNumber(paid_amount, true) },
-              {
-                label: "Outside Collection",
-                value: formatNumber(outsideCollections.total, true),
-              },
-              {
-                label: "Due",
-                value: formatNumber(due_amount, true),
-                red: due_amount > 0,
-              },
-            ].map(({ label, value, red }) => (
-              <div key={label} className="bg-gray-50 rounded-xl px-3 py-2.5">
-                <p className="text-[10px] text-gray-400 mb-0.5">{label}</p>
-                <p
-                  className={`text-xs font-bold ${red ? "text-red-500" : "text-gray-900"}`}
-                >
-                  {value}
-                </p>
-              </div>
-            ))}
-          </div>
+        {/* ── COLLECTION SPLIT ── */}
+        <div className="px-4 py-4 border-b border-gray-50">
+          <SectionHeading>Collection Split</SectionHeading>
 
-          {/* <PaymentBar
-              icon={Banknote}
-              label="Cash"
-              amount={cash}
-              total={total_collection}
-              barColor="bg-emerald-400"
-              textColor="text-emerald-600"
-              bgColor="bg-emerald-50"
-            />
-            <PaymentBar
-              icon={Layers}
-              label="UPI"
-              amount={upi}
-              total={total_collection}
-              barColor="bg-violet-400"
-              textColor="text-violet-600"
-              bgColor="bg-violet-50"
-            />
-            <PaymentBar
-              icon={CreditCard}
-              label="Card"
-              amount={card}
-              total={total_collection}
-              barColor="bg-blue-400"
-              textColor="text-blue-600"
-              bgColor="bg-blue-50"
-            /> */}
-        </div>
-
-        <div className="px-5 py-4 border-b border-gray-50">
-          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3">
-            Order types
-          </p>
-          {/* order type strip */}
-          <div className="flex items-center gap-2 flex-wrap">
-            <StatusPill
-              icon={UtensilsCrossed}
-              label="Dine-in"
-              count={ordersByType.dine_in}
-              color="blue"
-            />
-
-            <StatusPill
-              icon={ShoppingBag}
-              label="Takeaway"
-              count={ordersByType.takeaway}
-              color="violet"
-            />
-
-            <StatusPill
-              icon={Bike}
-              label="Delivery"
-              count={ordersByType.delivery}
-              color="orange"
-            />
-
-            {grandTotal.nc_orders > 0 && (
-              <StatusPill
-                icon={AlertCircle}
-                label="NC"
-                count={grandTotal.nc_orders}
-                color="amber"
-              />
-            )}
-          </div>
-        </div>
-
-        {/* Deductions */}
-        <div className="px-5 py-4">
-          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3">
-            Deductions & exceptions
-          </p>
-          <div className="flex flex-col">
-            {[
-              {
-                icon: Tag,
-                label: "Discount",
-                value: `− ${formatNumber(discount_amount, true)}`,
-                cls: "text-red-500",
-                sub: null,
-              },
-              {
-                icon: AlertCircle,
-                label: "NC amount",
-                value: `− ${formatNumber(nc_amount, true)}`,
-                cls: "text-amber-500",
-                sub: `${nc_orders} orders`,
-              },
-              {
-                icon: SlidersHorizontal,
-                label: "Adjustments",
-                value: `− ${formatNumber(adjustment_amount, true)}`,
-                cls: "text-red-400",
-                sub: `${adjustment_count} entries`,
-              },
-              // {
-              //   icon: ReceiptIndianRupee,
-              //   label: "Tax",
-              //   value: `+ ${formatNumber(tax_amount, true)}`,
-              //   cls: "text-gray-500",
-              //   sub: null,
-              // },
-            ].map(({ icon: Icon, label, value, cls, sub }) => (
-              <div
-                key={label}
-                className="flex items-center justify-between py-2.5 border-b border-gray-50 last:border-0"
-              >
-                <div className="flex items-center gap-2">
-                  <Icon size={13} className="text-gray-400 shrink-0" />
-                  <span className="text-xs text-gray-600">{label}</span>
-                  {sub && (
-                    <span className="text-[10px] text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-full">
-                      {sub}
-                    </span>
-                  )}
-                </div>
-                <span className={`text-xs font-semibold ${cls}`}>{value}</span>
-              </div>
-            ))}
-          </div>
-          {due_amount > 0 && (
-            <div className="mt-3 flex items-center justify-between rounded-xl bg-red-50 border border-red-100 px-3.5 py-2.5">
-              <div className="flex items-center gap-2">
-                <AlertTriangle size={13} className="text-red-400 shrink-0" />
-                <span className="text-xs text-red-500 font-medium">
-                  Due Amount
-                </span>
-              </div>
-              <span className="text-xs font-bold text-red-600">
-                {formatNumber(due_amount, true)}
+          <div className="bg-gray-50 rounded-xl px-3 py-3 space-y-2">
+            {/* Paid */}
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-gray-500">Paid</span>
+              <span className="text-xs font-bold text-emerald-600">
+                {fmt(paid_amount)}
               </span>
             </div>
-          )}
+
+            {/* Outside */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs text-gray-500">
+                  Outside collection
+                </span>
+                {outside_collection_count > 0 && (
+                  <span className="text-[10px] bg-gray-200 text-gray-500 px-1.5 py-0.5 rounded-full">
+                    {outside_collection_count}
+                  </span>
+                )}
+              </div>
+              <span className="text-xs font-bold text-blue-600">
+                {fmt(outside)}
+              </span>
+            </div>
+
+            {/* Due */}
+            {due_amount > 0 && (
+              <>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1">
+                    <AlertTriangle size={10} className="text-red-400" />
+                    <span className="text-xs text-red-400">Due (pending)</span>
+                  </div>
+                  <span className="text-xs font-bold text-red-500">
+                    {fmt(due_amount)}
+                  </span>
+                </div>
+              </>
+            )}
+
+            <Divider />
+
+            {/* Total */}
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-gray-700">
+                Total collection
+              </span>
+              <span className="text-sm font-bold text-gray-900">
+                {fmt(total_collection)}
+              </span>
+            </div>
+            {/* <p className="text-[10px] text-gray-400 leading-relaxed">
+              = Paid {fmt(paid_amount)} + Outside {fmt(outside)}
+              {due_amount > 0 ? ` + Due ${fmt(due_amount)}` : ""}
+            </p> */}
+          </div>
+        </div>
+
+        {/* ── PAYMENT MODES ── */}
+        <div className="px-4 py-4 border-b border-gray-50">
+          <SectionHeading>Payment Modes</SectionHeading>
+
+          <div className="bg-gray-50 rounded-xl px-3 py-3 space-y-3">
+            {Object.entries(paymentBreakdown)
+              .filter(([, amount]) => amount > 0)
+              .map(([mode, amount]) => {
+                return (
+                  <PaymentBar
+                    key={mode}
+                    type={mode}
+                    amount={amount}
+                    total={total_collection}
+                  />
+                );
+              })}
+
+            <Divider dashed />
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium text-gray-600">
+                Total collected
+              </span>
+              <span className="text-xs font-bold text-gray-900">
+                {fmt(collected)}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* ── ORDER TYPES ── */}
+        <div className="px-4 py-4 border-b border-gray-50">
+          <SectionHeading>Order Types</SectionHeading>
+          <div className="flex gap-2 flex-wrap">
+            {[
+              {
+                icon: UtensilsCrossed,
+                label: "Dine-in",
+                count: ordersByType.dine_in,
+                cls: "bg-blue-50 text-blue-600",
+              },
+              {
+                icon: ShoppingBag,
+                label: "Takeaway",
+                count: ordersByType.takeaway,
+                cls: "bg-violet-50 text-violet-600",
+              },
+              {
+                icon: Bike,
+                label: "Delivery",
+                count: ordersByType.delivery,
+                cls: "bg-orange-50 text-orange-500",
+              },
+              ...(nc_orders > 0
+                ? [
+                    {
+                      icon: AlertCircle,
+                      label: "NC",
+                      count: nc_orders,
+                      cls: "bg-amber-50 text-amber-500",
+                    },
+                  ]
+                : []),
+            ].map(({ icon: Icon, label, count, cls }) => (
+              <div
+                key={label}
+                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl ${cls}`}
+              >
+                <Icon size={11} />
+                <span className="text-[11px] font-medium">{label}</span>
+                <span className="text-[11px] font-bold">{count}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ── GIVEN AWAY ── */}
+        {(discount_amount > 0 || nc_amount > 0 || adjustment_amount > 0) && (
+          <div className="px-4 py-4 border-b border-gray-50">
+            <SectionHeading>Given Away</SectionHeading>
+
+            <div className="bg-gray-50 rounded-xl px-3 py-2.5 space-y-0 divide-y divide-gray-100">
+              {[
+                discount_amount > 0 && {
+                  icon: Tag,
+                  label: "Discount",
+                  value: fmt(discount_amount),
+                  cls: "text-gray-700",
+                  sub: null,
+                },
+                nc_amount > 0 && {
+                  icon: AlertCircle,
+                  label: "No charge",
+                  value: fmt(nc_amount),
+                  cls: "text-gray-700",
+                  sub: `${nc_orders} orders`,
+                },
+                adjustment_amount > 0 && {
+                  icon: SlidersHorizontal,
+                  label: "Adjustments",
+                  value: fmt(adjustment_amount),
+                  cls: "text-gray-700",
+                  sub: `${adjustment_count} entries`,
+                },
+              ]
+                .filter(Boolean)
+                .map(({ icon: Icon, label, value, cls, sub }) => (
+                  <div
+                    key={label}
+                    className="flex items-center justify-between py-2"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Icon size={12} className="text-gray-400 shrink-0" />
+                      <span className="text-xs text-gray-500">{label}</span>
+                      {sub && (
+                        <span className="text-[10px] text-gray-400 bg-gray-200 px-1.5 py-0.5 rounded-full">
+                          {sub}
+                        </span>
+                      )}
+                    </div>
+                    <span className={`text-xs font-semibold ${cls}`}>
+                      {value}
+                    </span>
+                  </div>
+                ))}
+            </div>
+          </div>
+        )}
+
+        {/* ── COPY BUTTON ── */}
+        <div className="px-4 py-3 flex justify-end">
+          <button
+            onClick={handleCopy}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors text-[11px] font-medium text-gray-500"
+          >
+            {copied ? (
+              <>
+                <Check size={11} className="text-emerald-500" />
+                <span className="text-emerald-600">Copied!</span>
+              </>
+            ) : (
+              <>
+                <Copy size={11} />
+                Copy Summary
+              </>
+            )}
+          </button>
         </div>
       </div>
-      {/* )} */}
     </div>
   );
 }
+
 export default DayEndCollectionSummaryCard;

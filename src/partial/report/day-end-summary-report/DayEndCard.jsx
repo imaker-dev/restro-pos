@@ -1,18 +1,26 @@
 import { useState } from "react";
 import { formatNumber } from "../../../utils/numberFormatter";
 import {
-  AlertCircle,
-  AlertTriangle,
   Banknote,
   Bike,
   ChevronDown,
-  ReceiptIndianRupee,
+  Copy,
+  Check,
+  CreditCard,
+  Smartphone,
   ShoppingBag,
-  SlidersHorizontal,
-  Tag,
+  AlertTriangle,
+  ReceiptIndianRupee,
   UtensilsCrossed,
+  Wallet,
+  Tag,
+  AlertCircle,
+  SlidersHorizontal,
+  Gift,
 } from "lucide-react";
 import PaymentBar from "../PaymentBreakdownBar";
+import { copyToClipboard } from "../../../utils/copyToClipboard";
+import { formatText } from "../../../utils/utils";
 
 const weekday = (d) =>
   new Date(d).toLocaleDateString("en-IN", { weekday: "short" });
@@ -20,14 +28,38 @@ const weekday = (d) =>
 const shortDate = (d) =>
   new Date(d).toLocaleDateString("en-IN", { day: "2-digit", month: "short" });
 
-function OrderTypePill({ icon: Icon, label, count, color }) {
+const fmt = (n) => formatNumber(n, true);
+
+function Row({ label, value, labelClass = "", valueClass = "", sub = false }) {
+  return (
+    <div className={`flex items-center justify-between ${sub ? "pl-4" : ""}`}>
+      <span className={`text-xs ${labelClass || "text-gray-500"}`}>
+        {label}
+      </span>
+      <span
+        className={`text-xs font-semibold ${valueClass || "text-gray-800"}`}
+      >
+        {value}
+      </span>
+    </div>
+  );
+}
+
+function Divider({ dashed = false }) {
   return (
     <div
-      className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl ${color}`}
-    >
-      <Icon size={11} />
-      <span className="text-xs font-medium">{label}</span>
-      <span className="text-xs font-bold">{count}</span>
+      className={`border-t ${dashed ? "border-dashed border-gray-200" : "border-gray-100"}`}
+    />
+  );
+}
+
+function SectionLabel({ icon: Icon, label }) {
+  return (
+    <div className="flex items-center gap-1.5">
+      <Icon size={11} className="text-gray-400" />
+      <span className="text-[10px] font-semibold uppercase tracking-wide text-gray-400">
+        {label}
+      </span>
     </div>
   );
 }
@@ -36,12 +68,10 @@ function DayEndCard({ day }) {
   const {
     date,
     total_orders,
-    total_sale,
     total_collection,
     ordersByType,
     discount_amount,
     outside_collection,
-    tax_amount,
     nc_orders,
     nc_amount,
     paid_amount,
@@ -53,14 +83,70 @@ function DayEndCard({ day }) {
   } = day;
 
   const [open, setOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  // Payment breakdown total = paid + outside (what's actually received)
+  const collected = paid_amount + outside_collection;
+
+  const buildCopyText = () => {
+    const d = shortDate(date);
+
+    const lines = [
+      `*Day End Summary — ${d}*`,
+      `${"-".repeat(27)}`,
+      ``,
+      `*COLLECTION*`,
+      ``,
+      `Total Paid: ${fmt(paid_amount)}`,
+      `Outside Collection: ${fmt(outside_collection)}`,
+    ];
+
+    if (due_amount > 0) {
+      lines.push(`Pending Amount: ${fmt(due_amount)}`);
+    }
+
+    // Payment breakdown
+    const payments = Object.entries(paymentBreakdown).filter(([, v]) => v > 0);
+
+    if (payments.length > 0) {
+      lines.push(``, `${"-".repeat(27)}`, `*PAYMENT MODES*`, ``);
+
+      payments.forEach(([mode, amount]) => {
+        const label = mode.toUpperCase();
+        
+        lines.push(`${label}: ${fmt(amount)}`);
+      });
+    }
+
+    lines.push(
+      ``,
+      `${"-".repeat(27)}`,
+      `*Total Sale: ${fmt(total_collection)}*`,
+    );
+
+    return lines.join("\n");
+  };
+
+  const handleCopy = async (e) => {
+    e.stopPropagation();
+
+    const success = await copyToClipboard(buildCopyText());
+
+    if (success) {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } else {
+      alert("Copy failed. Please copy manually.");
+    }
+  };
 
   return (
-    <div className="bg-white border border-gray-100 rounded-2xl overflow-hidden">
+    <div className="bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm">
+      {/* Header */}
       <button
         onClick={() => setOpen((p) => !p)}
-        className="w-full flex items-center justify-between px-3 py-4 hover:bg-gray-50/60 transition-colors"
+        className="w-full flex items-center justify-between px-4 py-3.5 hover:bg-gray-50/60 transition-colors"
       >
-        {/* left: date */}
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-gray-50 border border-gray-100 flex flex-col items-center justify-center shrink-0">
             <span className="text-[10px] font-medium text-gray-400 leading-none">
@@ -74,161 +160,227 @@ function DayEndCard({ day }) {
             <p className="text-sm font-semibold text-gray-900">
               {shortDate(date)}
             </p>
-            <div className="flex items-center gap-1.5 mt-0.5">
-              <span className="text-xs text-gray-400">
-                {total_orders} orders
-              </span>
-              {/* {nc_orders > 0 && (
-                <span className="text-[10px] bg-amber-50 text-amber-500 border border-amber-100 px-1.5 py-0.5 rounded-full font-medium">
-                  {nc_orders} NC
-                </span>
-              )}
-              {due_amount > 0 && (
-                <span className="text-[10px] bg-red-50 text-red-400 border border-red-100 px-1.5 py-0.5 rounded-full font-medium">
-                  Due
-                </span>
-              )} */}
-            </div>
+            <p className="text-xs text-gray-400 mt-0.5">
+              {total_orders} orders · avg {fmt(average_order_value)}
+            </p>
           </div>
         </div>
-
-        {/* right: amount */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
           <div className="text-right">
             <p className="text-sm font-bold text-gray-900">
-              {formatNumber(total_collection, true)}
+              {fmt(total_collection)}
             </p>
-            <p className="text-[10px] text-gray-400">
-              avg {formatNumber(average_order_value, true)}
-            </p>
+            {due_amount > 0 && (
+              <p className="text-[10px] text-red-400 font-medium">
+                {fmt(due_amount)} due
+              </p>
+            )}
           </div>
           <ChevronDown
             size={13}
-            className={`text-gray-400 transition-transform duration-300 ease-in-out ${open ? "rotate-180" : ""}`}
+            className={`text-gray-400 transition-transform duration-300 ${open ? "rotate-180" : ""}`}
           />
         </div>
       </button>
 
-      {/* {open && ( */}
+      {/* Expandable body */}
       <div
-        className={`border-t border-gray-50 px-4 space-y-3 transition-all duration-300 ease-in-out overflow-hidden ${
-          open ? "max-h-[600px] opacity-100 py-3" : "max-h-0 opacity-0 py-0"
+        className={`transition-all duration-300 ease-in-out overflow-hidden ${
+          open ? "max-h-[700px] opacity-100" : "max-h-0 opacity-0"
         }`}
       >
-        {/* <div className="border-t border-gray-50 px-4 py-3 space-y-3"> */}
-        {/* order types */}
-        <div className="flex items-center gap-1.5 flex-wrap">
-          <OrderTypePill
-            icon={UtensilsCrossed}
-            label="Dine-in"
-            count={ordersByType.dine_in}
-            color="bg-blue-50 text-blue-600"
-          />
-          <OrderTypePill
-            icon={ShoppingBag}
-            label="Takeaway"
-            count={ordersByType.takeaway}
-            color="bg-violet-50 text-violet-600"
-          />
-          <OrderTypePill
-            icon={Bike}
-            label="Delivery"
-            count={ordersByType.delivery}
-            color="bg-orange-50 text-orange-500"
-          />
-        </div>
-
-        {/* payment bars */}
-        <div className="bg-gray-50 rounded-xl px-3 py-2">
-          {Object.entries(paymentBreakdown)
-            .filter(([, amount]) => amount > 0)
-            .map(([mode, amount]) => {
-              return (
-                <PaymentBar
-                  key={mode}
-                  type={mode}
-                  amount={amount}
-                  total={total_collection}
-                />
-              );
-            })}
-        </div>
-
-        {/* deductions row */}
-        <div className="grid grid-cols-2 gap-2">
-          {[
-            {
-              label: "Outside Collection",
-              value: formatNumber(outside_collection, true),
-              icon: ReceiptIndianRupee,
-              cls: "text-gray-600",
-            },
-            // {
-            //   label: "Tax",
-            //   value: formatNumber(tax_amount, true),
-            //   icon: ReceiptIndianRupee,
-            //   cls: "text-gray-600",
-            // },
-            {
-              label: "Discount",
-              value: formatNumber(discount_amount, true),
-              icon: Tag,
-              cls: "text-red-500",
-            },
-            ...(nc_amount > 0
-              ? [
-                  {
-                    label: `NC (${nc_orders})`,
-                    value: formatNumber(nc_amount, true),
-                    icon: AlertCircle,
-                    cls: "text-amber-500",
-                  },
-                ]
-              : []),
-            ...(adjustment_amount > 0
-              ? [
-                  {
-                    label: `Adj. (${adjustment_count})`,
-                    value: formatNumber(adjustment_amount, true),
-                    icon: SlidersHorizontal,
-                    cls: "text-red-400",
-                  },
-                ]
-              : []),
-            ...(due_amount > 0
-              ? [
-                  {
-                    label: "Due",
-                    value: formatNumber(due_amount, true),
-                    icon: AlertTriangle,
-                    cls: "text-red-500",
-                  },
-                ]
-              : []),
-            {
-              label: "Paid",
-              value: formatNumber(paid_amount, true),
-              icon: Banknote,
-              cls: "text-emerald-600",
-            },
-          ].map(({ label, value, icon: Icon, cls }) => (
-            <div
-              key={label}
-              className="flex items-center justify-between bg-gray-50 rounded-xl px-3 py-2"
-            >
-              <div className="flex items-center gap-1.5">
-                <Icon size={11} className="text-gray-400 shrink-0" />
-                <span className="text-[10px] text-gray-500">{label}</span>
+        <div className="border-t border-gray-100 px-4 py-3 space-y-3">
+          {/* Order type pills */}
+          <div className="flex gap-1.5 flex-wrap">
+            {[
+              {
+                icon: UtensilsCrossed,
+                label: "Dine-in",
+                count: ordersByType.dine_in,
+                bg: "bg-blue-50 text-blue-600",
+              },
+              {
+                icon: ShoppingBag,
+                label: "Takeaway",
+                count: ordersByType.takeaway,
+                bg: "bg-violet-50 text-violet-600",
+              },
+              {
+                icon: Bike,
+                label: "Delivery",
+                count: ordersByType.delivery,
+                bg: "bg-orange-50 text-orange-500",
+              },
+            ].map(({ icon: Icon, label, count, bg }) => (
+              <div
+                key={label}
+                className={`flex items-center gap-1 px-2 py-1 rounded-lg ${bg}`}
+              >
+                <Icon size={10} />
+                <span className="text-[10px] font-medium">{label}</span>
+                <span className="text-[10px] font-bold">{count}</span>
               </div>
-              <span className={`text-[11px] font-semibold ${cls}`}>
-                {value}
-              </span>
+            ))}
+          </div>
+
+          <Divider />
+
+          {/* ── COLLECTION SPLIT ── */}
+          <div className="space-y-2">
+            <SectionLabel icon={Wallet} label="Collection Split" />
+
+            <div className="bg-gray-50 rounded-xl px-3 py-2.5 space-y-2">
+              <Row
+                label="Paid"
+                value={fmt(paid_amount)}
+                valueClass="text-emerald-600 font-bold"
+              />
+              <Row
+                label="Outside collection"
+                value={fmt(outside_collection)}
+                valueClass="text-blue-600 font-semibold"
+              />
+
+              {due_amount > 0 && (
+                <>
+                  <Divider dashed />
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1">
+                      <AlertTriangle size={10} className="text-red-400" />
+                      <span className="text-xs text-red-400">
+                        Due (pending)
+                      </span>
+                    </div>
+                    <span className="text-xs font-bold text-red-500">
+                      {fmt(due_amount)}
+                    </span>
+                  </div>
+                </>
+              )}
+
+              <Divider />
+              <Row
+                label="Total collection"
+                value={fmt(total_collection)}
+                valueClass="text-gray-900 font-bold"
+                labelClass="text-gray-600 font-medium text-xs"
+              />
+              {/* <p className="text-[10px] text-gray-400">
+                = Paid {fmt(paid_amount)} + Outside {fmt(outside_collection)}{due_amount > 0 ? ` + Due ${fmt(due_amount)}` : ""}
+              </p> */}
             </div>
-          ))}
+          </div>
+
+          {/* ── PAYMENT MODES ── */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <SectionLabel icon={ReceiptIndianRupee} label="Payment Modes" />
+            </div>
+
+            <div className="bg-gray-50 rounded-xl px-3 py-2.5 space-y-2.5">
+              {Object.entries(paymentBreakdown)
+                .filter(([, amount]) => amount > 0)
+                .map(([mode, amount]) => {
+                  return (
+                    <PaymentBar
+                      key={mode}
+                      type={mode}
+                      amount={amount}
+                      total={total_collection}
+                    />
+                  );
+                })}
+
+              <Divider dashed />
+              <Row
+                label="Total collected"
+                value={fmt(collected)}
+                valueClass="text-gray-800 font-bold"
+              />
+            </div>
+          </div>
+
+          {/* ── GIVEN AWAY ── */}
+          <div className="space-y-2">
+            <SectionLabel icon={Gift} label="Given Away" />
+            {(discount_amount > 0 ||
+              nc_amount > 0 ||
+              adjustment_amount > 0) && (
+              <div className="border-b border-gray-50">
+                {/* <SectionLabel label="Given Away" /> */}
+
+                <div className="bg-gray-50 rounded-xl px-3 py-2.5 space-y-0 divide-y divide-gray-100">
+                  {[
+                    discount_amount > 0 && {
+                      icon: Tag,
+                      label: "Discount",
+                      value: fmt(discount_amount),
+                      cls: "text-gray-700",
+                      sub: null,
+                    },
+                    nc_amount > 0 && {
+                      icon: AlertCircle,
+                      label: "No charge",
+                      value: fmt(nc_amount),
+                      cls: "text-gray-700",
+                      sub: `${nc_orders} orders`,
+                    },
+                    adjustment_amount > 0 && {
+                      icon: SlidersHorizontal,
+                      label: "Adjustments",
+                      value: fmt(adjustment_amount),
+                      cls: "text-gray-700",
+                      sub: `${adjustment_count} entries`,
+                    },
+                  ]
+                    .filter(Boolean)
+                    .map(({ icon: Icon, label, value, cls, sub }) => (
+                      <div
+                        key={label}
+                        className="flex items-center justify-between py-2"
+                      >
+                        <div className="flex items-center gap-2">
+                          <Icon size={12} className="text-gray-400 shrink-0" />
+                          <span className="text-xs text-gray-500">{label}</span>
+                          {sub && (
+                            <span className="text-[10px] text-gray-400 bg-gray-200 px-1.5 py-0.5 rounded-full">
+                              {sub}
+                            </span>
+                          )}
+                        </div>
+                        <span className={`text-xs font-semibold ${cls}`}>
+                          {value}
+                        </span>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Copy button */}
+          <div className="flex justify-end pt-1">
+            <button
+              onClick={handleCopy}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors text-[11px] font-medium text-gray-500"
+            >
+              {copied ? (
+                <>
+                  <Check size={11} className="text-emerald-500" />
+                  <span className="text-emerald-600">Copied!</span>
+                </>
+              ) : (
+                <>
+                  <Copy size={11} />
+                  Copy Summary
+                </>
+              )}
+            </button>
+          </div>
         </div>
       </div>
-      {/* )} */}
     </div>
   );
 }
+
 export default DayEndCard;

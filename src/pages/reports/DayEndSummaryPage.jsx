@@ -6,24 +6,17 @@ import { handleResponse } from "../../utils/helpers";
 import { exportDayEndSummary } from "../../redux/slices/exportReportSlice";
 import { downloadBlob } from "../../utils/blob";
 import {
-  Download,
   RotateCcw,
   TrendingUp,
   Users,
-  AlertCircle,
-  UtensilsCrossed,
-  ShoppingBag,
-  Bike,
   ArrowUpRight,
   Receipt,
   Calendar,
 } from "lucide-react";
 import PageHeader from "../../layout/PageHeader";
 import CustomDateRangePicker from "../../components/CustomDateRangePicker";
-import StatCard from "../../components/StatCard";
 import DayEndCard from "../../partial/report/day-end-summary-report/DayEndCard";
 import DayEndCollectionSummaryCard from "../../partial/report/day-end-summary-report/DayEndCollectionSummaryCard";
-import StatusPill from "../../components/StatusPill";
 import DayEndSummarySkeleton from "../../partial/report/day-end-summary-report/DayEndSummarySkeleton";
 import NoDataFound from "../../layout/NoDataFound";
 
@@ -42,7 +35,8 @@ const DayEndSummaryPage = () => {
   const { dailyEndSummary, isFetchingDailyEndSummary } = useSelector(
     (state) => state.dashboard,
   );
-  const { grandTotal, days, dateRange, dayCount,outsideCollections } = dailyEndSummary || {};
+  const { grandTotal, days, dateRange, dayCount, outsideCollections } =
+    dailyEndSummary || {};
 
   const [dateRangeState, setDateRangeState] = useState(null);
 
@@ -82,36 +76,6 @@ const DayEndSummaryPage = () => {
     },
   ];
 
-  const stats = [
-    {
-      icon: TrendingUp,
-      label: "Total sales",
-      value: fmt(grandTotal?.total_sale),
-      sub: `avg ${fmt(grandTotal?.average_order_value)} / order`,
-      accent: "green",
-    },
-    {
-      icon: Receipt,
-      label: "Total orders",
-      value: fmtN(grandTotal?.total_orders),
-      sub: `${dayCount} days`,
-      accent: "blue",
-    },
-    {
-      icon: Users,
-      label: "Total guests",
-      value: fmtN(grandTotal?.total_guests),
-      accent: "violet",
-    },
-    {
-      icon: ArrowUpRight,
-      label: "Avg/day",
-      value: fmt(grandTotal?.total_sale / (dayCount || 1)),
-      sub: "daily average",
-      accent: "amber",
-    },
-  ];
-
   return (
     <div className="space-y-6">
       {/* Page Header */}
@@ -145,22 +109,12 @@ const DayEndSummaryPage = () => {
           {/* ── Grand Total stats ── */}
           {grandTotal && (
             <div className="space-y-4">
-              {/* <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                {stats?.map((stat, index) => (
-                  <StatCard
-                    key={index}
-                    icon={stat.icon}
-                    title={stat.label}
-                    value={stat.value}
-                    subtitle={stat.sub}
-                    color={stat.accent}
-                    variant="v9"
-                  />
-                ))}
-              </div> */}
-
               {/* price breakup accordion */}
-              <DayEndCollectionSummaryCard grandTotal={grandTotal} outsideCollections={outsideCollections} />
+              <DayEndCollectionSummaryCard
+                grandTotal={grandTotal}
+                outsideCollections={outsideCollections}
+                dateRange={dateRange}
+              />
             </div>
           )}
 
