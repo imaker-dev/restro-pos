@@ -94,7 +94,7 @@ const OrderDetailsPage = () => {
   }, [orderId]);
 
   /* loading */
-  if (isFetchingOrderDetails && !d) return <OrderDetailsSkeleton />;
+  if (isFetchingOrderDetails) return <OrderDetailsSkeleton />;
 
   if (!d)
     return (

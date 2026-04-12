@@ -1,39 +1,96 @@
-import { useState, useRef, useEffect, useMemo, useCallback } from "react";
+import { useState, useRef, useEffect, useMemo, useCallback, memo } from "react";
 import { DateRange } from "react-date-range";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
-import "../css/additional-styles/date-range-picker.css"; // Additional custom styles
+import "../css/additional-styles/date-range-picker.css";
 import { Calendar, X } from "lucide-react";
 import { formatDate } from "../utils/dateFormatter";
 import { DEFAULT_DATE_RANGE, PREDEFINED_RANGES } from "../constants";
 
+// ---------- Business Hours Configuration ----------
+const BUSINESS_HOURS = {
+  startHour: 4,  // 4:00 AM
+  startMinute: 0,
+};
+
+// ---------- Core Business Day Logic ----------
+// This function determines what "day" it is based on business hours
+const getCurrentBusinessDay = () => {
+  const now = new Date();
+  const currentHour = now.getHours();
+  const currentMinute = now.getMinutes();
+  const currentTimeInMinutes = currentHour * 60 + currentMinute;
+  const cutoffTimeInMinutes = BUSINESS_HOURS.startHour * 60 + BUSINESS_HOURS.startMinute;
+  
+  // Create date object for the business day
+  const businessDay = new Date(now);
+  
+  // If before cutoff (before 4:00 AM), we're still in previous business day
+  if (currentTimeInMinutes < cutoffTimeInMinutes) {
+    businessDay.setDate(businessDay.getDate() - 1);
+  }
+  
+  // Reset to midnight of that business day
+  businessDay.setHours(0, 0, 0, 0);
+  
+  return businessDay;
+};
+
+// Get start of business day (4:00 AM)
+const getBusinessDayStart = (date) => {
+  const d = new Date(date);
+  d.setHours(BUSINESS_HOURS.startHour, BUSINESS_HOURS.startMinute, 0, 0);
+  return d;
+};
+
+// Get end of business day (4:00 AM next day)
+const getBusinessDayEnd = (date) => {
+  const d = new Date(date);
+  d.setDate(d.getDate() + 1);
+  d.setHours(BUSINESS_HOURS.startHour, BUSINESS_HOURS.startMinute, 0, 0);
+  return d;
+};
+
 // ---------- Helpers ----------
-const startOfDay = (d) => new Date(new Date(d).setHours(0, 0, 0, 0));
-const endOfDay = (d) => new Date(new Date(d).setHours(23, 59, 59, 999));
+const startOfDay = (d) => {
+  const date = new Date(d);
+  date.setHours(0, 0, 0, 0);
+  return date;
+};
+
+const endOfDay = (d) => {
+  const date = new Date(d);
+  date.setHours(23, 59, 59, 999);
+  return date;
+};
 
 const toISODate = (date) => {
   if (!date) return null;
-
-  const d = date instanceof Date ? date : new Date(date);
-
-  if (isNaN(d)) return null;
-
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-
-  return `${year}-${month}-${day}`;
+  
+  try {
+    const d = date instanceof Date ? date : new Date(date);
+    if (isNaN(d.getTime())) return null;
+    
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    
+    return `${year}-${month}-${day}`;
+  } catch (error) {
+    console.error('Invalid date provided to toISODate:', date, error);
+    return null;
+  }
 };
 
-// ---------- Sidebar ----------
-function RangeList({ activeRange, onSelect, isMobile }) {
+// ---------- Sidebar Component (Memoized) ----------
+const RangeList = memo(({ activeRange, onSelect, isMobile }) => {
   return (
-    <div className={`space-y- ${isMobile ? "p-2" : ""}`}>
+    <div className={`space-y-1 ${isMobile ? "p-2" : ""}`}>
       {PREDEFINED_RANGES.map((range) => (
         <button
           key={range}
           onClick={() => onSelect(range)}
-          className={`w-full text-left px-3 py-2 text-sm font-medium transition-colors
+          className={`w-full text-left px-3 py-2 text-sm font-medium transition-colors rounded
             ${
               activeRange === range
                 ? "bg-primary-500 text-white shadow-sm"
@@ -45,39 +102,40 @@ function RangeList({ activeRange, onSelect, isMobile }) {
       ))}
     </div>
   );
-}
+});
 
+RangeList.displayName = 'RangeList';
+
+// ---------- Main Component ----------
 export default function CustomDateRangePicker({
   onChange,
   value,
-  // placeholder = "Select date range",
   placeholder = "Select date range to filter",
-  defaultRange = DEFAULT_DATE_RANGE, // New prop for prefilled range
+  defaultRange = DEFAULT_DATE_RANGE,
   className = "",
 }) {
   const containerRef = useRef(null);
   const [isMobile, setIsMobile] = useState(false);
 
-  const today = useMemo(() => new Date(), []);
+  // Get current business day (the actual day it should be based on 4 AM cutoff)
+  const currentBusinessDay = useMemo(() => {
+    return getCurrentBusinessDay();
+  }, []);
 
   const getInitialRange = useMemo(() => {
-    const start = new Date(today);
-    start.setDate(today.getDate() - 6);
+    const start = new Date(currentBusinessDay);
+    start.setDate(currentBusinessDay.getDate() - 6);
     return {
       startDate: startOfDay(start),
-      endDate: endOfDay(today),
+      endDate: endOfDay(currentBusinessDay),
       key: "selection",
     };
-  }, [today]);
+  }, [currentBusinessDay]);
 
   const [isOpen, setIsOpen] = useState(false);
   const [alignRight, setAlignRight] = useState(false);
   const [activeRange, setActiveRange] = useState(defaultRange);
   const [showCustomPicker, setShowCustomPicker] = useState(false);
-
-  // const [selectedRange, setSelectedRange] = useState(
-  //   value ? { ...value, key: "selection" } : getInitialRange,
-  // );
 
   const [selectedRange, setSelectedRange] = useState(
     value
@@ -89,20 +147,34 @@ export default function CustomDateRangePicker({
 
   const [tempRange, setTempRange] = useState(selectedRange);
 
-  // Detect mobile screen size
+  // Detect mobile screen size with debounce
   useEffect(() => {
+    let timeoutId;
+    
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        setIsMobile(window.innerWidth < 768);
+      }, 100);
     };
+    
     checkMobile();
     window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
+    
+    return () => {
+      window.removeEventListener("resize", checkMobile);
+      clearTimeout(timeoutId);
+    };
   }, []);
 
   // Sync external value
   useEffect(() => {
     if (value?.startDate && value?.endDate) {
-      const newRange = { ...value, key: "selection" };
+      const newRange = { 
+        startDate: new Date(value.startDate), 
+        endDate: new Date(value.endDate), 
+        key: "selection" 
+      };
       setSelectedRange(newRange);
       setTempRange(newRange);
     }
@@ -132,7 +204,7 @@ export default function CustomDateRangePicker({
     return () => window.removeEventListener("keydown", keyHandler);
   }, []);
 
-  // -------- IMPROVED AUTO FLIP ALIGNMENT --------
+  // Auto flip alignment
   useEffect(() => {
     if (!isOpen || !containerRef.current) return;
 
@@ -141,8 +213,6 @@ export default function CustomDateRangePicker({
     const spaceRight = window.innerWidth - rect.left;
     const spaceLeft = rect.right;
 
-    // Check if there's enough space on the right
-    // If not, and there's more space on the left, align right
     if (spaceRight < popWidth && spaceLeft > spaceRight) {
       setAlignRight(true);
     } else {
@@ -162,21 +232,25 @@ export default function CustomDateRangePicker({
 
   const getDateRange = useCallback(
     (range) => {
-      const t = new Date();
-      const yesterday = new Date(t);
-      yesterday.setDate(t.getDate() - 1);
+      // Always get fresh current business day when calculating ranges
+      const today = getCurrentBusinessDay();
+      
+      // Yesterday
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
 
-      const startOfMonth = new Date(t.getFullYear(), t.getMonth(), 1);
-      const endOfMonth = new Date(t.getFullYear(), t.getMonth() + 1, 0);
+      // This month
+      const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+      const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
 
-      const startOfLastMonth = new Date(t.getFullYear(), t.getMonth() - 1, 1);
-      const endOfLastMonth = new Date(t.getFullYear(), t.getMonth(), 0);
+      const startOfLastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+      const endOfLastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
 
       switch (range) {
         case "Today":
           return {
-            startDate: startOfDay(t),
-            endDate: endOfDay(t),
+            startDate: startOfDay(today),
+            endDate: endOfDay(today),
             key: "selection",
           };
         case "Yesterday":
@@ -186,20 +260,20 @@ export default function CustomDateRangePicker({
             key: "selection",
           };
         case "Last 7 Days": {
-          const d = new Date(t);
-          d.setDate(t.getDate() - 6);
+          const start = new Date(today);
+          start.setDate(today.getDate() - 6);
           return {
-            startDate: startOfDay(d),
-            endDate: endOfDay(t),
+            startDate: startOfDay(start),
+            endDate: endOfDay(today),
             key: "selection",
           };
         }
         case "Last 30 Days": {
-          const d = new Date(t);
-          d.setDate(t.getDate() - 29);
+          const start = new Date(today);
+          start.setDate(today.getDate() - 29);
           return {
-            startDate: startOfDay(d),
-            endDate: endOfDay(t),
+            startDate: startOfDay(start),
+            endDate: endOfDay(today),
             key: "selection",
           };
         }
@@ -235,6 +309,8 @@ export default function CustomDateRangePicker({
       const newRange = getDateRange(range);
       setSelectedRange(newRange);
       setShowCustomPicker(false);
+      
+      // Return the actual dates (which now reflect the correct business day)
       onChange?.({
         startDate: toISODate(newRange.startDate),
         endDate: toISODate(newRange.endDate),
@@ -270,8 +346,9 @@ export default function CustomDateRangePicker({
         endDate: toISODate(initialRange.endDate),
       });
     }
-  }, []); // Only run on mount
+  }, []); // Run only on mount
 
+  // Sync active range label with external value
   useEffect(() => {
     if (!value?.startDate || !value?.endDate) return;
 
@@ -297,10 +374,13 @@ export default function CustomDateRangePicker({
     <div ref={containerRef} className={`relative inline-block ${className}`}>
       {/* BUTTON */}
       <button
+        type="button"
         onClick={() => setIsOpen(!isOpen)}
         className="form-input flex items-center gap-2 hover:border-primary-400 transition-colors bg-white"
+        aria-label="Select date range"
+        aria-expanded={isOpen}
       >
-        <Calendar className="w-4 h-4 text-gray-500 flex-shrink-0" />
+        <Calendar className="w-4 h-4 text-gray-500 flex-shrink-0" aria-hidden="true" />
         <span className="text-sm text-gray-700 whitespace-nowrap overflow-hidden text-ellipsis">
           {formatDisplayValue()}
         </span>
@@ -317,6 +397,7 @@ export default function CustomDateRangePicker({
                 setIsOpen(false);
                 setShowCustomPicker(false);
               }}
+              aria-hidden="true"
             />
           )}
 
@@ -332,6 +413,8 @@ export default function CustomDateRangePicker({
               }
               overflow-hidden
             `}
+            role="dialog"
+            aria-label="Date range picker"
           >
             {!showCustomPicker ? (
               // Simple range list
@@ -350,13 +433,15 @@ export default function CustomDateRangePicker({
                       Select Date Range
                     </h3>
                     <button
+                      type="button"
                       onClick={() => {
                         setIsOpen(false);
                         setShowCustomPicker(false);
                       }}
                       className="p-1 hover:bg-gray-200 rounded transition-colors"
+                      aria-label="Close"
                     >
-                      <X className="w-5 h-5 text-gray-600" />
+                      <X className="w-5 h-5 text-gray-600" aria-hidden="true" />
                     </button>
                   </div>
                 )}
@@ -383,11 +468,13 @@ export default function CustomDateRangePicker({
                     <div className={isMobile ? "p-2" : "p-0"}>
                       <DateRange
                         ranges={[tempRange]}
-                        onChange={(item) => setTempRange(item.selection)}
+                        onChange={(item) => setTempRange({ ...item.selection, key: "selection" })}
                         months={isMobile ? 1 : 2}
                         direction={isMobile ? "vertical" : "horizontal"}
                         showDateDisplay={false}
                         rangeColors={["#fb923c"]}
+                        moveRangeOnFirstSelection={false}
+                        retainEndDateOnFirstSelection={true}
                       />
                     </div>
                   </div>
@@ -400,12 +487,14 @@ export default function CustomDateRangePicker({
                   </span>
                   <div className="flex gap-2 flex-shrink-0">
                     <button
+                      type="button"
                       onClick={handleCancel}
-                      className="btn-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 "
+                      className="btn-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50"
                     >
                       Cancel
                     </button>
                     <button
+                      type="button"
                       onClick={handleApply}
                       className="btn-sm font-medium text-white bg-primary-500 hover:bg-primary-600"
                     >

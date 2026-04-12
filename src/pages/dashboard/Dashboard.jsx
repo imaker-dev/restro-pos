@@ -11,6 +11,7 @@ import {
   Truck,
   AlertTriangle,
   SlidersHorizontal,
+  Wallet,
 } from "lucide-react";
 
 import CustomDateRangePicker from "../../components/CustomDateRangePicker";
@@ -112,6 +113,13 @@ export default function Dashboard() {
       icon: Truck,
       color: "indigo",
     },
+    {
+  title: "Outside Collection",
+  value: formatNumber(summary?.outside_collection, true),
+  subtitle: `${formatNumber(summary?.outside_collection_count)} entries`,
+  icon: Wallet,
+  color: "blue",
+}
   ];
 
   const PAYMENTS = payments?.map((item) => {
@@ -177,7 +185,7 @@ export default function Dashboard() {
       />
 
       {/* ── Stat Cards ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
         {stats.map((stat, index) => (
           <StatCard
             key={index}
