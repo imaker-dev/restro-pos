@@ -1,89 +1,78 @@
-import { Clock, Eye, MapPin, Users } from "lucide-react";
+import { Clock, User, ShoppingBag } from "lucide-react";
 import { formatNumber } from "../../utils/numberFormatter";
-import OrderBadge from "./OrderBadge";
 
-function RunningTableCard({ table, STATUS_CFG,onView }) {
-  const cfg = STATUS_CFG[table?.orderStatus] || STATUS_CFG.unknown;
-
-  function elapsed(d) {
-    return Math.floor((Date.now() - new Date(d).getTime()) / 60000);
-  }
-
-  const min = elapsed(table.startedAt);
+function RunningTableCard({ table, onView }) {
+  const min =
+    table?.durationMinutes ??
+    Math.floor((Date.now() - new Date(table.startedAt).getTime()) / 60000);
 
   const isCrit = min >= 45;
   const isWarn = min >= 30 && !isCrit;
 
-  const timeText = isCrit
-    ? "text-rose-600"
-    : isWarn
-      ? "text-amber-600"
-      : "text-slate-500";
-  const timeBg = isCrit ? "bg-rose-50" : isWarn ? "bg-amber-50" : "bg-slate-50";
-  const timeIcon = isCrit
-    ? "text-rose-500"
-    : isWarn
-      ? "text-amber-500"
-      : "text-slate-400";
-
   return (
-    <div className="bg-white rounded-xl border border-slate-100 shadow-sm hover:shadow-md transition-all overflow-hidden">
-      <div className={`h-1 w-full ${cfg?.bar}`} />
-      <div className="p-3 sm:p-3.5">
-        {/* ID + Status */}
-        <div className="flex items-center justify-between mb-1.5">
-          <span className="text-sm sm:text-base font-black text-slate-900 font-mono">
+    <div
+      onClick={() => onView(table)}
+      className="relative bg-white border border-slate-200 rounded-2xl overflow-hidden cursor-pointer hover:border-slate-300 hover:shadow-md active:scale-[0.99] transition-all duration-150 flex flex-col"
+    >
+      <div className="px-4 py-3.5 flex flex-col gap-2.5">
+
+        {/* table number + timer */}
+        <div className="flex items-center justify-between gap-2">
+          <span className="text-lg font-black text-slate-900 font-mono leading-none tracking-tight">
             {table?.tableNumber}
           </span>
-          <OrderBadge type="status" value={table?.orderStatus} size="sm" />
+          <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold border ${
+            isCrit
+              ? "bg-rose-50 border-rose-200 text-rose-600"
+              : isWarn
+                ? "bg-amber-50 border-amber-200 text-amber-600"
+                : "bg-slate-50 border-slate-200 text-slate-500"
+          }`}>
+            <Clock size={9} className={isCrit ? "text-rose-500" : isWarn ? "text-amber-500" : "text-slate-400"} />
+            {table?.durationFormatted ?? `${min}m`}
+          </div>
         </div>
 
-        {/* Area */}
-        <div className="flex items-center gap-1 mb-2.5">
-          <MapPin size={9} className="text-slate-400 flex-shrink-0" />
-          <p className="text-[10px] text-slate-400 font-medium truncate">
-            {table?.floorName}
+        {/* amount */}
+        <div>
+          <p className="text-[9px] uppercase tracking-widest font-semibold text-slate-400 mb-0.5">Amount</p>
+          <p className="text-base font-black text-slate-900 font-mono leading-none">
+            {formatNumber(table?.totalAmount ?? table?.orderAmount, true)}
           </p>
         </div>
 
-        {/* Amount */}
-        <p className="text-base sm:text-lg font-black text-slate-900 font-mono leading-none mb-2.5">
-          {formatNumber(table?.orderAmount, true)}
-        </p>
+        {/* divider */}
+        <div className="h-px bg-slate-100" />
 
-        {/* Divider */}
-        <div className="h-px bg-slate-100 mb-2" />
-
-        {/* Footer */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1">
-            <div className="w-5 h-5 rounded-md bg-slate-50 flex items-center justify-center">
-              <Users size={10} className="text-slate-400" />
-            </div>
-            <span className="text-[10px] sm:text-xs font-semibold text-slate-600">
-              {table?.guestCount} Guests
+        {/* meta row */}
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-1 min-w-0">
+            <User size={10} className="text-slate-400 shrink-0" />
+            <span className="text-[11px] text-slate-500 font-medium truncate">
+              {table?.customerName || "Walk-in"}
             </span>
           </div>
-          <div className={`flex items-center gap-1 ${timeText}`}>
-            <div
-              className={`w-5 h-5 rounded-md flex items-center justify-center ${timeBg}`}
-            >
-              <Clock size={10} className={timeIcon} />
-            </div>
-            <span className="text-[10px] sm:text-xs font-bold">{min}m</span>
+          <div className="flex items-center gap-1 shrink-0">
+            <ShoppingBag size={10} className="text-slate-400" />
+            <span className="text-[11px] text-slate-500 font-medium">
+              {table?.itemCount ?? table?.items?.length ?? 0} items
+            </span>
           </div>
         </div>
-        <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onView(table);
-            }}
-            className="mt-2.5 w-full flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-primary-500 text-white text-[10px] font-bold hover:bg-primary-600"
-          >
-            <Eye size={10} />
-            View Order
-          </button>
+
       </div>
+
+      {/* view button */}
+      <button
+        onClick={(e) => { e.stopPropagation(); onView(table); }}
+        className={`w-full py-2 text-[11px] font-bold tracking-wide flex items-center justify-center gap-1.5 transition-colors ${
+          isCrit
+            ? "bg-rose-500 hover:bg-rose-600 text-white"
+            : "bg-primary-500 hover:bg-primary-600 text-white"
+        }`}
+      >
+        View order
+      </button>
     </div>
   );
 }
