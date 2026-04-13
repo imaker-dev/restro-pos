@@ -12,6 +12,7 @@ import {
   AlertTriangle,
   SlidersHorizontal,
   Wallet,
+  Tag,
 } from "lucide-react";
 
 import CustomDateRangePicker from "../../components/CustomDateRangePicker";
@@ -73,7 +74,7 @@ export default function Dashboard() {
     {
       title: "Total Sales",
       value: formatNumber(summary?.total_sale, true),
-      subtitle: `${formatNumber(summary?.total_orders)} orders`,
+      subtitle: `${formatNumber(summary?.total_orders)} orders • ${formatNumber(summary?.outside_collection, true)} outside`,
       icon: IndianRupee,
       color: "green",
     },
@@ -114,12 +115,19 @@ export default function Dashboard() {
       color: "indigo",
     },
     {
-  title: "Outside Collection",
-  value: formatNumber(summary?.outside_collection, true),
-  subtitle: `${formatNumber(summary?.outside_collection_count)} entries`,
-  icon: Wallet,
-  color: "blue",
-}
+      title: "Outside Collection",
+      value: formatNumber(summary?.outside_collection, true),
+      subtitle: `${formatNumber(summary?.outside_collection_count)} entries`,
+      icon: Wallet,
+      color: "blue",
+    },
+    {
+      title: "Discount",
+      value: formatNumber(summary?.discount_amount, true),
+      subtitle: "Total discount given",
+      icon: Tag,
+      color: "red",
+    },
   ];
 
   const PAYMENTS = payments?.map((item) => {
@@ -185,7 +193,7 @@ export default function Dashboard() {
       />
 
       {/* ── Stat Cards ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
         {stats.map((stat, index) => (
           <StatCard
             key={index}
