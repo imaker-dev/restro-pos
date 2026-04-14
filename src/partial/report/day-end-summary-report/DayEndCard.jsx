@@ -71,6 +71,7 @@ function DayEndCard({ day }) {
     total_collection,
     ordersByType,
     discount_amount,
+    outside_collection_count,
     outside_collection,
     nc_orders,
     nc_amount,
@@ -80,6 +81,7 @@ function DayEndCard({ day }) {
     adjustment_amount,
     average_order_value,
     paymentBreakdown,
+    floorBreakdown,
   } = day;
 
   const [open, setOpen] = useState(false);
@@ -91,37 +93,54 @@ function DayEndCard({ day }) {
   const buildCopyText = () => {
     const d = shortDate(date);
 
-    const lines = [
-      `*Day End Summary — ${d}*`,
-      `${"-".repeat(27)}`,
-      ``,
-      `*COLLECTION*`,
-      ``,
-      `Total Paid: ${fmt(paid_amount)}`,
-      `Outside Collection: ${fmt(outside_collection)}`,
-    ];
+    const formatLine = (label, value) =>
+      `${label} - ${value ? fmt(value) + "/-" : "-"}`;
 
-    if (due_amount > 0) {
-      lines.push(`Pending Amount: ${fmt(due_amount)}`);
+    const lines = [`${d}`, ``];
+
+    // FLOORS
+    floorBreakdown.forEach((floor, index) => {
+      const pay = floor.paymentBreakdown || {};
+
+      lines.push(
+        `${floor.floor_name}`,
+        formatLine("Total Sale", floor.total_sale),
+        formatLine("Cash", pay.cash),
+        formatLine("Card", pay.card),
+        formatLine("UPI", pay.upi),
+        `NC - -`,
+        formatLine("Hold", floor.due_amount),
+      );
+
+      if (index !== floorBreakdown.length - 1) {
+        lines.push(``, `${"-".repeat(28)}`, ``);
+      }
+    });
+
+    // OUTSIDE COLLECTION (separate section ✅)
+    if (outside_collection > 0) {
+      lines.push(
+        ``,
+        `${"-".repeat(28)}`,
+        ``,
+        `OUTSIDE COLLECTION`,
+        formatLine("Amount", outside_collection),
+        formatLine("Entries", outside_collection_count),
+      );
     }
 
-    // Payment breakdown
-    const payments = Object.entries(paymentBreakdown).filter(([, v]) => v > 0);
-
-    if (payments.length > 0) {
-      lines.push(``, `${"-".repeat(27)}`, `*PAYMENT MODES*`, ``);
-
-      payments.forEach(([mode, amount]) => {
-        const label = mode.toUpperCase();
-        
-        lines.push(`${label}: ${fmt(amount)}`);
-      });
-    }
-
+    // TOTAL
     lines.push(
       ``,
-      `${"-".repeat(27)}`,
-      `*Total Sale: ${fmt(total_collection)}*`,
+      `${"-".repeat(28)}`,
+      ``,
+      `TOTAL`,
+      formatLine("Total Sale", total_collection),
+      formatLine("Cash", paymentBreakdown.cash),
+      formatLine("Card", paymentBreakdown.card),
+      formatLine("UPI", paymentBreakdown.upi),
+      `NC - -`,
+      formatLine("Hold", due_amount),
     );
 
     return lines.join("\n");

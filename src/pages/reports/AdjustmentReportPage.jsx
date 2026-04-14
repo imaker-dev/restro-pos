@@ -42,12 +42,12 @@ const AdjustmentReportPage = () => {
   const fetchReport = () => {
     if (!outletId || !dateRange?.startDate || !dateRange?.endDate) return;
 
-    dispatch(fetchAdjustmentReport({ outletId,dateRange }));
+    dispatch(fetchAdjustmentReport({ outletId, dateRange }));
   };
 
   useEffect(() => {
     fetchReport();
-  }, [outletId,dateRange]);
+  }, [outletId, dateRange]);
 
   const handleExport = async () => {
     if (!dateRange?.startDate || !dateRange?.endDate) return;
@@ -88,12 +88,24 @@ const AdjustmentReportPage = () => {
 
   const columns = [
     {
-      key: "orderNumber",
-      label: "Order #",
+      key: "order",
+      label: "Order",
       render: (row) => (
-        <span className="font-mono text-xs font-semibold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">
-          {row.orderNumber}
-        </span>
+        <div className="flex flex-col gap-0.5 min-w-[140px]">
+          {/* Order Number */}
+          <span className="font-mono text-xs font-semibold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md w-fit">
+            {row.orderNumber}
+          </span>
+
+          {/* Date + Time */}
+          {row.createdAt ? (
+            <div className="text-[10px] text-gray-400 ">
+              {formatDate(row.createdAt, "longTime")}
+            </div>
+          ) : (
+            <span className="text-gray-300 text-xs">—</span>
+          )}
+        </div>
       ),
     },
 
@@ -210,24 +222,6 @@ const AdjustmentReportPage = () => {
         </span>
       ),
     },
-
-    {
-      key: "date",
-      label: "Date",
-      render: (row) =>
-        row.createdAt ? (
-          <div>
-            <p className="text-xs font-semibold text-gray-700 leading-none mb-0.5">
-              {formatDate(row.createdAt, "long")}
-            </p>
-            <p className="text-[10px] text-gray-400 font-mono">
-              {formatDate(row.createdAt, "time")}
-            </p>
-          </div>
-        ) : (
-          <span className="text-gray-300">—</span>
-        ),
-    },
   ];
 
   const rowActions = [
@@ -241,12 +235,25 @@ const AdjustmentReportPage = () => {
 
   const stats = [
     {
+      label: "Total Bill",
+      value: `${formatNumber(summary?.totalBillAmount, true)}`,
+      sub: "Total billed amount",
+      icon: Receipt,
+      color: "blue",
+    },
+    {
+      label: "Total Paid",
+      value: `${formatNumber(summary?.totalPaidAmount, true)}`,
+      sub: "Amount received",
+      icon: Wallet, // or CreditCard
+      color: "green",
+    },
+    {
       label: "Total Adjustments",
       value: formatNumber(summary?.adjustmentCount),
       sub: "Total adjustment entries",
       icon: SlidersHorizontal,
       color: "purple",
-      dark: true,
     },
 
     {
@@ -255,22 +262,6 @@ const AdjustmentReportPage = () => {
       sub: "Net adjustment value",
       icon: TrendingUp,
       color: "red",
-    },
-
-    {
-      label: "Total Paid",
-      value: `${formatNumber(summary?.totalPaidAmount, true)}`,
-      sub: "Amount received",
-      icon: Wallet, // or CreditCard
-      color: "green",
-    },
-
-    {
-      label: "Total Bill",
-      value: `${formatNumber(summary?.totalBillAmount, true)}`,
-      sub: "Total billed amount",
-      icon: Receipt,
-      color: "blue",
     },
   ];
 
@@ -294,7 +285,7 @@ const AdjustmentReportPage = () => {
             value={stat.value}
             subtitle={stat.sub}
             color={stat.color}
-            mode={stat.dark ? "solid" : ""}
+            mode={"solid"}
             variant="v9"
             loading={isFetchingAdjustmentReport}
           />

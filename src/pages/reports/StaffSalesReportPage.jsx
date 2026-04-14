@@ -6,16 +6,13 @@ import CustomDateRangePicker from "../../components/CustomDateRangePicker";
 import SmartTable from "../../components/SmartTable";
 import { formatNumber } from "../../utils/numberFormatter";
 import {
-  Ban,
   Download,
-  Gift,
   IndianRupee,
-  Percent,
   RotateCcw,
-  ShoppingBag,
+  ShoppingCart,
+  TrendingUp,
   UserCheck,
   Users,
-  XCircle,
 } from "lucide-react";
 import StatCard from "../../components/StatCard";
 import { formatFileDate } from "../../utils/dateFormatter";
@@ -47,80 +44,39 @@ const StaffSalesReportPage = () => {
   const stats = [
     {
       title: "Total Sales",
-      value: formatNumber(summary?.total_sales, true),
-      subtitle: `${summary?.total_orders} orders`,
+      value: formatNumber(summary?.total_sale, true),
+      subtitle: "Gross revenue",
       icon: IndianRupee,
       color: "green",
-    },
-    {
-      title: "Paid Amount",
-      value: formatNumber(summary?.paid_amount, true),
-      subtitle: "Payments received",
-      icon: IndianRupee,
-      color: "emerald",
-    },
-    {
-      title: "Due Amount",
-      value: formatNumber(summary?.due_amount, true),
-      subtitle: "Pending payments",
-      icon: IndianRupee,
-      color: "red",
     },
     {
       title: "Total Staff",
       value: summary?.total_staff,
       subtitle: "Active staff",
       icon: Users,
+      color: "indigo",
+    },
+    {
+      title: "Avg per Staff",
+      value: formatNumber(summary?.average_per_staff, true),
+      subtitle: "Average sales",
+      icon: TrendingUp,
       color: "blue",
     },
+
     {
-      title: "Total Guests",
-      value: formatNumber(summary?.total_guests),
-      subtitle: "Customers served",
-      icon: ShoppingBag,
-      color: "purple",
-    },
-    {
-      title: "Avg Per Staff",
-      value: formatNumber(summary?.average_per_staff, true),
-      subtitle: "Revenue per staff",
-      icon: UserCheck,
+      title: "Total Orders",
+      value: summary?.total_orders,
+      subtitle: `${summary?.total_guests} guests`,
+      icon: ShoppingCart,
       color: "amber",
-    },
-    {
-      title: "Discounts",
-      value: formatNumber(summary?.total_discounts, true),
-      subtitle: "Total discount given",
-      icon: Percent,
-      color: "rose",
-    },
-    {
-      title: "Cancelled Orders",
-      value: summary?.cancelled_orders,
-      subtitle: `₹${formatNumber(summary?.cancelled_amount)}`,
-      icon: XCircle,
-      color: "red",
-    },
-    {
-      title: "NC Orders",
-      value: summary?.nc_orders,
-      subtitle: `₹${formatNumber(summary?.nc_amount)}`,
-      icon: Ban,
-      color: "gray",
-    },
-    {
-      title: "Tips Collected",
-      value: formatNumber(summary?.total_tips, true),
-      subtitle: "Customer tips",
-      icon: Gift,
-      color: "yellow",
     },
   ];
 
   const columns = [
     {
       key: "user",
-      label: "User",
+      label: "Staff",
       render: (row) => (
         <p className="font-medium text-slate-800">{row.user_name}</p>
       ),
@@ -133,19 +89,9 @@ const StaffSalesReportPage = () => {
     },
 
     {
-      key: "total_guests",
-      label: "Guests",
-      render: (row) => parseInt(row.total_guests),
-    },
-
-    {
-      key: "total_sales",
-      label: "Sales",
-      render: (row) => (
-        <span className="font-semibold text-emerald-700">
-          {formatNumber(row.total_sales, true)}
-        </span>
-      ),
+      key: "avg_order_value",
+      label: "Avg Order",
+      render: (row) => formatNumber(row.avg_order_value, true),
     },
 
     {
@@ -158,40 +104,32 @@ const StaffSalesReportPage = () => {
       ),
     },
 
+    //  Correct field
     {
-      key: "cancelled_orders",
-      label: "Cancelled Orders",
+      key: "total_sale",
+      label: "Sales",
       render: (row) => (
-        <span className="text-amber-600">{row.cancelled_orders}</span>
-      ),
-    },
-
-    {
-      key: "cancelled_amount",
-      label: "Cancelled Amt",
-      render: (row) => (
-        <span className="text-rose-600">
-          {formatNumber(row.cancelled_amount, true)}
+        <span className="font-semibold text-emerald-700">
+          {formatNumber(row.total_sale, true)}
         </span>
       ),
     },
 
+    //  Payments (important)
     {
-      key: "total_tips",
-      label: "Tips",
-      render: (row) => formatNumber(row.total_tips, true),
+      key: "paid_amount",
+      label: "Paid",
+      render: (row) => formatNumber(row.paid_amount, true),
     },
 
     {
-      key: "avg_order_value",
-      label: "Avg Order",
-      render: (row) => formatNumber(row.avg_order_value, true),
-    },
-
-    {
-      key: "avg_guest_spend",
-      label: "Avg Guest",
-      render: (row) => formatNumber(row.avg_guest_spend, true),
+      key: "due_amount",
+      label: "Due",
+      render: (row) => (
+        <span className="text-red-600">
+          {formatNumber(row.due_amount, true)}
+        </span>
+      ),
     },
   ];
 
@@ -248,7 +186,7 @@ const StaffSalesReportPage = () => {
         actions={actions}
       />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
         {stats?.map((stat, index) => (
           <StatCard
             key={index}
@@ -258,6 +196,7 @@ const StaffSalesReportPage = () => {
             icon={stat?.icon}
             color={stat?.color}
             variant="v9"
+            mode="solid"
             loading={isFetchingStaffSalesReport}
           />
         ))}
@@ -277,11 +216,12 @@ const StaffSalesReportPage = () => {
             <span className="text-slate-800 font-semibold truncate max-w-[220px]">
               {summary?.top_performer}
             </span>
-
-            <span className="text-slate-500">
-              ({formatNumber(summary?.top_performer_sales, true)} sales)
-            </span>
           </div>
+
+          <span className="text-amber-700 font-semibold">
+            {formatNumber(summary?.top_performer_sales, true)}{" "}
+            <span className="text-slate-500 font-normal text-xs">sales</span>
+          </span>
         </div>
       )}
 
@@ -290,6 +230,7 @@ const StaffSalesReportPage = () => {
         totalcount={staff?.length}
         data={staff}
         columns={columns}
+        rowKey="user_id"
         loading={isFetchingStaffSalesReport}
         //   actions={rowActions}
       />

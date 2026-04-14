@@ -1,8 +1,17 @@
-import { AlertTriangle, Clock, IndianRupee, User, XCircle } from "lucide-react";
+import {
+  AlertTriangle,
+  ArrowRight,
+  Clock,
+  IndianRupee,
+  User,
+  XCircle,
+} from "lucide-react";
 import MetaPill from "../../../components/MetaPill";
 import { formatDate } from "../../../utils/dateFormatter";
 import { formatNumber } from "../../../utils/numberFormatter";
 import OrderBadge from "../../order/OrderBadge";
+import { Link } from "react-router-dom";
+import { ROUTE_PATHS } from "../../../config/paths";
 
 // ─── Order cancellation card ──────────────────────────────────────────────────
 export default function OrderCancelCard({ item }) {
@@ -57,6 +66,13 @@ export default function OrderCancelCard({ item }) {
               highlight
             />
           </div>
+          <Link
+            to={`${ROUTE_PATHS.ORDER_DETAILS}?orderId=${item.order_id}`}
+            className="flex-1 flex items-center justify-center gap-1.5 py-2 text-[11px] font-bold text-gray-500 bg-primary-50 hover:bg-primary-100 rounded-md hover:text-primary-600 hover:bg-primary-50 transition-all"
+          >
+            View Order
+            <ArrowRight size={12} />
+          </Link>
         </div>
       </div>
     </div>

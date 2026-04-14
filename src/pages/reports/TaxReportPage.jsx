@@ -9,7 +9,15 @@ import { formatNumber } from "../../utils/numberFormatter";
 import SmartTable from "../../components/SmartTable";
 import { formatDate, formatFileDate } from "../../utils/dateFormatter";
 import Tabs from "../../components/Tabs";
-import { Download, Eye, RotateCcw } from "lucide-react";
+import {
+  Download,
+  Eye,
+  File,
+  IndianRupee,
+  Percent,
+  RotateCcw,
+  TrendingUp,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { handleResponse } from "../../utils/helpers";
 import { exportTaxReport } from "../../redux/slices/exportReportSlice";
@@ -40,89 +48,36 @@ const TaxReportPage = () => {
     fetchReport();
   }, [outletId, dateRange]);
 
-  const taxCards = [
+  const stats = [
     {
-      title: "Subtotal",
-      value: formatNumber(summary?.total_subtotal, true),
-      color: "blue",
-    },
-    {
-      title: "Discount",
-      value: formatNumber(summary?.total_discount, true),
-      color: "red",
-    },
-    {
-      title: "Taxable Amount",
-      value: formatNumber(summary?.total_taxable, true),
-      color: "indigo",
-    },
-
-    {
-      title: "CGST",
-      value: formatNumber(summary?.total_cgst, true),
-      color: "purple",
-    },
-    {
-      title: "SGST",
-      value: formatNumber(summary?.total_sgst, true),
-      color: "pink",
-    },
-    {
-      title: "IGST",
-      value: formatNumber(summary?.total_igst, true),
-      color: "cyan",
-    },
-    {
-      title: "VAT",
-      value: formatNumber(summary?.total_vat, true),
-      color: "amber",
-    },
-    {
-      title: "CESS",
-      value: formatNumber(summary?.total_cess, true),
-      color: "orange",
-    },
-
-    {
-      title: "Service Charge",
-      value: formatNumber(summary?.total_service_charge, true),
-      color: "teal",
-    },
-
-    {
-      title: "Total Tax",
-      value: formatNumber(summary?.total_tax, true),
-      color: "yellow",
-    },
-
-    {
-      title: "Grand Total",
+      title: "Total Sale",
       value: formatNumber(summary?.total_grand, true),
+      subtitle: `${summary?.total_orders} orders`,
+      icon: IndianRupee,
       color: "green",
     },
 
     {
-      title: "Total Invoices",
+      title: "Invoices",
       value: summary?.total_invoices,
-      color: "slate",
-    },
-
-    {
-      title: "NC Orders",
-      value: summary?.nc_orders,
+      subtitle: "Generated",
+      icon: File,
       color: "gray",
     },
-
     {
-      title: "NC Amount",
-      value: formatNumber(summary?.nc_amount, true),
-      color: "gray",
+      title: "Total Tax",
+      value: formatNumber(summary?.total_tax, true),
+      subtitle: "Included in sales",
+      icon: Percent,
+      color: "purple",
     },
 
     {
-      title: "Due Amount",
-      value: formatNumber(summary?.due_amount, true),
-      color: "rose",
+      title: "Net Sale (Excl. Tax)",
+      value: formatNumber(summary?.total_taxable, true),
+      subtitle: "Total Sale - Tax",
+      icon: TrendingUp,
+      color: "indigo",
     },
   ];
 
@@ -137,31 +92,34 @@ const TaxReportPage = () => {
       ),
     },
 
+    // 🧮 FINAL FIRST
     {
-      key: "invoice_count",
-      label: "Invoices",
+      key: "grand_total",
+      label: "Total Sale",
       render: (row) => (
-        <span className="text-slate-700 font-medium">
-          {formatNumber(row.invoice_count)}
+        <span className="font-semibold text-green-700 tabular-nums">
+          {formatNumber(row.grand_total, true)}
         </span>
       ),
     },
 
+    // 🧾 TOTAL TAX
     {
-      key: "taxable_amount",
-      label: "Taxable",
+      key: "total_tax",
+      label: "Total Tax",
       render: (row) => (
-        <span className="text-slate-700">
-          {formatNumber(row.taxable_amount, true)}
+        <span className="font-semibold text-purple-700 tabular-nums">
+          {formatNumber(row.total_tax, true)}
         </span>
       ),
     },
 
+    // 🧾 BREAKDOWN
     {
       key: "cgst_amount",
       label: "CGST",
       render: (row) => (
-        <span className="text-indigo-600">
+        <span className="text-indigo-600 tabular-nums">
           {formatNumber(row.cgst_amount, true)}
         </span>
       ),
@@ -171,18 +129,8 @@ const TaxReportPage = () => {
       key: "sgst_amount",
       label: "SGST",
       render: (row) => (
-        <span className="text-indigo-600">
+        <span className="text-indigo-600 tabular-nums">
           {formatNumber(row.sgst_amount, true)}
-        </span>
-      ),
-    },
-
-    {
-      key: "igst_amount",
-      label: "IGST",
-      render: (row) => (
-        <span className="text-indigo-600">
-          {formatNumber(row.igst_amount, true)}
         </span>
       ),
     },
@@ -191,38 +139,19 @@ const TaxReportPage = () => {
       key: "vat_amount",
       label: "VAT",
       render: (row) => (
-        <span className="text-amber-600">
+        <span className="text-amber-600 tabular-nums">
           {formatNumber(row.vat_amount, true)}
         </span>
       ),
     },
 
+    // 🔄 RESULT (AFTER TAX REMOVAL)
     {
-      key: "cess_amount",
-      label: "CESS",
+      key: "taxable_amount",
+      label: "Net Sale (Excl. Tax)",
       render: (row) => (
-        <span className="text-rose-600">
-          {formatNumber(row.cess_amount, true)}
-        </span>
-      ),
-    },
-
-    {
-      key: "total_tax",
-      label: "Total Tax",
-      render: (row) => (
-        <span className="font-semibold text-green-700">
-          {formatNumber(row.total_tax, true)}
-        </span>
-      ),
-    },
-
-    {
-      key: "grand_total",
-      label: "Grand Total",
-      render: (row) => (
-        <span className="font-semibold text-slate-900">
-          {formatNumber(row.grand_total, true)}
+        <span className="font-medium text-slate-900 tabular-nums">
+          {formatNumber(row.taxable_amount, true)}
         </span>
       ),
     },
@@ -345,14 +274,17 @@ const TaxReportPage = () => {
         actions={actions}
       />
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 xl:grid-cols-8 gap-4">
-        {taxCards.map((card, i) => (
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {stats.map((card, i) => (
           <StatCard
             key={i}
             title={card?.title}
+            icon={card.icon}
             value={card?.value}
+            subtitle={card.subtitle}
             color={card?.color}
             variant="v9"
+            mode="solid"
             loading={isFetchingTaxReport}
           />
         ))}
@@ -373,7 +305,7 @@ const TaxReportPage = () => {
           data={daily}
           columns={taxColumns}
           loading={isFetchingTaxReport}
-          actions={rowActions}
+          // actions={rowActions}
         />
       )}
 

@@ -12,6 +12,7 @@ import {
   ArrowUpRight,
   Receipt,
   Calendar,
+  Download,
 } from "lucide-react";
 import PageHeader from "../../layout/PageHeader";
 import CustomDateRangePicker from "../../components/CustomDateRangePicker";
@@ -60,19 +61,21 @@ const DayEndSummaryPage = () => {
   };
 
   const actions = [
-    // {
-    //   label: "Export",
-    //   icon: Download,
-    //   onClick: handleExport,
-    //   loading: isExportingDayEndSummary,
-    //   loadingText: "Exporting...",
-    // },
+    {
+      label: "Export",
+      icon: Download,
+      onClick: handleExport,
+      loading: isExportingDayEndSummary,
+      loadingText: "Exporting...",
+      type:"export"
+    },
     {
       label: "Refresh",
       icon: RotateCcw,
       onClick: fetchReport,
       loading: isFetchingDailyEndSummary,
       loadingText: "Refreshing...",
+      type:"refresh"
     },
   ];
 

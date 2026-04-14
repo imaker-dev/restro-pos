@@ -8,11 +8,16 @@ export default false
   : {
       exportDailySalesReportApi: (outletId, dateRange) => {
         const params = cleanParams({
+          outletId,
           startDate: dateRange?.startDate,
           endDate: dateRange?.endDate,
         });
 
-        return Api.get(`/orders/reports/${outletId}/daily-sales/export`, {
+        // return Api.get(`/orders/reports/${outletId}/daily-sales/export`, {
+        //   params,
+        //   responseType: "blob",
+        // });
+        return Api.get(`/reports/accurate-dsr/export`, {
           params,
           responseType: "blob",
         });
@@ -185,7 +190,11 @@ export default false
           endDate: dateRange?.endDate,
         });
 
-        return Api.get(`/reports/day-end-summary/export`, {
+        // return Api.get(`/reports/day-end-summary/export`, {
+        //   params,
+        //   responseType: "blob",
+        // });
+        return Api.get(`/reports/accurate-day-end-summary/export`, {
           params,
           responseType: "blob",
         });

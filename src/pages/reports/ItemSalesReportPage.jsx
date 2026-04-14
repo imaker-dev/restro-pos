@@ -9,7 +9,6 @@ import {
   Download,
   IndianRupee,
   Package,
-  Percent,
   RotateCcw,
   ShoppingCart,
   Star,
@@ -34,7 +33,6 @@ const ItemSalesReportPage = () => {
   const { items, summary } = itemSalesReport || {};
   // const [dateRange, setDateRange] = useState();
   const { dateRange, setDateRange } = useReportDateRange();
-  const [serviceType, setServiceType] = useState("");
 
   const fetchReport = () => {
     if (!outletId || !dateRange?.startDate || !dateRange?.endDate) return;
@@ -51,137 +49,100 @@ const ItemSalesReportPage = () => {
       key: "item",
       label: "Item",
       render: (row) => (
-        <div>
-          <p className="font-medium text-slate-800">{row.item_name}</p>
-          <p className="text-xs text-slate-500">{row.variant_name || "—"}</p>
+        <div className="flex flex-col">
+          <span className="font-medium text-slate-800">{row.item_name}</span>
+          <span className="text-xs text-slate-500">
+            {row.variant_name || "—"}
+          </span>
         </div>
       ),
     },
+
     {
       key: "category",
       label: "Category",
       render: (row) => (
-        <span className="text-slate-600">{row.category_name}</span>
+        <div className="flex flex-col">
+          <span className="text-slate-700">{row.category_name}</span>
+          <span className="text-xs text-slate-500 capitalize">
+            {row.category_service_type}
+          </span>
+        </div>
       ),
     },
+
     {
       key: "total_quantity",
       label: "Qty Sold",
       render: (row) => (
-        <span className="font-medium">{parseFloat(row.total_quantity)}</span>
-      ),
-    },
-    {
-      key: "cancelled_quantity",
-      label: "Cancelled",
-      render: (row) => (
-        <span className="text-rose-600">
-          {parseFloat(row.cancelled_quantity)}
+        <span className="font-medium">
+          {parseFloat(row.total_quantity).toFixed(0)}
         </span>
       ),
     },
+
     {
       key: "order_count",
       label: "Orders",
+      render: (row) => (
+        <span className="text-slate-600">{row.order_count}</span>
+      ),
     },
+
     {
       key: "avg_price",
       label: "Avg Price",
       render: (row) => formatNumber(row.avg_price, true),
     },
+
     {
-      key: "gross_revenue",
-      label: "Gross",
-      render: (row) => formatNumber(row.gross_revenue, true),
-    },
-    {
-      key: "tax_amount",
-      label: "Tax",
-      render: (row) => formatNumber(row.tax_amount, true),
-    },
-    {
-      key: "net_revenue",
-      label: "Net",
+      key: "discount_amount",
+      label: "Discount",
       render: (row) => (
-        <span className="font-semibold text-emerald-700">
-          {formatNumber(row.net_revenue, true)}
+        <span className="text-rose-600">
+          {formatNumber(row.discount_amount, true)}
         </span>
       ),
     },
+
+    // Correct field
+    {
+      key: "total_sale",
+      label: "Sales",
+      render: (row) => formatNumber(row.total_sale, true),
+    },
   ];
 
-const stats = [
-  {
-    title: "Gross Revenue",
-    value: formatNumber(summary?.gross_revenue, true),
-    subtitle: "Before tax & discount",
-    icon: IndianRupee,
-    color: "green",
-  },
-  {
-    title: "Net Revenue",
-    value: formatNumber(summary?.net_revenue, true),
-    subtitle: "After tax & discount",
-    icon: TrendingUp,
-    color: "blue",
-  },
-  {
-    title: "Paid Amount",
-    value: formatNumber(summary?.paid_amount, true),
-    subtitle: "Amount received",
-    icon: IndianRupee,
-    color: "emerald",
-  },
-  {
-    title: "Due Amount",
-    value: formatNumber(summary?.due_amount, true),
-    subtitle: "Pending payments",
-    icon: IndianRupee,
-    color: "red",
-  },
-  {
-    title: "Tax Collected",
-    value: formatNumber(summary?.tax_amount, true),
-    subtitle: "Total tax amount",
-    icon: Percent,
-    color: "purple",
-  },
-  {
-    title: "Discount Given",
-    value: formatNumber(summary?.discount_amount, true),
-    subtitle: "Total discounts",
-    icon: Percent,
-    color: "pink",
-  },
-  {
-    title: "Total Items",
-    value: summary?.total_items,
-    subtitle: `${summary?.total_quantity} qty sold`,
-    icon: Package,
-    color: "amber",
-  },
-  {
-    title: "Cancelled Qty",
-    value: summary?.cancelled_quantity,
-    subtitle: "Items cancelled",
-    icon: Package,
-    color: "red",
-  },
-  {
-    title: "Non-Chargeable Qty",
-    value: summary?.nc_quantity,
-    subtitle: "Complimentary / NC",
-    icon: Package,
-    color: "gray",
-  },
-  {
-    title: "Avg Item Revenue",
-    value: formatNumber(summary?.average_item_revenue, true),
-    subtitle: "Per item average",
-    icon: ShoppingCart,
-    color: "indigo",
-  },
-];
+  const stats = [
+    {
+      title: "Total Sales",
+      value: formatNumber(summary?.total_sale, true),
+      subtitle: "Gross revenue",
+      icon: IndianRupee,
+      color: "green",
+    },
+    {
+      title: "Total Items",
+      value: summary?.total_items,
+      subtitle: "Unique items sold",
+      icon: Package,
+      color: "amber",
+    },
+    {
+      title: "Total Quantity",
+      value: summary?.total_quantity,
+      subtitle: "Units sold",
+      icon: ShoppingCart,
+      color: "blue",
+    },
+    {
+      title: "Avg Item Revenue",
+      value: formatNumber(summary?.average_item_revenue, true),
+      subtitle: "Per item avg",
+      icon: TrendingUp,
+      color: "indigo",
+    },
+  ];
 
   const handleExportItemSalesReport = async () => {
     if (!dateRange?.startDate || !dateRange?.endDate) return;
@@ -237,7 +198,7 @@ const stats = [
         actions={actions}
       />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
         {stats.map((stat, index) => (
           <StatCard
             key={index}
@@ -247,15 +208,17 @@ const stats = [
             icon={stat.icon}
             color={stat.color}
             variant="v9"
+            mode="solid"
             loading={isFetchingItemSalesReport}
           />
         ))}
       </div>
+
       {summary?.top_seller && (
         <div
           className="bg-emerald-50 border border-emerald-200 
-               rounded-lg px-4 py-2 
-               flex items-center justify-between text-sm"
+                     rounded-lg px-4 py-2 
+                     flex items-center justify-between text-sm"
         >
           <div className="flex items-center gap-2 truncate">
             <Star className="w-4 h-4 text-emerald-600 shrink-0" />
@@ -265,11 +228,11 @@ const stats = [
             <span className="text-slate-800 font-semibold truncate max-w-[220px]">
               {summary?.top_seller}
             </span>
-
-            <span className="text-slate-500">
-              ({formatNumber(summary?.top_seller_quantity)} sold)
-            </span>
           </div>
+
+          <span className="text-emerald-700 font-semibold">
+            {formatNumber(summary?.top_seller_quantity)} sold
+          </span>
         </div>
       )}
 
@@ -278,6 +241,7 @@ const stats = [
         totalcount={items?.length}
         data={items}
         columns={columns}
+        rowKey="item_id"
         loading={isFetchingItemSalesReport}
         //   actions={rowActions}
       />

@@ -79,7 +79,7 @@ const AllItemsPage = () => {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, urlCategoryId]);
+  }, [searchTerm, itemsPerPage, urlCategoryId]);
 
   const columns = [
     {

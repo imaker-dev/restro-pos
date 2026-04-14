@@ -4,11 +4,14 @@ import { fetchStationSalesReport } from "../../redux/slices/reportSlice";
 import PageHeader from "../../layout/PageHeader";
 import CustomDateRangePicker from "../../components/CustomDateRangePicker";
 import {
+  Building2,
+  CheckCircle,
   CheckCircle2,
   ChefHat,
   Clock,
   Download,
   Package,
+  Receipt,
   RotateCcw,
   Ticket,
   TrendingUp,
@@ -25,6 +28,7 @@ import { formatFileDate } from "../../utils/dateFormatter";
 import { exportStationSalesReport } from "../../redux/slices/exportReportSlice";
 import { handleResponse } from "../../utils/helpers";
 import { downloadBlob } from "../../utils/blob";
+import SmartTable from "../../components/SmartTable";
 
 const StationSalesPage = () => {
   const dispatch = useDispatch();
@@ -43,55 +47,49 @@ const StationSalesPage = () => {
   const fetchReport = () => {
     dispatch(fetchStationSalesReport({ outletId, dateRange }));
   };
-  
+
   useEffect(() => {
     if (!dateRange?.startDate || !dateRange?.endDate) return;
     fetchReport();
   }, [outletId, dateRange]);
 
-  const maxTickets = Math.max(...stations?.map((s) => s.ticketCount), 1);
-  const busiestName = summary?.busiest_station;
-
-  const totalServed = summary?.served_count;
-  const totalItems = summary?.total_items;
-  const overallSR =
-    totalItems > 0 ? ((totalServed / totalItems) * 100).toFixed(1) : "0.0";
-
-  const kpis = [
+  const stats = [
     {
-      icon: ChefHat,
       title: "Stations",
-      value: formatNumber(summary?.total_stations || 0),
-      subtitle: "Active this period",
-      color: "violet",
+      value: formatNumber(summary?.total_stations),
+      subtitle: "Active stations",
+      icon: Building2,
+      color: "indigo",
     },
+
     {
-      icon: Ticket,
       title: "Total Tickets",
-      value: formatNumber(summary?.total_tickets || 0),
-      subtitle: `${busiestName || "—"} is busiest`,
+      value: formatNumber(summary?.total_tickets),
+      subtitle: "Orders processed",
+      icon: Receipt,
       color: "blue",
     },
     {
+      title: "Total Quantity",
+      value: formatNumber(summary?.total_quantity),
+      subtitle: `${formatNumber(summary?.total_items)} items`,
       icon: Package,
-      title: "Total Items",
-      value: formatNumber(summary?.total_items || 0),
-      subtitle: `${formatNumber(summary?.total_quantity || 0)} qty prepared`,
       color: "amber",
     },
+
     {
-      icon: CheckCircle2,
-      title: "Served",
-      value: formatNumber(summary?.served_count || 0),
-      subtitle: `${overallSR}% serve rate`,
-      color: "emerald",
+      title: "Served Items",
+      value: formatNumber(summary?.served_count),
+      subtitle: "Completed",
+      icon: CheckCircle,
+      color: "green",
     },
     {
-      icon: XCircle,
       title: "Cancelled",
-      value: formatNumber(summary?.cancelled_count || 0),
-      subtitle: "Items cancelled at stations",
-      color: "rose",
+      value: formatNumber(summary?.cancelled_count),
+      subtitle: "Not served",
+      icon: XCircle,
+      color: "red",
     },
   ];
 
@@ -153,8 +151,8 @@ const StationSalesPage = () => {
       />
 
       {/* KPI row */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-        {kpis?.map((card, i) => (
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+        {stats?.map((card, i) => (
           <StatCard
             key={card.title}
             title={card.title}
@@ -163,6 +161,7 @@ const StationSalesPage = () => {
             icon={card.icon}
             subtitle={card.subtitle}
             variant="v9"
+            mode="solid"
           />
         ))}
       </div>
@@ -189,14 +188,7 @@ const StationSalesPage = () => {
       {stations.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
           {stations.map((station, i) => (
-            <StationCard
-              key={station.stationId}
-              station={station}
-              rank={i + 1}
-              maxTickets={maxTickets}
-              isBusiest={station.stationName === busiestName}
-              colorIdx={i}
-            />
+            <StationCard key={station.stationId} station={station} />
           ))}
         </div>
       ) : (

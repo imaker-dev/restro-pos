@@ -37,7 +37,7 @@ export default false
         });
       },
 
-      getItemSalesReportApi: (outletId, dateRange) => {
+      getItemSalesReportApi: ({ outletId, dateRange }) => {
         const params = cleanParams({
           startDate: dateRange?.startDate,
           endDate: dateRange?.endDate,
@@ -110,7 +110,7 @@ export default false
         return Api.get(`/reports/running-tables`, { params });
       },
 
-      getRunningOrderApi: ({outletId}) => {
+      getRunningOrderApi: ({ outletId }) => {
         const params = cleanParams({ outletId });
 
         return Api.get(`/reports/running-orders`, { params });
@@ -169,10 +169,13 @@ export default false
 
       getDiscountReportApi: ({
         outletId,
-        dateRange = {},
+        dateRange,
         page,
         limit,
         search,
+        sortBy,
+        sortOrder,
+        discountType,
       }) => {
         const params = cleanParams({
           page,
@@ -180,7 +183,9 @@ export default false
           search,
           startDate: dateRange?.startDate,
           endDate: dateRange?.endDate,
-
+          sortBy,
+          sortOrder,
+          discountType,
         });
 
         return Api.get(`/reports/discounts/${outletId}/details`, { params });

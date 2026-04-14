@@ -23,22 +23,7 @@ export default function ReasonCard({ reason, count, amount, maxAmount }) {
           {count}×
         </span>
       </div>
-      <div className="mb-2">
-        <div className="flex justify-between mb-1">
-          <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">
-            Loss
-          </span>
-          <span className="text-[10px] font-black text-rose-600 tabular-nums">
-            {pct.toFixed(0)}%
-          </span>
-        </div>
-        <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden">
-          <div
-            className="h-full rounded-full bg-gradient-to-r from-rose-400 to-rose-600 transition-all duration-700"
-            style={{ width: `${pct}%` }}
-          />
-        </div>
-      </div>
+
       <p className="text-[15px] font-black text-slate-900 tabular-nums">
         {formatNumber(amount, true)}
       </p>

@@ -13,10 +13,13 @@ import {
   Download,
   HandCoins,
   IndianRupee,
+  Percent,
+  Receipt,
   ReceiptIndianRupee,
   RotateCcw,
   ShoppingCart,
   TrendingUp,
+  Users,
   Wallet,
 } from "lucide-react";
 import { handleResponse } from "../../utils/helpers";
@@ -48,53 +51,43 @@ const PaymentModeReportPage = () => {
 
   const stats = [
     {
-      title: "Total Collected",
-      value: formatNumber(summary?.total_collected, true),
-      subtitle: "Final received amount",
+      title: "Total Sales",
+      value: formatNumber(summary?.total_sale, true),
+      subtitle: "Gross amount",
       icon: IndianRupee,
       color: "green",
     },
+
     {
-      title: "Base Amount",
-      value: formatNumber(summary?.total_base_amount, true),
-      subtitle: "Before tips",
+      title: "Total Collected",
+      value: formatNumber(summary?.total_collected, true),
+      subtitle: "Received amount",
       icon: Wallet,
-      color: "blue",
+      color: "emerald",
     },
-    {
-      title: "Total Transactions",
-      value: summary?.total_transactions,
-      subtitle: "Completed payments",
-      icon: CreditCard,
-      color: "purple",
-    },
-    {
-      title: "Average Transaction",
-      value: formatNumber(summary?.average_transaction, true),
-      subtitle: "Per transaction",
-      icon: TrendingUp,
-      color: "amber",
-    },
-    {
-      title: "Total Tips",
-      value: formatNumber(summary?.total_tips, true),
-      subtitle: "Additional earnings",
-      icon: ReceiptIndianRupee,
-      color: "rose",
-    },
+
     {
       title: "Due Amount",
       value: formatNumber(summary?.due_amount, true),
-      subtitle: "Pending payments",
-      icon: AlertCircle,
+      subtitle: "Pending collection",
+      icon: IndianRupee,
       color: "red",
     },
+
     {
-      title: "NC Orders",
-      value: summary?.nc_orders,
-      subtitle: `₹${formatNumber(summary?.nc_amount)}`,
-      icon: Ban,
-      color: "gray",
+      title: "Total Transactions",
+      value: summary?.total_transactions,
+      subtitle: `${summary?.total_orders} orders`,
+      icon: Receipt,
+      color: "blue",
+    },
+
+    {
+      title: "Avg Transaction",
+      value: formatNumber(summary?.average_transaction, true),
+      subtitle: "Per transaction",
+      icon: TrendingUp,
+      color: "indigo",
     },
   ];
 
@@ -123,16 +116,6 @@ const PaymentModeReportPage = () => {
       key: "base_amount",
       label: "Base Amount",
       render: (row) => formatNumber(row.base_amount, true),
-    },
-
-    {
-      key: "tip_amount",
-      label: "Tips",
-      render: (row) => (
-        <span className="text-emerald-600">
-          {formatNumber(row.tip_amount, true)}
-        </span>
-      ),
     },
 
     {
@@ -224,7 +207,7 @@ const PaymentModeReportPage = () => {
         />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-7 gap-5">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-5">
         {stats?.map((stat, index) => (
           <StatCard
             key={index}
@@ -234,16 +217,18 @@ const PaymentModeReportPage = () => {
             icon={stat?.icon}
             color={stat?.color}
             variant="v9"
+            mode="solid"
             loading={isFetchingPaymentModeReport}
           />
         ))}
       </div>
 
       <SmartTable
-        title={"Payment Mode Report"}
+        title={"Payment Mode"}
         totalcount={modes?.length}
         data={modes}
         columns={columns}
+        rowKey="payment_mode"
         loading={isFetchingPaymentModeReport}
         //   actions={rowActions}
       />

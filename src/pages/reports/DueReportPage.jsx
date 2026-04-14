@@ -66,25 +66,19 @@ const DueReportPage = () => {
   const stats = [
     {
       label: "Total Outstanding",
-      value: formatNumber(summary?.totalOutstandingDue),
+      value: formatNumber(summary?.totalOutstandingDue,true),
       sub: "Across all customers",
       icon: TrendingDown,
       color: "red",
     },
     {
       label: "Total Collected",
-      value: formatNumber(summary?.totalCollected),
+      value: formatNumber(summary?.totalCollected,true),
       sub: "Due payments received",
       icon: BadgeIndianRupee,
       color: "green",
     },
-    {
-      label: "Avg Due / Customer",
-      value: formatNumber(summary?.avgDuePerCustomer),
-      sub: `Max: ${formatNumber(summary?.maxDue, true)}`,
-      icon: TrendingUp,
-      color: "amber",
-    },
+
     {
       label: "Customers With Due",
       value: formatNumber(summary?.totalCustomersWithDue),
@@ -101,7 +95,7 @@ const DueReportPage = () => {
     },
     {
       label: "Highest Due",
-      value: formatNumber(summary?.maxDue),
+      value: formatNumber(summary?.maxDue,true),
       sub: "Single customer max",
       icon: AlertCircle,
       color: "rose",
@@ -158,7 +152,7 @@ const DueReportPage = () => {
       />
 
       {/* ── Summary KPIs ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-6 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
         {stats?.map((stat, index) => (
           <StatCard
             key={index}

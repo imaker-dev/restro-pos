@@ -98,7 +98,7 @@ const AllOrdersPage = () => {
     setCurrentPage(1);
   }, [searchTerm, dateRange, sortBy, sortOrder, filters]);
 
-  const orderCards = [
+  const stats = [
     {
       title: "Total Orders",
       value: formatNumber(summary?.totalOrders),
@@ -170,6 +170,7 @@ const AllOrdersPage = () => {
       dateRange.startDate,
     )}_to_${formatFileDate(dateRange.endDate)}`;
 
+    const { orderStatus, orderType, paymentStatus } = filters || {};
     await handleResponse(
       dispatch(
         exportOrdersReport({
@@ -288,8 +289,8 @@ const AllOrdersPage = () => {
         />
       </div>
 
-      {/* <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-        {orderCards.map((card, i) => (
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        {stats.map((card, i) => (
           <StatCard
             key={i}
             title={card.title}
@@ -300,7 +301,7 @@ const AllOrdersPage = () => {
             loading={loading}
           />
         ))}
-      </div> */}
+      </div>
 
       <div className="flex items-center gap-4">
         {/* Search Bar */}

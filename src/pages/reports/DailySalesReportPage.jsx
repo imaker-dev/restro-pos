@@ -55,14 +55,14 @@ const DailySalesReportPage = () => {
   };
 
   const actions = [
-    // {
-    //   label: "Export",
-    //   type: "export",
-    //   icon: Download,
-    //   onClick: handleExport,
-    //   loading: isExportingDailySalesReport,
-    //   loadingText: "Exporting...",
-    // },
+    {
+      label: "Export",
+      type: "export",
+      icon: Download,
+      onClick: handleExport,
+      loading: isExportingDailySalesReport,
+      loadingText: "Exporting...",
+    },
     {
       label: "Refresh",
       type: "refresh",

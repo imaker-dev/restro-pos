@@ -55,12 +55,12 @@ const GROUPS = [
         icon: Users,
         desc: "Individual staff performance",
       },
-      {
-        name: "Service Type",
-        path: ROUTE_PATHS.REPORTS_SERVICE_TYPE_BREAKDOWN,
-        icon: PieChart,
-        desc: "Dine-in, takeaway & delivery",
-      },
+      // {
+      //   name: "Service Type",
+      //   path: ROUTE_PATHS.REPORTS_SERVICE_TYPE_BREAKDOWN,
+      //   icon: PieChart,
+      //   desc: "Dine-in, takeaway & delivery",
+      // },
     ],
   },
   {

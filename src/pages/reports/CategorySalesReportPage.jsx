@@ -11,8 +11,7 @@ import {
   Layers,
   Package,
   RotateCcw,
-  Tag,
-  TrendingUp,
+  Star,
 } from "lucide-react";
 import StatCard from "../../components/StatCard";
 import { useReportDateRange } from "../../hooks/useReportDateRange";
@@ -46,60 +45,25 @@ const CategorySalesReportPage = () => {
 
   const stats = [
     {
-      title: "Gross Revenue",
-      value: formatNumber(summary?.gross_revenue, true),
-      subtitle: "Before discounts",
-      icon: IndianRupee,
-      color: "green",
-    },
-    {
-      title: "Net Revenue",
-      value: formatNumber(summary?.net_revenue, true),
-      subtitle: "After discounts",
-      icon: TrendingUp,
-      color: "blue",
-    },
-    {
-      title: "Paid Amount",
-      value: formatNumber(summary?.paid_amount, true),
-      subtitle: "Amount received",
+      title: "Total Sales",
+      value: formatNumber(summary?.total_sale, true),
+      subtitle: "Gross revenue",
       icon: IndianRupee,
       color: "emerald",
     },
     {
-      title: "Due Amount",
-      value: formatNumber(summary?.due_amount, true),
-      subtitle: "Pending payments",
-      icon: IndianRupee,
-      color: "red",
-    },
-    {
-      title: "NC Amount",
-      value: formatNumber(summary?.nc_amount, true),
-      subtitle: "Non-chargeable items",
-      icon: Tag,
-      color: "gray",
-    },
-    {
       title: "Total Categories",
       value: summary?.total_categories,
-      subtitle: "Active categories",
+      subtitle: "Menu categories",
       icon: Layers,
-      color: "purple",
+      color: "indigo",
     },
     {
       title: "Total Quantity",
       value: summary?.total_quantity,
-      subtitle: "Units sold",
+      subtitle: "Items sold",
       icon: Package,
-      color: "amber",
-    },
-    {
-      title: "Discount",
-      value: formatNumber(summary?.discount_amount, true),
-      subtitle: "Total discount given",
-      icon: Tag,
-      color: "rose",
+      color: "blue",
     },
   ];
 
@@ -107,8 +71,16 @@ const CategorySalesReportPage = () => {
     {
       key: "category",
       label: "Category",
+
       render: (row) => (
-        <span className="font-medium text-slate-800">{row.category_name}</span>
+        <div className="flex flex-col">
+          <span className="font-medium text-slate-800">
+            {row.category_name}
+          </span>
+          <span className="text-xs text-slate-500 capitalize">
+            {row.category_service_type}
+          </span>
+        </div>
       ),
     },
     {
@@ -131,11 +103,6 @@ const CategorySalesReportPage = () => {
       ),
     },
     {
-      key: "gross_revenue",
-      label: "Gross",
-      render: (row) => formatNumber(row.gross_revenue, true),
-    },
-    {
       key: "discount_amount",
       label: "Discount",
       render: (row) => (
@@ -145,14 +112,11 @@ const CategorySalesReportPage = () => {
       ),
     },
     {
-      key: "net_revenue",
-      label: "Net",
-      render: (row) => (
-        <span className="font-semibold text-emerald-700">
-          {formatNumber(row.net_revenue, true)}
-        </span>
-      ),
+      key: "total_sale",
+      label: "Sales",
+      render: (row) => formatNumber(row.total_sale, true),
     },
+
     {
       key: "contribution_percent",
       label: "Contribution",
@@ -231,7 +195,7 @@ const CategorySalesReportPage = () => {
           actions={actions}
         />
       </div>
-      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-5">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
         {stats?.map((stat, index) => (
           <StatCard
             key={index}
@@ -241,15 +205,40 @@ const CategorySalesReportPage = () => {
             icon={stat?.icon}
             color={stat?.color}
             variant="v9"
+            mode="solid"
             loading={isFetchingCategorySalesReport}
           />
         ))}
       </div>
+
+      {summary?.top_category && (
+        <div
+          className="bg-indigo-50 border border-indigo-200 
+               rounded-lg px-4 py-2 
+               flex items-center justify-between text-sm"
+        >
+          <div className="flex items-center gap-2 truncate">
+            <Star className="w-4 h-4 text-indigo-600 shrink-0" />
+
+            <span className="text-indigo-700 font-medium">Top Category:</span>
+
+            <span className="text-slate-800 font-semibold truncate max-w-[220px]">
+              {summary?.top_category}
+            </span>
+          </div>
+
+          <span className="text-indigo-700 font-semibold">
+            {formatNumber(summary?.top_category_revenue, true)}
+          </span>
+        </div>
+      )}
+
       <SmartTable
         title={"Category Sales"}
         totalcount={categories?.length}
         data={categories}
         columns={columns}
+        rowKey="category_id"
         loading={isFetchingCategorySalesReport}
         //   actions={rowActions}
       />

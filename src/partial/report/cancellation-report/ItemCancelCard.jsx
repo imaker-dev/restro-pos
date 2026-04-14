@@ -1,7 +1,9 @@
-import { AlertTriangle, Clock, Hash, IndianRupee, Package, User } from "lucide-react";
+import { AlertTriangle, ArrowRight, Clock, Hash, IndianRupee, Package, User } from "lucide-react";
 import MetaPill from "../../../components/MetaPill";
 import { formatNumber } from "../../../utils/numberFormatter";
 import { formatDate } from "../../../utils/dateFormatter";
+import { Link } from "react-router-dom";
+import { ROUTE_PATHS } from "../../../config/paths";
 
   // ─── Item cancellation card ───────────────────────────────────────────────────
   export default function ItemCancelCard({ item, }) {
@@ -54,7 +56,7 @@ import { formatDate } from "../../../utils/dateFormatter";
               Order {item.order_number}
             </p>
 
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-2 mb-2">
               <MetaPill icon={User} label="By" value={item.cancelled_by_name} />
               <MetaPill
                 icon={IndianRupee}
@@ -75,6 +77,13 @@ import { formatDate } from "../../../utils/dateFormatter";
                 small
               />
             </div>
+                      <Link
+            to={`${ROUTE_PATHS.ORDER_DETAILS}?orderId=${item.order_id}`}
+            className="flex-1 flex items-center justify-center gap-1.5 py-2 text-[11px] font-bold text-gray-500 bg-primary-50 hover:bg-primary-100 rounded-md hover:text-primary-600 hover:bg-primary-50 transition-all"
+          >
+            View Order
+            <ArrowRight size={12} />
+          </Link>
           </div>
         </div>
       </div>

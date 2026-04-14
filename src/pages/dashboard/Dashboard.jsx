@@ -24,10 +24,13 @@ import StatCard from "../../components/StatCard";
 import PaymentBifurcation from "../../partial/dashboard/PaymentBifurcation";
 import SalesChart from "../../partial/dashboard/SalesChart";
 import { DATE_RANGES } from "../../constants";
+import { useNavigate } from "react-router-dom";
 
 // ─── MAIN DASHBOARD ───────────────────────────────────────────────────────────
 export default function Dashboard() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const [dateRange, setDateRange] = useState(null);
 
   const { outletId } = useSelector((state) => state.auth);
@@ -77,6 +80,7 @@ export default function Dashboard() {
       subtitle: `${formatNumber(summary?.total_orders)} orders • ${formatNumber(summary?.outside_collection, true)} outside`,
       icon: IndianRupee,
       color: "green",
+      path: "/reports/daily-sales",
     },
     {
       title: "Dine-in",
@@ -89,6 +93,7 @@ export default function Dashboard() {
       )} orders`,
       icon: Users,
       color: "purple",
+      path: "/reports/daily-sales",
     },
     {
       title: "Takeaway",
@@ -101,6 +106,7 @@ export default function Dashboard() {
       )} orders`,
       icon: ShoppingBag,
       color: "amber",
+      path: "/reports/daily-sales",
     },
     {
       title: "Delivery",
@@ -113,6 +119,7 @@ export default function Dashboard() {
       )} orders`,
       icon: Truck,
       color: "indigo",
+      path: "/reports/daily-sales",
     },
     {
       title: "Outside Collection",
@@ -120,6 +127,7 @@ export default function Dashboard() {
       subtitle: `${formatNumber(summary?.outside_collection_count)} entries`,
       icon: Wallet,
       color: "blue",
+      path: "/reports/outside-collections",
     },
     {
       title: "Discount",
@@ -127,6 +135,7 @@ export default function Dashboard() {
       subtitle: "Total discount given",
       icon: Tag,
       color: "red",
+      path: "/reports/discount-report",
     },
   ];
 
@@ -205,6 +214,7 @@ export default function Dashboard() {
             variant="v9"
             mode="solid"
             loading={isfetchingDashboardStats}
+            onClick={() => navigate(stat.path)}
           />
         ))}
       </div>

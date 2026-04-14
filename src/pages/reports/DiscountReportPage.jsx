@@ -5,10 +5,6 @@ import { fetchDiscountReport } from "../../redux/slices/reportSlice";
 import CustomDateRangePicker from "../../components/CustomDateRangePicker";
 import { useNavigate } from "react-router-dom";
 import {
-  BadgePercent,
-  TrendingDown,
-  Receipt,
-  Wallet,
   User,
   Phone,
   MapPin,
@@ -17,6 +13,11 @@ import {
   Hash,
   Download,
   RotateCcw,
+  Tag,
+  ShoppingCart,
+  IndianRupee,
+  TrendingUp,
+  ArrowUp,
 } from "lucide-react";
 import SmartTable from "../../components/SmartTable";
 import OrderBadge from "../../partial/order/OrderBadge";
@@ -29,6 +30,7 @@ import { handleResponse } from "../../utils/helpers";
 import { downloadBlob } from "../../utils/blob";
 import SearchBar from "../../components/SearchBar";
 import { ROUTE_PATHS } from "../../config/paths";
+import Pagination from "../../components/Pagination";
 
 // ─── MAIN PAGE ────────────────────────────────────────────────────────────────
 const DiscountReportPage = () => {
@@ -42,6 +44,9 @@ const DiscountReportPage = () => {
 
   const [dateRange, setDateRange] = useState();
   const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+
   const [sortBy, setSortBy] = useState("date");
   const [sortOrder, setSortOrder] = useState("desc");
   const [discountType, setDiscountType] = useState("");
@@ -51,18 +56,33 @@ const DiscountReportPage = () => {
       fetchDiscountReport({
         outletId,
         dateRange,
+        page: currentPage,
+        limit: itemsPerPage,
         search: searchTerm,
         sortBy,
         sortOrder,
-        discountType
+        discountType,
       }),
     );
   };
 
   useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, itemsPerPage, sortBy, sortOrder, discountType]);
+
+  useEffect(() => {
     if (!outletId || !dateRange?.startDate || !dateRange?.endDate) return;
     fetchReports();
-  }, [outletId, dateRange, searchTerm, sortBy, sortOrder,discountType]);
+  }, [
+    outletId,
+    currentPage,
+    itemsPerPage,
+    dateRange,
+    searchTerm,
+    sortBy,
+    sortOrder,
+    discountType,
+  ]);
 
   const { discounts, summary, pagination } = discountReport || [];
 
@@ -75,9 +95,14 @@ const DiscountReportPage = () => {
 
     await handleResponse(
       dispatch(
-        exportDiscountReport({ outletId, dateRange, search: searchTerm,sortBy,
-        sortOrder,
-        discountType }),
+        exportDiscountReport({
+          outletId,
+          dateRange,
+          search: searchTerm,
+          sortBy,
+          sortOrder,
+          discountType,
+        }),
       ),
       (res) => {
         downloadBlob({
@@ -250,7 +275,8 @@ const DiscountReportPage = () => {
     {
       label: "View Order",
       icon: ChevronRight,
-      onClick: (row) => navigate(`${ROUTE_PATHS.ORDER_DETAILS}?orderId=${row.orderId}`),
+      onClick: (row) =>
+        navigate(`${ROUTE_PATHS.ORDER_DETAILS}?orderId=${row.orderId}`),
     },
   ];
 
@@ -273,38 +299,41 @@ const DiscountReportPage = () => {
     },
   ];
 
-  const statCards = [
+  const stats = [
     {
-      key: "totalAmount",
-      icon: TrendingDown,
-      label: "Total Discount",
-      value: formatNumber(summary?.totalDiscountAmount, true),
-      sub: `${summary?.totalDiscountsApplied} total discount${summary?.totalDiscountsApplied !== 1 ? "s" : ""}`,
-      color: "red",
-    },
-    {
-      key: "ordersAffected",
-      icon: Receipt,
-      label: "Orders Affected",
-      value: formatNumber(summary?.ordersWithDiscount, false),
-      sub: "Unique orders",
+      title: "Discount Applied",
+      value: summary?.totalDiscountsApplied,
+      subtitle: "Total times used",
+      icon: Tag,
       color: "blue",
     },
     {
-      key: "avgDiscount",
-      icon: Wallet,
-      label: "Avg. Discount",
-      value: formatNumber(summary?.avgDiscountAmount, true),
-      sub: `Min ${formatNumber(summary?.minDiscountAmount, true)} · Max ${formatNumber(summary?.maxDiscountAmount, true)}`,
-      color: "violet",
+      title: "Orders with Discount",
+      value: summary?.ordersWithDiscount,
+      subtitle: "Orders impacted",
+      icon: ShoppingCart,
+      color: "indigo",
     },
     {
-      key: "discountTypes",
-      icon: BadgePercent,
-      label: "Discount Types",
-      value: `${formatNumber(summary?.percentageDiscounts, false)}% · ${formatNumber(summary?.flatDiscounts, false)} flat`,
-      sub: `${formatNumber(summary?.codeBasedDiscounts, false)} code · ${formatNumber(summary?.manualDiscounts, false)} manual`,
-      color: "amber",
+      title: "Total Discount",
+      value: formatNumber(summary?.totalDiscountAmount, true),
+      subtitle: "Total given",
+      icon: IndianRupee,
+      color: "rose",
+    },
+    {
+      title: "Avg Discount",
+      value: formatNumber(summary?.avgDiscountAmount, true),
+      subtitle: "Per usage",
+      icon: TrendingUp,
+      color: "purple",
+    },
+    {
+      title: "Max Discount",
+      value: formatNumber(summary?.maxDiscountAmount, true),
+      subtitle: "Highest given",
+      icon: ArrowUp,
+      color: "green",
     },
   ];
 
@@ -324,16 +353,17 @@ const DiscountReportPage = () => {
         }
       />
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        {statCards?.map((card) => (
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+        {stats?.map((card) => (
           <StatCard
             key={card.key}
             icon={card.icon}
-            title={card.label}
+            title={card.title}
             value={card.value}
-            subtitle={card.sub}
+            subtitle={card.subtitle}
             color={card.color}
             variant="v9"
+            mode="solid"
             loading={isFetchingDiscountReport}
           />
         ))}
@@ -354,17 +384,31 @@ const DiscountReportPage = () => {
         </select>
       </div>
 
-
       <SmartTable
         title="All Discount Records"
         totalcount={pagination?.totalCount}
         data={discounts}
         columns={columns}
+        rowKey="discountRecordId"
         actions={rowActions}
         loading={isFetchingDiscountReport}
         sortField={sortBy}
         sortDirection={sortOrder}
         onSortChange={handleSort}
+      />
+
+      <Pagination
+        totalItems={pagination?.totalCount}
+        currentPage={currentPage}
+        pageSize={itemsPerPage}
+        totalPages={pagination?.totalPages}
+        onPageChange={(page) => setCurrentPage(page)}
+        maxPageNumbers={5}
+        showPageSizeSelector={true}
+        onPageSizeChange={(size) => {
+          setCurrentPage(1);
+          setItemsPerPage(size);
+        }}
       />
     </div>
   );
