@@ -99,16 +99,51 @@ function DayEndCard({ day }) {
     const lines = [`${d}`, ``];
 
     // FLOORS
+    // floorBreakdown.forEach((floor, index) => {
+    //   const pay = floor.paymentBreakdown || {};
+
+    //   lines.push(
+    //     `${floor.floor_name}`,
+    //     formatLine("Total Sale", floor.total_sale),
+    //     formatLine("Cash", pay.cash),
+    //     formatLine("Card", pay.card),
+    //     formatLine("UPI", pay.upi),
+    //     `NC - -`,
+    //     formatLine("Hold", floor.due_amount),
+    //   );
+
+    //   if (index !== floorBreakdown.length - 1) {
+    //     lines.push(``, `${"-".repeat(28)}`, ``);
+    //   }
+    // });
+
     floorBreakdown.forEach((floor, index) => {
       const pay = floor.paymentBreakdown || {};
 
+      const isThirdFloor = floor.floor_name.toLowerCase().includes("Restaurent");
+
+      // Add outside collection to third floor totals
+      const updatedTotalSale = isThirdFloor
+        ? floor.total_sale + outside_collection
+        : floor.total_sale;
+
+      const updatedUPI = isThirdFloor
+        ? (pay.upi || 0) + outside_collection
+        : pay.upi;
+
       lines.push(
         `${floor.floor_name}`,
-        formatLine("Total Sale", floor.total_sale),
+        formatLine("Total Sale", updatedTotalSale),
         formatLine("Cash", pay.cash),
         formatLine("Card", pay.card),
-        formatLine("UPI", pay.upi),
-        `NC - -`,
+        formatLine("UPI", updatedUPI),
+
+        // ✅ Show OUTSIDE COLLECTION inside Third Floor
+        ...(isThirdFloor && outside_collection > 0
+          ? [formatLine("Outside Collection", outside_collection)]
+          : []),
+
+        // `NC - -`,
         formatLine("Hold", floor.due_amount),
       );
 
@@ -116,18 +151,6 @@ function DayEndCard({ day }) {
         lines.push(``, `${"-".repeat(28)}`, ``);
       }
     });
-
-    // OUTSIDE COLLECTION (separate section ✅)
-    if (outside_collection > 0) {
-      lines.push(
-        ``,
-        `${"-".repeat(28)}`,
-        ``,
-        `OUTSIDE COLLECTION`,
-        formatLine("Amount", outside_collection),
-        formatLine("Entries", outside_collection_count),
-      );
-    }
 
     // TOTAL
     lines.push(
@@ -139,7 +162,7 @@ function DayEndCard({ day }) {
       formatLine("Cash", paymentBreakdown.cash),
       formatLine("Card", paymentBreakdown.card),
       formatLine("UPI", paymentBreakdown.upi),
-      `NC - -`,
+      // `NC - -`,
       formatLine("Hold", due_amount),
     );
 
@@ -378,7 +401,7 @@ function DayEndCard({ day }) {
           </div>
 
           {/* Copy button */}
-          <div className="flex justify-end pt-1">
+          {/* <div className="flex justify-end pt-1">
             <button
               onClick={handleCopy}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors text-[11px] font-medium text-gray-500"
@@ -395,7 +418,7 @@ function DayEndCard({ day }) {
                 </>
               )}
             </button>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

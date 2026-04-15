@@ -25,6 +25,8 @@ import PaymentBifurcation from "../../partial/dashboard/PaymentBifurcation";
 import SalesChart from "../../partial/dashboard/SalesChart";
 import { DATE_RANGES } from "../../constants";
 import { useNavigate } from "react-router-dom";
+import { fetchShiftHistory } from "../../redux/slices/shiftSlice";
+import ShiftSummary from "../../partial/dashboard/ShiftSummary";
 
 // ─── MAIN DASHBOARD ───────────────────────────────────────────────────────────
 export default function Dashboard() {
@@ -34,6 +36,10 @@ export default function Dashboard() {
   const [dateRange, setDateRange] = useState(null);
 
   const { outletId } = useSelector((state) => state.auth);
+  const { isFetchingShiftHistory, shiftHistory } = useSelector(
+    (state) => state.shift,
+  );
+  const { shifts } = shiftHistory || {};
 
   const { dahbordStats, isfetchingDashboardStats } = useSelector(
     (state) => state.dashboard,
@@ -44,6 +50,7 @@ export default function Dashboard() {
   const fetchStats = () => {
     if (!outletId || !dateRange?.startDate || !dateRange?.endDate) return;
     dispatch(fetchAllDahboardStats({ outletId, dateRange }));
+    dispatch(fetchShiftHistory({ outletId, dateRange }));
   };
 
   useEffect(() => {
@@ -219,24 +226,25 @@ export default function Dashboard() {
         ))}
       </div>
 
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <PaymentBifurcation
+          data={PAYMENTS}
+          loading={isfetchingDashboardStats}
+          dateRange={dateRange}
+        />
+        <ShiftSummary
+          shifts={shifts}
+          loading={isFetchingShiftHistory}
+          dateRange={dateRange}
+        />
+      </div>
+
       {/* ── Chart ── */}
       <SalesChart
         chartData={chartData}
         dateRange={dateRange}
         loading={isfetchingDashboardStats}
       />
-
-      {/* ── Bottom row ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="lg:col-span-2">
-          <PaymentBifurcation
-            data={PAYMENTS}
-            loading={isfetchingDashboardStats}
-          />
-        </div>
-
-        {/* <QuickStats summary={summary} dateRange={dateRange} /> */}
-      </div>
     </div>
   );
 }

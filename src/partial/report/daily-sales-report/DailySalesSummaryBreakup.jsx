@@ -234,7 +234,7 @@ function DailySalesSummaryBreakup({ summary, outsideCollections }) {
           </div>
         )}
 
-        <div className="flex justify-end px-5 pb-4">
+        {/* <div className="flex justify-end px-5 pb-4">
           <button
             onClick={handleCopy}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 transition text-[11px] font-medium text-gray-500"
@@ -251,7 +251,7 @@ function DailySalesSummaryBreakup({ summary, outsideCollections }) {
               </>
             )}
           </button>
-        </div>
+        </div> */}
       </div>
     </div>
   );

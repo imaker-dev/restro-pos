@@ -347,7 +347,7 @@ function DailySalesSummaryCard({ day }) {
             )}
           </div> */}
 
-          <div className="flex justify-end pt-1">
+          {/* <div className="flex justify-end pt-1">
             <button
               onClick={handleCopy}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors text-[11px] font-medium text-gray-500"
@@ -364,7 +364,7 @@ function DailySalesSummaryCard({ day }) {
                 </>
               )}
             </button>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
