@@ -1,11 +1,11 @@
 import {
-  Clock,
-  ChevronRight,
   Banknote,
   CreditCard,
   Smartphone,
   Calendar,
-  ArrowRight,
+  ArrowUpRight,
+  CheckCircle2,
+  Circle,
 } from "lucide-react";
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
@@ -14,7 +14,7 @@ import Shimmer from "../../layout/Shimmer";
 import { formatDate } from "../../utils/dateFormatter";
 import StatusBadge from "../../layout/StatusBadge";
 
-// ─── Skeleton ────────────────────────────────────────────────────────────────
+// ─── Skeleton ─────────────────────────────────────────────────────────────────
 function ShiftSummarySkeleton() {
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
@@ -43,12 +43,12 @@ function ShiftSummarySkeleton() {
               />
             </div>
             <div className="grid grid-cols-2 gap-2">
-              <Shimmer width="100%" height="42px" rounded="lg" />
-              <Shimmer width="100%" height="42px" rounded="lg" />
+              <Shimmer width="100%" height="52px" rounded="lg" />
+              <Shimmer width="100%" height="52px" rounded="lg" />
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <div className="grid grid-cols-3 gap-2">
               {[1, 2, 3].map((j) => (
-                <Shimmer key={j} width="100%" height="24px" rounded="lg" />
+                <Shimmer key={j} width="100%" height="28px" rounded="lg" />
               ))}
             </div>
           </div>
@@ -58,35 +58,60 @@ function ShiftSummarySkeleton() {
   );
 }
 
-// ─── Date Range Banner ────────────────────────────────────────────────────────
-function DateRangeBanner({ shifts, dateRange }) {
+// ─── Range Summary Banner ─────────────────────────────────────────────────────
+function RangeSummaryBanner({ shifts, dateRange }) {
   const navigate = useNavigate();
+
+  const openCount = shifts.filter((s) => s.status === "open").length;
+  const closedCount = shifts.length - openCount;
 
   return (
     <div className="space-y-3">
-      <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-4 border border-green-100">
-        <div className="flex items-center gap-1.5 mb-1.5">
-          <Calendar size={13} className="text-green-600" strokeWidth={1.75} />
-          <span className="text-[11px] font-semibold text-gray-600">
-            {formatDate(dateRange?.startDate, "long")} –{" "}
-            {formatDate(dateRange?.endDate, "long")}
-          </span>
-        </div>
-        <p className="text-2xl font-black text-gray-900 mb-0.5">
-          {shifts.length}
-        </p>
-        <p className="text-[10px] font-medium text-gray-500">Total Shifts</p>
+      {/* Date range header */}
+      <div className="flex items-center gap-2 text-[11px] font-semibold text-gray-500">
+        <Calendar size={12} className="text-green-600" strokeWidth={2} />
+        <span>
+          {formatDate(dateRange?.startDate, "long")} –{" "}
+          {formatDate(dateRange?.endDate, "long")}
+        </span>
       </div>
 
+      {/* Shift count cards */}
+      <div className="grid grid-cols-3 gap-2">
+        <div className="bg-gray-50 rounded-xl p-3 text-center">
+          <p className="text-xl font-extrabold text-gray-900">
+            {shifts.length}
+          </p>
+          <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider mt-0.5">
+            Total
+          </p>
+        </div>
+        <div className="bg-green-50 rounded-xl p-3 text-center">
+          <p className="text-xl font-extrabold text-green-700">{closedCount}</p>
+          <p className="text-[9px] font-bold text-green-400 uppercase tracking-wider mt-0.5">
+            Closed
+          </p>
+        </div>
+        <div className="bg-amber-50 rounded-xl p-3 text-center">
+          <p className="text-xl font-extrabold text-amber-600">{openCount}</p>
+          <p className="text-[9px] font-bold text-amber-400 uppercase tracking-wider mt-0.5">
+            Open
+          </p>
+        </div>
+      </div>
+
+      {/* CTA */}
       <button
         onClick={() => navigate("/shift-history", { state: { dateRange } })}
-        className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-green-600 hover:bg-green-700 rounded-lg transition-all group"
+        className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-primary-500 hover:bg-primary-600 rounded-xl transition-all group"
       >
-        <span className="text-xs font-bold text-white">View Shift History</span>
-        <ArrowRight
+        <span className="text-[12px] font-bold text-white">
+          View All {shifts.length} Shifts
+        </span>
+        <ArrowUpRight
           size={13}
-          className="text-white group-hover:translate-x-0.5 transition-transform"
-          strokeWidth={2}
+          className="text-white group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"
+          strokeWidth={2.5}
         />
       </button>
     </div>
@@ -95,6 +120,7 @@ function DateRangeBanner({ shifts, dateRange }) {
 
 // ─── Single Shift Row ─────────────────────────────────────────────────────────
 function ShiftRow({ shift }) {
+  const navigate = useNavigate();
   if (!shift) return null;
 
   const isOpen = shift.status === "open";
@@ -104,8 +130,19 @@ function ShiftRow({ shift }) {
     <div className="space-y-2.5 pb-3 border-b border-gray-100 last:border-0 last:pb-0">
       {/* Shift Header */}
       <div className="flex flex-wrap items-center gap-2">
+        <div className="flex items-center gap-0.5 shrink-0">
+          {isOpen ? (
+            <Circle size={7} className="text-amber-500 fill-amber-400" />
+          ) : (
+            <CheckCircle2
+              size={9}
+              className="text-green-500"
+              strokeWidth={2.5}
+            />
+          )}
+        </div>
         <div className="flex-1 min-w-0 flex flex-wrap items-center gap-x-1.5 gap-y-1">
-          <p className="text-[13px] font-black text-gray-900">
+          <p className="text-[13px] font-extrabold text-gray-900">
             {shift.floorName}
           </p>
           <span className="text-[10px] font-medium text-gray-400">
@@ -121,75 +158,80 @@ function ShiftRow({ shift }) {
           falseText="CLOSED"
           size="sm"
         />
+        <button
+          onClick={() => navigate(`/shift-history/details?shiftId=${shift.id}`)}
+          className="flex items-center gap-0.5 text-[10px] font-bold text-gray-500 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 transition-all px-2 py-1 rounded-md"
+        >
+          View
+          <ArrowUpRight size={10} strokeWidth={2.5} />
+        </button>
       </div>
 
       {/* Stats Grid - 2 columns */}
       <div className="grid grid-cols-2 gap-2">
-        <div className="bg-gray-50 rounded-lg p-2.5">
-          <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">
-            Sales
-          </p>
-          <p className="text-sm font-black text-gray-900 truncate">
-            {formatNumber(shift.totalSales, true)}
-          </p>
-          <p className="text-[9px] font-medium text-gray-400 mt-0.5">
-            {orderStats?.completedOrders || 0} orders
-          </p>
+        {/* Sales Card */}
+        <div className="bg-gray-50 rounded-xl p-2.5">
+          <div className="sm:flex sm:items-center sm:justify-between">
+            <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">
+              Sales
+            </p>
+            <div className="sm:text-right">
+              <span className="text-sm font-extrabold text-emerald-600">
+                {formatNumber(shift.totalSales, true)}
+              </span>
+              <span className="text-[9px] font-medium text-gray-400 ml-1.5">
+                {orderStats?.completedOrders || 0} orders
+              </span>
+            </div>
+          </div>
         </div>
-        <div className="bg-gray-50 rounded-lg p-2.5">
-          <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">
-            Adjustments
-          </p>
-          <p className="text-sm font-black text-gray-900 truncate">
-            {formatNumber(collection?.totalAdjustment || 0, true)}
-          </p>
-          <p className="text-[9px] font-medium text-gray-400 mt-0.5">
-            {collection?.adjustmentCount || 0} adj
-          </p>
+
+        {/* Adjustments Card */}
+        <div className="bg-gray-50 rounded-xl p-2.5">
+          <div className="sm:flex sm:items-center sm:justify-between">
+            <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">
+              Adjustments
+            </p>
+            <div className="sm:text-right">
+              <span className="text-sm font-extrabold text-gray-600">
+                {formatNumber(collection?.totalAdjustment || 0, true)}
+              </span>
+              <span className="text-[9px] font-medium text-gray-400 ml-1.5">
+                {collection?.adjustmentCount || 0} adj
+              </span>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Payment Row - Stack on mobile, grid on desktop */}
-      <div className="flex flex-col sm:grid sm:grid-cols-3 gap-2">
+      {/* Payment Row */}
+      <div className="grid grid-cols-3 gap-2">
         {/* Cash */}
-        <div className="flex items-center justify-between bg-amber-50 rounded-md px-2.5 py-1.5 border border-amber-100/50">
-          <span className="text-[11px] font-semibold text-gray-600 flex items-center gap-1.5">
-            <Banknote
-              size={12}
-              className="text-amber-600 shrink-0"
-              strokeWidth={1.75}
-            />
-            Cash
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 bg-amber-50 rounded-xl px-2.5 py-2 border border-amber-100/50">
+          <span className="flex items-center gap-1 text-[9px] font-bold text-amber-500 uppercase tracking-wider">
+            <Banknote size={10} strokeWidth={2} /> Cash
           </span>
-          <span className="text-[11px] font-black text-gray-900">
+          <span className="text-[12px] font-extrabold text-gray-700">
             {formatNumber(collection?.paymentBreakdown?.cash || 0, true)}
           </span>
         </div>
+
         {/* Card */}
-        <div className="flex items-center justify-between bg-teal-50 rounded-md px-2.5 py-1.5 border border-teal-100/50">
-          <span className="text-[11px] font-semibold text-gray-600 flex items-center gap-1.5">
-            <CreditCard
-              size={12}
-              className="text-teal-600 shrink-0"
-              strokeWidth={1.75}
-            />
-            Card
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 bg-teal-50 rounded-xl px-2.5 py-2 border border-teal-100/50">
+          <span className="flex items-center gap-1 text-[9px] font-bold text-teal-500 uppercase tracking-wider">
+            <CreditCard size={10} strokeWidth={2} /> Card
           </span>
-          <span className="text-[11px] font-black text-gray-900">
+          <span className="text-[12px] font-extrabold text-gray-700">
             {formatNumber(collection?.paymentBreakdown?.card || 0, true)}
           </span>
         </div>
+
         {/* UPI */}
-        <div className="flex items-center justify-between bg-indigo-50 rounded-md px-2.5 py-1.5 border border-indigo-100/50">
-          <span className="text-[11px] font-semibold text-gray-600 flex items-center gap-1.5">
-            <Smartphone
-              size={12}
-              className="text-indigo-600 shrink-0"
-              strokeWidth={1.75}
-            />
-            UPI
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 bg-indigo-50 rounded-xl px-2.5 py-2 border border-indigo-100/50">
+          <span className="flex items-center gap-1 text-[9px] font-bold text-indigo-400 uppercase tracking-wider">
+            <Smartphone size={10} strokeWidth={2} /> UPI
           </span>
-          <span className="text-[11px] font-black text-gray-900">
+          <span className="text-[12px] font-extrabold text-gray-700">
             {formatNumber(collection?.paymentBreakdown?.upi || 0, true)}
           </span>
         </div>
@@ -215,7 +257,6 @@ export default function ShiftSummary({
   if (loading) return <ShiftSummarySkeleton />;
   if (!shifts?.length) return null;
 
-
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
       {/* Header */}
@@ -229,25 +270,28 @@ export default function ShiftSummary({
           )}
           {isRangeView && (
             <p className="text-[10px] font-medium text-gray-400 mt-0.5">
-              Multiple shifts
+              {shifts.length} shifts · date range
             </p>
           )}
         </div>
-        {!isRangeView && (
-          <button
-            onClick={() => navigate("/shift-history")}
-            className="flex items-center gap-1 text-[10px] font-bold text-green-700 bg-green-50 hover:bg-green-100 transition-all px-2.5 py-1 rounded-md shrink-0"
-          >
-            History
-            <ChevronRight size={10} strokeWidth={2.5} />
-          </button>
-        )}
+        <button
+          onClick={() =>
+            navigate(
+              "/shift-history",
+              isRangeView ? { state: { dateRange } } : undefined,
+            )
+          }
+          className="flex items-center gap-1 text-[10px] font-bold text-green-700 bg-green-50 hover:bg-green-100 transition-all px-2.5 py-1 rounded-md shrink-0"
+        >
+          History
+          <ArrowUpRight size={10} strokeWidth={2.5} />
+        </button>
       </div>
 
       {/* Content */}
       <div className="p-4">
         {isRangeView ? (
-          <DateRangeBanner shifts={shifts} dateRange={dateRange} />
+          <RangeSummaryBanner shifts={shifts} dateRange={dateRange} />
         ) : (
           <div className="space-y-3">
             {shifts.map((shift) => (

@@ -39,7 +39,7 @@ const AllVersionsPage = () => {
       label: "Add New Version",
       type: "primary",
       icon: Plus,
-      onClick: () => navigate(`${ROUTE_PATHS.VENDORS_ADD}`),
+      onClick: () => navigate(`${ROUTE_PATHS.VERSION_ADD}`),
     },
   ];
 

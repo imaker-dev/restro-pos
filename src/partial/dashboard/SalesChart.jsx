@@ -23,8 +23,8 @@ const isSameDay = (a, b) => {
 };
 
 const SERIES = [
-  { key: "dineIn",   name: "Dine In",  color: "#6366f1" },
-  { key: "pickup",   name: "Pickup",   color: "#14b8a6" },
+  { key: "dineIn", name: "Dine In", color: "#6366f1" },
+  { key: "pickup", name: "Pickup", color: "#14b8a6" },
   { key: "delivery", name: "Delivery", color: "#f59e0b" },
 ];
 
@@ -150,7 +150,7 @@ const SalesChart = ({ chartData = [], dateRange, loading = false }) => {
 
   const yTickFmt = (v) => {
     if (v >= 100000) return `${(v / 100000).toFixed(0)}L`;
-    if (v >= 1000)   return `${(v / 1000).toFixed(1)}k`;
+    if (v >= 1000) return `${(v / 1000).toFixed(1)}k`;
     return v;
   };
 
@@ -185,7 +185,7 @@ const SalesChart = ({ chartData = [], dateRange, loading = false }) => {
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
       {/* ── Header ── */}
-      <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-gray-100">
+      <div className="flex items-center justify-between gap-3 px-4 py-3 border-b border-gray-100">
         <div>
           <p className="text-sm font-black text-gray-900">Sales Overview</p>
           <p className="text-[11px] text-gray-400 mt-0.5">
@@ -197,7 +197,7 @@ const SalesChart = ({ chartData = [], dateRange, loading = false }) => {
                 }`
               : `Daily breakdown · ${formatDate(
                   dateRange?.startDate,
-                  "long"
+                  "long",
                 )} – ${formatDate(dateRange?.endDate, "long")}`}
           </p>
         </div>
@@ -218,14 +218,17 @@ const SalesChart = ({ chartData = [], dateRange, loading = false }) => {
       </div>
 
       {/* ── Legend ── */}
-      <div className="flex items-center gap-4 px-5 pt-4 pb-1 flex-wrap">
+      <div className="flex items-center gap-4 px-4 py-3 flex-wrap">
         {SERIES.map((s) => (
           <div key={s.key} className="flex items-center gap-1.5">
             {chartType === "area" ? (
               // Line swatch for area mode so legend matches the chart
               <svg width="18" height="10" className="shrink-0">
                 <line
-                  x1="0" y1="5" x2="18" y2="5"
+                  x1="0"
+                  y1="5"
+                  x2="18"
+                  y2="5"
                   stroke={s.color}
                   strokeWidth="2.5"
                   strokeLinecap="round"
@@ -302,10 +305,13 @@ const SalesChart = ({ chartData = [], dateRange, loading = false }) => {
                   <linearGradient
                     key={s.key}
                     id={`g-${s.key}`}
-                    x1="0" y1="0" x2="0" y2="1"
+                    x1="0"
+                    y1="0"
+                    x2="0"
+                    y2="1"
                   >
-                    <stop offset="5%"  stopColor={s.color} stopOpacity={0.15} />
-                    <stop offset="95%" stopColor={s.color} stopOpacity={0}    />
+                    <stop offset="5%" stopColor={s.color} stopOpacity={0.15} />
+                    <stop offset="95%" stopColor={s.color} stopOpacity={0} />
                   </linearGradient>
                 ))}
               </defs>

@@ -49,7 +49,7 @@ export default function LiveOperationsPage() {
 
   return (
     <div className="space-y-3 sm:space-y-5">
-      <PageHeader title="Live Orders & Tables" actions={actions} />
+      <PageHeader title="Live Orders & Tables" actions={actions} showBackButton />
       <Tabs
         active={activeTab}
         onChange={(tab) => setActiveTab(tab)}
