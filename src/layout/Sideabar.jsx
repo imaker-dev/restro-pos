@@ -16,6 +16,8 @@ function Sidebar({
 }) {
   const { meData } = useSelector((state) => state.auth);
 
+  const userId = meData?.id;
+
   const userRole = meData?.roles[0]?.slug;
   const userPermissions = meData?.permissions || [];
 
@@ -91,6 +93,10 @@ function Sidebar({
             const parentAllowed = hasAccess({
               userRole,
               userPermissions,
+
+              userId,
+              path: item.path,
+
               roles: item.roles,
               permissions: item.permissions,
               public: item.public, // ADD THIS
@@ -102,6 +108,10 @@ function Sidebar({
               hasAccess({
                 userRole,
                 userPermissions,
+
+                userId,
+                path: child.path,
+
                 roles: child.roles,
                 permissions: child.permissions,
                 public: child.public, // ADD THIS
@@ -115,6 +125,10 @@ function Sidebar({
           return hasAccess({
             userRole,
             userPermissions,
+            
+            userId,
+            path: item.path,
+
             roles: item.roles,
             permissions: item.permissions,
             public: item.public, // ADD THIS
