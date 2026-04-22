@@ -101,6 +101,8 @@ export const ROUTE_PATHS = {
   ALL_USERS: "/users",
   USER_DETAILS: "/users/details",
   USER_ADD: "/users/add",
+  REGISTRATION_REQUESTS:"/registration-requests",
+  TOKEN_GENERATION_LOGS: "/token-generation-logs",
 
   // System
   ALL_SETTINGS: "/settings",

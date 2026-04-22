@@ -92,6 +92,8 @@ import AllReportsPage from "../pages/reports/AllReportsPage";
 import { ROUTE_PATHS } from "./paths";
 import LiveOperationsPage from "../pages/orders/LiveOperationsPage";
 import OutsideCollectionReportPage from "../pages/reports/OutsideCollectionReportPage";
+import AllRegistrationRequestPage from "../pages/registration-request/AllRegistrationRequestPage";
+import TokenActivationLogsPage from "../pages/registration-request/TokenActivationLogsPage";
 
 const routeConfig = [
   {
@@ -172,6 +174,8 @@ const routeConfig = [
   { path: ROUTE_PATHS.OUTLET_DETAILS, element: OutletDetails, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN] },
   { path: ROUTE_PATHS.OUTLET_ADD, element: AddOutletPage, roles: [ROLES.SUPER_ADMIN] },
   { path: ROUTE_PATHS.OUTLET_DELETE, element: OutletDeletePage, roles: [ROLES.SUPER_ADMIN] },
+  { path: ROUTE_PATHS.REGISTRATION_REQUESTS, element: AllRegistrationRequestPage, roles: [ROLES.SUPER_ADMIN] },
+  { path: ROUTE_PATHS.TOKEN_GENERATION_LOGS, element: TokenActivationLogsPage, roles: [ROLES.SUPER_ADMIN] },
 
   // Menu Management
   { path: ROUTE_PATHS.ALL_MENU_CATEGORIES, element: AllCategoriesPage, roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER] },

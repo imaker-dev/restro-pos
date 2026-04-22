@@ -269,6 +269,18 @@ export const navConfig = [
     roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN],
     items: [
       {
+        name: "Registration Requests",
+        icon: ClipboardList,
+        path: ROUTE_PATHS.REGISTRATION_REQUESTS,
+        roles: [ROLES.SUPER_ADMIN],
+      },
+      {
+        name: "Token Generation Logs",
+        icon: Activity,
+        path: ROUTE_PATHS.TOKEN_GENERATION_LOGS,
+        roles: [ROLES.SUPER_ADMIN],
+      },
+      {
         name: "Outlets / Restaurants",
         icon: Building2,
         path: ROUTE_PATHS.ALL_OUTLETS,

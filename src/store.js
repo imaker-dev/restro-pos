@@ -35,6 +35,7 @@ import recipeSlice from "./redux/slices/recipeSlice";
 import itemBatchSlice from "./redux/slices/itemBatchSlice";
 import menuMediaSlice from "./redux/slices/menuMediaSlice";
 import outsideCollectionSlice from './redux/slices/outsideCollectionSlice';
+import registrationSlice from './redux/slices/registrationSlice';
 
 const reducer = {
   auth: authSlice,
@@ -73,6 +74,7 @@ const reducer = {
   itemBatch:itemBatchSlice,
   menuMedia:menuMediaSlice,
   outsideCollection:outsideCollectionSlice,
+  registration:registrationSlice,
 };
 
 const store = configureStore({
