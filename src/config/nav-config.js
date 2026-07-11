@@ -8,7 +8,6 @@ import {
   ReceiptText,
   BarChart3,
   Settings,
-  Table,
   Truck,
   Percent,
   Layers,
@@ -19,14 +18,13 @@ import {
   Printer,
   Smartphone,
   XCircle,
-  Clock,
   CalendarCheck,
-  LayoutGrid,
   Image,
   ClipboardList,
   FlaskConical,
   Headphones,
   Activity,
+  Rocket,
 } from "lucide-react";
 
 import { ROLES } from "../constants";
@@ -63,12 +61,6 @@ export const navConfig = [
         roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
       },
 
-      {
-        name: "Shift History",
-        icon: Clock,
-        path: ROUTE_PATHS.REPORTS_SHIFT_HISTORY,
-        roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
-      },
       {
         name: "Day End Summary",
         icon: CalendarCheck,
@@ -110,12 +102,6 @@ export const navConfig = [
         name: "Printers",
         icon: Printer,
         path: ROUTE_PATHS.ALL_PRINTERS,
-        roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
-      },
-      {
-        name: "Tables & Floors",
-        icon: LayoutGrid,
-        path: ROUTE_PATHS.ALL_FLOORS,
         roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
       },
       {
@@ -173,41 +159,48 @@ export const navConfig = [
   {
     title: "Inventory",
     roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
+    proRequired: true,
     items: [
       {
         name: "Stock Overview",
         icon: Warehouse,
         path: ROUTE_PATHS.INVENTORY_SUMMARY,
         roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
+        proRequired: true,
       },
       {
         name: "Stock Operations",
         icon: BarChart3,
         roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
+        proRequired: true,
         children: [
           {
             name: "Stock Movements",
             icon: BarChart3,
             path: ROUTE_PATHS.ALL_INVENTORY_MOVEMENTS,
             roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
+            proRequired: true,
           },
           {
             name: "Purchase Orders",
             icon: ReceiptText,
             path: ROUTE_PATHS.ALL_PURCHASE_ORDERS,
             roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
+            proRequired: true,
           },
           {
             name: "Vendors",
             icon: Truck,
             path: ROUTE_PATHS.ALL_VENDORS,
             roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
+            proRequired: true,
           },
           {
             name: "Inventory Wastage",
             icon: Truck,
             path: ROUTE_PATHS.ALL_INVENTORY_WASTAGE,
             roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
+            proRequired: true,
           },
         ],
       },
@@ -215,18 +208,21 @@ export const navConfig = [
         name: "Production",
         icon: ClipboardList,
         roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
+        proRequired: true,
         children: [
           {
             name: "Recipes",
             icon: ClipboardList,
             path: ROUTE_PATHS.ALL_RECIPES,
             roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
+            proRequired: true,
           },
           {
             name: "Prep Recipes",
             icon: FlaskConical,
             path: ROUTE_PATHS.ALL_PREP_RECIPES,
             roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
+            proRequired: true,
           },
         ],
       },
@@ -234,30 +230,35 @@ export const navConfig = [
         name: "Setup",
         icon: Layers,
         roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
+        proRequired: true,
         children: [
           {
             name: "Inventory Items",
             icon: Package,
             path: ROUTE_PATHS.ALL_INVENTORY_ITEMS,
             roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
+            proRequired: true,
           },
           {
             name: "Ingredients",
             icon: Package,
             path: ROUTE_PATHS.ALL_INVENTORY_INGREDIENTS,
             roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
+            proRequired: true,
           },
           {
             name: "Inventory Categories",
             icon: Layers,
             path: ROUTE_PATHS.ALL_INVENTORY_CATEGORIES,
             roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MANAGER],
+            proRequired: true,
           },
           {
             name: "Units",
             icon: Layers,
             path: ROUTE_PATHS.ALL_INVENTORY_UNITS,
             roles: [ROLES.SUPER_ADMIN, ROLES.ADMIN],
+            proRequired: true,
           },
         ],
       },
@@ -304,6 +305,21 @@ export const navConfig = [
         icon: Smartphone,
         path: ROUTE_PATHS.ALL_VERSIONS,
         roles: [ROLES.SUPER_ADMIN],
+      },
+    ],
+  },
+
+  {
+    title: "Upgrade",
+    roles: [ROLES.ADMIN],
+    upgradeSection: true,
+    items: [
+      {
+        name: "Upgrade to Pro",
+        icon: Rocket,
+        path: ROUTE_PATHS.UPGRADE,
+        roles: [ROLES.ADMIN],
+        upgradeItem: true,
       },
     ],
   },

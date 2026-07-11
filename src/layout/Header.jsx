@@ -8,6 +8,11 @@ import {
   Wifi,
   WifiOff,
   Loader2,
+  Rocket,
+  AlertCircle,
+  Timer,
+  CheckCircle,
+  Ban,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import DropdownProfile from "./DropdownProfile";
@@ -17,11 +22,13 @@ import PermissionGuard from "../guard/PermissionGuard";
 import { ROLES } from "../constants";
 import OutletSwitcher from "./OutletSwitcher";
 import ThemeToggle from "../components/ThemeToggle";
+import { ROUTE_PATHS } from "../config/paths";
 
 function Header({ sidebarOpen, setSidebarOpen }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { connected, connecting } = useSelector((state) => state.socket);
+  const { plan, subscriptionStatus, graceDaysRemaining, subscriptionExpiry } = useSelector((state) => state.license);
 
   const [searchModalOpen, setSearchModalOpen] = useState(false);
   const [showLogoutOverlay, setShowLogoutOverlay] = useState(false);
@@ -76,6 +83,42 @@ function Header({ sidebarOpen, setSidebarOpen }) {
               </button> */}
 
               <OutletSwitcher />
+
+              {/* Subscription status badge */}
+              {(subscriptionStatus === "expired" || subscriptionStatus === "suspended") && (
+                <button
+                  onClick={() => navigate(ROUTE_PATHS.UPGRADE)}
+                  className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-100 hover:bg-red-200 border border-red-300 text-red-700 text-xs font-semibold transition-all duration-200"
+                >
+                  {subscriptionStatus === "suspended" ? <Ban className="w-3 h-3" /> : <AlertCircle className="w-3 h-3" />}
+                  {subscriptionStatus === "suspended" ? "Suspended" : "Expired"}
+                </button>
+              )}
+              {subscriptionStatus === "grace_period" && (
+                <button
+                  onClick={() => navigate(ROUTE_PATHS.UPGRADE)}
+                  className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 hover:bg-amber-200 border border-amber-300 text-amber-800 text-xs font-semibold transition-all duration-200"
+                  title={`Grace period ends ${subscriptionExpiry || ""}`}
+                >
+                  <Timer className="w-3 h-3" />
+                  {graceDaysRemaining} day{graceDaysRemaining !== 1 ? "s" : ""} left
+                </button>
+              )}
+              {(subscriptionStatus === "active" || plan === "pro") && (
+                <span className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-100 border border-green-300 text-green-700 text-xs font-semibold">
+                  <CheckCircle className="w-3 h-3" />
+                  Active
+                </span>
+              )}
+              {subscriptionStatus === "not_activated" && (
+                <button
+                  onClick={() => navigate(ROUTE_PATHS.UPGRADE)}
+                  className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-600 text-xs font-semibold transition-all duration-200"
+                >
+                  <Rocket className="w-3 h-3" />
+                  Activate
+                </button>
+              )}
 
               {/* Connectivity */}
               <PermissionGuard roles={[ROLES.KITCHEN, ROLES.BARTENDER]}>

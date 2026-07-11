@@ -150,6 +150,7 @@ const AddItemPage = () => {
       variants:
         itemDetails.variants?.length > 0
           ? itemDetails.variants.map((v) => ({
+              id: v.id,
               name: v.name,
               price: v.price,
               isDefault: Boolean(v.is_default),
@@ -246,6 +247,7 @@ const AddItemPage = () => {
 
     if (validVariants.length > 0 && values.hasVariants) {
       payload.variants = validVariants.map((v, i) => ({
+        ...(v.id ? { id: Number(v.id) } : {}),
         name: v.name.trim(),
         price: Number(v.price),
         isDefault: i === 0 || Boolean(v.isDefault),

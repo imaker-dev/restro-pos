@@ -1,3 +1,6 @@
+// ⚠️  MUST be the very first import — runs before store.js/authSlice.js
+// so that isLoggedIn() sees the token on initial Redux hydration.
+import "./preloadToken.js";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App.jsx";
@@ -11,7 +14,7 @@ import { ToastContainer } from "react-toastify";
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <Provider store={store}>
-      <Router>
+      <Router basename={import.meta.env.BASE_URL}>
          <ToastContainer
         position="top-right"
         autoClose={3000}

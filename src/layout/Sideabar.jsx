@@ -1,12 +1,13 @@
 import React, { useEffect, useRef } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 
 import SidebarLinkGroup from "./SidebarLinkGroup";
 import { navConfig } from "../config/nav-config";
-import { ChevronDown, ChevronRight, ChevronsLeft } from "lucide-react";
+import { ChevronRight, ChevronsLeft, Lock, Rocket } from "lucide-react";
 import { hasAccess } from "../utils/accessControl";
 import { useSelector } from "react-redux";
 import Tooltip from "../components/Tooltip";
+import { ROUTE_PATHS } from "../config/paths";
 
 function Sidebar({
   sidebarOpen,
@@ -15,14 +16,23 @@ function Sidebar({
   setSidebarExpanded,
 }) {
   const { meData } = useSelector((state) => state.auth);
+  const { plan, subscriptionStatus, graceDaysRemaining, subscriptionExpiry } = useSelector((state) => state.license);
+  const navigate = useNavigate();
 
   const userId = meData?.id;
+  const isFree = plan === "free";
+  const isExpired = subscriptionStatus === "expired" || subscriptionStatus === "suspended";
+  const isSuspended = subscriptionStatus === "suspended";
+  const isGrace = subscriptionStatus === "grace_period";
+  const isNotActivated = subscriptionStatus === "not_activated";
 
   const userRole = meData?.roles[0]?.slug;
   const userPermissions = meData?.permissions || [];
 
   const location = useLocation();
   const { pathname } = location;
+
+  const isLocked = (item) => isFree && item.proRequired === true;
 
   const trigger = useRef(null);
   const sidebar = useRef(null);
@@ -86,20 +96,28 @@ function Sidebar({
 
   const filteredNavConfig = navConfig
     .map((group) => {
+      // Show Upgrade section when subscription needs attention
+      // (expired, grace period, not activated, or free plan)
+      const needsUpgrade = isExpired || isGrace || isNotActivated || isFree;
+      if (group.upgradeSection && !needsUpgrade) return null;
+
       const filteredItems = group.items
         .map((item) => {
           // CHILDREN CASE
           if (item.children) {
+            // If locked (pro-required on free plan), show the parent locked — don't filter out
+            if (isLocked(item)) {
+              return item;
+            }
+
             const parentAllowed = hasAccess({
               userRole,
               userPermissions,
-
               userId,
               path: item.path,
-
               roles: item.roles,
               permissions: item.permissions,
-              public: item.public, // ADD THIS
+              public: item.public,
             });
 
             if (!parentAllowed) return null;
@@ -108,30 +126,28 @@ function Sidebar({
               hasAccess({
                 userRole,
                 userPermissions,
-
                 userId,
                 path: child.path,
-
                 roles: child.roles,
                 permissions: child.permissions,
-                public: child.public, // ADD THIS
+                public: child.public,
               }),
             );
 
             return children.length ? { ...item, children } : null;
           }
 
-          // NORMAL ITEM
+          // NORMAL ITEM — if locked, keep it visible (with lock icon)
+          if (isLocked(item)) return item;
+
           return hasAccess({
             userRole,
             userPermissions,
-            
             userId,
             path: item.path,
-
             roles: item.roles,
             permissions: item.permissions,
-            public: item.public, // ADD THIS
+            public: item.public,
           })
             ? item
             : null;
@@ -202,7 +218,7 @@ function Sidebar({
 
         {/* Links */}
         <div
-          className={`space-y-6 p-4 flex-1 overflow-y-auto no-scrollbar ${
+          className={`space-y-6 p-4 flex-1 overflow-y-auto no-scrollbar flex flex-col ${
             effectiveExpanded ? "" : "space-y-4"
           }`}
         >
@@ -228,9 +244,46 @@ function Sidebar({
               >
                 {group.items.map((item) => {
                   const isActive = isItemActive(item);
-                  const iconClass = isActive
+                  const locked = isLocked(item);
+                  const iconClass = locked
+                    ? "text-gray-400"
+                    : isActive
                     ? "text-primary-500"
                     : "text-gray-500";
+
+                  // Locked group with children — render as non-expandable locked item
+                  if (item.children && locked) {
+                    return (
+                      <Tooltip
+                        key={item.name}
+                        content={effectiveExpanded ? "Pro feature — Upgrade to unlock" : item.name}
+                        position="right"
+                        disabled={isMobile}
+                      >
+                        <li
+                          className={`p-2.5 mb-0.5 rounded-sm cursor-pointer transition-all duration-200 opacity-60 hover:opacity-80 ${
+                            effectiveExpanded ? "" : "rounded-lg mx-1 hover:bg-amber-50"
+                          }`}
+                          onClick={() => navigate(ROUTE_PATHS.UPGRADE)}
+                        >
+                          <div className={`flex items-center ${ effectiveExpanded ? "justify-between" : "justify-center" }`}>
+                            <div className={`flex items-center ${ effectiveExpanded ? "grow" : "justify-center w-full" }`}>
+                              <item.icon className={`shrink-0 h-4 w-4 ${iconClass}`} />
+                              {effectiveExpanded && (
+                                <span className="text-sm font-semibold ml-3 text-gray-400">{item.name}</span>
+                              )}
+                            </div>
+                            {effectiveExpanded && (
+                              <Lock className="h-3.5 w-3.5 text-amber-500 shrink-0 ml-2" />
+                            )}
+                            {!effectiveExpanded && (
+                              <Lock className="h-2.5 w-2.5 text-amber-500 absolute translate-x-3 -translate-y-3" />
+                            )}
+                          </div>
+                        </li>
+                      </Tooltip>
+                    );
+                  }
 
                   if (item.children) {
                     return (
@@ -241,7 +294,7 @@ function Sidebar({
                         itemName={item.name}
                       >
                         {(handleClick, open) => (
-                          <div className="bg-red-100group relative">
+                          <div className="relative">
                             <Tooltip
                               content={item.name}
                               position="right"
@@ -362,7 +415,36 @@ function Sidebar({
                         )}
                       </SidebarLinkGroup>
                     );
+                  } else if (locked) {
+                    // Locked leaf item — shown dimmed with lock icon
+                    return (
+                      <Tooltip
+                        key={item.name}
+                        content={effectiveExpanded ? "Pro feature — Upgrade to unlock" : item.name}
+                        position="right"
+                        disabled={isMobile}
+                      >
+                        <li
+                          className={`p-2.5 mb-0.5 last:mb-0 cursor-pointer transition-all duration-200 opacity-60 hover:opacity-80 ${
+                            effectiveExpanded ? "rounded-sm" : "rounded-lg mx-1 hover:bg-amber-50"
+                          }`}
+                          onClick={() => navigate(ROUTE_PATHS.UPGRADE)}
+                        >
+                          <div className={`flex items-center ${ effectiveExpanded ? "justify-between" : "justify-center" }`}>
+                            <div className={`flex items-center ${ effectiveExpanded ? "grow" : "justify-center w-full" }`}>
+                              <item.icon className={`shrink-0 h-4 w-4 ${iconClass}`} />
+                              {effectiveExpanded && (
+                                <span className="text-sm font-semibold ml-3 text-gray-400">{item.name}</span>
+                              )}
+                            </div>
+                            {effectiveExpanded && <Lock className="h-3.5 w-3.5 text-amber-500 shrink-0 ml-2" />}
+                          </div>
+                        </li>
+                      </Tooltip>
+                    );
                   } else {
+                    // Upgrade nav item — special amber styling
+                    const isUpgradeItem = item.upgradeItem;
                     return (
                       <Tooltip
                         key={item.name}
@@ -372,7 +454,11 @@ function Sidebar({
                       >
                         <li
                           className={`p-2.5 mb-0.5 last:mb-0 transition-all duration-200 ${
-                            isActive ? "bg-primary-100" : ""
+                            isUpgradeItem
+                              ? "rounded-lg bg-amber-50 hover:bg-amber-100 border border-amber-200"
+                              : isActive
+                              ? "bg-primary-100"
+                              : ""
                           } ${
                             effectiveExpanded
                               ? "rounded-sm"
@@ -382,10 +468,12 @@ function Sidebar({
                           <NavLink
                             end
                             to={item.path}
-                            className={`group relative block text-gray-800 truncate transition duration-150 ${
-                              isActive
+                            className={`group relative block truncate transition duration-150 ${
+                              isUpgradeItem
+                                ? "text-amber-700 hover:text-amber-800"
+                                : isActive
                                 ? "text-primary-500 hover:text-primary-600"
-                                : "hover:text-gray-900"
+                                : "text-gray-800 hover:text-gray-900"
                             } ${
                               effectiveExpanded
                                 ? ""
@@ -407,7 +495,9 @@ function Sidebar({
                                 }`}
                               >
                                 <item.icon
-                                  className={`shrink-0 h-4 w-4 ${iconClass} transition-colors duration-200`}
+                                  className={`shrink-0 h-4 w-4 ${
+                                    isUpgradeItem ? "text-amber-500" : iconClass
+                                  } transition-colors duration-200`}
                                 />
 
                                 {effectiveExpanded && (
@@ -433,6 +523,56 @@ function Sidebar({
               </ul>
             </div>
           ))}
+
+          {/* Subscription status badge at the bottom */}
+          {(isExpired || isGrace || isNotActivated) && (
+            <div className="mt-auto pt-4">
+              {effectiveExpanded ? (
+                <button
+                  onClick={() => navigate(ROUTE_PATHS.UPGRADE)}
+                  className={`w-full rounded-xl p-3 text-left shadow-md hover:shadow-lg transition-all duration-200 group ${
+                    isExpired
+                      ? "bg-gradient-to-r from-red-400 to-red-600"
+                      : isGrace
+                      ? "bg-gradient-to-r from-amber-400 to-orange-500"
+                      : "bg-gradient-to-r from-slate-400 to-slate-600"
+                  }`}
+                >
+                  <div className="flex items-center gap-2 mb-1">
+                    <Rocket className="w-4 h-4 text-white" />
+                    <span className="text-xs font-bold text-white">
+                      {isSuspended ? "Suspended" : isExpired ? "Subscription Expired" : isGrace ? `${graceDaysRemaining}d Grace Left` : "Activate POS"}
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-white/80 leading-tight">
+                    {isExpired
+                      ? "Renew to restore access."
+                      : isGrace
+                      ? `Grace ends ${subscriptionExpiry || ""}. Renew now →`
+                      : "Activate with an offline token →"}
+                  </p>
+                </button>
+              ) : (
+                <Tooltip
+                  content={isSuspended ? "Suspended" : isExpired ? "Subscription Expired" : isGrace ? "Grace Period" : "Activate POS"}
+                  position="right"
+                >
+                  <button
+                    onClick={() => navigate(ROUTE_PATHS.UPGRADE)}
+                    className={`mx-auto flex items-center justify-center w-10 h-10 rounded-full shadow-md hover:shadow-lg transition-all duration-200 ${
+                      isExpired
+                        ? "bg-gradient-to-br from-red-400 to-red-600"
+                        : isGrace
+                        ? "bg-gradient-to-br from-amber-400 to-orange-500"
+                        : "bg-gradient-to-br from-slate-400 to-slate-600"
+                    }`}
+                  >
+                    <Rocket className="w-5 h-5 text-white" />
+                  </button>
+                </Tooltip>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>

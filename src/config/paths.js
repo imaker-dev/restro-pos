@@ -102,6 +102,9 @@ export const ROUTE_PATHS = {
   USER_DETAILS: "/users/details",
   USER_ADD: "/users/add",
 
+  // Upgrade
+  UPGRADE: "/upgrade",
+
   // System
   ALL_SETTINGS: "/settings",
   SETTING_DETAILS: "/settings/categories",

@@ -6,6 +6,7 @@ import AppLayout from "../layout/AppLayout";
 import PageNotFound from "../pages/PageNotFound";
 import UnauthorizedPage from "../pages/UnauthorizedPage";
 import { hasAccess } from "../utils/accessControl";
+import ProRoute from "./ProRoute";
 
 const AuthenticatedRoutes = () => {
   const { meData } = useSelector((state) => state.auth);
@@ -25,6 +26,7 @@ const AuthenticatedRoutes = () => {
             elements,
             roles,
             permissions,
+            proRequired,
           } = route;
 
           const SelectedComponent =
@@ -39,17 +41,21 @@ const AuthenticatedRoutes = () => {
             permissions,
           });
 
+          const pageElement = allowed ? (
+            proRequired ? (
+              <ProRoute><SelectedComponent /></ProRoute>
+            ) : (
+              <SelectedComponent />
+            )
+          ) : (
+            <Navigate to="/unauthorized" replace />
+          );
+
           return (
             <Route
               key={idx}
               path={path}
-              element={
-                allowed ? (
-                  <SelectedComponent />
-                ) : (
-                  <Navigate to="/unauthorized" replace />
-                )
-              }
+              element={pageElement}
             />
           );
         })}

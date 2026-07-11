@@ -33,7 +33,7 @@ const AddOutletPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { outletId } = useQueryParams();
-
+  
   useEffect(() => {
     if (outletId) {
       dispatch(fetchOutletById(outletId));

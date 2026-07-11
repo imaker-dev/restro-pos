@@ -7,6 +7,7 @@ import {
   fetchMeData,
   setLoginFromTokenWithSource,
 } from "./redux/slices/authSlice";
+import { fetchLicenseStatus } from "./redux/slices/licenseSlice";
 import AppLayoutSkeleton from "./layout/AppLayoutSkeleton";
 import { usePreventNumberInputScroll, useScrollToTop } from "./hooks/useScroll";
 import { useSocket } from "./hooks/useSocket";
@@ -41,6 +42,12 @@ const App = () => {
   useEffect(() => {
     if (logIn && !meData) {
       dispatch(fetchMeData());
+    }
+  }, [logIn, meData]);
+
+  useEffect(() => {
+    if (logIn && meData) {
+      dispatch(fetchLicenseStatus());
     }
   }, [logIn, meData]);
 

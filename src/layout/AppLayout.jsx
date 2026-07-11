@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
+import { useSelector } from "react-redux";
 import Sidebar from "./Sideabar";
 import Header from "./Header";
-// import { useSelector } from "react-redux"; // optional if you want role-based control
+import UpgradePopupOverlay from "../components/UpgradePopupOverlay";
+import SubscriptionBlocker from "../components/SubscriptionBlocker";
 
 function AppLayout({ children }) {
   const location = useLocation();
+  const { subscriptionStatus, activated } = useSelector((state) => state.license);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -45,6 +48,11 @@ function AppLayout({ children }) {
   let showSidebar = currentLayout.sidebar;
   let showHeader = currentLayout.header;
   let showPadding = currentLayout.padding ?? true;
+
+  // Block main content when subscription is expired or suspended
+  const isBlocked =
+    activated &&
+    (subscriptionStatus === "expired" || subscriptionStatus === "suspended");
 
   /* -------- OPTIONAL USER ROLE CONTROL --------
   const { user } = useSelector((state) => state.auth);
@@ -109,15 +117,22 @@ function AppLayout({ children }) {
 
         {/* -------- MAIN -------- */}
         <main className="grow bg-gray-100">
-          <div
-            className={`w-full container max-w-10xl mx-auto ${
-              showPadding ? "p-4 sm:p-6" : ""
-            }`}
-          >
-            {children}
-          </div>
+          {isBlocked ? (
+            <SubscriptionBlocker />
+          ) : (
+            <div
+              className={`w-full container max-w-10xl mx-auto ${
+                showPadding ? "p-4 sm:p-6" : ""
+              }`}
+            >
+              {children}
+            </div>
+          )}
         </main>
       </div>
+
+      {/* -------- UPGRADE POPUP (free plan only) -------- */}
+      {!isBlocked && <UpgradePopupOverlay />}
     </div>
   );
 }

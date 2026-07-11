@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import PageHeader from "../../layout/PageHeader";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -13,6 +14,7 @@ import {
 } from "lucide-react";
 import { handleResponse } from "../../utils/helpers";
 import LoadingOverlay from "../../components/LoadingOverlay";
+import Api from "../../redux/api";
 
 const OutletLogoPage = () => {
   const dispatch  = useDispatch();
@@ -52,10 +54,24 @@ const OutletLogoPage = () => {
   };
 
   const handleSave = async () => {
+    // Upload logo file first if a new one was selected
+    if (newLogo.length > 0) {
+      try {
+        const fd = new FormData();
+        fd.append("logo", newLogo[0]);
+        await Api.post(`/outlets/${outletId}/print-logo/upload`, fd);
+      } catch (err) {
+        toast.error(
+          err?.response?.data?.message ||
+            err?.message ||
+            "Logo upload failed. Please try again."
+        );
+        return;
+      }
+    }
+
     const values = {
       printLogoEnabled: enabled,
-      // ✅ Only send a new URL if user actually uploaded something
-      ...(newLogo.length > 0 && { printLogoUrl: newLogo[0] }),
     };
 
     await handleResponse(
@@ -77,7 +93,10 @@ const OutletLogoPage = () => {
   };
 
   // What to preview: new upload > existing saved URL
-  const previewUrl   = newLogo.length > 0 ? newLogo[0] : outletPrintLogo?.printLogoUrl;
+  const newLogoPreview = newLogo.length > 0
+    ? (typeof newLogo[0] === "string" ? newLogo[0] : URL.createObjectURL(newLogo[0]))
+    : null;
+  const previewUrl   = newLogoPreview || outletPrintLogo?.printLogoUrl;
   const hasLogo      = !!previewUrl;
   const hasNewUpload = newLogo.length > 0;
 
@@ -244,7 +263,7 @@ const OutletLogoPage = () => {
                   maxSize={100 * 1024}
                   enableCrop={true}
                   aspectRatio={3 / 2}
-                  uploadToServer={true}
+                  uploadToServer={false}
                 />
                 {hasNewUpload && (
                   <p className="text-[10px] text-slate-400 text-center mt-3 font-medium">
